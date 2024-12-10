@@ -116,8 +116,8 @@ public sealed record Ok<TOk, TErr> : IResult<TOk, TErr>
         Result.Ok<TOk, TErr2>(Value);
 
     /// <inheritdoc />
-    public IOption<TOk> ToOk() => Option.Some(Value);
+    public IOption<TOk> GetOk() => Option.Some(Value);
 
     /// <inheritdoc />
-    public IOption<TErr> ToErr() => Option.None<TErr>();
+    public IOption<TErr> GetErr() => Option.None<TErr>();
 }

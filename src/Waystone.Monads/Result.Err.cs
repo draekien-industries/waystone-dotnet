@@ -118,8 +118,8 @@ public sealed record Err<TOk, TErr> : IResult<TOk, TErr>
         Result.Err<TOk, TErr2>(map(Value));
 
     /// <inheritdoc />
-    public IOption<TOk> ToOk() => Option.None<TOk>();
+    public IOption<TOk> GetOk() => Option.None<TOk>();
 
     /// <inheritdoc />
-    public IOption<TErr> ToErr() => Option.Some(Value);
+    public IOption<TErr> GetErr() => Option.Some(Value);
 }

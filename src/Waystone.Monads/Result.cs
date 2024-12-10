@@ -58,11 +58,8 @@ public static class Result
         this IResult<IOption<TOk>, TErr> result)
         where TOk : notnull where TErr : notnull =>
         result.Match(
-            option =>
-            {
-                return option.Match(
-                    value => Option.Some(Ok<TOk, TErr>(value)),
-                    Option.None<IResult<TOk, TErr>>);
-            },
+            option => option.Match(
+                value => Option.Some(Ok<TOk, TErr>(value)),
+                Option.None<IResult<TOk, TErr>>),
             err => Option.Some(Err<TOk, TErr>(err)));
 }

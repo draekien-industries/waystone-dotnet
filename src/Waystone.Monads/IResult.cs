@@ -313,7 +313,7 @@ public interface IResult<TOk, TErr>
     /// Converts the result instance into an <see cref="IOption{T}" />,
     /// consuming the result instance, and discarding the error, if any.
     /// </remarks>
-    IOption<TOk> ToOk();
+    IOption<TOk> GetOk();
 
     /// <summary>
     /// Converts from a <see cref="IResult{TOk,TErr}" /> to
@@ -323,5 +323,5 @@ public interface IResult<TOk, TErr>
     /// Converts this result instance into an <see cref="IOption{T}" />,
     /// consuming the result instance, and discarding the success value, if any.
     /// </remarks>
-    IOption<TErr> ToErr();
+    IOption<TErr> GetErr();
 }
