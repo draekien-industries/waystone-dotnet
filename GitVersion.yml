@@ -1,16 +1,7 @@
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 assembly-informational-format: "{InformationalVersion}"
-strategies:
-- Mainline
-- ConfiguredNextVersion
-- Fallback
-- MergeMessage
-- TaggedCommit
-- VersionInBranchName
-- TrackReleaseBranches
 increment: Inherit
-continuous-delivery-fallback-tag: ci
 tag-prefix: "[vV]"
 major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
 minor-version-bump-message: "^(feat)(\\([\\w\\s-]*\\))?:"
