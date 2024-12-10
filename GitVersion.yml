@@ -1,19 +1,21 @@
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 assembly-informational-format: "{InformationalVersion}"
-mode: MainLine
+strategies:
+- Mainline
+- ConfiguredNextVersion
+- Fallback
+- MergeMessage
+- TaggedCommit
+- VersionInBranchName
+- TrackReleaseBranches
 increment: Inherit
-continuous-delivery-fallback-tag: ci
 tag-prefix: "[vV]"
 major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
 minor-version-bump-message: "^(feat)(\\([\\w\\s-]*\\))?:"
-patch-version-bump-message: "^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:"
-no-bump-message: '\+semver:\s?(none|skip)'
-legacy-semver-padding: 4
-build-metadata-padding: 4
-commits-since-version-source-padding: 4
-tag-pre-release-weight: 60000
-commit-message-incrementing: MergeMessageOnly
-merge-message-formats: {}
+patch-version-bump-message: "^(build|chore|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:"
+no-bump-message: '^(ci|docs)(\\([\\w\\s-]*\\))?:'
+commit-message-incrementing: Enabled
 update-build-number: true
-next-version: "0.1.0"
+mode: ContinuousDelivery
+workflow: GitFlow/v1
