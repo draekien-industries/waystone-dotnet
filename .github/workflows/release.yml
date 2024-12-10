@@ -25,6 +25,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v3.0.3
@@ -73,7 +78,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-          cache: true
       
       - name: Restore
         run: dotnet restore
@@ -105,7 +109,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-          cache: true
       
       - name: Restore
         run: dotnet restore
