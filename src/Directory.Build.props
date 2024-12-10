@@ -1,0 +1,18 @@
+﻿<Project>
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    </PropertyGroup>
+    
+    <PropertyGroup Label="PackageInformation">
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Copyright>draekien-industries;william pei;</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/draekien-industries/waystone-dotnet</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/draekien-industries/waystone-dotnet</PackageProjectUrl>
+        <PackageReleaseNotes>https://github.com/draekien-industries/waystone-dotnet/releases</PackageReleaseNotes>
+    </PropertyGroup>
+</Project>

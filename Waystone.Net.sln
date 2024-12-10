@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5FB28234-858F-4E64-920E-245F92529D8F}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{67A04439-B9B7-4420-A229-6353EAD7E265}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads", "src\Waystone.Monads\Waystone.Monads.csproj", "{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.Tests", "test\Waystone.Monads.Tests\Waystone.Monads.Tests.csproj", "{3A40B955-39A2-46E3-A24C-C85AA83A48B4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{FEDE91C0-BFEC-4BB1-8BE6-5DD02309A129}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+		GitVersion.yml = GitVersion.yml
+		global.json = global.json
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40} = {5FB28234-858F-4E64-920E-245F92529D8F}
+		{3A40B955-39A2-46E3-A24C-C85AA83A48B4} = {67A04439-B9B7-4420-A229-6353EAD7E265}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A40B955-39A2-46E3-A24C-C85AA83A48B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A40B955-39A2-46E3-A24C-C85AA83A48B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A40B955-39A2-46E3-A24C-C85AA83A48B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A40B955-39A2-46E3-A24C-C85AA83A48B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
