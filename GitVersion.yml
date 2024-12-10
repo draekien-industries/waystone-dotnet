@@ -1,7 +1,13 @@
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 assembly-informational-format: "{InformationalVersion}"
-mode: MainLine
+strategies:
+- Mainline
+- ConfiguredNextVersion
+- Fallback
+- MergeMessage
+- TaggedCommit
+- VersionInBranchName
 increment: Inherit
 continuous-delivery-fallback-tag: ci
 tag-prefix: "[vV]"
@@ -13,7 +19,6 @@ legacy-semver-padding: 4
 build-metadata-padding: 4
 commits-since-version-source-padding: 4
 tag-pre-release-weight: 60000
-commit-message-incrementing: MergeMessageOnly
+commit-message-incrementing: Enabled
 merge-message-formats: {}
 update-build-number: true
-next-version: "0.1.0"
