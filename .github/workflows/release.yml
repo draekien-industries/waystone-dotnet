@@ -1,15 +1,14 @@
 name: Pre-Release
 
 concurrency:
-  group: alpha
+  group: release
   cancel-in-progress: true
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - 'feature/**'
-      - 'fix/**'
+      - main
     paths:
       - src
 
@@ -149,4 +148,3 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: "Release Candidate: ${{ steps.tag_version.outputs.new_tag }}"
           generateReleaseNotes: true
-          prerelease: true
