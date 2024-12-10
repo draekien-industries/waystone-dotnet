@@ -16,3 +16,4 @@ tag-pre-release-weight: 60000
 commit-message-incrementing: MergeMessageOnly
 merge-message-formats: {}
 update-build-number: true
+next-version: "0.1.0"
