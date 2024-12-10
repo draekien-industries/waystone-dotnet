@@ -4,6 +4,20 @@
 public class SomeTests
 {
     [Fact]
+    public void GivenDefault_WhenCreatingSome_ThenThrow()
+    {
+        Func<IOption<int>> someDefaultNumber = () => Option.Some(0);
+        Func<IOption<string>> someDefaultString =
+            () => Option.Some(default(string)!);
+        Func<IOption<object>> someDefaultObject =
+            () => Option.Some(default(object)!);
+
+        someDefaultNumber.Should().Throw<InvalidOperationException>();
+        someDefaultString.Should().Throw<InvalidOperationException>();
+        someDefaultObject.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
     public void GivenSome_WhenAccessingValue_ThenReturnValue()
     {
         IOption<int> some = Option.Some(1);

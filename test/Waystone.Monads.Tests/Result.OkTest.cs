@@ -93,6 +93,12 @@ public class OkTest
         ok.Or(Result.Err<int, bool>(false))
           .Should()
           .Be(Result.Ok<int, bool>(1));
+    }
+
+    [Fact]
+    public void WhenOrElse_ThenReturnOk()
+    {
+        IResult<int, string> ok = Result.Ok<int, string>(1);
 
         ok.OrElse(_ => Result.Ok<int, bool>(2))
           .Should()

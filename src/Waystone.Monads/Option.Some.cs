@@ -73,7 +73,7 @@ public sealed record Some<T> : IOption<T>
 
     /// <inheritdoc />
     public T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
-        Match(map, () => @default);
+        map(Value);
 
     /// <inheritdoc />
     public T2 MapOrElse<T2>(
