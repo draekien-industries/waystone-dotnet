@@ -11,7 +11,7 @@ on:
       - 'feature/**'
       - 'fix/**'
     paths:
-      - src
+      - 'src/**'
 
 jobs:
   calculate-version:
