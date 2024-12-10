@@ -25,7 +25,3 @@ merge-message-formats: {}
 update-build-number: true
 mode: ContinuousDelivery
 workflow: GitFlow/v1
-continuous-delivery-fallback-label: '0.0.0'
-branches:
-  unknown:
-    mode: ContinuousDelivery
