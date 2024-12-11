@@ -52,7 +52,7 @@ handling the possible `Err` scenario.
 
 > [!WARNING]
 >
-> Unwrapping an `Err` will throw an `UnwrapExecption`
+> Unwrapping an `Err` will throw an `UnwrapException`
 
 It is recommended to use one of its alternatives in order to handle the `Err`
 scenario:
