@@ -1,4 +1,9 @@
-- name: Introduction
-  href: introduction.md
-- name: Getting Started
-  href: getting-started.md
+items:
+  - name: Waystone.Monads
+    items:
+      - name: Introduction
+        href: waystone-monads.md
+      - name: Option
+        href: waystone-monads-option.md
+      - name: Result
+        href: waystone-monads-result.md
