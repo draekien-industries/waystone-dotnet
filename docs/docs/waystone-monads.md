@@ -1,4 +1,4 @@
-﻿[!INCLUDE [waystone-monads](../src/Waystone.Monads/README.md)]
+﻿[!INCLUDE [waystone-monads](../../src/Waystone.Monads/README.md)]
 
 ## Common Concepts
 

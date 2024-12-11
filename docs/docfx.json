@@ -4,7 +4,7 @@
     {
       "src": [
         {
-          "src": "./src",
+          "src": "../src",
           "files": [
             "**/*.csproj"
           ]
@@ -40,6 +40,7 @@
       "_appName": "Waystone.Net",
       "_appTitle": "Waystone.Net",
       "_enableSearch": true,
+      "_disableContribution": true,
       "pdf": true
     }
   }

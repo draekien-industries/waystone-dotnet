@@ -1,9 +1,4 @@
-items:
-  - name: Waystone.Monads
-    items:
-      - name: Introduction
-        href: waystone-monads.md
-      - name: Option
-        href: waystone-monads-option.md
-      - name: Result
-        href: waystone-monads-result.md
+- name: Docs
+  href: docs/
+- name: API
+  href: generated/api/
