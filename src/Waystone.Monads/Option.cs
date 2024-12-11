@@ -287,4 +287,16 @@ public abstract record Option<T> where T : notnull
     /// </returns>
     public abstract Option<(T, T2)> Zip<T2>(Option<T2> other)
         where T2 : notnull;
+
+    /// <summary>
+    /// Implicitly converts a value of type <typeparamref name="T" /> into an
+    /// <see cref="Option{T}" />
+    /// </summary>
+    /// <param name="value">The value of the option</param>
+    /// <returns>
+    /// A <see cref="Some{T}" /> when the value is not the default of its
+    /// type, otherwise a <see cref="None{T}" />
+    /// </returns>
+    public static implicit operator Option<T>(T value) =>
+        Equals(value, default(T)) ? new None<T>() : new Some<T>(value);
 }

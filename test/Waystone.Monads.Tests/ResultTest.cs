@@ -62,4 +62,14 @@ public class ResultTest
         result.IsSome.Should().BeTrue();
         result.Unwrap().Should().Be(err);
     }
+
+    [Fact]
+    public void WhenImplicitlyCreatingResult_ThenReturnExpected()
+    {
+        Result<int, string> ok = 1;
+        Result<int, string> err = "error";
+
+        ok.Should().Be(Result.Ok<int, string>(1));
+        err.Should().Be(Result.Err<int, string>("error"));
+    }
 }

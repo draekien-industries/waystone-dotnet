@@ -88,4 +88,22 @@ public class OptionTests
 
         result.Should().Be(Result.Ok<Option<int>, int>(Option.None<int>()));
     }
+
+    [Fact]
+    public void WhenImplicitlyCreatingOption_ThenReturnExpected()
+    {
+        Option<int> option1 = 0;
+        Option<int> option2 = 1;
+        Option<string> option3 = string.Empty;
+        Option<string> option4 = default(string)!;
+        Option<Guid> option5 = default(Guid)!;
+        Option<Guid> option6 = Guid.NewGuid();
+
+        option1.IsSome.Should().BeFalse();
+        option2.IsSome.Should().BeTrue();
+        option3.IsSome.Should().BeTrue();
+        option4.IsSome.Should().BeFalse();
+        option5.IsSome.Should().BeFalse();
+        option6.IsSome.Should().BeTrue();
+    }
 }
