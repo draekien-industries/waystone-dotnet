@@ -1,14 +1,7 @@
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 assembly-informational-format: "{InformationalVersion}"
-strategies:
-- Mainline
-- ConfiguredNextVersion
-- Fallback
-- MergeMessage
-- TaggedCommit
-- VersionInBranchName
-- TrackReleaseBranches
+mode: Mainline
 increment: Inherit
 tag-prefix: "[vV]"
 major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
@@ -17,5 +10,4 @@ patch-version-bump-message: "^(build|chore|fix|perf|refactor|revert|style|test)(
 no-bump-message: '^(ci|docs)(\\([\\w\\s-]*\\))?:'
 commit-message-incrementing: Enabled
 update-build-number: true
-mode: ContinuousDelivery
 workflow: GitFlow/v1
