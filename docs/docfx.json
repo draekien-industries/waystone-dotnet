@@ -20,7 +20,8 @@
           "**/*.{md,yml}"
         ],
         "exclude": [
-          "generated/_site/**"
+          "generated/_site/**",
+          "obj/**"
         ]
       }
     ],
@@ -28,20 +29,32 @@
       {
         "files": [
           "images/**"
+        ],
+        "exclude": [
+          "generated/_site/**",
+          "obj/**"
         ]
       }
     ],
     "output": "generated/_site",
     "template": [
       "default",
-      "modern"
+      "modern",
+      "./template"
     ],
     "globalMetadata": {
       "_appName": "Waystone.Net",
       "_appTitle": "Waystone.Net",
+      "_copyrightFooter": "© draekien-industries. All rights reserved.",
       "_enableSearch": true,
-      "_disableContribution": true,
+      "_gitContribute": {
+        "repo": "https://github.com/draekien-industries/waystone-dotnet",
+        "branch": "main"
+      },
       "pdf": true
-    }
+    },
+    "postProcessors": [
+      "ExtractSearchIndex"
+    ]
   }
 }
