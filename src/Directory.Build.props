@@ -4,11 +4,12 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
     </PropertyGroup>
-    
+
     <PropertyGroup Label="PackageInformation">
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <Copyright>draekien-industries;william pei;</Copyright>
+        <Authors>draekien-industries</Authors>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/draekien-industries/waystone-dotnet</RepositoryUrl>

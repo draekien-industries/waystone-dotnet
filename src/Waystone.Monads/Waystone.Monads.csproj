@@ -6,6 +6,9 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <Title>Waystone.Monads</Title>
+        <Description>A .NET implementationof the Rust std::option and std::result types</Description>
+        <PackageTags>option;result;monad;pattern;rust;optional;match;unwrap;</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
