@@ -56,8 +56,8 @@ public static class Result
     /// <see cref="Err{TOk,TErr}" />
     /// </item>
     /// </list>
-    public static IOption<Result<TOk, TErr>> Transpose<TOk, TErr>(
-        this Result<IOption<TOk>, TErr> result)
+    public static Option<Result<TOk, TErr>> Transpose<TOk, TErr>(
+        this Result<Option<TOk>, TErr> result)
         where TOk : notnull where TErr : notnull =>
         result.Match(
             option => option.Match(
@@ -384,7 +384,7 @@ public abstract record Result<TOk, TErr>
     /// Converts the result instance into an <see cref="!:IOption{T}" />,
     /// consuming the result instance, and discarding the error, if any.
     /// </remarks>
-    public abstract IOption<TOk> GetOk();
+    public abstract Option<TOk> GetOk();
 
     /// <summary>
     /// Converts from a <see cref="!:Result{TOk,TErr}" /> to
@@ -394,5 +394,5 @@ public abstract record Result<TOk, TErr>
     /// Converts this result instance into an <see cref="!:IOption{T}" />,
     /// consuming the result instance, and discarding the success value, if any.
     /// </remarks>
-    public abstract IOption<TErr> GetErr();
+    public abstract Option<TErr> GetErr();
 }

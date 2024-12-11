@@ -113,8 +113,8 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Result.Ok<TOk, TErr2>(Value);
 
     /// <inheritdoc />
-    public override IOption<TOk> GetOk() => Option.Some(Value);
+    public override Option<TOk> GetOk() => Option.Some(Value);
 
     /// <inheritdoc />
-    public override IOption<TErr> GetErr() => Option.None<TErr>();
+    public override Option<TErr> GetErr() => Option.None<TErr>();
 }

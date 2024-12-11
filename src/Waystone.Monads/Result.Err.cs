@@ -115,10 +115,10 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         Result.Err<TOk, TErr2>(map(Value));
 
     /// <inheritdoc />
-    public override IOption<TOk> GetOk() => Option.None<TOk>();
+    public override Option<TOk> GetOk() => Option.None<TOk>();
 
     /// <inheritdoc />
-    public override IOption<TErr> GetErr() => Option.Some(Value);
+    public override Option<TErr> GetErr() => Option.Some(Value);
 
     /// <summary>
     /// Implicitly converts a value of <typeparamref name="TErr" /> into an

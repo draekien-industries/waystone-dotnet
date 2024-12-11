@@ -6,10 +6,10 @@ public class SomeTests
     [Fact]
     public void GivenDefault_WhenCreatingSome_ThenThrow()
     {
-        Func<IOption<int>> someDefaultNumber = () => Option.Some(0);
-        Func<IOption<string>> someDefaultString =
+        Func<Option<int>> someDefaultNumber = () => Option.Some(0);
+        Func<Option<string>> someDefaultString =
             () => Option.Some(default(string)!);
-        Func<IOption<object>> someDefaultObject =
+        Func<Option<object>> someDefaultObject =
             () => Option.Some(default(object)!);
 
         someDefaultNumber.Should().Throw<InvalidOperationException>();
@@ -20,7 +20,7 @@ public class SomeTests
     [Fact]
     public void GivenSome_WhenAccessingValue_ThenReturnValue()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         some.IsSome.Should().BeTrue();
         some.IsNone.Should().BeFalse();
@@ -36,7 +36,7 @@ public class SomeTests
     [Fact]
     public void WhenComputingSomeOrOption_ThenReturnSome()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         some.Or(Option.Some(2)).Should().Be(some);
         some.OrElse(() => Option.Some(2)).Should().Be(some);
@@ -45,7 +45,7 @@ public class SomeTests
     [Fact]
     public void WhenComputingSomeXorSome_ThenReturnNone()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         some.Xor(Option.Some(2)).Should().Be(Option.None<int>());
     }
@@ -53,7 +53,7 @@ public class SomeTests
     [Fact]
     public void WhenComputingSomeXorNone_ThenReturnSome()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         some.Xor(Option.None<int>()).Should().Be(some);
     }
@@ -62,8 +62,8 @@ public class SomeTests
     public void
         GivenTwoOptionsWithTheSameValue_WhenComparingThem_ThenReturnsTrue()
     {
-        IOption<int> some = Option.Some(1);
-        IOption<int> other = Option.Some(1);
+        Option<int> some = Option.Some(1);
+        Option<int> other = Option.Some(1);
 
         some.Should().Be(other);
     }
@@ -75,7 +75,7 @@ public class SomeTests
         int value,
         bool expected)
     {
-        IOption<int> some = Option.Some(value);
+        Option<int> some = Option.Some(value);
 
         bool result = some.IsSomeAnd(x => x == 1);
 
@@ -89,7 +89,7 @@ public class SomeTests
         int value,
         bool expected)
     {
-        IOption<int> some = Option.Some(value);
+        Option<int> some = Option.Some(value);
 
         bool result = some.IsNoneOr(x => x == 1);
 
@@ -99,7 +99,7 @@ public class SomeTests
     [Fact]
     public void GivenFunc_WhenMatchingOption_ThenInvokeOnSome()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         var onSome = Substitute.For<Func<int, bool>>();
         onSome.Invoke(Arg.Any<int>()).Returns(true);
@@ -115,7 +115,7 @@ public class SomeTests
     [Fact]
     public void GivenAction_WhenMatchingOption_ThenInvokeOnSome()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         var onSome = Substitute.For<Action<int>>();
 
@@ -129,9 +129,9 @@ public class SomeTests
     [Fact]
     public void WhenMap_ThenReturnMappedOption()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
-        IOption<int> result = some.Map(x => x + 1);
+        Option<int> result = some.Map(x => x + 1);
 
         result.Unwrap().Should().Be(2);
     }
@@ -139,7 +139,7 @@ public class SomeTests
     [Fact]
     public void WhenMapOr_ThenReturnMappedValue()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         int result = some.MapOr(10, x => x + 1);
 
@@ -149,7 +149,7 @@ public class SomeTests
     [Fact]
     public void WhenMapOrElse_ThenReturnMappedValue()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
 
         int result = some.MapOrElse(() => 10, x => x + 1);
 
@@ -159,7 +159,7 @@ public class SomeTests
     [Fact]
     public void WhenInspect_ThenInvokeAction()
     {
-        IOption<int> some = Option.Some(1);
+        Option<int> some = Option.Some(1);
         var action = Substitute.For<Action<int>>();
         some.Inspect(action);
 
@@ -169,33 +169,33 @@ public class SomeTests
     [Fact]
     public void GivenPredicateEvaluatesToTrue_WhenFilter_ThenReturnSome()
     {
-        IOption<int> some = Option.Some(1);
-        IOption<int> result = some.Filter(x => x == 1);
+        Option<int> some = Option.Some(1);
+        Option<int> result = some.Filter(x => x == 1);
         result.Should().Be(some);
     }
 
     [Fact]
     public void GivenPredicateEvaluatesToFalse_WhenFilter_ThenReturnNone()
     {
-        IOption<int> some = Option.Some(1);
-        IOption<int> result = some.Filter(x => x == 2);
+        Option<int> some = Option.Some(1);
+        Option<int> result = some.Filter(x => x == 2);
         result.Should().Be(Option.None<int>());
     }
 
     [Fact]
     public void GivenSome_AndSome_WhenZip_ThenReturnSome()
     {
-        IOption<int> some1 = Option.Some(1);
-        IOption<int> some2 = Option.Some(2);
-        IOption<(int, int)> result = some1.Zip(some2);
+        Option<int> some1 = Option.Some(1);
+        Option<int> some2 = Option.Some(2);
+        Option<(int, int)> result = some1.Zip(some2);
         result.Should().Be(Option.Some((1, 2)));
     }
 
     [Fact]
     public void GivenSome_AndNone_WhenZip_ThenReturnNone()
     {
-        IOption<int> some = Option.Some(1);
-        IOption<(int, int)> result = some.Zip(Option.None<int>());
+        Option<int> some = Option.Some(1);
+        Option<(int, int)> result = some.Zip(Option.None<int>());
         result.Should().Be(Option.None<(int, int)>());
     }
 }

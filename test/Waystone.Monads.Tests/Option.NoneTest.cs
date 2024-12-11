@@ -8,7 +8,7 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenAccessingValue_ThenThrow()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         none.IsSome.Should().BeFalse();
         none.IsNone.Should().BeTrue();
@@ -26,7 +26,7 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenAccessingValueWithFallback_ThenReturnFallback()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         none.UnwrapOr(10).Should().Be(10);
         none.UnwrapOrDefault().Should().Be(default);
@@ -36,7 +36,7 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenMatchWithActions_ThenInvokeOnNone()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         var onSome = Substitute.For<Action<int>>();
         var onNone = Substitute.For<Action>();
@@ -50,7 +50,7 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenMatchWithFunc_ThenInvokeOnNone()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         var onSome = Substitute.For<Func<int, int>>();
         onSome.Invoke(Arg.Any<int>()).Returns(1);
@@ -66,7 +66,7 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenMapWithFallback_ThenReturnDefault()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         none.MapOr(10, x => x + 1).Should().Be(10);
         none.MapOrElse(() => 10, x => x + 1).Should().Be(10);
@@ -75,11 +75,11 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenInspect_ThenDoNothing()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         var action = Substitute.For<Action<int>>();
 
-        IOption<int> result = none.Inspect(action);
+        Option<int> result = none.Inspect(action);
 
         result.Should().Be(none);
         action.DidNotReceive().Invoke(Arg.Any<int>());
@@ -88,11 +88,11 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenFilter_ThenDoNothing()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         var filter = Substitute.For<Predicate<int>>();
 
-        IOption<int> result = none.Filter(filter);
+        Option<int> result = none.Filter(filter);
 
         result.Should().Be(none);
         filter.DidNotReceive().Invoke(Arg.Any<int>());
@@ -101,7 +101,7 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenOr_ThenReturnOther()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         none.Or(Option.None<int>()).Should().Be(none);
         none.Or(Option.Some(1)).Should().Be(Option.Some(1));
@@ -113,7 +113,7 @@ public class NoneTest
     [Fact]
     public void GivenNone_WhenXor_ThenReturnExpected()
     {
-        IOption<int> none = Option.None<int>();
+        Option<int> none = Option.None<int>();
 
         none.Xor(Option.None<int>()).Should().Be(Option.None<int>());
         none.Xor(Option.Some(1)).Should().Be(Option.Some(1));

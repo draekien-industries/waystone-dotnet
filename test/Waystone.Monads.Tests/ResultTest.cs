@@ -19,9 +19,9 @@ public class ResultTest
     public void GivenOkResultOfSome_WhenTranspose_ThenReturnSomeOfOk()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
-        Result<IOption<int>, string> okOfSome = ok.Map(Option.Some);
+        Result<Option<int>, string> okOfSome = ok.Map(Option.Some);
 
-        IOption<Result<int, string>> result = okOfSome.Transpose();
+        Option<Result<int, string>> result = okOfSome.Transpose();
 
         result.IsSome.Should().BeTrue();
         result.Unwrap().Should().Be(ok);
@@ -31,9 +31,9 @@ public class ResultTest
     public void GivenOkResultOfNone_WhenTranspose_ThenReturnNone()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
-        Result<IOption<int>, string> none = ok.Map(_ => Option.None<int>());
+        Result<Option<int>, string> none = ok.Map(_ => Option.None<int>());
 
-        IOption<Result<int, string>> result = none.Transpose();
+        Option<Result<int, string>> result = none.Transpose();
 
         result.IsNone.Should().BeTrue();
     }
@@ -42,9 +42,9 @@ public class ResultTest
     public void GivenErrOfSome_WhenTranspose_ThenReturnSomeOfErr()
     {
         Result<int, string> err = Result.Err<int, string>("failed");
-        Result<IOption<int>, string> errOfSome = err.Map(Option.Some);
+        Result<Option<int>, string> errOfSome = err.Map(Option.Some);
 
-        IOption<Result<int, string>> result = errOfSome.Transpose();
+        Option<Result<int, string>> result = errOfSome.Transpose();
 
         result.IsSome.Should().BeTrue();
         result.Unwrap().Should().Be(err);
@@ -54,10 +54,10 @@ public class ResultTest
     public void GivenErrOfNone_WhenTranspose_ThenReturnSomeOfErr()
     {
         Result<int, string> err = Result.Err<int, string>("failed");
-        Result<IOption<int>, string> errOfNone =
+        Result<Option<int>, string> errOfNone =
             err.Map(_ => Option.None<int>());
 
-        IOption<Result<int, string>> result = errOfNone.Transpose();
+        Option<Result<int, string>> result = errOfNone.Transpose();
 
         result.IsSome.Should().BeTrue();
         result.Unwrap().Should().Be(err);
