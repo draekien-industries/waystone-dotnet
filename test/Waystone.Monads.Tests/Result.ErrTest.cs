@@ -8,7 +8,7 @@ public class ErrTest
     [Fact]
     public void WhenCreatingErr_ThenEvaluateToErr()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.IsOk.Should().BeFalse();
         result.IsErr.Should().BeTrue();
@@ -17,7 +17,7 @@ public class ErrTest
     [Fact]
     public void WhenIsOkAnd_ThenReturnFalse()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.IsOkAnd(_ => true).Should().BeFalse();
         result.IsOkAnd(_ => false).Should().BeFalse();
@@ -26,7 +26,7 @@ public class ErrTest
     [Fact]
     public void WhenIsErrAnd_ThenReturnPredicateResult()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
         result.IsErrAnd(_ => true).Should().BeTrue();
         result.IsErrAnd(_ => false).Should().BeFalse();
     }
@@ -34,7 +34,7 @@ public class ErrTest
     [Fact]
     public void GivenFunc_WhenMatch_ThenInvokeOnErr()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         var onOk = Substitute.For<Func<int, bool>>();
         onOk.Invoke(1).Returns(true);
@@ -52,7 +52,7 @@ public class ErrTest
     [Fact]
     public void GivenAction_WhenMatch_ThenInvokeOnErr()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         var onOk = Substitute.For<Action<int>>();
         var onErr = Substitute.For<Action<string>>();
@@ -66,7 +66,7 @@ public class ErrTest
     [Fact]
     public void WhenAnd_ThenReturnError()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.And(Result.Ok<string, string>("success"))
               .Should()
@@ -80,7 +80,7 @@ public class ErrTest
     [Fact]
     public void WhenAndThen_ThenReturnError()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.AndThen(_ => Result.Ok<string, string>("success"))
               .Should()
@@ -94,7 +94,7 @@ public class ErrTest
     [Fact]
     public void WhenOr_ThenReturnOther()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.Or(Result.Ok<int, bool>(1))
               .Should()
@@ -108,7 +108,7 @@ public class ErrTest
     [Fact]
     public void WhenOrElse_ThenReturnOther()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.OrElse(_ => Result.Ok<int, bool>(1))
               .Should()
@@ -122,7 +122,7 @@ public class ErrTest
     [Fact]
     public void WhenExpect_ThenThrowException()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.Invoking(x => x.Expect("Error should not occur"))
               .Should()
@@ -133,7 +133,7 @@ public class ErrTest
     [Fact]
     public void WhenExpectErr_ThenReturnErrValue()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.ExpectErr("Error should have occurred").Should().Be("error");
     }
@@ -141,7 +141,7 @@ public class ErrTest
     [Fact]
     public void WhenUnwrap_ThenThrowException()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.Invoking(x => x.Unwrap())
               .Should()
@@ -151,7 +151,7 @@ public class ErrTest
     [Fact]
     public void WhenUnwrapOr_ThenReturnOrValue()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.UnwrapOr(10).Should().Be(10);
         result.UnwrapOrDefault().Should().Be(default);
@@ -161,7 +161,7 @@ public class ErrTest
     [Fact]
     public void WhenUnwrapErr_ThenReturnErrValue()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.UnwrapErr().Should().Be("error");
     }
@@ -169,7 +169,7 @@ public class ErrTest
     [Fact]
     public void WhenInspect_ThenDoNothing()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         var action = Substitute.For<Action<int>>();
 
@@ -180,7 +180,7 @@ public class ErrTest
     [Fact]
     public void WhenInspectErr_ThenInvokeInspect()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         var action = Substitute.For<Action<string>>();
 
@@ -191,7 +191,7 @@ public class ErrTest
     [Fact]
     public void WhenMapOr_ThenReturnOrValue()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.MapOr(10, x => x + 1).Should().Be(10);
         result.MapOrElse(_ => 10, x => x + 1).Should().Be(10);
@@ -200,7 +200,7 @@ public class ErrTest
     [Fact]
     public void WhenMapErr_ThenReturnMappedErrValue()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.MapErr(x => $"{x} 1")
               .Should()
@@ -210,7 +210,7 @@ public class ErrTest
     [Fact]
     public void WhenGetOk_ThenReturnNone()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.GetOk().Should().Be(Option.None<int>());
     }
@@ -218,7 +218,7 @@ public class ErrTest
     [Fact]
     public void WhenGetErr_ThenReturnSome()
     {
-        IResult<int, string> result = Result.Err<int, string>("error");
+        Result<int, string> result = Result.Err<int, string>("error");
 
         result.GetErr().Should().Be(Option.Some<string>("error"));
     }

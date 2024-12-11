@@ -53,27 +53,27 @@ public class OptionTests
     [Fact]
     public void GivenSomeOfOk_WhenTranspose_ThenReturnOkOfSome()
     {
-        IOption<IResult<int, int>> option = Option.Some(Result.Ok<int, int>(1));
-        IResult<IOption<int>, int> result = option.Transpose();
+        IOption<Result<int, int>> option = Option.Some(Result.Ok<int, int>(1));
+        Result<IOption<int>, int> result = option.Transpose();
         result.Should().Be(Result.Ok<IOption<int>, int>(Option.Some(1)));
     }
 
     [Fact]
     public void GivenSomeOfErr_WhenTranspose_ThenReturnErrOfSome()
     {
-        IOption<IResult<int, int>>
+        IOption<Result<int, int>>
             option = Option.Some(Result.Err<int, int>(1));
-        IResult<IOption<int>, int> result = option.Transpose();
+        Result<IOption<int>, int> result = option.Transpose();
         result.Should().Be(Result.Err<IOption<int>, int>(1));
     }
 
     [Fact]
     public void GivenNoneOfOk_WhenTranspose_ThenReturnOkOfNone()
     {
-        IOption<IResult<int, int>> option =
+        IOption<Result<int, int>> option =
             Option.None<int>().Map(Result.Ok<int, int>);
 
-        IResult<IOption<int>, int> result = option.Transpose();
+        Result<IOption<int>, int> result = option.Transpose();
 
         result.Should().Be(Result.Ok<IOption<int>, int>(Option.None<int>()));
     }
@@ -81,10 +81,10 @@ public class OptionTests
     [Fact]
     public void GivenNoneOfErr_WhenTranspose_ThenReturnOkOfNone()
     {
-        IOption<IResult<int, int>> option =
+        IOption<Result<int, int>> option =
             Option.None<int>().Map(Result.Err<int, int>);
 
-        IResult<IOption<int>, int> result = option.Transpose();
+        Result<IOption<int>, int> result = option.Transpose();
 
         result.Should().Be(Result.Ok<IOption<int>, int>(Option.None<int>()));
     }

@@ -43,7 +43,7 @@ public static class Option
 
     /// <summary>
     /// Transposes an <see cref="IOption{T}" /> of a
-    /// <see cref="IResult{TOk,TErr}" /> into a <see cref="IResult{TOk,TErr}" /> of an
+    /// <see cref="Result{TOk,TErr}" /> into a <see cref="Result{TOk,TErr}" /> of an
     /// <see cref="IOption{T}" />.
     /// </summary>
     /// <list type="bullet">
@@ -61,8 +61,8 @@ public static class Option
     /// <param name="option">The option to transpose into a result</param>
     /// <typeparam name="TOk">The ok result value type</typeparam>
     /// <typeparam name="TErr">The error result value type</typeparam>
-    public static IResult<IOption<TOk>, TErr> Transpose<TOk, TErr>(
-        this IOption<IResult<TOk, TErr>> option)
+    public static Result<IOption<TOk>, TErr> Transpose<TOk, TErr>(
+        this IOption<Result<TOk, TErr>> option)
         where TOk : notnull where TErr : notnull =>
         option.Match(
             some => some.Match(
