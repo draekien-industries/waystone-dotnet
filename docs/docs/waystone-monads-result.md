@@ -15,8 +15,8 @@ To create a `Result`, use one of the available factory methods located under the
 #### Examples
 
 ```csharp
-IResult<int, string> ok = Result.Ok<int, string>(1);
-IResult<int, string> err = Result.Err<int, string>("error");
+Result<int, string> ok = Result.Ok<int, string>(1);
+Result<int, string> err = Result.Err<int, string>("error");
 ```
 
 ## Accessing the value of a `Result`
@@ -30,7 +30,7 @@ callback. This forces you to handle both scenarios in your code.
 #### Examples
 
 ```csharp
-IResult<int, string> ok = Result.Ok<int, string>(1);
+Result<int, string> ok = Result.Ok<int, string>(1);
 
 int result = ok.Match(x => x + 1, e => e.Length());
 
@@ -38,7 +38,7 @@ Debug.Assert(result == 2);
 ```
 
 ```csharp
-IResult<int, string> err = Result.Err<int, string>("value");
+Result<int, string> err = Result.Err<int, string>("value");
 
 int result = err.Match(x => x + 1, e => e.Length());
 
@@ -64,12 +64,12 @@ scenario:
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 Debug.Assert(result.Unwrap() == 1);
 ```
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("error");
+Result<int, string> result = Result.Err<int, string>("error");
 result.Unwrap(); // throws UnwrapException
 ```
 
@@ -81,12 +81,12 @@ value will be returned for an `Err` instead of throwing an exception.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 Debug.Assert(result.UnwrapOr(10) == 1);
 ```
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("value");
+Result<int, string> result = Result.Err<int, string>("value");
 Debug.Assert(result.UnwrapOr(10) == 10);
 ```
 
@@ -98,12 +98,12 @@ instead of throwing an exception.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 Debug.Assert(result.UnwrapOrDefault() == 1);
 ```
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("value");
+Result<int, string> result = Result.Err<int, string>("value");
 Debug.Assert(result.UnwrapOrDefault() == default(int));
 ```
 
@@ -116,12 +116,12 @@ of throwing an exception.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 Debug.Assert(result.UnwrapOrElse(() => 10) == 1);
 ```
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("value");
+Result<int, string> result = Result.Err<int, string>("value");
 Debug.Assert(result.UnwrapOrElse(() => 10) == 10);
 ```
 
@@ -133,12 +133,12 @@ exception if the result is not an `Err`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 result.UnwrapErr(); // throws UnwrapException
 ```
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("error");
+Result<int, string> result = Result.Err<int, string>("error");
 Debug.Assert(result.UnwrapErr() == "error");
 ```
 
@@ -155,7 +155,7 @@ the exception that is thrown for an `Err`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("error");
+Result<int, string> result = Result.Err<int, string>("error");
 result.Expect("Should not be error"); // throws UnmetExpectationException
 ```
 
@@ -172,7 +172,7 @@ to the exception that is thrown for an `Ok`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 result.ExpectErr("Should be error"); // throws UnmetExpectationException
 ```
 
@@ -184,7 +184,7 @@ nothing when `Err`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 result.Inspect(x => Console.WriteLine($"My number is {x}"));
 ```
 
@@ -196,7 +196,7 @@ Does nothing when `Ok`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("error");
+Result<int, string> result = Result.Err<int, string>("error");
 result.InspectErr(x => Console.WriteLine($"My error is {x}"));
 ```
 
@@ -207,7 +207,7 @@ Maps the value of an `Ok` by applying a function to its contained value.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> result = Result.Ok<int, string>(1);
 Debug.Assert(result.Map(x => x.ToString()) == Result.Ok<string, string>("1"));
 ```
 
@@ -219,7 +219,7 @@ provided default if the result was an `Err`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("error");
+Result<int, string> result = Result.Err<int, string>("error");
 Debug.Assert(result.MapOr("0", x => x.ToString()) == "0");
 ```
 
@@ -231,7 +231,7 @@ the factory if the result was an `Err`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("error");
+Result<int, string> result = Result.Err<int, string>("error");
 Debug.Assert(result.MapOr(error => "0", x => x.ToString()) == "0");
 ```
 
@@ -242,7 +242,7 @@ Same as `Map`, but for an `Err` instead of an `Ok`.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Err<int, string>("error");
+Result<int, string> result = Result.Err<int, string>("error");
 Debug.Assert(result.MapErr(x => x.Length()) == Result.Err<int, int>(5)); 
 ```
 
@@ -411,8 +411,8 @@ time.
 #### Examples
 
 ```csharp
-IResult<int, string> result = Result.Ok<int, string>(1);
-IResult<IResult<int, string>, string> resultOfResult = result.Map(x => Result.Ok<int, string>(x + 1));
+Result<int, string> result = Result.Ok<int, string>(1);
+Result<Result<int, string>, string> resultOfResult = result.Map(x => Result.Ok<int, string>(x + 1));
 Debug.Assert(resultOfResult.Flatten() == Result.Ok<int, string>(2));
 ```
 
@@ -423,7 +423,7 @@ Converts a `Result` of `Option` into a `Option` of `Result`
 #### Examples
 
 ```csharp
-IResult<IOption<int>, string> resultOfOption = Result.Ok<IOption<int>, string>(Option.Some(1));
-IOption<IResult<int, string>> optionOfResult = resultOfOption.Transpose();
+Result<IOption<int>, string> resultOfOption = Result.Ok<IOption<int>, string>(Option.Some(1));
+IOption<Result<int, string>> optionOfResult = resultOfOption.Transpose();
 Debug.Assert(optionOfResult == Option.Some(Result.Ok<int, string>(1));
 ```

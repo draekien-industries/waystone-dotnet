@@ -21,8 +21,8 @@ the `Option` static class.
 #### Examples
 
 ```csharp
-IOption<string> some = Option.Some("I have a value");
-IOption<string> none = Option.None<string>();
+Option<string> some = Option.Some("I have a value");
+Option<string> none = Option.None<string>();
 ```
 
 ## Accessing the value of an `Option`
@@ -37,7 +37,7 @@ provides better safety than the built int nullable types in C#.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 
 int result = option.Match(x => x + 1, () => 0);
 
@@ -45,7 +45,7 @@ Debug.Assert(result == 2);
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 
 int result = option.Match(x => x + 1, () => 0);
 
@@ -72,12 +72,12 @@ scenario:
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 Debug.Assert(option.Unwrap() == 1);
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 option.Unwrap(); // throws UnwrapException
 ```
 
@@ -89,12 +89,12 @@ value will be returned for a `None` instead of throwing an exception.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 Debug.Assert(option.UnwrapOr(10) == 1);
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 Debug.Assert(option.UnwrapOr(10) == 10);
 ```
 
@@ -111,7 +111,7 @@ type instead of throwing an exception.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 Debug.Assert(option.UnwrapOrDefault() == default(int));
 ```
 
@@ -124,7 +124,7 @@ instead of throwing an exception.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 Debug.Assert(option.UnwrapOrElse(() => 10) == 10);
 ```
 
@@ -141,7 +141,7 @@ the exception that is thrown for a `None`.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 option.Expect("Value should exist"); // throws UnmetExpectationException with message "Value should exist"
 ```
 
@@ -153,8 +153,8 @@ to transform its value or its type. Does nothing for a `None`.
 #### Examples
 
 ```csharp
-IOption<int> number = Option.Some(1);
-IOption<string> numberAsString = number.Map(x => x.ToString());
+Option<int> number = Option.Some(1);
+Option<string> numberAsString = number.Map(x => x.ToString());
 ```
 
 ### MapOr
@@ -165,7 +165,7 @@ is a `None`. Consumes the `Option` when invoked.
 #### Examples
 
 ```csharp
-IOption<int> number = Option.None<int>();
+Option<int> number = Option.None<int>();
 string numberAsString = number.MapOr("no value", x => x.ToString());
 Debug.Assert(numberAsString == "no value");
 ```
@@ -178,7 +178,7 @@ the `Option` when invoked.
 #### Examples
 
 ```csharp
-IOption<int> number = Option.None<int>();
+Option<int> number = Option.None<int>();
 string numberAsString = number.MapOrElse(() => "no value", x => x.ToString());
 Debug.Assert(numberAsString == "no value");
 ```
@@ -191,7 +191,7 @@ Does nothing when `None`.
 #### Examples
 
 ```csharp
-IOption<int> number = Option.Some(1);
+Option<int> number = Option.Some(1);
 number.Inspect(x => Console.WriteLine($"My number is {x}"));
 ```
 
@@ -203,9 +203,9 @@ if the predicate fails.
 #### Examples
 
 ```csharp
-IOption<int> number = Option.Some(1);
-IOption<int> some = number.Filter(x => x > 0); // returns Some
-IOption<int> none = number.Filter(x => x < 0); // returns None
+Option<int> number = Option.Some(1);
+Option<int> some = number.Filter(x => x > 0); // returns Some
+Option<int> none = number.Filter(x => x < 0); // returns None
 ```
 
 ## Performing Logical Operators
@@ -217,13 +217,13 @@ Evaluates whether an option is `Some` and its value passes a predicate.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 Debug.Assert(option.IsSomeAnd(x => x > 0) == true);
 Debug.Assert(option.IsSomeAnd(x => x < 0) == false);
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 Debug.Assert(option.IsSomeAnd(x => x > 0) == false);
 ```
 
@@ -234,13 +234,13 @@ Evaluates whether an option is `None` or its value passes a predicate.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 Debug.Assert(option.IsSomeAnd(x => x > 0) == true);
 Debug.Assert(option.IsSomeAnd(x => x < 0) == false);
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 Debug.Assert(option.IsSomeAnd(x => x > 0) == true);
 Debug.Assert(option.IsSomeAnd(x => x < 0) == true);
 ```
@@ -254,19 +254,19 @@ option.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 var result = option.Or(Option.Some(2));
 Debug.Assert(result == Option.Some(1));
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 var result = option.Or(Option.Some(2));
 Debug.Assert(result == Option.Some(2));
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 var result = option.Or(Option.None<int>());
 Debug.Assert(result == Option.None<int>());
 ```
@@ -279,19 +279,19 @@ option.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 var result = option.OrElse(() => Option.Some(2));
 Debug.Assert(result == Option.Some(1));
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 var result = option.OrElse(() => Option.Some(2));
 Debug.Assert(result == Option.Some(2));
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 var result = option.OrElse(() => Option.None<int>());
 Debug.Assert(result == Option.None<int>());
 ```
@@ -305,13 +305,13 @@ returns `None`.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some(1);
+Option<int> option = Option.Some(1);
 Debug.Assert(option.Xor(Option.Some(2)) == Option.None<int>());
 Debug.Assert(option.Xor(Option.None<int>()) == Option.Some(1));
 ```
 
 ```csharp
-IOption<int> option = Option.None<int>();
+Option<int> option = Option.None<int>();
 Debug.Assert(option.Xor(Option.Some(2)) == Option.Some(2));
 Debug.Assert(option.Xor(Option.None<int>()) == Option.None<int>());
 ```
@@ -326,9 +326,9 @@ return `None` if either option being zipped is `None`.
 #### Examples
 
 ```csharp
-IOption<int> option1 = Option.Some(1);
-IOption<string> option2 = Option.Some("value");
-IOption<(int, string)> zipped = option1.Zip(option2);
+Option<int> option1 = Option.Some(1);
+Option<string> option2 = Option.Some("value");
+Option<(int, string)> zipped = option1.Zip(option2);
 Debug.Assert(zipped == Option.Some((1, "value"));
 ```
 
@@ -339,8 +339,8 @@ The reverse of `Zip`.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some((1, "value"));
-(IOption<int>, IOption<string>) unzipped = option.Unzip();
+Option<int> option = Option.Some((1, "value"));
+(Option<int>, Option<string>) unzipped = option.Unzip();
 Debug.Assert(unzipped.Item1 == Option.Some(1));
 Debug.Assert(unzipped.Item2 == Option.Some("value"));
 ```
@@ -352,9 +352,9 @@ Useful for handling nested options. Removes one layer at a time.
 #### Examples
 
 ```csharp
-IOption<int> option = Option.Some();
-IOption<IOption<int>> optionOfOption = option.Map(x => Option.Some(x + 1));
-IOption<int> flattened = optionOfOption.Flatten();
+Option<int> option = Option.Some();
+Option<Option<int>> optionOfOption = option.Map(x => Option.Some(x + 1));
+Option<int> flattened = optionOfOption.Flatten();
 ```
 
 ### Transpose
@@ -364,7 +364,7 @@ Converts an `Option` of `Result` into a `Result` of `Option`.
 #### Examples
 
 ```csharp
-IOption<IResult<int, string>> optionOfResult = Option.Some(Result.Ok<int, string>(1));
-IResult<IOption<int>, string> resultOfOption = optionOfResult.Transpose();
-Debug.Assert(resultOfOption == Result.Ok<IOption<int>, string>(Option.Some(1));
+Option<IResult<int, string>> optionOfResult = Option.Some(Result.Ok<int, string>(1));
+IResult<Option<int>, string> resultOfOption = optionOfResult.Transpose();
+Debug.Assert(resultOfOption == Result.Ok<Option<int>, string>(Option.Some(1));
 ```
