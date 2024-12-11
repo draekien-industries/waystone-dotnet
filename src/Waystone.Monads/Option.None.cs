@@ -5,88 +5,88 @@ using Exceptions;
 
 /// <summary>No value of type <typeparamref name="T" />.</summary>
 /// <typeparam name="T">The option value's type.</typeparam>
-public sealed record None<T> : IOption<T>
+public sealed record None<T> : Option<T>
     where T : notnull
 {
     /// <inheritdoc />
-    public bool IsSome => false;
+    public override bool IsSome => false;
 
     /// <inheritdoc />
-    public bool IsNone => true;
+    public override bool IsNone => true;
 
     /// <inheritdoc />
-    public bool IsSomeAnd(Predicate<T> predicate) =>
+    public override bool IsSomeAnd(Predicate<T> predicate) =>
         false;
 
     /// <inheritdoc />
-    public bool IsNoneOr(Predicate<T> predicate) =>
+    public override bool IsNoneOr(Predicate<T> predicate) =>
         true;
 
     /// <inheritdoc />
-    public TOut Match<TOut>(
+    public override TOut Match<TOut>(
         Func<T, TOut> onSome,
         Func<TOut> onNone) => onNone();
 
     /// <inheritdoc />
-    public void Match(Action<T> onSome, Action onNone)
+    public override void Match(Action<T> onSome, Action onNone)
     {
         onNone();
     }
 
     /// <inheritdoc />
-    public T Expect(string message) =>
+    public override T Expect(string message) =>
         throw new UnmetExpectationException(message);
 
     /// <inheritdoc />
-    public T Unwrap() =>
+    public override T Unwrap() =>
         throw new UnwrapException("Unwrap called for a `None` value.");
 
     /// <inheritdoc />
-    public T UnwrapOr(T value) =>
+    public override T UnwrapOr(T value) =>
         value;
 
     /// <inheritdoc />
-    public T? UnwrapOrDefault() =>
+    public override T? UnwrapOrDefault() =>
         default;
 
     /// <inheritdoc />
-    public T UnwrapOrElse(Func<T> @else) =>
+    public override T UnwrapOrElse(Func<T> @else) =>
         @else();
 
     /// <inheritdoc />
-    public IOption<T2> Map<T2>(Func<T, T2> map) where T2 : notnull =>
+    public override Option<T2> Map<T2>(Func<T, T2> map) =>
         Option.None<T2>();
 
     /// <inheritdoc />
-    public T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
+    public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
         @default;
 
     /// <inheritdoc />
-    public T2 MapOrElse<T2>(
+    public override T2 MapOrElse<T2>(
         Func<T2> createDefault,
         Func<T, T2> map) => createDefault();
 
     /// <inheritdoc />
-    public IOption<T> Inspect(Action<T> action) =>
+    public override Option<T> Inspect(Action<T> action) =>
         this;
 
     /// <inheritdoc />
-    public IOption<T> Filter(Predicate<T> predicate) =>
+    public override Option<T> Filter(Predicate<T> predicate) =>
         this;
 
     /// <inheritdoc />
-    public IOption<T> Or(IOption<T> other) =>
+    public override Option<T> Or(Option<T> other) =>
         other;
 
     /// <inheritdoc />
-    public IOption<T> OrElse(Func<IOption<T>> createElse) =>
+    public override Option<T> OrElse(Func<Option<T>> createElse) =>
         createElse();
 
     /// <inheritdoc />
-    public IOption<T> Xor(IOption<T> other) =>
+    public override Option<T> Xor(Option<T> other) =>
         other.IsSome ? other : this;
 
     /// <inheritdoc />
-    public IOption<(T, T2)> Zip<T2>(IOption<T2> other) where T2 : notnull =>
+    public override Option<(T, T2)> Zip<T2>(Option<T2> other) =>
         Option.None<(T, T2)>();
 }

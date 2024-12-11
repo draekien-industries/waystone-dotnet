@@ -16,7 +16,7 @@ scenario.
 
 ### Implemented Types
 
-- An `IOption<T>` interface describes the `Option` type.
+- An `Option<T>` abstract record describes the `Option` type.
 - A `Some<T>` record describes the `Some` type.
 - A `None<T>` record describes the `None` type.
 
@@ -28,7 +28,7 @@ representing an error and containing an error value.
 
 ### Implemented Types
 
-- An `IResult<TOk,TErr>` interface describes the `Result` type.
+- An `Result<TOk,TErr>` abstract record describes the `Result` type.
 - An `Ok<TOk,TErr>` record describes the `Ok` type.
 - An `Err<TOk,TErr>` record describes the `Err` type.
 

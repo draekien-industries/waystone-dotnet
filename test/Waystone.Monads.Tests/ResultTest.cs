@@ -6,11 +6,11 @@ public class ResultTest
     [Fact]
     public void WhenFlatteningResult_ThenReduceNestingByOne()
     {
-        IResult<int, string> ok = Result.Ok<int, string>(1);
-        IResult<IResult<string, string>, string> nested =
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        Result<Result<string, string>, string> nested =
             ok.Map(_ => Result.Ok<string, string>("1"));
 
-        IResult<string, string> flattened = nested.Flatten();
+        Result<string, string> flattened = nested.Flatten();
 
         flattened.Unwrap().Should().Be("1");
     }
@@ -18,10 +18,10 @@ public class ResultTest
     [Fact]
     public void GivenOkResultOfSome_WhenTranspose_ThenReturnSomeOfOk()
     {
-        IResult<int, string> ok = Result.Ok<int, string>(1);
-        IResult<IOption<int>, string> okOfSome = ok.Map(Option.Some);
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        Result<Option<int>, string> okOfSome = ok.Map(Option.Some);
 
-        IOption<IResult<int, string>> result = okOfSome.Transpose();
+        Option<Result<int, string>> result = okOfSome.Transpose();
 
         result.IsSome.Should().BeTrue();
         result.Unwrap().Should().Be(ok);
@@ -30,10 +30,10 @@ public class ResultTest
     [Fact]
     public void GivenOkResultOfNone_WhenTranspose_ThenReturnNone()
     {
-        IResult<int, string> ok = Result.Ok<int, string>(1);
-        IResult<IOption<int>, string> none = ok.Map(_ => Option.None<int>());
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        Result<Option<int>, string> none = ok.Map(_ => Option.None<int>());
 
-        IOption<IResult<int, string>> result = none.Transpose();
+        Option<Result<int, string>> result = none.Transpose();
 
         result.IsNone.Should().BeTrue();
     }
@@ -41,10 +41,10 @@ public class ResultTest
     [Fact]
     public void GivenErrOfSome_WhenTranspose_ThenReturnSomeOfErr()
     {
-        IResult<int, string> err = Result.Err<int, string>("failed");
-        IResult<IOption<int>, string> errOfSome = err.Map(Option.Some);
+        Result<int, string> err = Result.Err<int, string>("failed");
+        Result<Option<int>, string> errOfSome = err.Map(Option.Some);
 
-        IOption<IResult<int, string>> result = errOfSome.Transpose();
+        Option<Result<int, string>> result = errOfSome.Transpose();
 
         result.IsSome.Should().BeTrue();
         result.Unwrap().Should().Be(err);
@@ -53,13 +53,23 @@ public class ResultTest
     [Fact]
     public void GivenErrOfNone_WhenTranspose_ThenReturnSomeOfErr()
     {
-        IResult<int, string> err = Result.Err<int, string>("failed");
-        IResult<IOption<int>, string> errOfNone =
+        Result<int, string> err = Result.Err<int, string>("failed");
+        Result<Option<int>, string> errOfNone =
             err.Map(_ => Option.None<int>());
 
-        IOption<IResult<int, string>> result = errOfNone.Transpose();
+        Option<Result<int, string>> result = errOfNone.Transpose();
 
         result.IsSome.Should().BeTrue();
         result.Unwrap().Should().Be(err);
+    }
+
+    [Fact]
+    public void WhenImplicitlyCreatingResult_ThenReturnExpected()
+    {
+        Result<int, string> ok = 1;
+        Result<int, string> err = "error";
+
+        ok.Should().Be(Result.Ok<int, string>(1));
+        err.Should().Be(Result.Err<int, string>("error"));
     }
 }
