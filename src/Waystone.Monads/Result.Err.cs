@@ -119,15 +119,4 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Option<TErr> GetErr() => Option.Some(Value);
-
-    /// <summary>
-    /// Implicitly converts a value of <typeparamref name="TErr" /> into an
-    /// <see cref="Err{TOk,TErr}" />
-    /// </summary>
-    /// <param name="value">The <typeparamref name="TErr" /> value</param>
-    /// <returns>
-    /// An <see cref="Result{TOk,TErr}" /> of type
-    /// <see cref="Err{TOk,TErr}" />
-    /// </returns>
-    public static implicit operator Err<TOk, TErr>(TErr value) => new(value);
 }
