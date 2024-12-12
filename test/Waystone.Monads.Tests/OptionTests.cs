@@ -4,6 +4,27 @@
 public class OptionTests
 {
     [Fact]
+    public void WhenBindingFactoryThatSucceeds_ThenReturnSome()
+    {
+        var callback = Substitute.For<Action<Exception>>();
+        Option<int> option = Option.Bind(() => 1, callback);
+        option.Should().Be(Option.Some(1));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public void
+        GivenFactoryThatThrows_AndOnErrorCallback_WhenBindingFactory_ThenInvokeCallback()
+    {
+        var callback = Substitute.For<Action<Exception>>();
+        Option<int> option = Option.Bind<int>(
+            () => throw new Exception(),
+            callback);
+        option.Should().Be(Option.None<int>());
+        callback.Received(1).Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
     public void GivenSomeWithTuple_WhenUnzip_ThenReturnSome()
     {
         Option<int> some1 = Option.Some(1);

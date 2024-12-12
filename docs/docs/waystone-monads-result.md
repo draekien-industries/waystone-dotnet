@@ -19,6 +19,23 @@ Result<int, string> ok = Result.Ok<int, string>(1);
 Result<int, string> err = Result.Err<int, string>("error");
 ```
 
+### Bind
+
+The `Bind` method allows you to convert the return value of a function into an
+`Result` type. It will execute the factory you provide inside a `try catch`
+block, and provides a callback function parameter where you can map any
+exception thrown into an error value of your choice.
+
+#### Examples
+
+```csharp
+Result<int, string> ok = Result.Bind<int, string>(() => 10, ex => "error");
+Debug.Assert(ok == Result.Ok<int, string>(10));
+
+Result<int, string> err = Result.Bind<int, string>(() => throw new ExampleException(), ex => "error");
+Debug.Assert(err == Result.Err<int, string>("error");
+```
+
 ## Accessing the value of a `Result`
 
 ### Match

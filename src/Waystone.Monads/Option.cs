@@ -5,6 +5,39 @@ using System;
 /// <summary>Static functions for <see cref="Option{T}" /></summary>
 public static class Option
 {
+    /// <summary>
+    /// Binds the result of a <paramref name="factory" /> into an
+    /// <see cref="Option{T}" />
+    /// </summary>
+    /// <param name="factory">
+    /// A method which when executed will return the value
+    /// contained in the <see cref="Option{T}" />
+    /// </param>
+    /// <param name="onError">
+    /// Optional. Provides access to any exceptions the factory
+    /// throws. Not providing a callback will mean the exception gets swallowed.
+    /// </param>
+    /// <typeparam name="T">The factory return value's type</typeparam>
+    /// <returns>
+    /// A <see cref="Some{T}" /> if the factory executes successfully,
+    /// otherwise a <see cref="None{T}" />
+    /// </returns>
+    public static Option<T> Bind<T>(
+        Func<T> factory,
+        Action<Exception>? onError = null)
+        where T : notnull
+    {
+        try
+        {
+            return Some(factory());
+        }
+        catch (Exception ex)
+        {
+            onError?.Invoke(ex);
+            return None<T>();
+        }
+    }
+
     /// <summary>Creates a <see cref="Some{T}" /></summary>
     /// <param name="value">The value of the <see cref="Some{T}" /></param>
     /// <typeparam name="T">The option value's type.</typeparam>

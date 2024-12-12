@@ -2,6 +2,11 @@
 
 ## Common Concepts
 
+### Bind
+
+Provides a way to bind the result of a function into an `Option` or `Result`
+type.
+
 ### Match
 
 Performing a `Match` will ensure you handle all possible states of an `Option`
