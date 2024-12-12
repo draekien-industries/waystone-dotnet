@@ -25,6 +25,24 @@ Option<string> some = Option.Some("I have a value");
 Option<string> none = Option.None<string>();
 ```
 
+### Bind
+
+The `Bind` method allows you to convert the return value of a function into an
+`Option` type. It will execute the factory you provide inside a `try catch`
+block, and provides a callback function parameter where you can handle any
+exceptions thrown by the factory.
+
+#### Examples
+
+```csharp
+Option<string> some = Option.Bind(() => "hello world!");
+Option<string> none = Option.Bind(
+    () => throw new ExampleException(), 
+    ex => Console.WriteLine("Error thrown"));
+
+Task<Option<string>> someTask = Option.Bind(() => Task.FromResult("hello world!");
+```
+
 ## Accessing the value of an `Option`
 
 ### Match
@@ -367,4 +385,27 @@ Converts an `Option` of `Result` into a `Result` of `Option`.
 Option<IResult<int, string>> optionOfResult = Option.Some(Result.Ok<int, string>(1));
 IResult<Option<int>, string> resultOfOption = optionOfResult.Transpose();
 Debug.Assert(resultOfOption == Result.Ok<Option<int>, string>(Option.Some(1));
+```
+
+### Awaited
+
+Sometimes you will find yourself in a situation where the value inside an
+`Option` is a `Task`. Use the `Awaited` method to resolve the task
+inside the `Option`.
+
+#### Examples
+
+```csharp
+Option<Task<int>> optionOfTask = Option.Some(Task.FromResult(1));
+Task<Option<int>> taskOfOption = optionOfTask.Awaited();
+```
+
+> [!WARNING]
+>
+> Invoking `Awaited` may generate an exception if the `Task` it is awaiting
+> throws one. You can provide an `onError` callback to handle these exceptions.
+
+```csharp
+Option<Task<int>> optionOfTask = Option.Some(Task<int> () => throw new Exception());
+Task<Option<int>> taskOfOption = optionOfTask.Awaited(ex => Console.WriteLine("error"));
 ```

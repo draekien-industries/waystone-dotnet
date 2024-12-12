@@ -19,6 +19,25 @@ Result<int, string> ok = Result.Ok<int, string>(1);
 Result<int, string> err = Result.Err<int, string>("error");
 ```
 
+### Bind
+
+The `Bind` method allows you to convert the return value of a function into an
+`Result` type. It will execute the factory you provide inside a `try catch`
+block, and provides a callback function parameter where you can map any
+exception thrown into an error value of your choice.
+
+#### Examples
+
+```csharp
+Result<int, string> ok = Result.Bind<int, string>(() => 10, ex => "error");
+Debug.Assert(ok == Result.Ok<int, string>(10));
+
+Result<int, string> err = Result.Bind<int, string>(() => throw new ExampleException(), ex => "error");
+Debug.Assert(err == Result.Err<int, string>("error");
+    
+Result<int, string> ok = await Result.Bind<int, string>(async () => await Task.FromResult(1));
+```
+
 ## Accessing the value of a `Result`
 
 ### Match
@@ -427,3 +446,22 @@ Result<IOption<int>, string> resultOfOption = Result.Ok<IOption<int>, string>(Op
 IOption<Result<int, string>> optionOfResult = resultOfOption.Transpose();
 Debug.Assert(optionOfResult == Option.Some(Result.Ok<int, string>(1));
 ```
+
+### Awaited
+
+Sometimes you will find yourself in a situation where the value inside an
+`Result` is a `Task`. Use the `Awaited` method to resolve the task
+inside the `Result`.
+
+#### Examples
+
+```csharp
+Result<Task<int>, string> resultOfTask = Result.Ok<Task<int>, string>(Task.FromResult(1));
+Task<Result<int, string>> taskOfResult = resultOfTask.Awaited(ex => "error");
+```
+
+> [!WARNING]
+>
+> Invoking `Awaited` may generate an exception if the `Task` it is awaiting
+> throws one. An `onError` callback is required when invoking `Awaited` for
+> results in order to convert these exceptions into your error type.

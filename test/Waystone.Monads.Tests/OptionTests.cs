@@ -4,6 +4,100 @@
 public class OptionTests
 {
     [Fact]
+    public async Task GivenAsyncFactory_WhenBinding_ReturnSome()
+    {
+        Task<Option<int>> optionTask =
+            Option.Bind(() => Task.FromResult(42));
+
+        Option<int> option = await optionTask;
+
+        option.Should().Be(Option.Some(42));
+    }
+
+    [Fact]
+    public async Task
+        GivenAsyncFactoryThrows_WhenBinding_ThenReturnNone()
+    {
+        var callback = Substitute.For<Action<Exception>>();
+        Task<Option<int>> optionTask = Option.Bind<int>(
+            async () =>
+            {
+                await Task.Delay(10);
+                throw new Exception();
+            },
+            callback);
+
+        Option<int> option = await optionTask;
+
+        option.Should().Be(Option.None<int>());
+        callback.Received().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task GivenSomeOptionOfTask_WhenAwaited_ThenReturnTaskOfOption()
+    {
+        Option<Task<int>> optionOfTask = Option.Some(Task.FromResult(42));
+        Option<int> result = await optionOfTask.Awaited();
+        result.Should().Be(Option.Some(42));
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneOption_AndOptionOfTaskThatSucceeds_WhenAwaited_ThenReturnNone()
+    {
+        async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
+
+        var callback = Substitute.For<Action<Exception>>();
+
+        Option<Task<int>> option =
+            Option.None<int>().Map(PerformTask);
+
+        Option<int> result = await option.Awaited(callback);
+        result.Should().Be(Option.None<int>());
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task GivenOptionOfTaskThatThrows_WhenAwaited_ThenReturnNone()
+    {
+        async Task<int> PerformTask(int x)
+        {
+            await Task.Delay(10);
+            throw new Exception();
+        }
+
+        var callback = Substitute.For<Action<Exception>>();
+
+        Option<Task<int>> option =
+            Option.Some(10).Map(PerformTask);
+
+        Option<int> result = await option.Awaited(callback);
+        result.Should().Be(Option.None<int>());
+        callback.Received().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public void WhenBindingFactoryThatSucceeds_ThenReturnSome()
+    {
+        var callback = Substitute.For<Action<Exception>>();
+        Option<int> option = Option.Bind(() => 1, callback);
+        option.Should().Be(Option.Some(1));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public void
+        GivenFactoryThatThrows_AndOnErrorCallback_WhenBindingFactory_ThenInvokeCallback()
+    {
+        var callback = Substitute.For<Action<Exception>>();
+        Option<int> option = Option.Bind(
+            int () => throw new Exception(),
+            callback);
+        option.Should().Be(Option.None<int>());
+        callback.Received(1).Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
     public void GivenSomeWithTuple_WhenUnzip_ThenReturnSome()
     {
         Option<int> some1 = Option.Some(1);

@@ -2,6 +2,11 @@
 
 ## Common Concepts
 
+### Bind
+
+Provides a way to bind the result of a function into an `Option` or `Result`
+type.
+
 ### Match
 
 Performing a `Match` will ensure you handle all possible states of an `Option`
@@ -27,3 +32,10 @@ to compose the results of two functions.
 
 Performing an `Inspect` will give you access to the value inside a Monad without
 altering the monad itself.
+
+### Awaited
+
+Sometimes you will find yourself in a situation where the value inside an
+`Option` or a `Result` is a `Task`. Use the `Awaited` method to resolve the task
+inside the `Option` or `Result`.
+

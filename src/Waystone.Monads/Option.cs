@@ -1,10 +1,78 @@
 ﻿namespace Waystone.Monads;
 
 using System;
+using System.Threading.Tasks;
 
 /// <summary>Static functions for <see cref="Option{T}" /></summary>
 public static class Option
 {
+    /// <summary>
+    /// Binds the result of a <paramref name="factory" /> into an
+    /// <see cref="Option{T}" />
+    /// </summary>
+    /// <param name="factory">
+    /// A method which when executed will produce the value of
+    /// the <see cref="Option{T}" />
+    /// </param>
+    /// <param name="onError">
+    /// Optional. Provides access to any exceptions the factory
+    /// throws. Not providing a callback will mean the exception gets swallowed.
+    /// </param>
+    /// <typeparam name="T">The factory return value's type</typeparam>
+    /// <returns>
+    /// A <see cref="Some{T}" /> if the factory executes successfully,
+    /// otherwise a <see cref="None{T}" />
+    /// </returns>
+    public static Option<T> Bind<T>(
+        Func<T> factory,
+        Action<Exception>? onError = null)
+        where T : notnull
+    {
+        try
+        {
+            T value = factory();
+            return Some(value);
+        }
+        catch (Exception ex)
+        {
+            onError?.Invoke(ex);
+            return None<T>();
+        }
+    }
+
+    /// <summary>
+    /// Binds the result of an <paramref name="asyncFactory" /> into an
+    /// <see cref="Option{T}" />
+    /// </summary>
+    /// <param name="asyncFactory">
+    /// An asynchronous method which when awaited will
+    /// produce the value for the <see cref="Option{T}" />
+    /// </param>
+    /// <param name="onError">
+    /// Optional. Provides access to any exceptions the factory
+    /// throws. Not providing a callback will mean the exception gets swallowed.
+    /// </param>
+    /// <typeparam name="T">The async factory return type</typeparam>
+    /// <returns>
+    /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
+    /// <see cref="None{T}" />
+    /// </returns>
+    public static async Task<Option<T>> Bind<T>(
+        Func<Task<T>> asyncFactory,
+        Action<Exception>? onError = null) where T : notnull
+    {
+        try
+        {
+            T value = await asyncFactory();
+            return Some(value);
+        }
+        catch (Exception ex)
+        {
+            onError?.Invoke(ex);
+            return None<T>();
+        }
+    }
+
     /// <summary>Creates a <see cref="Some{T}" /></summary>
     /// <param name="value">The value of the <see cref="Some{T}" /></param>
     /// <typeparam name="T">The option value's type.</typeparam>
@@ -16,6 +84,39 @@ public static class Option
     /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>An <see cref="Option{T}" />.</returns>
     public static Option<T> None<T>() where T : notnull => new None<T>();
+
+    /// <summary>
+    /// Converts an <see cref="Option{T}" /> of a <see cref="Task{T}" /> into
+    /// a <see cref="Task{T}" /> of an <see cref="Option{T}" />
+    /// </summary>
+    /// <param name="optionOfTask">An option of a task</param>
+    /// <param name="onError">
+    /// Optional. A callback which will be invoked if the
+    /// resolution of the <see cref="Task{T}" /> throws an exception. Not providing one
+    /// will mean the exception gets swallowed.
+    /// </param>
+    /// <typeparam name="T">The return value of the task</typeparam>
+    /// <returns>A task of an option</returns>
+    public static async Task<Option<T>> Awaited<T>(
+        this Option<Task<T>> optionOfTask,
+        Action<Exception>? onError = null)
+        where T : notnull
+    {
+        return await optionOfTask.Match(
+            async value =>
+            {
+                try
+                {
+                    return Some(await value);
+                }
+                catch (Exception ex)
+                {
+                    onError?.Invoke(ex);
+                    return None<T>();
+                }
+            },
+            () => Task.FromResult(None<T>()));
+    }
 
     /// <summary>Unzips an option containing a tuple of two options.</summary>
     /// <param name="option">The option to be unzipped.</param>
