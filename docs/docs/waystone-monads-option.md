@@ -39,6 +39,8 @@ Option<string> some = Option.Bind(() => "hello world!");
 Option<string> none = Option.Bind(
     () => throw new ExampleException(), 
     ex => Console.WriteLine("Error thrown"));
+
+Task<Option<string>> someTask = Option.Bind(() => Task.FromResult("hello world!");
 ```
 
 ## Accessing the value of an `Option`
