@@ -18,8 +18,84 @@ public class ResultTest
     {
         var callback = Substitute.For<Func<Exception, string>>();
         callback.Invoke(Arg.Any<Exception>()).Returns("error");
-        Result<int, string> result = Result.Bind<int, string>(
-            () => throw new Exception(),
+        Result<int, string> result = Result.Bind(
+            int () => throw new Exception(),
+            callback);
+        result.Should().Be(Result.Err<int, string>("error"));
+        callback.Received(1).Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task
+        GivenAsyncFactoryThatSucceeds_WhenBindingFactory_ThenReturnOk()
+    {
+        var callback = Substitute.For<Func<Exception, string>>();
+        Result<int, string> result = await Result.Bind(
+            () => Task.FromResult(1),
+            callback);
+        result.Should().Be(Result.Ok<int, string>(1));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task GivenResultOfTaskThatSucceeds_WhenAwaited_ThenReturnNone()
+    {
+        async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
+
+        var callback = Substitute.For<Func<Exception, string>>();
+
+        Result<Task<int>, string> result =
+            Result.Ok<int, string>(1).Map(PerformTask);
+
+        Result<int, string> awaitedResult = await result.Awaited(callback);
+        awaitedResult.Should().Be(Result.Ok<int, string>(2));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrResult_AndResultOfTask_WhenAwaited_ThenReturnNone()
+    {
+        async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
+
+        var callback = Substitute.For<Func<Exception, string>>();
+
+        Result<Task<int>, string> result =
+            Result.Err<int, string>("error").Map(PerformTask);
+
+        Result<int, string> awaitedResult = await result.Awaited(callback);
+        awaitedResult.Should().Be(Result.Err<int, string>("error"));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task GivenResultOfTaskThatThrows_WhenAwaited_ThenReturnNone()
+    {
+        async Task<int> PerformTask(int x)
+        {
+            await Task.Delay(10);
+            throw new Exception();
+        }
+
+        var callback = Substitute.For<Func<Exception, string>>();
+        callback.Invoke(Arg.Any<Exception>()).Returns("error");
+
+        Result<Task<int>, string> result =
+            Result.Ok<int, string>(1).Map(PerformTask);
+
+        Result<int, string> awaitedResult = await result.Awaited(callback);
+        awaitedResult.Should().Be(Result.Err<int, string>("error"));
+        callback.Received().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task
+        GivenAsyncFactoryThatFails_WhenBindingFactory_ThenReturnError()
+    {
+        var callback = Substitute.For<Func<Exception, string>>();
+        callback.Invoke(Arg.Any<Exception>()).Returns("error");
+        Result<int, string> result = await Result.Bind(
+            Task<int> () => throw new Exception(),
             callback);
         result.Should().Be(Result.Err<int, string>("error"));
         callback.Received(1).Invoke(Arg.Any<Exception>());

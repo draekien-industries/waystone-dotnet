@@ -386,3 +386,26 @@ Option<IResult<int, string>> optionOfResult = Option.Some(Result.Ok<int, string>
 IResult<Option<int>, string> resultOfOption = optionOfResult.Transpose();
 Debug.Assert(resultOfOption == Result.Ok<Option<int>, string>(Option.Some(1));
 ```
+
+### Awaited
+
+Sometimes you will find yourself in a situation where the value inside an
+`Option` is a `Task`. Use the `Awaited` method to resolve the task
+inside the `Option`.
+
+#### Examples
+
+```csharp
+Option<Task<int>> optionOfTask = Option.Some(Task.FromResult(1));
+Task<Option<int>> taskOfOption = optionOfTask.Awaited();
+```
+
+> [!WARNING]
+>
+> Invoking `Awaited` may generate an exception if the `Task` it is awaiting
+> throws one. You can provide an `onError` callback to handle these exceptions.
+
+```csharp
+Option<Task<int>> optionOfTask = Option.Some(Task<int> () => throw new Exception());
+Task<Option<int>> taskOfOption = optionOfTask.Awaited(ex => Console.WriteLine("error"));
+```
