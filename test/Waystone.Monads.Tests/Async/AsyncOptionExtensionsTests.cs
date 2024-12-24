@@ -65,4 +65,30 @@ public sealed class AsyncOptionExtensionsTests
         await onSomeAsync.DidNotReceive().Invoke(Arg.Any<int>());
         await onNoneAsync.Received(1).Invoke();
     }
+
+    [Fact]
+    public async Task
+        GivenAsyncOptionWithTupleIsSome_WhenUnzipAsync_ThenReturnTupleOfSomes()
+    {
+        Task<Option<(int, string)>> option =
+            Task.FromResult(Option.Some((42, "foo")));
+
+        (Option<int>, Option<string>) result = await option.UnzipAsync();
+
+        result.Item1.Should().Be(Option.Some(42));
+        result.Item2.Should().Be(Option.Some("foo"));
+    }
+
+    [Fact]
+    public async Task
+        GivenAsyncOptionWithTupleIsNone_WhenUnzipAsync_ThenReturnTupleOfNones()
+    {
+        Task<Option<(int, string)>> option =
+            Task.FromResult(Option.None<(int, string)>());
+
+        (Option<int>, Option<string>) result = await option.UnzipAsync();
+
+        result.Item1.Should().Be(Option.None<int>());
+        result.Item2.Should().Be(Option.None<string>());
+    }
 }
