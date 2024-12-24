@@ -119,7 +119,7 @@ public static class Option
             () => Task.FromResult(None<T>()));
     }
 
-    /// <summary>Unzips an option containing a tuple of two options.</summary>
+    /// <summary>Unzips an option containing a tuple value into two options.</summary>
     /// <param name="option">The option to be unzipped.</param>
     /// <typeparam name="T1">The first option value's type.</typeparam>
     /// <typeparam name="T2">The second option value's type.</typeparam>
