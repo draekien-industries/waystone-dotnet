@@ -442,8 +442,8 @@ Converts a `Result` of `Option` into a `Option` of `Result`
 #### Examples
 
 ```csharp
-Result<IOption<int>, string> resultOfOption = Result.Ok<IOption<int>, string>(Option.Some(1));
-IOption<Result<int, string>> optionOfResult = resultOfOption.Transpose();
+Result<Option<int>, string> resultOfOption = Result.Ok<Option<int>, string>(Option.Some(1));
+Option<Result<int, string>> optionOfResult = resultOfOption.Transpose();
 Debug.Assert(optionOfResult == Option.Some(Result.Ok<int, string>(1));
 ```
 
