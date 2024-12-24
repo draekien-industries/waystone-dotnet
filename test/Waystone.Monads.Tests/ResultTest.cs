@@ -30,7 +30,7 @@ public class ResultTest
         GivenAsyncFactoryThatSucceeds_WhenBindingFactory_ThenReturnOk()
     {
         var callback = Substitute.For<Func<Exception, string>>();
-        Result<int, string> result = await Result.Bind(
+        Result<int, string> result = await Result.BindAsync(
             () => Task.FromResult(1),
             callback);
         result.Should().Be(Result.Ok<int, string>(1));
@@ -94,7 +94,7 @@ public class ResultTest
     {
         var callback = Substitute.For<Func<Exception, string>>();
         callback.Invoke(Arg.Any<Exception>()).Returns("error");
-        Result<int, string> result = await Result.Bind(
+        Result<int, string> result = await Result.BindAsync(
             Task<int> () => throw new Exception(),
             callback);
         result.Should().Be(Result.Err<int, string>("error"));

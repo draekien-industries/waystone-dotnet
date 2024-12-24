@@ -7,7 +7,7 @@ public class OptionTests
     public async Task GivenAsyncFactory_WhenBinding_ReturnSome()
     {
         Task<Option<int>> optionTask =
-            Option.Bind(() => Task.FromResult(42));
+            Option.BindAsync(() => Task.FromResult(42));
 
         Option<int> option = await optionTask;
 
@@ -19,7 +19,7 @@ public class OptionTests
         GivenAsyncFactoryThrows_WhenBinding_ThenReturnNone()
     {
         var callback = Substitute.For<Action<Exception>>();
-        Task<Option<int>> optionTask = Option.Bind<int>(
+        Task<Option<int>> optionTask = Option.BindAsync<int>(
             async () =>
             {
                 await Task.Delay(10);
@@ -43,6 +43,17 @@ public class OptionTests
 
     [Fact]
     public async Task
+        GivenSomeOptionOfTaskAndCallback_WhenAwaited_ThenReturnTaskOfOption()
+    {
+        Option<Task<int>> optionOfTask = Option.Some(Task.FromResult(42));
+        var callback = Substitute.For<Action<Exception>>();
+        Option<int> result = await optionOfTask.Awaited(callback);
+        result.Should().Be(Option.Some(42));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task
         GivenNoneOption_AndOptionOfTaskThatSucceeds_WhenAwaited_ThenReturnNone()
     {
         async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
@@ -55,6 +66,19 @@ public class OptionTests
         Option<int> result = await option.Awaited(callback);
         result.Should().Be(Option.None<int>());
         callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneOption_AndNoCallback_AndOptionOfTaskThatSucceeds_WhenAwaited_ThenReturnNone()
+    {
+        async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
+
+        Option<Task<int>> option =
+            Option.None<int>().Map(PerformTask);
+
+        Option<int> result = await option.Awaited();
+        result.Should().Be(Option.None<int>());
     }
 
     [Fact]
@@ -73,7 +97,7 @@ public class OptionTests
 
         Option<int> result = await option.Awaited(callback);
         result.Should().Be(Option.None<int>());
-        callback.Received().Invoke(Arg.Any<Exception>());
+        callback.Received(1).Invoke(Arg.Any<Exception>());
     }
 
     [Fact]
