@@ -40,7 +40,7 @@ Option<string> none = Option.Bind(
     () => throw new ExampleException(), 
     ex => Console.WriteLine("Error thrown"));
 
-Task<Option<string>> someTask = Option.Bind(() => Task.FromResult("hello world!");
+Task<Option<string>> someTask = Option.BindAsync(() => Task.FromResult("hello world!");
 ```
 
 ## Accessing the value of an `Option`
