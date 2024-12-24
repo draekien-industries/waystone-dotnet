@@ -7,7 +7,7 @@ public class OptionTests
     public async Task GivenAsyncFactory_WhenBinding_ReturnSome()
     {
         Task<Option<int>> optionTask =
-            Option.Bind(() => Task.FromResult(42));
+            Option.BindAsync(() => Task.FromResult(42));
 
         Option<int> option = await optionTask;
 
@@ -19,7 +19,7 @@ public class OptionTests
         GivenAsyncFactoryThrows_WhenBinding_ThenReturnNone()
     {
         var callback = Substitute.For<Action<Exception>>();
-        Task<Option<int>> optionTask = Option.Bind<int>(
+        Task<Option<int>> optionTask = Option.BindAsync<int>(
             async () =>
             {
                 await Task.Delay(10);
