@@ -103,20 +103,18 @@ public static class Option
         Action<Exception>? onError = null)
         where T : notnull
     {
-        return await optionOfTask.Match(
-            async value =>
-            {
-                try
-                {
-                    return Some(await value);
-                }
-                catch (Exception ex)
-                {
-                    onError?.Invoke(ex);
-                    return None<T>();
-                }
-            },
-            () => Task.FromResult(None<T>()));
+        try
+        {
+            if (optionOfTask.IsNone) return None<T>();
+
+            T value = await optionOfTask.Unwrap().ConfigureAwait(false);
+            return Some(value);
+        }
+        catch (Exception ex)
+        {
+            onError?.Invoke(ex);
+            return None<T>();
+        }
     }
 
     /// <summary>Unzips an option containing a tuple value into two options.</summary>

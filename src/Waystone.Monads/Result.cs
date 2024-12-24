@@ -96,19 +96,22 @@ public static class Result
         Func<Exception, TErr> onError)
         where TOk : notnull where TErr : notnull
     {
-        return await resultOfTask.Match(
-            async value =>
+        try
+        {
+            if (resultOfTask.IsOk)
             {
-                try
-                {
-                    return Ok<TOk, TErr>(await value);
-                }
-                catch (Exception ex)
-                {
-                    return Err<TOk, TErr>(onError(ex));
-                }
-            },
-            error => Task.FromResult(Err<TOk, TErr>(error)));
+                TOk ok = await resultOfTask.Unwrap().ConfigureAwait(false);
+                return Ok<TOk, TErr>(ok);
+            }
+
+            TErr err = resultOfTask.UnwrapErr();
+            return Err<TOk, TErr>(err);
+        }
+        catch (Exception ex)
+        {
+            TErr err = onError(ex);
+            return Err<TOk, TErr>(err);
+        }
     }
 
     /// <summary>
