@@ -43,6 +43,17 @@ public class OptionTests
 
     [Fact]
     public async Task
+        GivenSomeOptionOfTaskAndCallback_WhenAwaited_ThenReturnTaskOfOption()
+    {
+        Option<Task<int>> optionOfTask = Option.Some(Task.FromResult(42));
+        var callback = Substitute.For<Action<Exception>>();
+        Option<int> result = await optionOfTask.Awaited(callback);
+        result.Should().Be(Option.Some(42));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task
         GivenNoneOption_AndOptionOfTaskThatSucceeds_WhenAwaited_ThenReturnNone()
     {
         async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
