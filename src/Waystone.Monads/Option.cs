@@ -261,10 +261,10 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <remarks>
     /// Because this function may throw an exception, its use is generally
-    /// discouraged. Instead, prefer to use the <see cref="Option{T}.Match{TOut}" />
-    /// function and handle the <see cref="None{T}" /> case explicitly, or call
-    /// <see cref="Option{T}.UnwrapOr" />, <see cref="Option{T}.UnwrapOrElse" />, or
-    /// <see cref="Option{T}.UnwrapOrDefault" />.
+    /// discouraged. Instead, prefer to use the <see cref="Match{TOut}" /> function and
+    /// handle the <see cref="None{T}" /> case explicitly, or call
+    /// <see cref="UnwrapOr" />, <see cref="UnwrapOrElse" />, or
+    /// <see cref="UnwrapOrDefault" />.
     /// </remarks>
     /// <exception cref="UnwrapException">
     /// Throws if the option equals

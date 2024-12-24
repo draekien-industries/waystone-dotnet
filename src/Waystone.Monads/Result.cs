@@ -324,11 +324,9 @@ public abstract record Result<TOk, TErr>
     /// <remarks>
     /// Because this function may throw an
     /// <see cref="UnmetExpectationException" />, its use is generally discouraged.
-    /// Instead, prefer to use the <see cref="M:Result`2.Match``1(???,???)" /> function
-    /// and handling the <see cref="Err{TOk,TErr}" /> case explicitly, or call
-    /// <see cref="M:Result`2.UnwrapOr(???)" />,
-    /// <see cref="M:Result`2.UnwrapOrElse(???)" />, or
-    /// <see cref="M:Result`2.UnwrapOrDefault" />.
+    /// Instead, prefer to use the <see cref="Match{TOut}" /> function and handling the
+    /// <see cref="Err{TOk,TErr}" /> case explicitly, or call <see cref="UnwrapOr" />,
+    /// <see cref="UnwrapOrElse" />, or <see cref="UnwrapOrDefault" />.
     /// </remarks>
     /// <exception cref="UnmetExpectationException">
     /// Throws if the value is an
@@ -358,11 +356,9 @@ public abstract record Result<TOk, TErr>
     /// <remarks>
     /// Because this function may throw an <see cref="UnwrapException" />, its
     /// use is generally discouraged. Instead, prefer to use the
-    /// <see cref="M:Result`2.Match``1(???,???)" /> function and handling the
-    /// <see cref="Err{TOk,TErr}" /> case explicitly, or call
-    /// <see cref="M:Result`2.UnwrapOr(???)" />,
-    /// <see cref="M:Result`2.UnwrapOrElse(???)" />, or
-    /// <see cref="M:Result`2.UnwrapOrDefault" />.
+    /// <see cref="Match{TOut}" /> function and handling the
+    /// <see cref="Err{TOk,TErr}" /> case explicitly, or call <see cref="UnwrapOr" />,
+    /// <see cref="UnwrapOrElse" />, or <see cref="UnwrapOrDefault" />.
     /// </remarks>
     /// <exception cref="UnwrapException">
     /// Throws if the value is an
@@ -448,9 +444,8 @@ public abstract record Result<TOk, TErr>
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOk2" />
     /// by applying fallback function <paramref name="createDefault" /> to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, or function
-    /// <see cref="M:Result`2.Map``1(???)" /> to a contained
-    /// <see cref="Ok{TOk,TErr}" /> value.
+    /// <see cref="Err{TOk,TErr}" /> value, or function <see cref="Map{TOk2}" /> to a
+    /// contained <see cref="Ok{TOk,TErr}" /> value.
     /// </summary>
     /// <param name="createDefault">
     /// A function to create the default value for an
