@@ -58,6 +58,19 @@ public class OptionTests
     }
 
     [Fact]
+    public async Task
+        GivenNoneOption_AndNoCallback_AndOptionOfTaskThatSucceeds_WhenAwaited_ThenReturnNone()
+    {
+        async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
+
+        Option<Task<int>> option =
+            Option.None<int>().Map(PerformTask);
+
+        Option<int> result = await option.Awaited();
+        result.Should().Be(Option.None<int>());
+    }
+
+    [Fact]
     public async Task GivenOptionOfTaskThatThrows_WhenAwaited_ThenReturnNone()
     {
         async Task<int> PerformTask(int x)
@@ -73,7 +86,7 @@ public class OptionTests
 
         Option<int> result = await option.Awaited(callback);
         result.Should().Be(Option.None<int>());
-        callback.Received().Invoke(Arg.Any<Exception>());
+        callback.Received(1).Invoke(Arg.Any<Exception>());
     }
 
     [Fact]
