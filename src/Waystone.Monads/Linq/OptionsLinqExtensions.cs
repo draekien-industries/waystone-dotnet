@@ -100,4 +100,75 @@ public static class OptionsLinqExtensions
         Func<T, bool> predicate,
         Func<T> @else) where T : notnull =>
         options.FirstOrNone(predicate).UnwrapOrElse(@else);
+
+    /// <summary>
+    /// Returns the last <see cref="Option{T}" /> of the sequence that
+    /// satisfies a condition or a <see cref="None{T}" /> if a match is not found
+    /// </summary>
+    /// <param name="options">
+    /// An <see cref="IEnumerable{T}" /> of
+    /// <see cref="Option{T}" />
+    /// </param>
+    /// <param name="predicate">
+    /// A function to test each <see cref="Option{T}" /> for a
+    /// condition
+    /// </param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// The last <see cref="Option{T}" /> that passed the condition specified
+    /// by the predicate, otherwise a <see cref="None{T}" />
+    /// </returns>
+    public static Option<T> LastOrNone<T>(
+        this IEnumerable<Option<T>> options,
+        Func<T, bool> predicate) where T : notnull =>
+        options.Filter(predicate).LastOrDefault(x => x.IsSome)
+     ?? Option.None<T>();
+
+    /// <summary>
+    /// Returns the last element of the sequence that satisfies a condition,
+    /// or a default value if a match is not found
+    /// </summary>
+    /// <param name="options">
+    /// An <see cref="IEnumerable{T}" /> of
+    /// <see cref="Option{T}" />
+    /// </param>
+    /// <param name="predicate">
+    /// A function to test each <see cref="Option{T}" /> for a
+    /// condition
+    /// </param>
+    /// <param name="default">The default value to return when a match is not found</param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// The last value that passed the condition specified by the predicate,
+    /// otherwise the provided default
+    /// </returns>
+    public static T LastOr<T>(
+        this IEnumerable<Option<T>> options,
+        Func<T, bool> predicate,
+        T @default) where T : notnull =>
+        options.LastOrNone(predicate).UnwrapOr(@default);
+
+    /// <summary>
+    /// Returns the last element of the sequence that satisfies a condition,
+    /// or the default value created from a delegate if a match is not found
+    /// </summary>
+    /// <param name="options">
+    /// An <see cref="IEnumerable{T}" /> of
+    /// <see cref="Option{T}" />
+    /// </param>
+    /// <param name="predicate">
+    /// A function to test each <see cref="Option{T}" /> for a
+    /// condition
+    /// </param>
+    /// <param name="else">The delegate that will create the else value</param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// The last value that passed the condition specified by the predicate,
+    /// otherwise the default created by the else delegate
+    /// </returns>
+    public static T LastOrElse<T>(
+        this IEnumerable<Option<T>> options,
+        Func<T, bool> predicate,
+        Func<T> @else) where T : notnull =>
+        options.LastOrNone(predicate).UnwrapOrElse(@else);
 }

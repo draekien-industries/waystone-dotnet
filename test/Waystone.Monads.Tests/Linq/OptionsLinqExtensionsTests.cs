@@ -69,4 +69,52 @@ public sealed class OptionsLinqExtensionsTests
 
         results.Should().Be(expected);
     }
+
+    [Fact]
+    public void
+        GivenCollectionOfOptions_AndMatchingPredicate_WhenInvokingLastOrNone_ThenReturnMatch()
+    {
+        Option<int> result = Values.LastOrNone(x => x > 10);
+
+        result.IsSome.Should().BeTrue();
+        result.Should().Be(Option.Some(12));
+    }
+
+    [Fact]
+    public void
+        GivenCollectionOfOptions_AndNoMatch_WhenInvokingLastOrNone_ThenReturnMatch()
+    {
+        Option<int> result = Values.LastOrNone(x => x > 20);
+
+        result.IsNone.Should().BeTrue();
+        result.Should().Be(Option.None<int>());
+    }
+
+    [Theory]
+    [InlineData(10, 20, 12)]
+    [InlineData(20, 20, 20)]
+    public void
+        GivenCollectionOfOptions_WhenInvokingLastOr_ThenReturnExpected(
+            int minValue,
+            int @default,
+            int expected)
+    {
+        int results = Values.LastOr(x => x > minValue, @default);
+
+        results.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(10, 20, 12)]
+    [InlineData(20, 20, 20)]
+    public void
+        GivenCollectionOfOptions_WhenInvokingLastOrElse_ThenReturnExpected(
+            int minValue,
+            int @default,
+            int expected)
+    {
+        int results = Values.LastOrElse(x => x > minValue, () => @default);
+
+        results.Should().Be(expected);
+    }
 }
