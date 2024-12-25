@@ -38,4 +38,3 @@ altering the monad itself.
 Sometimes you will find yourself in a situation where the value inside an
 `Option` or a `Result` is a `Task`. Use the `Awaited` method to resolve the task
 inside the `Option` or `Result`.
-
