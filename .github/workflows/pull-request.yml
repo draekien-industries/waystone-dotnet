@@ -8,7 +8,7 @@ on:
     paths:
       - 'src/**'
       - 'test/**'
-      - './.github/workflows/pull-request.yml'
+      - '.github/workflows/pull-request.yml'
 
 jobs:
   calculate-version:
