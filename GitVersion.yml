@@ -16,9 +16,4 @@ minor-version-bump-message: "^(feat)(\\([\\w\\s-,/\\\\]*\\))?:"
 patch-version-bump-message: "^(fix|perf)(\\([\\w\\s-,/\\\\]*\\))?:"
 commit-message-incrementing: MergeMessageOnly
 update-build-number: true
-mode: ContinuousDelivery
-workflow: GitFlow/v1
-branches:
-  main:
-    is-main-branch: true
-    mode: ContinuousDeployment
+workflow: GitHubFlow/v1
