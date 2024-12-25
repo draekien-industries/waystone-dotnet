@@ -1,5 +1,9 @@
 name: Pull Request
 
+concurrency:
+  group: pull-request
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches:
