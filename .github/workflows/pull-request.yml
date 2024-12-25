@@ -1,5 +1,9 @@
 name: Pull Request
 
+concurrency:
+  group: pull-request
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches:
@@ -8,7 +12,7 @@ on:
     paths:
       - 'src/**'
       - 'test/**'
-      - './.github/workflows/pull-request.yml'
+      - '.github/workflows/pull-request.yml'
 
 jobs:
   calculate-version:
