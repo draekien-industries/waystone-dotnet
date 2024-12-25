@@ -15,11 +15,11 @@ public sealed record None<T> : Option<T>
     public override bool IsNone => true;
 
     /// <inheritdoc />
-    public override bool IsSomeAnd(Predicate<T> predicate) =>
+    public override bool IsSomeAnd(Func<T, bool> predicate) =>
         false;
 
     /// <inheritdoc />
-    public override bool IsNoneOr(Predicate<T> predicate) =>
+    public override bool IsNoneOr(Func<T, bool> predicate) =>
         true;
 
     /// <inheritdoc />
@@ -71,7 +71,7 @@ public sealed record None<T> : Option<T>
         this;
 
     /// <inheritdoc />
-    public override Option<T> Filter(Predicate<T> predicate) =>
+    public override Option<T> Filter(Func<T, bool> predicate) =>
         this;
 
     /// <inheritdoc />
