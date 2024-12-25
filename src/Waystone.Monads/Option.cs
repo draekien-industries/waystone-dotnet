@@ -197,14 +197,14 @@ public abstract record Option<T> where T : notnull
     /// <see cref="Some{T}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">A <see cref="Predicate{T}" /></param>
-    public abstract bool IsSomeAnd(Predicate<T> predicate);
+    public abstract bool IsSomeAnd(Func<T, bool> predicate);
 
     /// <summary>
     /// Returns <see langword="true" /> if the option is a
     /// <see cref="None{T}" /> or the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">A <see cref="Predicate{T}" /></param>
-    public abstract bool IsNoneOr(Predicate<T> predicate);
+    public abstract bool IsNoneOr(Func<T, bool> predicate);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the option, invoking the
@@ -350,7 +350,7 @@ public abstract record Option<T> where T : notnull
     /// </list>
     /// </summary>
     /// <param name="predicate">The filter function.</param>
-    public abstract Option<T> Filter(Predicate<T> predicate);
+    public abstract Option<T> Filter(Func<T, bool> predicate);
 
     /// <summary>
     /// Returns the option if it contains a value, otherwise returns

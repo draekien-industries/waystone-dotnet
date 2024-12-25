@@ -90,7 +90,7 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        var filter = Substitute.For<Predicate<int>>();
+        var filter = Substitute.For<Func<int, bool>>();
 
         Option<int> result = none.Filter(filter);
 
