@@ -52,4 +52,52 @@ public static class OptionsLinqExtensions
         Func<T, bool> predicate) where T : notnull =>
         options.Filter(predicate).FirstOrDefault(o => o.IsSome)
      ?? Option.None<T>();
+
+    /// <summary>
+    /// Returns the first element of the sequence that satisfies a condition,
+    /// or a default value if a match is not found
+    /// </summary>
+    /// <param name="options">
+    /// An <see cref="IEnumerable{T}" /> of
+    /// <see cref="Option{T}" />
+    /// </param>
+    /// <param name="predicate">
+    /// A function to test each <see cref="Option{T}" /> for a
+    /// condition
+    /// </param>
+    /// <param name="default">The default value to return when a match is not found</param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// The first value that passed the condition specified by the predicate,
+    /// otherwise the provided default
+    /// </returns>
+    public static T FirstOr<T>(
+        this IEnumerable<Option<T>> options,
+        Func<T, bool> predicate,
+        T @default) where T : notnull =>
+        options.FirstOrNone(predicate).UnwrapOr(@default);
+
+    /// <summary>
+    /// Returns the first element of the sequence that satisfies a condition,
+    /// or the default value created from a delegate if a match is not found
+    /// </summary>
+    /// <param name="options">
+    /// An <see cref="IEnumerable{T}" /> of
+    /// <see cref="Option{T}" />
+    /// </param>
+    /// <param name="predicate">
+    /// A function to test each <see cref="Option{T}" /> for a
+    /// condition
+    /// </param>
+    /// <param name="else">The delegate that will create the else value</param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// The first value that passed the condition specified by the predicate,
+    /// otherwise the default created by the else delegate
+    /// </returns>
+    public static T FirstOrElse<T>(
+        this IEnumerable<Option<T>> options,
+        Func<T, bool> predicate,
+        Func<T> @else) where T : notnull =>
+        options.FirstOrNone(predicate).UnwrapOrElse(@else);
 }
