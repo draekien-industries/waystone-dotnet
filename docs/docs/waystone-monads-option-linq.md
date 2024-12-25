@@ -38,6 +38,35 @@ Debug.Assert(filteredOptions == [
     ]);
 ```
 
+## Map
+
+Apply a transform function to a collection of option types. Any `Some<T>` value
+will be transformed using the provided function.
+
+> [!NOTE]
+>
+> This is equivalent to Linq's `Select` function
+
+### Examples
+
+```csharp
+List<Option<int>> options = [
+        Option.Some(1),
+        Option.Some(2),
+        Option.Some(3),
+        Option.Some(4)
+    ];
+
+var mappedOptions = options.Map(x => x.ToString());
+
+Debug.Assert(mappedOptions == [
+        Option.Some("1"),
+        Option.Some("2"),
+        Option.Some("3"),
+        Option.Some("4")
+    ]);
+```
+
 ## First
 
 Use one of the below methods to get the first element matching a predicate

@@ -31,6 +31,29 @@ public static class OptionsLinqExtensions
         options.Select(o => o.Filter(predicate));
 
     /// <summary>
+    /// Applies a map function onto a sequence of options, transforming the
+    /// values of the <see cref="Some{T}" /> options
+    /// </summary>
+    /// <param name="options">
+    /// An <see cref="IEnumerable{T}" /> of
+    /// <see cref="Option{T}" />
+    /// </param>
+    /// <param name="mapper">
+    /// A map function that converts from
+    /// <typeparamref name="TIn" /> to <typeparamref name="TOut" />
+    /// </param>
+    /// <typeparam name="TIn">The input option value's type</typeparam>
+    /// <typeparam name="TOut">The output option value's type</typeparam>
+    /// <returns>
+    /// An <see cref="IEnumerable{T}" /> of <see cref="Option{T}" /> that
+    /// contain elements transformed by the mapper
+    /// </returns>
+    public static IEnumerable<Option<TOut>> Map<TIn, TOut>(
+        this IEnumerable<Option<TIn>> options,
+        Func<TIn, TOut> mapper) where TIn : notnull where TOut : notnull =>
+        options.Select(o => o.Map(mapper));
+
+    /// <summary>
     /// Returns the first <see cref="Option{T}" /> of the sequence that
     /// satisfies a condition or a <see cref="None{T}" /> if a match is not found
     /// </summary>

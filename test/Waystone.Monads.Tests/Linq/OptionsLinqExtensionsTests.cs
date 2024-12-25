@@ -8,7 +8,7 @@ public sealed class OptionsLinqExtensionsTests
     [
         11,
         12,
-        -1,
+        Option.None<int>(),
         2,
     ];
 
@@ -116,5 +116,15 @@ public sealed class OptionsLinqExtensionsTests
         int results = Values.LastOrElse(x => x > minValue, () => @default);
 
         results.Should().Be(expected);
+    }
+
+    [Fact]
+    public void
+        GivenCollectionOfOptions_WhenInvokingMap_ThenReturnMappedOptions()
+    {
+        List<Option<string>> results = Values.Map(x => x.ToString()).ToList();
+
+        results.Where(x => x.IsSome).Should().HaveCount(3);
+        results.First(x => x.IsSome).Unwrap().Should().Be("11");
     }
 }
