@@ -1,8 +1,8 @@
-﻿namespace Waystone.Monads.Tests.Linq;
+﻿namespace Waystone.Monads.Tests.Extensions;
 
-using Monads.Linq;
+using Monads.Extensions;
 
-public sealed class OptionsLinqExtensionsTests
+public sealed class OptionsCollectionExtensionsTests
 {
     private static readonly List<Option<int>> Values =
     [

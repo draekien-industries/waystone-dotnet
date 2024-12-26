@@ -1,11 +1,11 @@
-﻿namespace Waystone.Monads.Linq;
+﻿namespace Waystone.Monads.Extensions;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>LINQ extensions for <see cref="Option{T}" /></summary>
-public static class OptionsLinqExtensions
+/// <summary>Extensions for <see cref="Option{T}" /> collections.</summary>
+public static class OptionsCollectionExtensions
 {
     /// <summary>
     /// Filters a sequence of options based on a predicate, converting options

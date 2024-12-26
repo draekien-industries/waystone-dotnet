@@ -5,7 +5,7 @@ items:
         href: waystone-monads.md
       - name: Option
         href: waystone-monads-option.md
-      - name: Option - Linq
-        href: waystone-monads-option-linq.md
+      - name: Options Collections
+        href: waystone-monads-option-collections.md
       - name: Result
         href: waystone-monads-result.md

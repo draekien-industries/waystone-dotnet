@@ -1,12 +1,7 @@
-﻿# Linq Adjacent Extensions for Options Collections
+﻿# Options Collections
 
 Some extension methods are provided in order to simplify working with options
 collections.
-
-> [!NOTE]
->
-> Some alternative names were chosen in order to avoid conflicting with actual
-> `System.Linq` methods.
 
 ## Filter
 
