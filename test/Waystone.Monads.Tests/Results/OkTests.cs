@@ -1,9 +1,10 @@
-﻿namespace Waystone.Monads.Tests;
+﻿namespace Waystone.Monads.Results;
 
 using Exceptions;
+using Options;
 
 [TestSubject(typeof(Ok<,>))]
-public class OkTest
+public class OkTests
 {
     [Fact]
     public void WhenCreatingOk_ThenEvaluateToOk()

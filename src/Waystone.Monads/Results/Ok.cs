@@ -1,122 +1,121 @@
-﻿namespace Waystone.Monads;
+﻿namespace Waystone.Monads.Results;
 
 using System;
 using Exceptions;
+using Options;
 
-/// <summary>An error result</summary>
+/// <summary>An ok result type</summary>
 /// <typeparam name="TOk">The ok result value's type</typeparam>
 /// <typeparam name="TErr">The error result value's type</typeparam>
-public sealed record Err<TOk, TErr> : Result<TOk, TErr>
-    where TOk : notnull
-    where TErr : notnull
+public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
+    where TOk : notnull where TErr : notnull
 {
-    internal Err(TErr value)
+    internal Ok(TOk value)
     {
         Value = value;
     }
 
-    internal TErr Value { get; }
+    internal TOk Value { get; }
 
     /// <inheritdoc />
-    public override bool IsOk => false;
+    public override bool IsOk => true;
 
     /// <inheritdoc />
-    public override bool IsErr => true;
+    public override bool IsErr => false;
 
     /// <inheritdoc />
     public override bool IsOkAnd(Predicate<TOk> predicate) =>
-        false;
+        predicate(Value);
 
     /// <inheritdoc />
     public override bool IsErrAnd(Predicate<TErr> predicate) =>
-        predicate(Value);
+        false;
 
     /// <inheritdoc />
     public override TOut Match<TOut>(
         Func<TOk, TOut> onOk,
         Func<TErr, TOut> onErr) =>
-        onErr(Value);
+        onOk(Value);
 
     /// <inheritdoc />
     public override void Match(Action<TOk> onOk, Action<TErr> onErr)
     {
-        onErr(Value);
+        onOk(Value);
     }
 
     /// <inheritdoc />
     public override Result<TOk2, TErr> And<TOk2>(Result<TOk2, TErr> other) =>
-        Result.Err<TOk2, TErr>(Value);
+        other;
 
     /// <inheritdoc />
     public override Result<TOk2, TErr> AndThen<TOk2>(
         Func<TOk, Result<TOk2, TErr>> createOther) =>
-        Result.Err<TOk2, TErr>(Value);
+        createOther(Value);
 
     /// <inheritdoc />
     public override Result<TOk, TErr2> Or<TErr2>(Result<TOk, TErr2> other) =>
-        other;
+        Result.Ok<TOk, TErr2>(Value);
 
     /// <inheritdoc />
     public override Result<TOk, TErr2>
         OrElse<TErr2>(Func<TErr, Result<TOk, TErr2>> createOther) =>
-        createOther(Value);
+        Result.Ok<TOk, TErr2>(Value);
 
     /// <inheritdoc />
-    public override TOk Expect(string message) =>
+    public override TOk Expect(string message) => Value;
+
+    /// <inheritdoc />
+    public override TErr ExpectErr(string message) =>
         throw UnmetExpectationException.For(message, Value);
 
     /// <inheritdoc />
-    public override TErr ExpectErr(string message) => Value;
-
-    /// <inheritdoc />
-    public override TOk Unwrap() =>
-        throw UnwrapException.For(this);
+    public override TOk Unwrap() => Value;
 
     /// <inheritdoc />
     public override TOk UnwrapOr(TOk @default) =>
-        @default;
+        Value;
 
     /// <inheritdoc />
-    public override TOk? UnwrapOrDefault() => default;
+    public override TOk UnwrapOrDefault() => Value;
 
     /// <inheritdoc />
     public override TOk UnwrapOrElse(Func<TErr, TOk> onErr) =>
-        onErr(Value);
+        Value;
 
     /// <inheritdoc />
-    public override TErr UnwrapErr() => Value;
+    public override TErr UnwrapErr() => throw UnwrapException.For(this);
 
     /// <inheritdoc />
-    public override Result<TOk, TErr> Inspect(Action<TOk> action) => this;
-
-    /// <inheritdoc />
-    public override Result<TOk, TErr> InspectErr(Action<TErr> action)
+    public override Result<TOk, TErr> Inspect(Action<TOk> action)
     {
         action(Value);
         return this;
     }
 
     /// <inheritdoc />
+    public override Result<TOk, TErr> InspectErr(Action<TErr> action) => this;
+
+    /// <inheritdoc />
     public override Result<TOk2, TErr> Map<TOk2>(Func<TOk, TOk2> map) =>
-        Result.Err<TOk2, TErr>(Value);
+        Result.Ok<TOk2, TErr>(map(Value));
 
     /// <inheritdoc />
     public override TOk2 MapOr<TOk2>(
         TOk2 @default,
-        Func<TOk, TOk2> map) => @default;
+        Func<TOk, TOk2> map) => map(Value);
 
     /// <inheritdoc />
     public override TOk2 MapOrElse<TOk2>(
         Func<TErr, TOk2> createDefault,
-        Func<TOk, TOk2> map) => createDefault(Value);
+        Func<TOk, TOk2> map) => map(Value);
 
     /// <inheritdoc />
     public override Result<TOk, TErr2> MapErr<TErr2>(Func<TErr, TErr2> map) =>
-        Result.Err<TOk, TErr2>(map(Value));
+        Result.Ok<TOk, TErr2>(Value);
 
     /// <inheritdoc />
-    public override Option<TOk> GetOk() => Option.None<TOk>();
+    public override Option<TOk> GetOk() => Option.Some(Value);
 
     /// <inheritdoc />
-    public override Option<TErr> GetErr() => Option.Some(Value);
+    public override Option<TErr> GetErr() => Option.None<TErr>();
 }

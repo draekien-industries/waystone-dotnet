@@ -1,6 +1,4 @@
-﻿namespace Waystone.Monads.Tests.Extensions;
-
-using Monads.Extensions;
+﻿namespace Waystone.Monads.Options.Extensions;
 
 public sealed class OptionsCollectionExtensionsTests
 {

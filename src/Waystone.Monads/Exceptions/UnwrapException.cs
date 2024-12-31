@@ -1,6 +1,8 @@
 ﻿namespace Waystone.Monads.Exceptions;
 
 using System;
+using Options;
+using Results;
 
 /// <summary>
 /// An exception which is thrown when attempting to <c>Unwrap</c> a

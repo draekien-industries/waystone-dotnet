@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <RootNamespace>Waystone.Monads</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

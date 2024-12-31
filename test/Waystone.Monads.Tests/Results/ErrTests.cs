@@ -1,9 +1,10 @@
-﻿namespace Waystone.Monads.Tests;
+﻿namespace Waystone.Monads.Results;
 
 using Exceptions;
+using Options;
 
 [TestSubject(typeof(Err<,>))]
-public class ErrTest
+public class ErrTests
 {
     [Fact]
     public void WhenCreatingErr_ThenEvaluateToErr()
