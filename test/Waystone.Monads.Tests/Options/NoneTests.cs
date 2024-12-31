@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Tests;
+﻿namespace Waystone.Monads.Options;
 
 using Exceptions;
 

@@ -1,6 +1,8 @@
 ﻿namespace Waystone.Monads.Exceptions;
 
 using System;
+using Options;
+using Results;
 
 /// <summary>
 /// An exception that is thrown with a <see cref="None{T}" /> or

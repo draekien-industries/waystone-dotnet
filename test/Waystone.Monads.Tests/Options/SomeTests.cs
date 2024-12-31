@@ -1,7 +1,7 @@
-﻿namespace Waystone.Monads.Tests;
+﻿namespace Waystone.Monads.Options;
 
 [TestSubject(typeof(Some<>))]
-public class SomeTests
+public sealed class SomeTests
 {
     [Fact]
     public void GivenDefault_WhenCreatingSome_ThenThrow()

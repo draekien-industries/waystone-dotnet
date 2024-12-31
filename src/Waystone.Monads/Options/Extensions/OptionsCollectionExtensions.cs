@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Extensions;
+﻿namespace Waystone.Monads.Options.Extensions;
 
 using System;
 using System.Collections.Generic;
