@@ -57,7 +57,7 @@ public static class Option
     /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
     /// <see cref="None{T}" />
     /// </returns>
-    public static async Task<Option<T>> BindAsync<T>(
+    public static async Task<Option<T>> Bind<T>(
         Func<Task<T>> asyncFactory,
         Action<Exception>? onError = null) where T : notnull
     {
