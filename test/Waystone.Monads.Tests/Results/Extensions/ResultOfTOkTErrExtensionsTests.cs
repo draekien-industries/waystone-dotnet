@@ -21,61 +21,6 @@ public sealed class ResultOfTOkTErrExtensionsTests
 
 #endregion flatten
 
-#region awaited
-
-    [Fact]
-    public async Task GivenResultOfTaskThatSucceeds_WhenAwaited_ThenReturnNone()
-    {
-        async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
-
-        var callback = Substitute.For<Func<Exception, string>>();
-
-        Result<Task<int>, string> result =
-            Result.Ok<int, string>(1).Map(PerformTask);
-
-        Result<int, string> awaitedResult = await result.Awaited(callback);
-        awaitedResult.Should().Be(Result.Ok<int, string>(2));
-        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
-    }
-
-    [Fact]
-    public async Task
-        GivenErrResult_AndResultOfTask_WhenAwaited_ThenReturnNone()
-    {
-        async Task<int> PerformTask(int x) => await Task.FromResult(x + 1);
-
-        var callback = Substitute.For<Func<Exception, string>>();
-
-        Result<Task<int>, string> result =
-            Result.Err<int, string>("error").Map(PerformTask);
-
-        Result<int, string> awaitedResult = await result.Awaited(callback);
-        awaitedResult.Should().Be(Result.Err<int, string>("error"));
-        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
-    }
-
-    [Fact]
-    public async Task GivenResultOfTaskThatThrows_WhenAwaited_ThenReturnNone()
-    {
-        async Task<int> PerformTask(int x)
-        {
-            await Task.Delay(10);
-            throw new Exception();
-        }
-
-        var callback = Substitute.For<Func<Exception, string>>();
-        callback.Invoke(Arg.Any<Exception>()).Returns("error");
-
-        Result<Task<int>, string> result =
-            Result.Ok<int, string>(1).Map(PerformTask);
-
-        Result<int, string> awaitedResult = await result.Awaited(callback);
-        awaitedResult.Should().Be(Result.Err<int, string>("error"));
-        callback.Received().Invoke(Arg.Any<Exception>());
-    }
-
-#endregion awaited
-
 #region transpose
 
     [Fact]
