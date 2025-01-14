@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
+using System.Threading.Tasks;
 
 /// <summary>Some value of type <typeparamref name="T" /></summary>
 /// <typeparam name="T">
@@ -34,13 +35,39 @@ public sealed record Some<T> : Option<T>
         predicate(Value);
 
     /// <inheritdoc />
+    public override async Task<bool> IsSomeAnd(Func<T, Task<bool>> predicate) =>
+        await predicate(Value);
+
+    /// <inheritdoc />
+    public override async ValueTask<bool> IsSomeAnd(
+        Func<T, ValueTask<bool>> predicate) => await predicate(Value);
+
+    /// <inheritdoc />
     public override bool IsNoneOr(Func<T, bool> predicate) =>
         predicate(Value);
+
+    /// <inheritdoc />
+    public override async Task<bool> IsNoneOr(Func<T, Task<bool>> predicate) =>
+        await predicate(Value);
+
+    /// <inheritdoc />
+    public override async ValueTask<bool> IsNoneOr(
+        Func<T, ValueTask<bool>> predicate) => await predicate(Value);
 
     /// <inheritdoc />
     public override TOut Match<TOut>(
         Func<T, TOut> onSome,
         Func<TOut> onNone) => onSome(Value);
+
+    /// <inheritdoc />
+    public override async Task<TOut> Match<TOut>(
+        Func<T, Task<TOut>> onSome,
+        Func<Task<TOut>> onNone) => await onSome(Value);
+
+    /// <inheritdoc />
+    public override async ValueTask<TOut> Match<TOut>(
+        Func<T, ValueTask<TOut>> onSome,
+        Func<ValueTask<TOut>> onNone) => await onSome(Value);
 
     /// <inheritdoc />
     public override void Match(Action<T> onSome, Action onNone)
@@ -68,17 +95,52 @@ public sealed record Some<T> : Option<T>
         Value;
 
     /// <inheritdoc />
+    public override Task<T> UnwrapOrElse(Func<Task<T>> @else) =>
+        Task.FromResult(Value);
+
+    /// <inheritdoc />
+    public override ValueTask<T> UnwrapOrElse(Func<ValueTask<T>> @else) =>
+        ValueTask.FromResult(Value);
+
+    /// <inheritdoc />
     public override Option<T2> Map<T2>(Func<T, T2> map) =>
-        Option.Some(map(Value));
+        map(Value);
+
+    /// <inheritdoc />
+    public override async Task<Option<T2>> Map<T2>(Func<T, Task<T2>> map) =>
+        await map(Value);
+
+    /// <inheritdoc />
+    public override async ValueTask<Option<T2>> Map<T2>(
+        Func<T, ValueTask<T2>> map) => await map(Value);
 
     /// <inheritdoc />
     public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
         map(Value);
 
     /// <inheritdoc />
+    public override async Task<T2>
+        MapOr<T2>(T2 @default, Func<T, Task<T2>> map) => await map(Value);
+
+    /// <inheritdoc />
+    public override async ValueTask<T2> MapOr<T2>(
+        T2 @default,
+        Func<T, ValueTask<T2>> map) => await map(Value);
+
+    /// <inheritdoc />
     public override T2 MapOrElse<T2>(
         Func<T2> createDefault,
         Func<T, T2> map) => Match(map, createDefault);
+
+    /// <inheritdoc />
+    public override async Task<T2> MapOrElse<T2>(
+        Func<Task<T2>> createDefault,
+        Func<T, Task<T2>> map) => await map(Value);
+
+    /// <inheritdoc />
+    public override async ValueTask<T2> MapOrElse<T2>(
+        Func<ValueTask<T2>> createDefault,
+        Func<T, ValueTask<T2>> map) => await map(Value);
 
     /// <inheritdoc />
     public override Option<T> Inspect(Action<T> action)
@@ -88,8 +150,34 @@ public sealed record Some<T> : Option<T>
     }
 
     /// <inheritdoc />
+    public override async Task<Option<T>> Inspect(Func<T, Task> action)
+    {
+        await action(Value);
+        return this;
+    }
+
+
+    /// <inheritdoc />
+    public override async ValueTask<Option<T>> Inspect(
+        Func<T, ValueTask> action)
+    {
+        await action(Value);
+        return this;
+    }
+
+    /// <inheritdoc />
     public override Option<T> Filter(Func<T, bool> predicate) =>
         predicate(Value) ? this : Option.None<T>();
+
+    /// <inheritdoc />
+    public override async Task<Option<T>>
+        Filter(Func<T, Task<bool>> predicate) =>
+        await predicate(Value) ? this : Option.None<T>();
+
+    /// <inheritdoc />
+    public override async ValueTask<Option<T>> Filter(
+        Func<T, ValueTask<bool>> predicate) =>
+        await predicate(Value) ? this : Option.None<T>();
 
     /// <inheritdoc />
     public override Option<T> Or(Option<T> other) =>
@@ -98,6 +186,15 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> OrElse(Func<Option<T>> createElse) =>
         this;
+
+    /// <inheritdoc />
+    public override Task<Option<T>> OrElse(
+        Func<Task<Option<T>>> createElse) => Task.FromResult<Option<T>>(this);
+
+    /// <inheritdoc />
+    public override ValueTask<Option<T>> OrElse(
+        Func<ValueTask<Option<T>>> createElse) =>
+        ValueTask.FromResult<Option<T>>(this);
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>

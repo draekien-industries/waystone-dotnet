@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
+using System.Threading.Tasks;
 using Exceptions;
 
 /// <summary>
@@ -26,29 +27,38 @@ public abstract record Option<T> where T : notnull
     /// Returns <see langword="true" /> if the option is a
     /// <see cref="Some{T}" /> and the value inside of it matches a predicate.
     /// </summary>
-    /// <param name="predicate">A <see cref="Predicate{T}" /></param>
+    /// <param name="predicate">The condition to evaluate the option against</param>
     public abstract bool IsSomeAnd(Func<T, bool> predicate);
+
+    /// <inheritdoc cref="IsSomeAnd(System.Func{T,bool})" />
+    public abstract Task<bool> IsSomeAnd(
+        Func<T, Task<bool>> predicate);
+
+    /// <inheritdoc cref="IsSomeAnd(System.Func{T,bool})" />
+    public abstract ValueTask<bool> IsSomeAnd(
+        Func<T, ValueTask<bool>> predicate);
 
     /// <summary>
     /// Returns <see langword="true" /> if the option is a
     /// <see cref="None{T}" /> or the value inside of it matches a predicate.
     /// </summary>
-    /// <param name="predicate">A <see cref="Predicate{T}" /></param>
+    /// <param name="predicate">The condition to evaluate the option against</param>
     public abstract bool IsNoneOr(Func<T, bool> predicate);
+
+    /// <inheritdoc cref="IsNoneOr(System.Func{T,bool})" />
+    public abstract Task<bool> IsNoneOr(Func<T, Task<bool>> predicate);
+
+    /// <inheritdoc cref="IsNoneOr(System.Func{T,bool})" />
+    public abstract ValueTask<bool> IsNoneOr(
+        Func<T, ValueTask<bool>> predicate);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the option, invoking the
     /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
     /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
     /// </summary>
-    /// <param name="onSome">
-    /// A <see cref="Func{T, TResult}" /> for handling the
-    /// <see cref="Some{T}" /> case.
-    /// </param>
-    /// <param name="onNone">
-    /// A <see cref="Func{TResult}" /> for handling the
-    /// <see cref="None{T}" /> case.
-    /// </param>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
     /// <typeparam name="TOut">The returned type.</typeparam>
     /// <returns>
     /// The output of either the <paramref name="onSome" /> or
@@ -61,14 +71,40 @@ public abstract record Option<T> where T : notnull
     /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
     /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
     /// </summary>
-    /// <param name="onSome">
-    /// A <see cref="Action{T}" /> for handling the
-    /// <see cref="Some{T}" /> case.
-    /// </param>
-    /// <param name="onNone">
-    /// A <see cref="Action" /> for handling the
-    /// <see cref="None{T}" /> case.
-    /// </param>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
+    /// <typeparam name="TOut">The returned type.</typeparam>
+    /// <returns>
+    /// The output of either the <paramref name="onSome" /> or
+    /// <paramref name="onNone" /> callback.
+    /// </returns>
+    public abstract Task<TOut> Match<TOut>(
+        Func<T, Task<TOut>> onSome,
+        Func<Task<TOut>> onNone);
+
+    /// <summary>
+    /// Performs a <see langword="switch" /> on the option, invoking the
+    /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
+    /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
+    /// </summary>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
+    /// <typeparam name="TOut">The returned type.</typeparam>
+    /// <returns>
+    /// The output of either the <paramref name="onSome" /> or
+    /// <paramref name="onNone" /> callback.
+    /// </returns>
+    public abstract ValueTask<TOut> Match<TOut>(
+        Func<T, ValueTask<TOut>> onSome,
+        Func<ValueTask<TOut>> onNone);
+
+    /// <summary>
+    /// Performs a <see langword="switch" /> on the option, invoking the
+    /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
+    /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
+    /// </summary>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
     public abstract void Match(Action<T> onSome, Action onNone);
 
     /// <summary>
@@ -89,10 +125,9 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <remarks>
     /// Because this function may throw an exception, its use is generally
-    /// discouraged. Instead, prefer to use the <see cref="Match{TOut}" /> function and
-    /// handle the <see cref="None{T}" /> case explicitly, or call
-    /// <see cref="UnwrapOr" />, <see cref="UnwrapOrElse" />, or
-    /// <see cref="UnwrapOrDefault" />.
+    /// discouraged. Instead, prefer to use the <code>Match</code> function and handle
+    /// the <see cref="None{T}" /> case explicitly, or call <code>UnwrapOr</code>.
+    /// <code>UnwrapOrElse</code>, or <code>UnwrapOrDefault</code>
     /// </remarks>
     /// <exception cref="UnwrapException">
     /// Throws if the option equals
@@ -126,6 +161,26 @@ public abstract record Option<T> where T : notnull
     public abstract T UnwrapOrElse(Func<T> @else);
 
     /// <summary>
+    /// Returns the contained <see cref="Some{T}" /> value or computes it from
+    /// a delegate.
+    /// </summary>
+    /// <param name="else">
+    /// The delegate which computes the <see cref="None{T}" />
+    /// value.
+    /// </param>
+    public abstract Task<T> UnwrapOrElse(Func<Task<T>> @else);
+
+    /// <summary>
+    /// Returns the contained <see cref="Some{T}" /> value or computes it from
+    /// a delegate.
+    /// </summary>
+    /// <param name="else">
+    /// The delegate which computes the <see cref="None{T}" />
+    /// value.
+    /// </param>
+    public abstract ValueTask<T> UnwrapOrElse(Func<ValueTask<T>> @else);
+
+    /// <summary>
     /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
     /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
     /// <see cref="None{T}" /> (if <see cref="None{T}" />).
@@ -135,6 +190,26 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T2> Map<T2>(Func<T, T2> map) where T2 : notnull;
 
     /// <summary>
+    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
+    /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
+    /// <see cref="None{T}" /> (if <see cref="None{T}" />).
+    /// </summary>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract Task<Option<T2>> Map<T2>(Func<T, Task<T2>> map)
+        where T2 : notnull;
+
+    /// <summary>
+    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
+    /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
+    /// <see cref="None{T}" /> (if <see cref="None{T}" />).
+    /// </summary>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract ValueTask<Option<T2>> Map<T2>(Func<T, ValueTask<T2>> map)
+        where T2 : notnull;
+
+    /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
@@ -142,6 +217,26 @@ public abstract record Option<T> where T : notnull
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
     public abstract T2 MapOr<T2>(T2 @default, Func<T, T2> map);
+
+    /// <summary>
+    /// Returns the provided default result (if <see cref="None{T}" />), or
+    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// </summary>
+    /// <param name="default">The default value for a <see cref="None{T}" />.</param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract Task<T2> MapOr<T2>(T2 @default, Func<T, Task<T2>> map);
+
+    /// <summary>
+    /// Returns the provided default result (if <see cref="None{T}" />), or
+    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// </summary>
+    /// <param name="default">The default value for a <see cref="None{T}" />.</param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract ValueTask<T2> MapOr<T2>(
+        T2 @default,
+        Func<T, ValueTask<T2>> map);
 
     /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
@@ -156,12 +251,56 @@ public abstract record Option<T> where T : notnull
     public abstract T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map);
 
     /// <summary>
+    /// Computes a default from a function (if <see cref="None{T}" />), or
+    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// </summary>
+    /// <param name="createDefault">
+    /// The function that will create a default value for a
+    /// <see cref="None{T}" />.
+    /// </param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract Task<T2> MapOrElse<T2>(
+        Func<Task<T2>> createDefault,
+        Func<T, Task<T2>> map);
+
+    /// <summary>
+    /// Computes a default from a function (if <see cref="None{T}" />), or
+    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// </summary>
+    /// <param name="createDefault">
+    /// The function that will create a default value for a
+    /// <see cref="None{T}" />.
+    /// </param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract ValueTask<T2> MapOrElse<T2>(
+        Func<ValueTask<T2>> createDefault,
+        Func<T, ValueTask<T2>> map);
+
+    /// <summary>
     /// Calls a function with a reference to the contained value if
     /// <see cref="Some{T}" />
     /// </summary>
     /// <param name="action">The function to execute against the value.</param>
     /// <returns>The original <see cref="Option{T}" /></returns>
     public abstract Option<T> Inspect(Action<T> action);
+
+    /// <summary>
+    /// Calls a function with a reference to the contained value if
+    /// <see cref="Some{T}" />
+    /// </summary>
+    /// <param name="action">The function to execute against the value.</param>
+    /// <returns>The original <see cref="Option{T}" /></returns>
+    public abstract Task<Option<T>> Inspect(Func<T, Task> action);
+
+    /// <summary>
+    /// Calls a function with a reference to the contained value if
+    /// <see cref="Some{T}" />
+    /// </summary>
+    /// <param name="action">The function to execute against the value.</param>
+    /// <returns>The original <see cref="Option{T}" /></returns>
+    public abstract ValueTask<Option<T>> Inspect(Func<T, ValueTask> action);
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
@@ -183,6 +322,45 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T> Filter(Func<T, bool> predicate);
 
     /// <summary>
+    /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
+    /// otherwise calls the <paramref name="predicate" /> with the wrapped value and
+    /// returns:
+    /// <list type="bullet">
+    /// <item>
+    /// <see cref="Some{T}" /> if the <paramref name="predicate" /> returns
+    /// <see langword="true" /> (where <typeparamref name="T" /> is the wrapped value),
+    /// and
+    /// </item>
+    /// <item>
+    /// <see cref="None{T}" /> if the <paramref name="predicate" /> returns
+    /// <see langword="false" />.
+    /// </item>
+    /// </list>
+    /// </summary>
+    /// <param name="predicate">The filter function.</param>
+    public abstract Task<Option<T>> Filter(Func<T, Task<bool>> predicate);
+
+    /// <summary>
+    /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
+    /// otherwise calls the <paramref name="predicate" /> with the wrapped value and
+    /// returns:
+    /// <list type="bullet">
+    /// <item>
+    /// <see cref="Some{T}" /> if the <paramref name="predicate" /> returns
+    /// <see langword="true" /> (where <typeparamref name="T" /> is the wrapped value),
+    /// and
+    /// </item>
+    /// <item>
+    /// <see cref="None{T}" /> if the <paramref name="predicate" /> returns
+    /// <see langword="false" />.
+    /// </item>
+    /// </list>
+    /// </summary>
+    /// <param name="predicate">The filter function.</param>
+    public abstract ValueTask<Option<T>> Filter(
+        Func<T, ValueTask<bool>> predicate);
+
+    /// <summary>
     /// Returns the option if it contains a value, otherwise returns
     /// <paramref name="other" />
     /// </summary>
@@ -195,6 +373,21 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="createElse">The function that will create the other option.</param>
     public abstract Option<T> OrElse(Func<Option<T>> createElse);
+
+    /// <summary>
+    /// Returns the option if it contains a value, otherwise invokes the
+    /// <paramref name="createElse" /> function and returns the result.
+    /// </summary>
+    /// <param name="createElse">The function that will create the other option.</param>
+    public abstract Task<Option<T>> OrElse(Func<Task<Option<T>>> createElse);
+
+    /// <summary>
+    /// Returns the option if it contains a value, otherwise invokes the
+    /// <paramref name="createElse" /> function and returns the result.
+    /// </summary>
+    /// <param name="createElse">The function that will create the other option.</param>
+    public abstract ValueTask<Option<T>> OrElse(
+        Func<ValueTask<Option<T>>> createElse);
 
     /// <summary>
     /// Returns <see cref="Some{T}" /> if exactly one of
