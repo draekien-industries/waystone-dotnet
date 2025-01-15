@@ -58,7 +58,7 @@ public static class Result
     /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
     /// otherwise a <see cref="Err{TOk,TErr}" />
     /// </returns>
-    public static async Task<Result<TOk, TErr>> BindAsync<TOk, TErr>(
+    public static async Task<Result<TOk, TErr>> Bind<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError) where TOk : notnull where TErr : notnull
     {

@@ -1,44 +1,11 @@
 ﻿namespace Waystone.Monads.Options.Extensions;
 
-using System;
-using System.Threading.Tasks;
 using Results;
 using static Option;
 
 /// <summary>Extensions for <see cref="Option{T}" /></summary>
 public static class OptionOfTExtensions
 {
-    /// <summary>
-    /// Converts an <see cref="Option{T}" /> of a <see cref="Task" /> into a
-    /// <see cref="Task{T}" /> of an <see cref="Option{T}" />
-    /// </summary>
-    /// <param name="optionOfTask">An option of a task</param>
-    /// <param name="onError">
-    /// Optional. A callback which will be invoked if the
-    /// resolution of the <see cref="Task{T}" /> throws an exception. Not providing one
-    /// will mean the exception gets swallowed.
-    /// </param>
-    /// <typeparam name="T">The return value of the task</typeparam>
-    /// <returns>A task of an option</returns>
-    public static async Task<Option<T>> Awaited<T>(
-        this Option<Task<T>> optionOfTask,
-        Action<Exception>? onError = null)
-        where T : notnull
-    {
-        try
-        {
-            if (optionOfTask.IsNone) return None<T>();
-
-            T value = await optionOfTask.Unwrap().ConfigureAwait(false);
-            return Some(value);
-        }
-        catch (Exception ex)
-        {
-            onError?.Invoke(ex);
-            return None<T>();
-        }
-    }
-
     /// <summary>Unzips an option containing a tuple value into two options.</summary>
     /// <param name="option">The option to be unzipped.</param>
     /// <typeparam name="T1">The first option value's type.</typeparam>
