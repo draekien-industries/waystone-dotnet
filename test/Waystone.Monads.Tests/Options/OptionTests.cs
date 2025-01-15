@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using FluentAssertions;
     using JetBrains.Annotations;
     using NSubstitute;
+    using Shouldly;
     using Xunit;
 
     [TestSubject(typeof(Option))]
@@ -18,7 +18,7 @@
 
             Option<int> option = await optionTask;
 
-            option.Should().Be(Option.Some(42));
+            option.ShouldBe(Option.Some(42));
         }
 
         [Fact]
@@ -36,7 +36,7 @@
 
             Option<int> option = await optionTask;
 
-            option.Should().Be(Option.None<int>());
+            option.ShouldBe(Option.None<int>());
             callback.Received().Invoke(Arg.Any<Exception>());
         }
 
@@ -46,7 +46,7 @@
         {
             var callback = Substitute.For<Action<Exception>>();
             Option<int> option = Option.Bind(() => 1, callback);
-            option.Should().Be(Option.Some(1));
+            option.ShouldBe(Option.Some(1));
             callback.DidNotReceive().Invoke(Arg.Any<Exception>());
         }
 
@@ -64,7 +64,7 @@
 #pragma warning restore CS0162 // Unreachable code detected
                 },
                 callback);
-            option.Should().Be(Option.None<int>());
+            option.ShouldBe(Option.None<int>());
             callback.Received(1).Invoke(Arg.Any<Exception>());
         }
 
@@ -83,12 +83,12 @@
 #pragma warning restore CS8604 // Possible null reference argument.
             Option<Guid> option6 = Guid.NewGuid();
 
-            option1.IsSome.Should().BeFalse();
-            option2.IsSome.Should().BeTrue();
-            option3.IsSome.Should().BeTrue();
-            option4.IsSome.Should().BeFalse();
-            option5.IsSome.Should().BeFalse();
-            option6.IsSome.Should().BeTrue();
+            option1.IsSome.ShouldBeFalse();
+            option2.IsSome.ShouldBeTrue();
+            option3.IsSome.ShouldBeTrue();
+            option4.IsSome.ShouldBeFalse();
+            option5.IsSome.ShouldBeFalse();
+            option6.IsSome.ShouldBeTrue();
         }
     }
 }

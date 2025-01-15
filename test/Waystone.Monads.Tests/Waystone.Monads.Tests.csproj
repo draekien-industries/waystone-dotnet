@@ -16,4 +16,9 @@
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Shouldly"/>
+        <PackageReference Remove="FluentAssertions"/>
+    </ItemGroup>
+
 </Project>

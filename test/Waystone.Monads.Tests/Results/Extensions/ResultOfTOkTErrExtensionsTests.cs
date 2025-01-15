@@ -1,8 +1,8 @@
 ﻿namespace Waystone.Monads.Results.Extensions
 {
-    using FluentAssertions;
     using JetBrains.Annotations;
     using Options;
+    using Shouldly;
     using Xunit;
 
     [TestSubject(typeof(Result))]
@@ -19,7 +19,7 @@
 
             Result<string, string> flattened = nested.Flatten();
 
-            flattened.Unwrap().Should().Be("1");
+            flattened.Unwrap().ShouldBe("1");
         }
 
 #endregion flatten
@@ -34,8 +34,8 @@
 
             Option<Result<int, string>> result = okOfSome.Transpose();
 
-            result.IsSome.Should().BeTrue();
-            result.Unwrap().Should().Be(ok);
+            result.IsSome.ShouldBeTrue();
+            result.Unwrap().ShouldBe(ok);
         }
 
         [Fact]
@@ -46,7 +46,7 @@
 
             Option<Result<int, string>> result = none.Transpose();
 
-            result.IsNone.Should().BeTrue();
+            result.IsNone.ShouldBeTrue();
         }
 
         [Fact]
@@ -57,8 +57,8 @@
 
             Option<Result<int, string>> result = errOfSome.Transpose();
 
-            result.IsSome.Should().BeTrue();
-            result.Unwrap().Should().Be(err);
+            result.IsSome.ShouldBeTrue();
+            result.Unwrap().ShouldBe(err);
         }
 
         [Fact]
@@ -70,8 +70,8 @@
 
             Option<Result<int, string>> result = errOfNone.Transpose();
 
-            result.IsSome.Should().BeTrue();
-            result.Unwrap().Should().Be(err);
+            result.IsSome.ShouldBeTrue();
+            result.Unwrap().ShouldBe(err);
         }
 
 #endregion transpose

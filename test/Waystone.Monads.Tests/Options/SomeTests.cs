@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using FluentAssertions;
     using JetBrains.Annotations;
     using NSubstitute;
+    using Shouldly;
     using Xunit;
 
     [TestSubject(typeof(Some<>))]
@@ -19,9 +19,9 @@
             Func<Option<object>> someDefaultObject =
                 () => Option.Some(default(object));
 
-            someDefaultNumber.Should().Throw<InvalidOperationException>();
-            someDefaultString.Should().Throw<InvalidOperationException>();
-            someDefaultObject.Should().Throw<InvalidOperationException>();
+            someDefaultNumber.ShouldThrow<InvalidOperationException>();
+            someDefaultString.ShouldThrow<InvalidOperationException>();
+            someDefaultObject.ShouldThrow<InvalidOperationException>();
         }
 
         [Fact]
@@ -29,15 +29,15 @@
         {
             Option<int> some = Option.Some(1);
 
-            some.IsSome.Should().BeTrue();
-            some.IsNone.Should().BeFalse();
+            some.IsSome.ShouldBeTrue();
+            some.IsNone.ShouldBeFalse();
 
-            some.Unwrap().Should().Be(1);
-            some.UnwrapOr(10).Should().Be(1);
-            some.UnwrapOrDefault().Should().Be(1);
-            some.UnwrapOrElse(() => 10).Should().Be(1);
+            some.Unwrap().ShouldBe(1);
+            some.UnwrapOr(10).ShouldBe(1);
+            some.UnwrapOrDefault().ShouldBe(1);
+            some.UnwrapOrElse(() => 10).ShouldBe(1);
 
-            some.Expect("value is 1").Should().Be(1);
+            some.Expect("value is 1").ShouldBe(1);
         }
 
         [Fact]
@@ -45,8 +45,8 @@
         {
             Option<int> some = Option.Some(1);
 
-            some.Or(Option.Some(2)).Should().Be(some);
-            some.OrElse(() => Option.Some(2)).Should().Be(some);
+            some.Or(Option.Some(2)).ShouldBe(some);
+            some.OrElse(() => Option.Some(2)).ShouldBe(some);
         }
 
         [Fact]
@@ -54,7 +54,7 @@
         {
             Option<int> some = Option.Some(1);
 
-            some.Xor(Option.Some(2)).Should().Be(Option.None<int>());
+            some.Xor(Option.Some(2)).ShouldBe(Option.None<int>());
         }
 
         [Fact]
@@ -62,7 +62,7 @@
         {
             Option<int> some = Option.Some(1);
 
-            some.Xor(Option.None<int>()).Should().Be(some);
+            some.Xor(Option.None<int>()).ShouldBe(some);
         }
 
         [Fact]
@@ -72,7 +72,7 @@
             Option<int> some = Option.Some(1);
             Option<int> other = Option.Some(1);
 
-            some.Should().Be(other);
+            some.ShouldBe(other);
         }
 
         [Theory]
@@ -86,7 +86,7 @@
 
             bool result = some.IsSomeAnd(x => x == 1);
 
-            result.Should().Be(expected);
+            result.ShouldBe(expected);
         }
 
         [Theory]
@@ -100,7 +100,7 @@
 
             bool result = some.IsNoneOr(x => x == 1);
 
-            result.Should().Be(expected);
+            result.ShouldBe(expected);
         }
 
         [Fact]
@@ -116,7 +116,7 @@
 
             bool result = some.Match(onSome, onNone);
 
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
         }
 
         [Fact]
@@ -140,7 +140,7 @@
 
             Option<int> result = some.Map(x => x + 1);
 
-            result.Unwrap().Should().Be(2);
+            result.Unwrap().ShouldBe(2);
         }
 
         [Fact]
@@ -150,7 +150,7 @@
 
             int result = some.MapOr(10, x => x + 1);
 
-            result.Should().Be(2);
+            result.ShouldBe(2);
         }
 
         [Fact]
@@ -160,7 +160,7 @@
 
             int result = some.MapOrElse(() => 10, x => x + 1);
 
-            result.Should().Be(2);
+            result.ShouldBe(2);
         }
 
         [Fact]
@@ -178,7 +178,7 @@
         {
             Option<int> some = Option.Some(1);
             Option<int> result = some.Filter(x => x == 1);
-            result.Should().Be(some);
+            result.ShouldBe(some);
         }
 
         [Fact]
@@ -186,7 +186,7 @@
         {
             Option<int> some = Option.Some(1);
             Option<int> result = some.Filter(x => x == 2);
-            result.Should().Be(Option.None<int>());
+            result.ShouldBe(Option.None<int>());
         }
 
         [Fact]
@@ -195,7 +195,7 @@
             Option<int> some1 = Option.Some(1);
             Option<int> some2 = Option.Some(2);
             Option<(int, int)> result = some1.Zip(some2);
-            result.Should().Be(Option.Some((1, 2)));
+            result.ShouldBe(Option.Some((1, 2)));
         }
 
         [Fact]
@@ -203,7 +203,7 @@
         {
             Option<int> some = Option.Some(1);
             Option<(int, int)> result = some.Zip(Option.None<int>());
-            result.Should().Be(Option.None<(int, int)>());
+            result.ShouldBe(Option.None<(int, int)>());
         }
 
         [Fact]
@@ -214,8 +214,8 @@
             bool isSome = await some.IsSomeAnd(_ => Task.FromResult(true));
             bool isNone = await some.IsNoneOr(_ => Task.FromResult(false));
 
-            isSome.Should().BeTrue();
-            isNone.Should().BeFalse();
+            isSome.ShouldBeTrue();
+            isNone.ShouldBeFalse();
 
             int value = await some.UnwrapOrElse(() => Task.FromResult(10));
             int valueOr = await some.UnwrapOrElse(() => Task.FromResult(10));
@@ -224,14 +224,14 @@
             int valueOrElse =
                 await some.UnwrapOrElse(() => Task.FromResult(10));
 
-            value.Should().Be(1);
-            valueOr.Should().Be(1);
-            valueOrDefault.Should().Be(1);
-            valueOrElse.Should().Be(1);
+            value.ShouldBe(1);
+            valueOr.ShouldBe(1);
+            valueOrDefault.ShouldBe(1);
+            valueOrElse.ShouldBe(1);
 
             int expectedValue =
                 await some.UnwrapOrElse(() => Task.FromResult(1));
-            expectedValue.Should().Be(1);
+            expectedValue.ShouldBe(1);
         }
 
         [Fact]
@@ -244,8 +244,8 @@
             Option<int> resultOrElse =
                 await some.OrElse(() => Task.FromResult(Option.Some(2)));
 
-            resultOr.Should().Be(some);
-            resultOrElse.Should().Be(some);
+            resultOr.ShouldBe(some);
+            resultOrElse.ShouldBe(some);
         }
 
         [Fact]
@@ -261,7 +261,7 @@
 
             bool result = await some.Match(onSome, onNone);
 
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
         }
 
         [Fact]
@@ -284,7 +284,7 @@
 
             Option<int> result = await some.Map(x => Task.FromResult(x + 1));
 
-            result.Unwrap().Should().Be(2);
+            result.Unwrap().ShouldBe(2);
         }
 
         [Fact]
@@ -294,7 +294,7 @@
 
             int result = await some.MapOr(10, x => Task.FromResult(x + 1));
 
-            result.Should().Be(2);
+            result.ShouldBe(2);
         }
 
         [Fact]
@@ -306,7 +306,7 @@
                 () => Task.FromResult(10),
                 x => Task.FromResult(x + 1));
 
-            result.Should().Be(2);
+            result.ShouldBe(2);
         }
 
         [Fact]
@@ -326,7 +326,7 @@
             Option<int> some = Option.Some(1);
             Option<int> result =
                 await some.Filter(x => Task.FromResult(x == 1));
-            result.Should().Be(some);
+            result.ShouldBe(some);
         }
 
         [Fact]
@@ -336,7 +336,7 @@
             Option<int> some = Option.Some(1);
             Option<int> result =
                 await some.Filter(x => Task.FromResult(x == 2));
-            result.Should().Be(Option.None<int>());
+            result.ShouldBe(Option.None<int>());
         }
 
         [Fact]
@@ -350,8 +350,8 @@
             bool isNone =
                 await some.IsNoneOr(_ => new ValueTask<bool>(false));
 
-            isSome.Should().BeTrue();
-            isNone.Should().BeFalse();
+            isSome.ShouldBeTrue();
+            isNone.ShouldBeFalse();
 
             int value =
                 await some.UnwrapOrElse(() => new ValueTask<int>(10));
@@ -362,14 +362,14 @@
             int valueOrElse =
                 await some.UnwrapOrElse(() => new ValueTask<int>(10));
 
-            value.Should().Be(1);
-            valueOr.Should().Be(1);
-            valueOrDefault.Should().Be(1);
-            valueOrElse.Should().Be(1);
+            value.ShouldBe(1);
+            valueOr.ShouldBe(1);
+            valueOrDefault.ShouldBe(1);
+            valueOrElse.ShouldBe(1);
 
             int expectedValue =
                 await some.UnwrapOrElse(() => new ValueTask<int>(1));
-            expectedValue.Should().Be(1);
+            expectedValue.ShouldBe(1);
         }
 
         [Fact]
@@ -389,8 +389,8 @@
                             Option.Some(2)))
                 ;
 
-            resultOr.Should().Be(some);
-            resultOrElse.Should().Be(some);
+            resultOr.ShouldBe(some);
+            resultOrElse.ShouldBe(some);
         }
 
         [Fact]
@@ -407,7 +407,7 @@
 
             bool result = await some.Match(onSome, onNone);
 
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
         }
 
         [Fact]
@@ -432,7 +432,7 @@
             Option<int> result =
                 await some.Map(x => new ValueTask<int>(x + 1));
 
-            result.Unwrap().Should().Be(2);
+            result.Unwrap().ShouldBe(2);
         }
 
         [Fact]
@@ -443,7 +443,7 @@
             int result =
                 await some.MapOr(10, x => new ValueTask<int>(x + 1));
 
-            result.Should().Be(2);
+            result.ShouldBe(2);
         }
 
         [Fact]
@@ -456,7 +456,7 @@
                 () => new ValueTask<int>(10),
                 x => new ValueTask<int>(x + 1));
 
-            result.Should().Be(2);
+            result.ShouldBe(2);
         }
 
         [Fact]
@@ -476,7 +476,7 @@
             Option<int> some = Option.Some(1);
             Option<int> result =
                 await some.Filter(x => new ValueTask<bool>(x == 1));
-            result.Should().Be(some);
+            result.ShouldBe(some);
         }
 
         [Fact]
@@ -486,7 +486,7 @@
             Option<int> some = Option.Some(1);
             Option<int> result =
                 await some.Filter(x => new ValueTask<bool>(x == 2));
-            result.Should().Be(Option.None<int>());
+            result.ShouldBe(Option.None<int>());
         }
     }
 }

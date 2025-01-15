@@ -3,10 +3,10 @@
     using System;
     using System.Threading.Tasks;
     using Exceptions;
-    using FluentAssertions;
     using JetBrains.Annotations;
     using NSubstitute;
     using Options;
+    using Shouldly;
     using Xunit;
 
     [TestSubject(typeof(Err<,>))]
@@ -17,8 +17,7 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.IsOk.Should().BeFalse();
-            result.IsErr.Should().BeTrue();
+            result.IsOk.ShouldBeFalse();
         }
 
         [Fact]
@@ -26,16 +25,16 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.IsOkAnd(_ => true).Should().BeFalse();
-            result.IsOkAnd(_ => false).Should().BeFalse();
+            result.IsOkAnd(_ => true).ShouldBeFalse();
+            result.IsOkAnd(_ => false).ShouldBeFalse();
         }
 
         [Fact]
         public void WhenIsErrAnd_ThenReturnPredicateResult()
         {
             Result<int, string> result = Result.Err<int, string>("error");
-            result.IsErrAnd(_ => true).Should().BeTrue();
-            result.IsErrAnd(_ => false).Should().BeFalse();
+            result.IsErrAnd(_ => true).ShouldBeTrue();
+            result.IsErrAnd(_ => false).ShouldBeFalse();
         }
 
         [Fact]
@@ -51,7 +50,7 @@
 
             bool output = result.Match(onOk, onErr);
 
-            output.Should().BeFalse();
+            output.ShouldBeFalse();
             onOk.DidNotReceive().Invoke(Arg.Any<int>());
             onErr.Received(1).Invoke("error");
         }
@@ -76,12 +75,10 @@
             Result<int, string> result = Result.Err<int, string>("error");
 
             result.And(Result.Ok<string, string>("success"))
-                  .Should()
-                  .Be(Result.Err<string, string>("error"));
+                  .ShouldBe(Result.Err<string, string>("error"));
 
             result.And(Result.Err<bool, string>("error 2"))
-                  .Should()
-                  .Be(Result.Err<bool, string>("error"));
+                  .ShouldBe(Result.Err<bool, string>("error"));
         }
 
         [Fact]
@@ -90,12 +87,10 @@
             Result<int, string> result = Result.Err<int, string>("error");
 
             result.AndThen(_ => Result.Ok<string, string>("success"))
-                  .Should()
-                  .Be(Result.Err<string, string>("error"));
+                  .ShouldBe(Result.Err<string, string>("error"));
 
             result.AndThen(_ => Result.Err<bool, string>("error 2"))
-                  .Should()
-                  .Be(Result.Err<bool, string>("error"));
+                  .ShouldBe(Result.Err<bool, string>("error"));
         }
 
         [Fact]
@@ -104,12 +99,10 @@
             Result<int, string> result = Result.Err<int, string>("error");
 
             result.Or(Result.Ok<int, bool>(1))
-                  .Should()
-                  .Be(Result.Ok<int, bool>(1));
+                  .ShouldBe(Result.Ok<int, bool>(1));
 
             result.Or(Result.Err<int, bool>(false))
-                  .Should()
-                  .Be(Result.Err<int, bool>(false));
+                  .ShouldBe(Result.Err<int, bool>(false));
         }
 
         [Fact]
@@ -118,12 +111,10 @@
             Result<int, string> result = Result.Err<int, string>("error");
 
             result.OrElse(_ => Result.Ok<int, bool>(1))
-                  .Should()
-                  .Be(Result.Ok<int, bool>(1));
+                  .ShouldBe(Result.Ok<int, bool>(1));
 
             result.OrElse(_ => Result.Err<int, bool>(false))
-                  .Should()
-                  .Be(Result.Err<int, bool>(false));
+                  .ShouldBe(Result.Err<int, bool>(false));
         }
 
         [Fact]
@@ -131,10 +122,9 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.Invoking(x => x.Expect("Error should not occur"))
-                  .Should()
-                  .Throw<UnmetExpectationException>()
-                  .WithMessage("Error should not occur: error");
+            Should.Throw<UnmetExpectationException>(
+                       () => result.Expect("Error should not occur"))
+                  .Message.ShouldBe("Error should not occur: error");
         }
 
         [Fact]
@@ -142,7 +132,7 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.ExpectErr("Error should have occurred").Should().Be("error");
+            result.ExpectErr("Error should have occurred").ShouldBe("error");
         }
 
         [Fact]
@@ -150,9 +140,7 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.Invoking(x => x.Unwrap())
-                  .Should()
-                  .Throw<UnwrapException>();
+            Should.Throw<UnwrapException>(() => result.Unwrap());
         }
 
         [Fact]
@@ -160,9 +148,9 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.UnwrapOr(10).Should().Be(10);
-            result.UnwrapOrDefault().Should().Be(default);
-            result.UnwrapOrElse(_ => 10).Should().Be(10);
+            result.UnwrapOr(10).ShouldBe(10);
+            result.UnwrapOrDefault().ShouldBe(default);
+            result.UnwrapOrElse(_ => 10).ShouldBe(10);
         }
 
         [Fact]
@@ -170,7 +158,7 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.UnwrapErr().Should().Be("error");
+            result.UnwrapErr().ShouldBe("error");
         }
 
         [Fact]
@@ -180,7 +168,7 @@
 
             var action = Substitute.For<Action<int>>();
 
-            result.Inspect(action).Should().Be(result);
+            result.Inspect(action).ShouldBe(result);
             action.DidNotReceive().Invoke(Arg.Any<int>());
         }
 
@@ -191,7 +179,7 @@
 
             var action = Substitute.For<Action<string>>();
 
-            result.InspectErr(action).Should().Be(result);
+            result.InspectErr(action).ShouldBe(result);
             action.Received(1).Invoke("error");
         }
 
@@ -200,8 +188,8 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.MapOr(10, x => x + 1).Should().Be(10);
-            result.MapOrElse(_ => 10, x => x + 1).Should().Be(10);
+            result.MapOr(10, x => x + 1).ShouldBe(10);
+            result.MapOrElse(_ => 10, x => x + 1).ShouldBe(10);
         }
 
         [Fact]
@@ -210,8 +198,7 @@
             Result<int, string> result = Result.Err<int, string>("error");
 
             result.MapErr(x => $"{x} 1")
-                  .Should()
-                  .Be(Result.Err<int, string>("error 1"));
+                  .ShouldBe(Result.Err<int, string>("error 1"));
         }
 
         [Fact]
@@ -219,7 +206,7 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.GetOk().Should().Be(Option.None<int>());
+            result.GetOk().ShouldBe(Option.None<int>());
         }
 
         [Fact]
@@ -227,7 +214,7 @@
         {
             Result<int, string> result = Result.Err<int, string>("error");
 
-            result.GetErr().Should().Be(Option.Some("error"));
+            result.GetErr().ShouldBe(Option.Some("error"));
         }
 
         [Fact]
@@ -235,8 +222,8 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.IsOkAnd(_ => Task.FromResult(true))).Should().BeFalse();
-            (await err.IsOkAnd(_ => Task.FromResult(false))).Should().BeFalse();
+            (await err.IsOkAnd(_ => Task.FromResult(true))).ShouldBeFalse();
+            (await err.IsOkAnd(_ => Task.FromResult(false))).ShouldBeFalse();
         }
 
         [Fact]
@@ -244,10 +231,9 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.IsOkAnd(_ => new ValueTask<bool>(true))).Should()
-               .BeFalse();
-            (await err.IsOkAnd(_ => new ValueTask<bool>(false))).Should()
-               .BeFalse();
+            (await err.IsOkAnd(_ => new ValueTask<bool>(true))).ShouldBeFalse();
+            (await err.IsOkAnd(_ => new ValueTask<bool>(false)))
+               .ShouldBeFalse();
         }
 
         [Fact]
@@ -255,9 +241,8 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.IsErrAnd(_ => Task.FromResult(true))).Should().BeTrue();
-            (await err.IsErrAnd(_ => Task.FromResult(false))).Should()
-               .BeFalse();
+            (await err.IsErrAnd(_ => Task.FromResult(true))).ShouldBeTrue();
+            (await err.IsErrAnd(_ => Task.FromResult(false))).ShouldBeFalse();
         }
 
         [Fact]
@@ -265,10 +250,9 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.IsErrAnd(_ => new ValueTask<bool>(true))).Should()
-               .BeTrue();
-            (await err.IsErrAnd(_ => new ValueTask<bool>(false))).Should()
-               .BeFalse();
+            (await err.IsErrAnd(_ => new ValueTask<bool>(true))).ShouldBeTrue();
+            (await err.IsErrAnd(_ => new ValueTask<bool>(false)))
+               .ShouldBeFalse();
         }
 
         [Fact]
@@ -284,7 +268,7 @@
 
             bool result = await err.Match(onOk, onErr);
 
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
             await onOk.DidNotReceive().Invoke(Arg.Any<int>());
             await onErr.Received(1).Invoke("error");
         }
@@ -302,7 +286,7 @@
 
             bool result = await err.Match(onOk, onErr);
 
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
             await onOk.DidNotReceive().Invoke(Arg.Any<int>());
             await onErr.Received(1).Invoke("error");
         }
@@ -313,7 +297,7 @@
             Result<int, string> err = Result.Err<int, string>("error");
             Result<string, string> result = await err.AndThen(
                 x => Task.FromResult(Result.Ok<string, string>(x.ToString())));
-            result.Should().Be(Result.Err<string, string>("error"));
+            result.ShouldBe(Result.Err<string, string>("error"));
         }
 
         [Fact]
@@ -323,7 +307,7 @@
             Result<string, string> result = await err.AndThen(
                 x => new ValueTask<Result<string, string>>(
                     Result.Ok<string, string>(x.ToString())));
-            result.Should().Be(Result.Err<string, string>("error"));
+            result.ShouldBe(Result.Err<string, string>("error"));
         }
 
         [Fact]
@@ -332,12 +316,10 @@
             Result<int, string> err = Result.Err<int, string>("error");
 
             (await err.OrElse(_ => Task.FromResult(Result.Ok<int, bool>(1))))
-               .Should()
-               .Be(Result.Ok<int, bool>(1));
+               .ShouldBe(Result.Ok<int, bool>(1));
             (await err.OrElse(
                     _ => Task.FromResult(Result.Err<int, bool>(false))))
-               .Should()
-               .Be(Result.Err<int, bool>(false));
+               .ShouldBe(Result.Err<int, bool>(false));
         }
 
         [Fact]
@@ -348,14 +330,11 @@
             (await err.OrElse(
                     _ => new ValueTask<Result<int, bool>>(
                         Result.Ok<int, bool>(1))))
-               .Should()
-               .Be(Result.Ok<int, bool>(1));
+               .ShouldBe(Result.Ok<int, bool>(1));
             (await err.OrElse(
                     _ => new ValueTask<Result<int, bool>>(
-                        Result.Err<int, bool>(false)))).Should()
-               .Be(
-                    Result.Err<int, bool>(
-                        false));
+                        Result.Err<int, bool>(false))))
+               .ShouldBe(Result.Err<int, bool>(false));
         }
 
         [Fact]
@@ -365,7 +344,7 @@
 
             var inspect = Substitute.For<Func<int, Task>>();
 
-            (await err.Inspect(inspect)).Should().Be(err);
+            (await err.Inspect(inspect)).ShouldBe(err);
             await inspect.DidNotReceive().Invoke(Arg.Any<int>());
         }
 
@@ -376,7 +355,7 @@
 
             var inspect = Substitute.For<Func<int, ValueTask>>();
 
-            (await err.Inspect(inspect)).Should().Be(err);
+            (await err.Inspect(inspect)).ShouldBe(err);
             await inspect.DidNotReceive().Invoke(Arg.Any<int>());
         }
 
@@ -387,7 +366,7 @@
 
             var inspect = Substitute.For<Func<string, Task>>();
 
-            (await err.InspectErr(inspect)).Should().Be(err);
+            (await err.InspectErr(inspect)).ShouldBe(err);
             await inspect.Received(1).Invoke("error");
         }
 
@@ -398,7 +377,7 @@
 
             var inspect = Substitute.For<Func<string, ValueTask>>();
 
-            (await err.InspectErr(inspect)).Should().Be(err);
+            (await err.InspectErr(inspect)).ShouldBe(err);
             await inspect.Received(1).Invoke("error");
         }
 
@@ -407,8 +386,8 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.Map(x => Task.FromResult(x + 1))).Should()
-               .Be(Result.Err<int, string>("error"));
+            (await err.Map(x => Task.FromResult(x + 1))).ShouldBe(
+                Result.Err<int, string>("error"));
         }
 
         [Fact]
@@ -416,8 +395,8 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.Map(x => new ValueTask<int>(x + 1))).Should()
-               .Be(Result.Err<int, string>("error"));
+            (await err.Map(x => new ValueTask<int>(x + 1))).ShouldBe(
+                Result.Err<int, string>("error"));
         }
 
         [Fact]
@@ -425,7 +404,7 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.MapOr(10, x => Task.FromResult(x + 1))).Should().Be(10);
+            (await err.MapOr(10, x => Task.FromResult(x + 1))).ShouldBe(10);
         }
 
         [Fact]
@@ -433,8 +412,7 @@
         {
             Result<int, string> err = Result.Err<int, string>("error");
 
-            (await err.MapOr(10, x => new ValueTask<int>(x + 1))).Should()
-               .Be(10);
+            (await err.MapOr(10, x => new ValueTask<int>(x + 1))).ShouldBe(10);
         }
 
         [Fact]
@@ -444,8 +422,8 @@
 
             (await err.MapOrElse(
                     _ => Task.FromResult(10),
-                    x => Task.FromResult(x + 1))).Should()
-                                                 .Be(10);
+                    x => Task.FromResult(x + 1)))
+               .ShouldBe(10);
         }
 
         [Fact]
@@ -455,8 +433,8 @@
 
             (await err.MapOrElse(
                     _ => new ValueTask<int>(10),
-                    x => new ValueTask<int>(x + 1))).Should()
-               .Be(10);
+                    x => new ValueTask<int>(x + 1)))
+               .ShouldBe(10);
         }
 
         [Fact]
@@ -465,7 +443,7 @@
             Result<int, string> err = Result.Err<int, string>("error");
 
             int value = await err.UnwrapOrElse(_ => Task.FromResult(10));
-            value.Should().Be(10);
+            value.ShouldBe(10);
         }
 
         [Fact]
@@ -474,7 +452,7 @@
             Result<int, string> err = Result.Err<int, string>("error");
 
             int value = await err.UnwrapOrElse(_ => new ValueTask<int>(10));
-            value.Should().Be(10);
+            value.ShouldBe(10);
         }
 
         [Fact]
@@ -484,7 +462,7 @@
 
             Result<int, int> result =
                 await err.MapErr(_ => Task.FromResult(10));
-            result.Should().Be(Result.Err<int, int>(10));
+            result.ShouldBe(Result.Err<int, int>(10));
         }
 
         [Fact]
@@ -494,7 +472,7 @@
 
             Result<int, int> result =
                 await err.MapErr(_ => new ValueTask<int>(10));
-            result.Should().Be(Result.Err<int, int>(10));
+            result.ShouldBe(Result.Err<int, int>(10));
         }
     }
 }
