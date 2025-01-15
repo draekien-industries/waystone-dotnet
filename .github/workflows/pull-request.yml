@@ -90,7 +90,7 @@ jobs:
       - name: Test
         env:
           ASPNETCORE_ENVIRONMENT: Test
-        run: dotnet test --no-restore --collect:"XPlat Code Coverage"
+        run: dotnet test --no-restore --collect:"XPlat Code Coverage" --framework net8.0
 
       - name: Codecov
         uses: codecov/codecov-action@v5
