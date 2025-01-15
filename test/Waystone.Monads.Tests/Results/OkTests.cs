@@ -420,5 +420,41 @@
                     x => new ValueTask<int>(x + 1))).Should()
                .Be(2);
         }
+
+        [Fact]
+        public async Task WhenUnwrapOrElseAsync_ThenReturnValue()
+        {
+            Result<int, string> ok = Result.Ok<int, string>(1);
+
+            int value = await ok.UnwrapOrElse(_ => Task.FromResult(10));
+            value.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task WhenUnwrapOrElseValueTaskAsync_ThenReturnValue()
+        {
+            Result<int, string> ok = Result.Ok<int, string>(1);
+
+            int value = await ok.UnwrapOrElse(_ => new ValueTask<int>(10));
+            value.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task WhenMapErrAsync_ThenDoNothing()
+        {
+            Result<int, string> ok = Result.Ok<int, string>(1);
+            Result<int, int> result =
+                await ok.MapErr(_ => Task.FromResult(10));
+            result.Should().Be(Result.Ok<int, int>(1));
+        }
+
+        [Fact]
+        public async Task WhenMapErrValueTaskAsync_ThenDoNothing()
+        {
+            Result<int, string> ok = Result.Ok<int, string>(1);
+            Result<int, int> result =
+                await ok.MapErr(_ => new ValueTask<int>(10));
+            result.Should().Be(Result.Ok<int, int>(1));
+        }
     }
 }
