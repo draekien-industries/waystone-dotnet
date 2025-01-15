@@ -118,4 +118,207 @@ public class NoneTest
         none.Xor(Option.None<int>()).Should().Be(Option.None<int>());
         none.Xor(Option.Some(1)).Should().Be(Option.Some(1));
     }
+
+    [Fact]
+    public async Task GivenNone_WhenAccessingValueAsync_ThenReturnFallback()
+    {
+        Option<int> none = Option.None<int>();
+
+        bool isSome = await none.IsSomeAnd(_ => Task.FromResult(true));
+        bool isNone = await none.IsNoneOr(_ => Task.FromResult(false));
+
+        isSome.Should().BeFalse();
+        isNone.Should().BeTrue();
+
+        int value = await none.UnwrapOrElse(() => Task.FromResult(10));
+        value.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task
+        GivenNone_WhenAccessingValueAsyncWithValueTask_ThenReturnFallback()
+    {
+        Option<int> none = Option.None<int>();
+
+        bool isSome = await none.IsSomeAnd(_ => new ValueTask<bool>(true));
+        bool isNone = await none.IsNoneOr(_ => new ValueTask<bool>(false));
+
+        isSome.Should().BeFalse();
+        isNone.Should().BeTrue();
+
+        int value = await none.UnwrapOrElse(() => new ValueTask<int>(10));
+        value.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenMatchWithFuncAsync_ThenInvokeOnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        var onSome = Substitute.For<Func<int, Task<int>>>();
+        var onNone = Substitute.For<Func<Task<int>>>();
+        onNone.Invoke().Returns(Task.FromResult(10));
+
+        int result = await none.Match(onSome, onNone);
+
+        result.Should().Be(10);
+        await onNone.Received(1).Invoke();
+        await onSome.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenNone_WhenMatchWithFuncAsyncWithValueTask_ThenInvokeOnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        var onSome = Substitute.For<Func<int, ValueTask<int>>>();
+        var onNone = Substitute.For<Func<ValueTask<int>>>();
+        onNone.Invoke().Returns(new ValueTask<int>(10));
+
+        int result = await none.Match(onSome, onNone);
+
+        result.Should().Be(10);
+        await onNone.Received(1).Invoke();
+        await onSome.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenMapAsync_ThenReturnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        Option<int> result = await none.Map(x => Task.FromResult(x + 1));
+
+        result.Should().Be(none);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenMapAsyncWithValueTask_ThenReturnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        Option<int> result = await none.Map(x => new ValueTask<int>(x + 1));
+
+        result.Should().Be(none);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenMapOrAsync_ThenReturnDefault()
+    {
+        Option<int> none = Option.None<int>();
+
+        int result = await none.MapOr(10, x => Task.FromResult(x + 1));
+
+        result.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenMapOrAsyncWithValueTask_ThenReturnDefault()
+    {
+        Option<int> none = Option.None<int>();
+
+        int result = await none.MapOr(10, x => new ValueTask<int>(x + 1));
+
+        result.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenMapOrElseAsync_ThenReturnDefault()
+    {
+        Option<int> none = Option.None<int>();
+
+        int result = await none.MapOrElse(
+            () => Task.FromResult(10),
+            x => Task.FromResult(x + 1));
+
+        result.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task
+        GivenNone_WhenMapOrElseAsyncWithValueTask_ThenReturnDefault()
+    {
+        Option<int> none = Option.None<int>();
+
+        int result = await none.MapOrElse(
+            () => new ValueTask<int>(10),
+            x => new ValueTask<int>(x + 1));
+
+        result.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenInspectAsync_ThenDoNothing()
+    {
+        Option<int> none = Option.None<int>();
+
+        var action = Substitute.For<Func<int, Task>>();
+
+        Option<int> result = await none.Inspect(action);
+
+        result.Should().Be(none);
+        await action.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenInspectAsyncWithValueTask_ThenDoNothing()
+    {
+        Option<int> none = Option.None<int>();
+
+        var action = Substitute.For<Func<int, ValueTask>>();
+
+        Option<int> result = await none.Inspect(action);
+
+        result.Should().Be(none);
+        await action.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenFilterAsync_ThenDoNothing()
+    {
+        Option<int> none = Option.None<int>();
+
+        var filter = Substitute.For<Func<int, Task<bool>>>();
+
+        Option<int> result = await none.Filter(filter);
+
+        result.Should().Be(none);
+        await filter.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenFilterAsyncWithValueTask_ThenDoNothing()
+    {
+        Option<int> none = Option.None<int>();
+
+        var filter = Substitute.For<Func<int, ValueTask<bool>>>();
+
+        Option<int> result = await none.Filter(filter);
+
+        result.Should().Be(none);
+        await filter.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenOrElseAsync_ThenReturnOther()
+    {
+        Option<int> none = Option.None<int>();
+
+        Option<int> result =
+            await none.OrElse(() => Task.FromResult(Option.Some(1)));
+
+        result.Should().Be(Option.Some(1));
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenOrElseAsyncWithValueTask_ThenReturnOther()
+    {
+        Option<int> none = Option.None<int>();
+
+        Option<int> result = await none.OrElse(
+            () => new ValueTask<Option<int>>(Option.Some(1)));
+
+        result.Should().Be(Option.Some(1));
+    }
 }
