@@ -186,4 +186,225 @@ public class OkTests
         Result<int, string> ok = Result.Ok<int, string>(1);
         ok.GetErr().Should().Be(Option.None<string>());
     }
+
+    [Fact]
+    public async Task WhenIsOkAndAsync_ThenReturnPredicateResult()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.IsOkAnd(_ => Task.FromResult(false))).Should().BeFalse();
+        (await ok.IsOkAnd(_ => Task.FromResult(true))).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task WhenIsOkAndValueTaskAsync_ThenReturnPredicateResult()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.IsOkAnd(_ => new ValueTask<bool>(false))).Should().BeFalse();
+        (await ok.IsOkAnd(_ => new ValueTask<bool>(true))).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task WhenIsErrAndAsync_ThenReturnFalse()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.IsErrAnd(_ => Task.FromResult(true))).Should().BeFalse();
+        (await ok.IsErrAnd(_ => Task.FromResult(false))).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WhenIsErrAndValueTaskAsync_ThenReturnFalse()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.IsErrAnd(_ => new ValueTask<bool>(true))).Should().BeFalse();
+        (await ok.IsErrAnd(_ => new ValueTask<bool>(false))).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GivenFunc_WhenMatchAsync_ThenInvokeOnOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        var onOk = Substitute.For<Func<int, Task<bool>>>();
+        onOk.Invoke(1).Returns(Task.FromResult(true));
+
+        var onErr = Substitute.For<Func<string, Task<bool>>>();
+        onErr.Invoke(Arg.Any<string>()).Returns(Task.FromResult(false));
+
+        bool result = await ok.Match(onOk, onErr);
+
+        result.Should().BeTrue();
+        await onOk.Received(1).Invoke(1);
+        await onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task GivenFunc_WhenMatchValueTaskAsync_ThenInvokeOnOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        var onOk = Substitute.For<Func<int, ValueTask<bool>>>();
+        onOk.Invoke(1).Returns(new ValueTask<bool>(true));
+
+        var onErr = Substitute.For<Func<string, ValueTask<bool>>>();
+        onErr.Invoke(Arg.Any<string>()).Returns(new ValueTask<bool>(false));
+
+        bool result = await ok.Match(onOk, onErr);
+
+        result.Should().BeTrue();
+        await onOk.Received(1).Invoke(1);
+        await onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task WhenAndThenAsync_ThenReturnOther()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        Result<string, string> result = await ok.AndThen(
+            x => Task.FromResult(Result.Ok<string, string>(x.ToString())));
+        result.Should().Be(Result.Ok<string, string>("1"));
+    }
+
+    [Fact]
+    public async Task WhenAndThenValueTaskAsync_ThenReturnOther()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        Result<string, string> result = await ok.AndThen(
+            x => new ValueTask<Result<string, string>>(
+                Result.Ok<string, string>(x.ToString())));
+        result.Should().Be(Result.Ok<string, string>("1"));
+    }
+
+    [Fact]
+    public async Task WhenOrElseAsync_ThenReturnOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.OrElse(_ => Task.FromResult(Result.Ok<int, bool>(2))))
+           .Should()
+           .Be(Result.Ok<int, bool>(1));
+        (await ok.OrElse(_ => Task.FromResult(Result.Err<int, bool>(false))))
+           .Should()
+           .Be(Result.Ok<int, bool>(1));
+    }
+
+    [Fact]
+    public async Task WhenOrElseValueTaskAsync_ThenReturnOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.OrElse(
+                _ => new ValueTask<Result<int, bool>>(Result.Ok<int, bool>(2))))
+           .Should()
+           .Be(Result.Ok<int, bool>(1));
+        (await ok.OrElse(
+                _ => new ValueTask<Result<int, bool>>(
+                    Result.Err<int, bool>(false)))).Should()
+                                                   .Be(Result.Ok<int, bool>(1));
+    }
+
+    [Fact]
+    public async Task WhenInspectAsync_ThenInvokeInspect()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        var inspect = Substitute.For<Func<int, Task>>();
+
+        (await ok.Inspect(inspect)).Should().Be(ok);
+        await inspect.Received(1).Invoke(1);
+    }
+
+    [Fact]
+    public async Task WhenInspectValueTaskAsync_ThenInvokeInspect()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        var inspect = Substitute.For<Func<int, ValueTask>>();
+
+        (await ok.Inspect(inspect)).Should().Be(ok);
+        await inspect.Received(1).Invoke(1);
+    }
+
+    [Fact]
+    public async Task WhenInspectErrAsync_ThenDoNothing()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        var inspect = Substitute.For<Func<string, Task>>();
+
+        (await ok.InspectErr(inspect)).Should().Be(ok);
+        await inspect.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task WhenInspectErrValueTaskAsync_ThenDoNothing()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        var inspect = Substitute.For<Func<string, ValueTask>>();
+
+        (await ok.InspectErr(inspect)).Should().Be(ok);
+        await inspect.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task WhenMapAsync_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.Map(x => Task.FromResult(x + 1))).Should()
+                                                   .Be(
+                                                        Result.Ok<int, string>(
+                                                            2));
+    }
+
+    [Fact]
+    public async Task WhenMapValueTaskAsync_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.Map(x => new ValueTask<int>(x + 1))).Should()
+           .Be(Result.Ok<int, string>(2));
+    }
+
+    [Fact]
+    public async Task WhenMapOrAsync_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.MapOr(10, x => Task.FromResult(x + 1))).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task WhenMapOrValueTaskAsync_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.MapOr(10, x => new ValueTask<int>(x + 1))).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task WhenMapOrElseAsync_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.MapOrElse(
+                _ => Task.FromResult(10),
+                x => Task.FromResult(x + 1))).Should()
+                                             .Be(2);
+    }
+
+    [Fact]
+    public async Task WhenMapOrElseValueTaskAsync_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        (await ok.MapOrElse(
+                _ => new ValueTask<int>(10),
+                x => new ValueTask<int>(x + 1))).Should()
+                                                .Be(2);
+    }
 }

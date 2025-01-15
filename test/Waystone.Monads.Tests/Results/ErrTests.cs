@@ -223,4 +223,226 @@ public class ErrTests
 
         result.GetErr().Should().Be(Option.Some<string>("error"));
     }
+
+    [Fact]
+    public async Task WhenIsOkAndAsync_ThenReturnFalse()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.IsOkAnd(_ => Task.FromResult(true))).Should().BeFalse();
+        (await err.IsOkAnd(_ => Task.FromResult(false))).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WhenIsOkAndValueTaskAsync_ThenReturnFalse()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.IsOkAnd(_ => new ValueTask<bool>(true))).Should().BeFalse();
+        (await err.IsOkAnd(_ => new ValueTask<bool>(false))).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WhenIsErrAndAsync_ThenReturnPredicateResult()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.IsErrAnd(_ => Task.FromResult(true))).Should().BeTrue();
+        (await err.IsErrAnd(_ => Task.FromResult(false))).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WhenIsErrAndValueTaskAsync_ThenReturnPredicateResult()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.IsErrAnd(_ => new ValueTask<bool>(true))).Should().BeTrue();
+        (await err.IsErrAnd(_ => new ValueTask<bool>(false))).Should()
+           .BeFalse();
+    }
+
+    [Fact]
+    public async Task GivenFunc_WhenMatchAsync_ThenInvokeOnErr()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        var onOk = Substitute.For<Func<int, Task<bool>>>();
+        onOk.Invoke(Arg.Any<int>()).Returns(Task.FromResult(true));
+
+        var onErr = Substitute.For<Func<string, Task<bool>>>();
+        onErr.Invoke("error").Returns(Task.FromResult(false));
+
+        bool result = await err.Match(onOk, onErr);
+
+        result.Should().BeFalse();
+        await onOk.DidNotReceive().Invoke(Arg.Any<int>());
+        await onErr.Received(1).Invoke("error");
+    }
+
+    [Fact]
+    public async Task GivenFunc_WhenMatchValueTaskAsync_ThenInvokeOnErr()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        var onOk = Substitute.For<Func<int, ValueTask<bool>>>();
+        onOk.Invoke(Arg.Any<int>()).Returns(new ValueTask<bool>(true));
+
+        var onErr = Substitute.For<Func<string, ValueTask<bool>>>();
+        onErr.Invoke("error").Returns(new ValueTask<bool>(false));
+
+        bool result = await err.Match(onOk, onErr);
+
+        result.Should().BeFalse();
+        await onOk.DidNotReceive().Invoke(Arg.Any<int>());
+        await onErr.Received(1).Invoke("error");
+    }
+
+    [Fact]
+    public async Task WhenAndThenAsync_ThenReturnError()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+        Result<string, string> result = await err.AndThen(
+            x => Task.FromResult(Result.Ok<string, string>(x.ToString())));
+        result.Should().Be(Result.Err<string, string>("error"));
+    }
+
+    [Fact]
+    public async Task WhenAndThenValueTaskAsync_ThenReturnError()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+        Result<string, string> result = await err.AndThen(
+            x => new ValueTask<Result<string, string>>(
+                Result.Ok<string, string>(x.ToString())));
+        result.Should().Be(Result.Err<string, string>("error"));
+    }
+
+    [Fact]
+    public async Task WhenOrElseAsync_ThenReturnOther()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.OrElse(_ => Task.FromResult(Result.Ok<int, bool>(1))))
+           .Should()
+           .Be(Result.Ok<int, bool>(1));
+        (await err.OrElse(_ => Task.FromResult(Result.Err<int, bool>(false))))
+           .Should()
+           .Be(Result.Err<int, bool>(false));
+    }
+
+    [Fact]
+    public async Task WhenOrElseValueTaskAsync_ThenReturnOther()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.OrElse(
+                _ => new ValueTask<Result<int, bool>>(Result.Ok<int, bool>(1))))
+           .Should()
+           .Be(Result.Ok<int, bool>(1));
+        (await err.OrElse(
+                _ => new ValueTask<Result<int, bool>>(
+                    Result.Err<int, bool>(false)))).Should()
+                                                   .Be(
+                                                        Result.Err<int, bool>(
+                                                            false));
+    }
+
+    [Fact]
+    public async Task WhenInspectAsync_ThenDoNothing()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        var inspect = Substitute.For<Func<int, Task>>();
+
+        (await err.Inspect(inspect)).Should().Be(err);
+        await inspect.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task WhenInspectValueTaskAsync_ThenDoNothing()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        var inspect = Substitute.For<Func<int, ValueTask>>();
+
+        (await err.Inspect(inspect)).Should().Be(err);
+        await inspect.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task WhenInspectErrAsync_ThenInvokeInspect()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        var inspect = Substitute.For<Func<string, Task>>();
+
+        (await err.InspectErr(inspect)).Should().Be(err);
+        await inspect.Received(1).Invoke("error");
+    }
+
+    [Fact]
+    public async Task WhenInspectErrValueTaskAsync_ThenInvokeInspect()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        var inspect = Substitute.For<Func<string, ValueTask>>();
+
+        (await err.InspectErr(inspect)).Should().Be(err);
+        await inspect.Received(1).Invoke("error");
+    }
+
+    [Fact]
+    public async Task WhenMapAsync_ThenReturnError()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.Map(x => Task.FromResult(x + 1))).Should()
+           .Be(Result.Err<int, string>("error"));
+    }
+
+    [Fact]
+    public async Task WhenMapValueTaskAsync_ThenReturnError()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.Map(x => new ValueTask<int>(x + 1))).Should()
+           .Be(Result.Err<int, string>("error"));
+    }
+
+    [Fact]
+    public async Task WhenMapOrAsync_ThenReturnDefault()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.MapOr(10, x => Task.FromResult(x + 1))).Should().Be(10);
+    }
+
+    [Fact]
+    public async Task WhenMapOrValueTaskAsync_ThenReturnDefault()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.MapOr(10, x => new ValueTask<int>(x + 1))).Should().Be(10);
+    }
+
+    [Fact]
+    public async Task WhenMapOrElseAsync_ThenReturnDefault()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.MapOrElse(
+                _ => Task.FromResult(10),
+                x => Task.FromResult(x + 1))).Should()
+                                             .Be(10);
+    }
+
+    [Fact]
+    public async Task WhenMapOrElseValueTaskAsync_ThenReturnDefault()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        (await err.MapOrElse(
+                _ => new ValueTask<int>(10),
+                x => new ValueTask<int>(x + 1))).Should()
+                                                .Be(10);
+    }
 }
