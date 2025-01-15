@@ -6,10 +6,6 @@
         <LangVersion>13.0</LangVersion>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-
-    </PropertyGroup>
-
     <PropertyGroup>
         <Title>Waystone.Monads</Title>
         <Description>A .NET implementationof the Rust std::option and std::result types</Description>
