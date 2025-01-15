@@ -25,7 +25,7 @@ public sealed record None<T> : Option<T>
 
     /// <inheritdoc />
     public override ValueTask<bool> IsSomeAnd(
-        Func<T, ValueTask<bool>> predicate) => ValueTask.FromResult(false);
+        Func<T, ValueTask<bool>> predicate) => new(false);
 
     /// <inheritdoc />
     public override bool IsNoneOr(Func<T, bool> predicate) =>
@@ -38,7 +38,7 @@ public sealed record None<T> : Option<T>
     /// <inheritdoc />
     public override ValueTask<bool>
         IsNoneOr(Func<T, ValueTask<bool>> predicate) =>
-        ValueTask.FromResult(true);
+        new(true);
 
     /// <inheritdoc />
     public override TOut Match<TOut>(
@@ -99,7 +99,7 @@ public sealed record None<T> : Option<T>
 
     /// <inheritdoc />
     public override ValueTask<Option<T2>> Map<T2>(Func<T, ValueTask<T2>> map) =>
-        ValueTask.FromResult(Option.None<T2>());
+        new(Option.None<T2>());
 
     /// <inheritdoc />
     public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
@@ -113,7 +113,7 @@ public sealed record None<T> : Option<T>
     /// <inheritdoc />
     public override ValueTask<T2> MapOr<T2>(
         T2 @default,
-        Func<T, ValueTask<T2>> map) => ValueTask.FromResult(@default);
+        Func<T, ValueTask<T2>> map) => new(@default);
 
     /// <inheritdoc />
     public override T2 MapOrElse<T2>(
@@ -140,7 +140,7 @@ public sealed record None<T> : Option<T>
 
     /// <inheritdoc />
     public override ValueTask<Option<T>> Inspect(Func<T, ValueTask> action) =>
-        ValueTask.FromResult<Option<T>>(this);
+        new(this);
 
     /// <inheritdoc />
     public override Option<T> Filter(Func<T, bool> predicate) =>
@@ -153,7 +153,7 @@ public sealed record None<T> : Option<T>
     /// <inheritdoc />
     public override ValueTask<Option<T>> Filter(
         Func<T, ValueTask<bool>> predicate) =>
-        ValueTask.FromResult<Option<T>>(this);
+        new(this);
 
     /// <inheritdoc />
     public override Option<T> Or(Option<T> other) =>

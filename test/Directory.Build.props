@@ -17,12 +17,4 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
-
-    <ItemGroup>
-        <Using Include="Xunit"/>
-        <Using Include="AutoFixture"/>
-        <Using Include="NSubstitute"/>
-        <Using Include="FluentAssertions"/>
-        <Using Include="JetBrains.Annotations"/>
-    </ItemGroup>
 </Project>

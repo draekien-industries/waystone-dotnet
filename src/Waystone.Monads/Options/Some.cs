@@ -100,7 +100,7 @@ public sealed record Some<T> : Option<T>
 
     /// <inheritdoc />
     public override ValueTask<T> UnwrapOrElse(Func<ValueTask<T>> @else) =>
-        ValueTask.FromResult(Value);
+        new(Value);
 
     /// <inheritdoc />
     public override Option<T2> Map<T2>(Func<T, T2> map) =>
@@ -194,7 +194,7 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override ValueTask<Option<T>> OrElse(
         Func<ValueTask<Option<T>>> createElse) =>
-        ValueTask.FromResult<Option<T>>(this);
+        new(this);
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>

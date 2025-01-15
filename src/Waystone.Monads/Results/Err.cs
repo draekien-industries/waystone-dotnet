@@ -35,7 +35,7 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override ValueTask<bool> IsOkAnd(
         Func<TOk, ValueTask<bool>> predicate) =>
-        ValueTask.FromResult(false);
+        new(false);
 
     /// <inheritdoc />
     public override bool IsErrAnd(Func<TErr, bool> predicate) =>
@@ -93,7 +93,7 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override ValueTask<Result<TOut, TErr>> AndThen<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> createOther) =>
-        ValueTask.FromResult<Result<TOut, TErr>>(Value);
+        new(Value);
 
     /// <inheritdoc />
     public override Result<TOk, TOut> Or<TOut>(Result<TOk, TOut> other) =>
@@ -159,7 +159,7 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override ValueTask<Result<TOk, TErr>> Inspect(
         Func<TOk, ValueTask> action) =>
-        ValueTask.FromResult<Result<TOk, TErr>>(this);
+        new(this);
 
     /// <inheritdoc />
     public override Result<TOk, TErr> InspectErr(Action<TErr> action)
@@ -196,7 +196,7 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override ValueTask<Result<TOut, TErr>> Map<TOut>(
         Func<TOk, ValueTask<TOut>> map) =>
-        ValueTask.FromResult<Result<TOut, TErr>>(Value);
+        new(Value);
 
     /// <inheritdoc />
     public override TOut MapOr<TOut>(
@@ -211,7 +211,7 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override ValueTask<TOut> MapOr<TOut>(
         TOut @default,
-        Func<TOk, ValueTask<TOut>> map) => ValueTask.FromResult(@default);
+        Func<TOk, ValueTask<TOut>> map) => new(@default);
 
     /// <inheritdoc />
     public override TOut MapOrElse<TOut>(
