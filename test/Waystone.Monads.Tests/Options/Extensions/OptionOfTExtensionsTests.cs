@@ -1,8 +1,8 @@
 ﻿namespace Waystone.Monads.Options.Extensions
 {
-    using FluentAssertions;
     using JetBrains.Annotations;
     using Results;
+    using Shouldly;
     using Xunit;
 
     [TestSubject(typeof(OptionOfTExtensions))]
@@ -17,7 +17,7 @@
             Option<int> some2 = Option.Some(2);
             Option<(int, int)> zipped = some1.Zip(some2);
             (Option<int>, Option<int>) result = zipped.Unzip();
-            result.Should().Be((some1, some2));
+            result.ShouldBe((some1, some2));
         }
 
         [Fact]
@@ -27,7 +27,7 @@
             Option<int> none2 = Option.None<int>();
             Option<(int, int)> zipped = none1.Zip(none2);
             (Option<int>, Option<int>) result = zipped.Unzip();
-            result.Should().Be((none1, none2));
+            result.ShouldBe((none1, none2));
         }
 
         [Fact]
@@ -37,7 +37,7 @@
             Option<int> some = Option.Some(1);
             Option<(int, int)> zipped = none.Zip(some);
             (Option<int>, Option<int>) result = zipped.Unzip();
-            result.Should().Be((none, none));
+            result.ShouldBe((none, none));
         }
 
 #endregion unzip
@@ -49,7 +49,7 @@
         {
             Option<Option<int>> some = Option.Some(Option.Some(1));
             Option<int> result = some.Flatten();
-            result.Should().Be(Option.Some(1));
+            result.ShouldBe(Option.Some(1));
         }
 
         [Fact]
@@ -58,7 +58,7 @@
             Option<int> none = Option.None<int>();
             Option<Option<int>> nested = none.Map(Option.Some);
             Option<int> result = nested.Flatten();
-            result.Should().Be(Option.None<int>());
+            result.ShouldBe(Option.None<int>());
         }
 
 #endregion flatten
@@ -71,7 +71,7 @@
             Option<Result<int, int>> option =
                 Option.Some(Result.Ok<int, int>(1));
             Result<Option<int>, int> result = option.Transpose();
-            result.Should().Be(Result.Ok<Option<int>, int>(Option.Some(1)));
+            result.ShouldBe(Result.Ok<Option<int>, int>(Option.Some(1)));
         }
 
         [Fact]
@@ -80,7 +80,7 @@
             Option<Result<int, int>>
                 option = Option.Some(Result.Err<int, int>(1));
             Result<Option<int>, int> result = option.Transpose();
-            result.Should().Be(Result.Err<Option<int>, int>(1));
+            result.ShouldBe(Result.Err<Option<int>, int>(1));
         }
 
         [Fact]
@@ -91,7 +91,7 @@
 
             Result<Option<int>, int> result = option.Transpose();
 
-            result.Should().Be(Result.Ok<Option<int>, int>(Option.None<int>()));
+            result.ShouldBe(Result.Ok<Option<int>, int>(Option.None<int>()));
         }
 
         [Fact]
@@ -102,7 +102,7 @@
 
             Result<Option<int>, int> result = option.Transpose();
 
-            result.Should().Be(Result.Ok<Option<int>, int>(Option.None<int>()));
+            result.ShouldBe(Result.Ok<Option<int>, int>(Option.None<int>()));
         }
 
 #endregion transpose

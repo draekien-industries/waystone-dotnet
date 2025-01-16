@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using FluentAssertions;
+    using Shouldly;
     using Xunit;
 
     public sealed class OptionsCollectionExtensionsTests
@@ -22,9 +22,9 @@
         {
             List<Option<int>> result = Values.Filter(x => x > 10).ToList();
 
-            result.Should().HaveCount(4);
-            result.Count(x => x.IsSome).Should().Be(2);
-            result.Count(x => x.IsNone).Should().Be(2);
+            result.Count.ShouldBe(4);
+            result.Count(x => x.IsSome).ShouldBe(2);
+            result.Count(x => x.IsNone).ShouldBe(2);
         }
 
         [Fact]
@@ -33,8 +33,8 @@
         {
             Option<int> result = Values.FirstOrNone(x => x > 10);
 
-            result.IsSome.Should().BeTrue();
-            result.Should().Be(Option.Some(11));
+            result.IsSome.ShouldBeTrue();
+            result.ShouldBe(Option.Some(11));
         }
 
         [Fact]
@@ -43,8 +43,8 @@
         {
             Option<int> result = Values.FirstOrNone(x => x > 20);
 
-            result.IsNone.Should().BeTrue();
-            result.Should().Be(Option.None<int>());
+            result.IsNone.ShouldBeTrue();
+            result.ShouldBe(Option.None<int>());
         }
 
         [Theory]
@@ -58,7 +58,7 @@
         {
             int results = Values.FirstOr(x => x > minValue, @default);
 
-            results.Should().Be(expected);
+            results.ShouldBe(expected);
         }
 
         [Theory]
@@ -72,7 +72,7 @@
         {
             int results = Values.FirstOrElse(x => x > minValue, () => @default);
 
-            results.Should().Be(expected);
+            results.ShouldBe(expected);
         }
 
         [Fact]
@@ -81,8 +81,8 @@
         {
             Option<int> result = Values.LastOrNone(x => x > 10);
 
-            result.IsSome.Should().BeTrue();
-            result.Should().Be(Option.Some(12));
+            result.IsSome.ShouldBeTrue();
+            result.ShouldBe(Option.Some(12));
         }
 
         [Fact]
@@ -91,8 +91,8 @@
         {
             Option<int> result = Values.LastOrNone(x => x > 20);
 
-            result.IsNone.Should().BeTrue();
-            result.Should().Be(Option.None<int>());
+            result.IsNone.ShouldBeTrue();
+            result.ShouldBe(Option.None<int>());
         }
 
         [Theory]
@@ -106,7 +106,7 @@
         {
             int results = Values.LastOr(x => x > minValue, @default);
 
-            results.Should().Be(expected);
+            results.ShouldBe(expected);
         }
 
         [Theory]
@@ -120,7 +120,7 @@
         {
             int results = Values.LastOrElse(x => x > minValue, () => @default);
 
-            results.Should().Be(expected);
+            results.ShouldBe(expected);
         }
 
         [Fact]
@@ -130,8 +130,9 @@
             List<Option<string>> results =
                 Values.Map(x => x.ToString()).ToList();
 
-            results.Where(x => x.IsSome).Should().HaveCount(3);
-            results.First(x => x.IsSome).Unwrap().Should().Be("11");
+            results.Count(x => x.IsSome).ShouldBe(3);
+            results.First(x => x.IsSome).Unwrap().ShouldBe("11");
+            results.First(x => x.IsSome).Unwrap().ShouldBe("11");
         }
     }
 }

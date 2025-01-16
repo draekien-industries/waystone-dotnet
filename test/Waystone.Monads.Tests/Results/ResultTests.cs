@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using FluentAssertions;
     using JetBrains.Annotations;
     using NSubstitute;
+    using Shouldly;
     using Xunit;
 
     [TestSubject(typeof(Result))]
@@ -16,7 +16,7 @@
             var callback = Substitute.For<Func<Exception, string>>();
             Result<int, string>
                 result = Result.Bind(() => 1, callback);
-            result.Should().Be(Result.Ok<int, string>(1));
+            result.ShouldBe(Result.Ok<int, string>(1));
             callback.DidNotReceive().Invoke(Arg.Any<Exception>());
         }
 
@@ -34,7 +34,7 @@
 #pragma warning restore CS0162 // Unreachable code detected
                 },
                 callback);
-            result.Should().Be(Result.Err<int, string>("error"));
+            result.ShouldBe(Result.Err<int, string>("error"));
             callback.Received(1).Invoke(Arg.Any<Exception>());
         }
 
@@ -46,7 +46,7 @@
             Result<int, string> result = await Result.Bind(
                 () => Task.FromResult(1),
                 callback);
-            result.Should().Be(Result.Ok<int, string>(1));
+            result.ShouldBe(Result.Ok<int, string>(1));
             callback.DidNotReceive().Invoke(Arg.Any<Exception>());
         }
 
@@ -65,7 +65,7 @@
 #pragma warning restore CS0162 // Unreachable code detected
                 },
                 callback);
-            result.Should().Be(Result.Err<int, string>("error"));
+            result.ShouldBe(Result.Err<int, string>("error"));
             callback.Received(1).Invoke(Arg.Any<Exception>());
         }
 
@@ -75,8 +75,8 @@
             Result<int, string> ok = 1;
             Result<int, string> err = "error";
 
-            ok.Should().Be(Result.Ok<int, string>(1));
-            err.Should().Be(Result.Err<int, string>("error"));
+            ok.ShouldBe(Result.Ok<int, string>(1));
+            err.ShouldBe(Result.Err<int, string>("error"));
         }
     }
 }
