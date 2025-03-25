@@ -446,22 +446,3 @@ Result<Option<int>, string> resultOfOption = Result.Ok<Option<int>, string>(Opti
 Option<Result<int, string>> optionOfResult = resultOfOption.Transpose();
 Debug.Assert(optionOfResult == Option.Some(Result.Ok<int, string>(1));
 ```
-
-### Awaited
-
-Sometimes you will find yourself in a situation where the value inside an
-`Result` is a `Task`. Use the `Awaited` method to resolve the task
-inside the `Result`.
-
-#### Examples
-
-```csharp
-Result<Task<int>, string> resultOfTask = Result.Ok<Task<int>, string>(Task.FromResult(1));
-Task<Result<int, string>> taskOfResult = resultOfTask.Awaited(ex => "error");
-```
-
-> [!WARNING]
->
-> Invoking `Awaited` may generate an exception if the `Task` it is awaiting
-> throws one. An `onError` callback is required when invoking `Awaited` for
-> results in order to convert these exceptions into your error type.
