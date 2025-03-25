@@ -35,12 +35,18 @@ exceptions thrown by the factory.
 #### Examples
 
 ```csharp
+// basic usage
 Option<string> some = Option.Bind(() => "hello world!");
+
+// with exception handling
+// returns a none while exposing any exception that is thrown
 Option<string> none = Option.Bind(
     () => throw new ExampleException(), 
     ex => Console.WriteLine("Error thrown"));
 
-Task<Option<string>> someTask = Option.BindAsync(() => Task.FromResult("hello world!");
+// with async factory
+Option<string> someTask = await Option.Bind(() => Task.FromResult("hello world!"));
+Option<string> someValueTask = await Option.Bind(() => new ValueTask("value"));
 ```
 
 ## Accessing the value of an `Option`
@@ -57,8 +63,11 @@ provides better safety than the built int nullable types in C#.
 ```csharp
 Option<int> option = Option.Some(1);
 
-int result = option.Match(x => x + 1, () => 0);
+int result = option.Match(
+    x => x + 1, // on ok handler
+    () => 0);   // on none handler
 
+// on ok handler triggered
 Debug.Assert(result == 2);
 ```
 
@@ -67,6 +76,7 @@ Option<int> option = Option.None<int>();
 
 int result = option.Match(x => x + 1, () => 0);
 
+// on none handler triggered
 Debug.Assert(result == 0);
 ```
 
@@ -91,7 +101,8 @@ scenario:
 
 ```csharp
 Option<int> option = Option.Some(1);
-Debug.Assert(option.Unwrap() == 1);
+int value = option.Unwrap();
+Debug.Assert(value == 1);
 ```
 
 ```csharp
@@ -108,12 +119,14 @@ value will be returned for a `None` instead of throwing an exception.
 
 ```csharp
 Option<int> option = Option.Some(1);
-Debug.Assert(option.UnwrapOr(10) == 1);
+int value = option.UnwrapOr(10);
+Debug.Assert(value == 1);
 ```
 
 ```csharp
 Option<int> option = Option.None<int>();
-Debug.Assert(option.UnwrapOr(10) == 10);
+int value = option.UnwrapOr(10);
+Debug.Assert(value == 10); // defaults to 10 because `option` is a `none`
 ```
 
 ### UnwrapOrDefault

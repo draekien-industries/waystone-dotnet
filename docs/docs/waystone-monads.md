@@ -32,3 +32,20 @@ to compose the results of two functions.
 
 Performing an `Inspect` will give you access to the value inside a Monad without
 altering the monad itself.
+
+## Async Overloads
+
+Almost all methods which accept delegates have overloads that support async
+methods which return `Task` and `ValueTask`.
+
+### Example
+
+```csharp
+Option<string> fromAsyncFactory = await Option.Bind(() => Task.FromResult("John Smith"));
+```
+
+> [!NOTE]
+>
+> Do not use the `async` keyword when declaring your lambda expressions. This
+> prevents the .NET compiler from identifying if the return type of the lambda
+> is a `Task` or `ValueTask`
