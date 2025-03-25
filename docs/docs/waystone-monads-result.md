@@ -35,7 +35,7 @@ Debug.Assert(ok == Result.Ok<int, string>(10));
 Result<int, string> err = Result.Bind<int, string>(() => throw new ExampleException(), ex => "error");
 Debug.Assert(err == Result.Err<int, string>("error");
     
-Result<int, string> ok = await Result.BindAsync<int, string>(async () => await Task.FromResult(1));
+Result<int, string> ok = await Result.BindAsync<int, string>(() => Task.FromResult(1));
 ```
 
 ## Accessing the value of a `Result`
