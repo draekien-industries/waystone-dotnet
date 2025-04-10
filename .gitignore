@@ -6,3 +6,5 @@ riderModule.iml
 
 docs/generated
 TestResults/
+
+out/
