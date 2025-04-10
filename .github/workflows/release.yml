@@ -121,7 +121,6 @@ jobs:
           dotnet pack -c Release --no-restore -o out -p:PackageVersion=${{ needs.calculate-version.outputs.semVer }}
 
       - name: deploy
-        working-directory: src
         run: dotnet nuget push ./out/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
   
   create-release:
