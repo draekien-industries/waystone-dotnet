@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>Waystone.Monads.FluentValidation</Title>
+        <Description>
+            An interop package for using FluentValidation with Waystone.Monads, allowing easy conversion between ValidationResult and Result types.
+        </Description>
+        <PackageTags>result pattern option monad aspnetcore rust error handling framework validation fluent</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentValidation"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <PackageReference Include="PolySharp" PrivateAssets="all"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="README.md">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+</Project>
