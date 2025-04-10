@@ -3,6 +3,7 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
     <ItemGroup>
+        <PackageVersion Include="FluentValidation" Version="11.11.0"/>
         <PackageVersion Include="PolySharp" Version="1.15.0"/>
         <PackageVersion Include="Shouldly" Version="4.2.1"/>
         <PackageVersion Include="System.ValueTuple" Version="4.5.0"/>

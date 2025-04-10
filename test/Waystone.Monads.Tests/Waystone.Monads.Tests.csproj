@@ -13,6 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads.FluentValidation\Waystone.Monads.FluentValidation.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 
