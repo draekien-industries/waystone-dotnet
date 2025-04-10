@@ -6,6 +6,7 @@
     using FluentValidation.Results;
     using FluentValidation.Results.Extensions;
     using global::FluentValidation;
+    using global::FluentValidation.Results;
     using Shouldly;
     using Xunit;
 
@@ -37,6 +38,14 @@
                 value.Validate(new TestValidator());
             result.IsErr.ShouldBeTrue();
             result.UnwrapErr().Errors.Count.ShouldBe(1);
+            result.UnwrapErr().RuleSetsExecuted.Length.ShouldBe(1);
+            result.UnwrapErr().ToDictionary().ShouldContainKey("Value");
+            result.UnwrapErr()
+                  .ToString()
+                  .ShouldBe("'Value' must not be empty.");
+            result.UnwrapErr()
+                  .AsValidationResult()
+                  .ShouldBeOfType<ValidationResult>();
         }
 
         [Fact]
@@ -59,6 +68,14 @@
                 await value.ValidateAsync(new TestValidator());
             result.IsErr.ShouldBeTrue();
             result.UnwrapErr().Errors.Count.ShouldBe(1);
+            result.UnwrapErr().RuleSetsExecuted.Length.ShouldBe(1);
+            result.UnwrapErr().ToDictionary().ShouldContainKey("Value");
+            result.UnwrapErr()
+                  .ToString()
+                  .ShouldBe("'Value' must not be empty.");
+            result.UnwrapErr()
+                  .AsValidationResult()
+                  .ShouldBeOfType<ValidationResult>();
         }
 
 
