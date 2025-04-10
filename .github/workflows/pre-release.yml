@@ -113,7 +113,6 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Pack
-        working-directory: src
         run: |
           dotnet pack -c Release --no-restore -o out -p:PackageVersion=${{ needs.calculate-version.outputs.semVer }}
 
