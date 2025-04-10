@@ -119,7 +119,7 @@ jobs:
       - name: Pack
         working-directory: src
         run: |
-          dotnet pack Waystone.Monads -c Release --no-restore -o out -p:PackageVersion=${{ needs.calculate-version.outputs.semVer }}
+          dotnet pack -c Release --no-restore -o out -p:PackageVersion=${{ needs.calculate-version.outputs.semVer }}
 
       - name: deploy
         working-directory: src
