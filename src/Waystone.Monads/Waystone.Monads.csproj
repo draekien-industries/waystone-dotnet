@@ -8,7 +8,7 @@
 
     <PropertyGroup>
         <Title>Waystone.Monads</Title>
-        <Description>A .NET implementationof the Rust std::option and std::result types</Description>
+        <Description>A .NET implementation of the Rust std::option and std::result types</Description>
         <PackageTags>result pattern option monad aspnetcore rust error handling framework</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
