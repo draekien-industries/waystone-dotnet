@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Results.Errors
 {
+    using System;
     using Shouldly;
     using Xunit;
 
@@ -31,6 +32,27 @@
             result.ToString().ShouldBe("ABC.TestValue");
         }
 
+        [Fact]
+        public void
+            GivenException_WhenCreatingErrorCode_ThenReturnExpectedCode()
+        {
+            ErrorCode result = ErrorCode.FromException(new TestException());
+            result.Value.ShouldBe("TestException");
+            result.ToString().ShouldBe("TestException");
+        }
+
+        [Fact]
+        public void
+            GivenException_AndCustomFormatter_WhenCreatingErrorCode_ThenReturnExpectedCode()
+        {
+            var formatter = new TestExceptionFormatter();
+            ErrorCode result = ErrorCode.FromException(
+                new TestException(),
+                formatter);
+            result.Value.ShouldBe("ABC");
+            result.ToString().ShouldBe("ABC");
+        }
+
         private enum TestErrorCodes
         {
             TestValue,
@@ -41,6 +63,16 @@
         {
             /// <inheritdoc />
             public string Format(TestErrorCodes value) => $"ABC.{value}";
+        }
+
+        private class TestException : Exception
+        { }
+
+        private class TestExceptionFormatter
+            : IErrorCodeFormatter<TestException>
+        {
+            /// <inheritdoc />
+            public string Format(TestException value) => "ABC";
         }
     }
 }
