@@ -17,9 +17,25 @@ using System;
 /// Error codes should not change between occurrence to occurrence of the
 /// same error type, except for purposes of localization.
 /// </remarks>
-/// <param name="Value">The error code string value</param>
-public record ErrorCode(string Value)
+public record ErrorCode
 {
+    private const string UnspecifiedValue = "Err.Unspecified";
+
+    /// <summary>
+    /// Creates a new instance of <see cref="ErrorCode" /> from a string
+    /// value.
+    /// </summary>
+    /// <param name="value">The error code string value</param>
+    public ErrorCode(string value)
+    {
+        Value = string.IsNullOrWhiteSpace(value)
+            ? UnspecifiedValue
+            : value.Trim();
+    }
+
+    /// <summary>The error code string value</summary>
+    public string Value { get; }
+
     /// <summary>
     /// Creates an instance of an <see cref="ErrorCode" /> from an enum value
     /// of type <typeparamref name="TEnum" />.
@@ -58,7 +74,7 @@ public record ErrorCode(string Value)
     /// </summary>
     /// <param name="value">The <see cref="ErrorCode" /> instance to be converted.</param>
     /// <returns>The string value of the provided <see cref="ErrorCode" />.</returns>
-    public static implicit operator string(ErrorCode value) => value.Value;
+    public static implicit operator string(ErrorCode value) => value.ToString();
 
     /// <inheritdoc />
     public override string ToString() => Value;

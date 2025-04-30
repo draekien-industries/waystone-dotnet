@@ -12,36 +12,38 @@ using System;
 /// error message. Additionally, it provides constructors for creating error
 /// instances from exceptions or directly passing error codes and messages.
 /// </remarks>
-/// <param name="Code">
-/// The <see cref="ErrorCode" /> that uniquely identifies the
-/// type of error.
-/// </param>
-/// <param name="Message">
-/// A descriptive error message providing more context about
-/// the error.
-/// </param>
-public record Error(ErrorCode Code, string Message)
+public record Error
 {
-    /// <summary>
-    /// Creates a new instance of <see cref="Error" /> from an error code and
-    /// message.
-    /// </summary>
-    /// <param name="code">The error code</param>
-    /// <param name="message">The error message</param>
-    public Error(string code, string message) :
-        this(new ErrorCode(code), message)
-    { }
+    private const string UnspecifiedMessage = "An unexpected error occurred.";
 
     /// <summary>
-    /// Creates a new instance of <see cref="Error" /> from an error code and
-    /// an exception
+    /// Creates a new instance of <see cref="Error" /> from an
+    /// <see cref="ErrorCode" /> and a message string.
     /// </summary>
-    /// <param name="code">The <see cref="ErrorCode" /></param>
-    /// <param name="exception">The exception</param>
-    public Error(ErrorCode code, Exception exception) : this(
-        code,
-        exception.Message)
-    { }
+    /// <param name="code">
+    /// The <see cref="ErrorCode" /> that uniquely identifies the
+    /// type of error.
+    /// </param>
+    /// <param name="message">
+    /// A descriptive error message providing more context about
+    /// the error.
+    /// </param>
+    public Error(ErrorCode code, string message)
+    {
+        Code = code;
+        Message = string.IsNullOrWhiteSpace(message)
+            ? UnspecifiedMessage
+            : message.Trim();
+    }
+
+    /// <summary>
+    /// The <see cref="ErrorCode" /> that uniquely identifies the type of
+    /// error.
+    /// </summary>
+    public ErrorCode Code { get; }
+
+    /// <summary>A descriptive error message providing more context about the error.</summary>
+    public string Message { get; }
 
     /// <summary>Creates a new instance of <see cref="Error" /> from an exception</summary>
     /// <param name="exception">The exception</param>

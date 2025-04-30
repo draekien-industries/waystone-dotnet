@@ -2,14 +2,11 @@
 
     <PropertyGroup>
         <TargetFrameworks>net5.0;net6.0;net8.0;net9.0;net472;net481;</TargetFrameworks>
-        <Nullable>disable</Nullable>
+        <Nullable>enable</Nullable>
+        <LangVersion>13</LangVersion>
         <ImplicitUsings>disable</ImplicitUsings>
         <IsPackable>false</IsPackable>
         <RootNamespace>Waystone.Monads</RootNamespace>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)' == 'NET5_0_OR_GREATER'">
-        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +16,17 @@
 
     <ItemGroup>
         <PackageReference Include="Shouldly"/>
+        <PackageReference Include="coverlet.collector"/>
+        <PackageReference Include="JetBrains.Annotations"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="AutoFixture"/>
+        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="NSubstitute.Analyzers.CSharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
 </Project>
