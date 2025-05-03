@@ -51,7 +51,7 @@ C# has evolved to reduce null-related bugs, most notably through the introductio
 {% hint style="danger" %}
 * `null` still exists at runtime - nullable reference types are just a hint, not a runtime guarantee
 * Not enforced at runtime, making it possible to misuse or ignore annotations
-* Inadequate for modelling [_intentional absence_](core-concepts/option/intentional-absence.md) or [_recoverable failures_](core-concepts/result/recoverable-failures.md) in a composable way
+* Inadequate for modelling [_intentional absence_](core-concepts/option.md#intentional-absence) or [_recoverable failures_](core-concepts/result.md#recoverable-failures) in a composable way
 * No built-in mechanism for chaining operations safely
 {% endhint %}
 
