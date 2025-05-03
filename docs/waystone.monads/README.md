@@ -34,11 +34,11 @@ At its core, this library provides two main types:
 The aim of this library is to enable expressive and predictable composition of operations while reducing the risk of null-related bugs and scattered exception handling.
 {% endhint %}
 
-### :bulb: Inspired by Rust
+## :bulb: Inspired by Rust
 
 Rust's [`Option<T>`](https://doc.rust-lang.org/std/option/) and [`Result<T,E>`](https://doc.rust-lang.org/std/result/index.html) have become gold standards for safe, composable programming. This library brings their elegance and power to C#.
 
-### :thinking: Why use this library?
+## :thinking: Why use this library?
 
 C# has evolved to reduce null-related bugs, most notably through the introduction of [nullable reference types](https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references). However, nullable reference types have limitations:
 
@@ -51,7 +51,7 @@ C# has evolved to reduce null-related bugs, most notably through the introductio
 {% hint style="danger" %}
 * `null` still exists at runtime - nullable reference types are just a hint, not a runtime guarantee
 * Not enforced at runtime, making it possible to misuse or ignore annotations
-* Inadequate for modelling _intentional absence_ or _recoverable failures_ in a composable way
+* Inadequate for modelling [_intentional absence_](core-concepts/option/intentional-absence.md) or [_recoverable failures_](core-concepts/result/recoverable-failures.md) in a composable way
 * No built-in mechanism for chaining operations safely
 {% endhint %}
 
@@ -70,7 +70,7 @@ This library contains implementations of the monadic types `Option<T>` and `Resu
 * Not as idiomatic in traditional .NET ecosystems
 {% endhint %}
 
-### When to use this library?
+## :eyes: When to use this library?
 
 Use this library when you want to:
 

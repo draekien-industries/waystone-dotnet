@@ -7,9 +7,8 @@
 
 ## Core Concepts
 
-* [What are Monads](core-concepts/what-are-monads.md)
-* [Option Monad](core-concepts/option-monad.md)
-
-***
-
-* [Result Monad](result-monad.md)
+* [Monads](core-concepts/monads.md)
+* [Option](core-concepts/option/README.md)
+  * [Intentional Absence](core-concepts/option/intentional-absence.md)
+* [Result](core-concepts/result/README.md)
+  * [Recoverable Failures](core-concepts/result/recoverable-failures.md)

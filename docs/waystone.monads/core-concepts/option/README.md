@@ -3,7 +3,7 @@ description: Learn about the option monad and the types that implement it in thi
 icon: option
 ---
 
-# Option Monad
+# Option
 
 ## Overview
 
@@ -16,6 +16,7 @@ It provides similar functionality to C# [nullable reference types](https://learn
 
 * enforces null handling, preventing accidental null reference exceptions
 * all [default values](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values) are treated as `None`&#x20;
+* provides a way to mark a value as [intentionally absent](intentional-absence.md)
 
 ## Creating an Option
 
