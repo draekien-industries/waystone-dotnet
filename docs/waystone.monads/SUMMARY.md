@@ -1,9 +1,8 @@
 # Table of contents
 
-* [Welcome](README.md)
-
 ## Getting Started
 
+* [Welcome](README.md)
 * [Quickstart](getting-started/quickstart.md)
 
 ## Core Concepts
