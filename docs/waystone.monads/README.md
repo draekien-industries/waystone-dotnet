@@ -27,7 +27,7 @@ Welcome to the documentation for [Waystone.Monads](https://github.com/draekien-i
 At its core, this library provides two main types:
 
 * `Option<T>`: an optional value - either `Some(T)` or `None`.
-* `Result<T,E>`: the result of a computation that can succeed - `Ok(T)`, or fail - `Err(E)`.
+* `Result<TOk, TErr>`: the result of a computation that can succeed - `Ok(TOk)`, or fail - `Err(TErr)`.
 {% endhint %}
 
 {% hint style="success" %}

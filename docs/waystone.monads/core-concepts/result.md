@@ -1,5 +1,5 @@
 ---
-icon: diamond-half-stroke
+icon: binary
 ---
 
 # Result
@@ -166,10 +166,25 @@ IActionResult apiResponse =
 Error handling is now declarative and deeply nested `if` or exception logic is avoided
 {% endhint %}
 
-## Testability
+### Improves Testability and Predictability
 
-Functions that return a `Result` type are easier to test
+Because `Result<T, E>` is just data (not a control-flow mechanism like exceptions), it's easier to test, log, and inspect. No need for `Assert.Throw`
 
-* No need to assert thrown exceptions
-* You can test both success and failure cases without mocks or setup boilerplate
-* Results are just values, they can be easily inspected
+```csharp
+Result<decimal, string> CalculateDiscountedPrice(decimal price, decimal discount)
+
+var result = CalculateDiscountedPrice(100, 1.5m);
+
+Assert.True(result.IsErr);
+Assert.Equal("Invalid discount", result.UnwrapErr());
+```
+
+## Summary
+
+Using the `Result` monad helps you:
+
+* Make failures explicit
+* Avoid hidden exceptions and runtime `null` values
+* Build safer, more readable pipelines
+* Model errors in a meaningful way
+* Write predictable, testable code

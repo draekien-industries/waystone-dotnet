@@ -1,9 +1,9 @@
 ---
 description: Learn about monads and why they are important to use in your code
-icon: question
+icon: diamond-half-stroke
 ---
 
-# Monads
+# Monad
 
 ## Introduction
 

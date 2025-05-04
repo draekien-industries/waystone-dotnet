@@ -78,8 +78,10 @@ The `Option` type replaces the ambiguous uses of `null` with an explicit, type-s
 
 ### Makes Absence Explicit
 
+Using nullable reference types:
+
 ```csharp
-string? GetMiddleName(User user)
+User? FindUser(string username)
 ```
 
 {% hint style="warning" %}
@@ -89,27 +91,62 @@ The caller must guess if `null` means an error, a valid absence, or an accidenta
 With the `Option` type, it becomes clear that the function may or may not return a value, and the caller is required to handle both cases. This leads to more robust, self-documenting code.
 
 ```csharp
-Option<string> GetMiddleName(User user)
-{
-    return string.IsNullOrWhiteSpace(user.MiddleName)
-        ? Option.Some(user.MiddleName)
-        : Option.None<string>();
-}
+Option<User> FindUser(string username)
 ```
 
 ### Avoid Null Reference Exceptions
 
-By design, the `Option` type avoid the most common cause of bugs in C#: derefencing `null`
+The C# compiler can't always protect you from `null`, even with nullable reference types enabled. It's easy to forget a check or suppress a warning.
+
+`Option<T>` provides guaranteed null-safety: you can't get at the value inside an `Option<T>` without explicitly handling the `None` case.
 
 ```csharp
-Option<User> GetUser(string id);
-
-Option<string> email = GetUser(id)
-    .Map(u => u.Email)
-    .Map(e => e.ToLowerInvariant());
+userOption.Match(
+    some: user => Console.WriteLine(user.Name),
+    none: () => Console.WriteLine("No user found.")
+);
 ```
 
 {% hint style="success" %}
-This chain of operations is safe: if any step results in `None`, the entire pipeline short-circuits and remains `None` . You get null safety _without_ null checks.
+Avoid one of the most common runtime bugs in C#, and eliminate entire classes of tests
 {% endhint %}
 
+### Supports Functional Composition
+
+The `Option<T>` type supports fluent, expressive pipelines:
+
+```csharp
+Option<string> email = GetUser(username)
+    .Map(user => user.Profile)
+    .Map(profile => profile.Email)
+    .Filter(email => email.Contains("example.com"));
+```
+
+{% hint style="success" %}
+Each step only runs if the previous one returns `Some` . If at any point a `None` is encountered, the chain short-circuits cleanly. This reduces `if` nesting, makes logic more readable, and simplifies null-guarding code.
+{% endhint %}
+
+### Easier to Test and Reason About
+
+Because `Option<T>` is a value, not a special case like `null`, it behaves predictably in tests
+
+```csharp
+var user = Option.Some(new User("Grace"));
+var none = Option.None<User>();
+```
+
+You can test `Some` and `None` cases without worrying about runtime exceptions or mocks. It's also easier to assert
+
+```csharp
+Assert.True(user.IsSome);
+Assert.Equal("Grace", result.Unwrap().Name);
+```
+
+## Summary
+
+Functions that return `Option<T>` are self-documenting and force correctness on the caller. This leads to:
+
+* Safer return types with fewer assumptions
+* Clear contracts: "I may not return a value - you must check"
+* Stronger type safety in teams or large codebases
+* Encourages consistent handling of absence, unlike `null`, which often gets missed
