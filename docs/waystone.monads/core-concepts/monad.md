@@ -37,8 +37,8 @@ A monad must:
 Because C# encourages code like this:
 
 ```csharp
-Request? PrepareRequest(decimal input);
-Response DoWork(Request request);
+Request? PrepareRequest(decimal input); // can return null or throw
+Response DoWork(Request request);       // can throw
 
 Response SaveData(decmial? input)
 {
@@ -60,13 +60,17 @@ Response SaveData(decmial? input)
         throw;
     }
 }
+
+var response = SaveData(10); // can be response or throw an exception
+
+string output = response?.Message ?? "Something went wrong"; // errors potentially lost
 ```
 
 And monads let you write this:
 
 ```csharp
-Option<Request> PrepareRequest(decimal input);
-Result<Response, Error> DoWork(Request request);
+Option<Request> PrepareRequest(decimal input);   // never throws, may be some or none
+Result<Response, Error> DoWork(Request request); // may be ok or error
 
 Result<Response, Error> SaveData(Option<decimal> input) => 
     input.FlatMap(PrepareRequest) // Option<Request>
@@ -74,6 +78,11 @@ Result<Response, Error> SaveData(Option<decimal> input) =>
          .Transpose()             // Result<Option<Response>, Error>
          .InspectErr(error => _logger.LogWarning(error))    // Triggered on error
          .Map(response => response.UnwrapOrElse(Fallback)); // Result<Response, Error>
+         
+string output = SaveData(Option.Some(10.0m)).Match(
+     ok: response => response.Message,
+     err: error => error.Message  // always the first error encountered in the pipeline
+);
 ```
 
 {% hint style="success" %}
