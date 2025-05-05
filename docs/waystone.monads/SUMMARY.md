@@ -16,6 +16,7 @@
 * [Option\<T>](basic-usage/option-less-than-t-greater-than/README.md)
   * [Match](basic-usage/option-less-than-t-greater-than/match.md)
   * [Map\*](basic-usage/option-less-than-t-greater-than/map.md)
+  * [FlatMap](basic-usage/option-less-than-t-greater-than/flatmap.md)
   * [Unwrap\*](basic-usage/option-less-than-t-greater-than/unwrap.md)
   * [Expect](basic-usage/option-less-than-t-greater-than/expect.md)
   * [Inspect](basic-usage/option-less-than-t-greater-than/inspect.md)

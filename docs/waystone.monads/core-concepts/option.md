@@ -4,149 +4,37 @@ icon: option
 
 # Option
 
-## Overview
-
-The `Option` type represents an optional value. Every `Option` is ether a
-
-* `Some` - contains a value, or
-* `None` - contains no value
-
-It provides similar functionality to C# [nullable reference types](https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references), but provides the following benefits:
-
-* enforces null handling, preventing accidental null reference exceptions
-* all [default values](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values) are treated as `None`&#x20;
+`Option` represents a value that might exist or might not. If the value exists, it's wrapped in `Some`, otherwise it is `None`.
 
 {% hint style="info" %}
-The `Option` type enables support for [intentional absence](option.md#intentional-absence)
+This concept comes from functional programming, where nulls are considered unsafe and unreliable
 {% endhint %}
-
-***
-
-### Intentional Absence
 
 {% hint style="success" %}
-Sometimes, not having a value is perfectly valid and expected
+`Option` is a structured, explicit replacement for nulls and nullable types
 {% endhint %}
 
-Imagine asking someone for their middle name. Some people just don't have one - and that's ok. The absence of a middle name is not an error. It's simply an intentional lack of data.
+## Why not just use "T?" ?
+
+C# has nullable reference types (`string?`, `object?`, etc.) and value types (`int?`, `bool?`, etc.) so it's fair to ask: "why bother with `Option`?"
+
+Let's compare them:
+
+| Feature                     | Nullable Types                        | Option\<T> |
+| --------------------------- | ------------------------------------- | ---------- |
+| Exists at runtime?          | No (only annotations and value types) | Yes        |
+| Can be pattern-matched?     | No                                    | Yes        |
+| Can chain operations?       | No                                    | Yes        |
+| Can accidentally be null?   | Yes                                   | No         |
+| Can safely enforce absence? | No                                    | Yes        |
 
 {% hint style="warning" %}
-Returning `null` can mean many things
-
-* a mistake
-* a missing value
-* an uninitialized field
+Nullable reference types are just compile-time metadata. At runtime, `string?` is still just a `string`. You can dereference it without a warning if the compiler fails to catch the null. You can also pass `null` around silently.
 {% endhint %}
 
 {% hint style="success" %}
-The `Option<T>` monad makes the absence explicit and intentional
+With `Option` , you are forced to be explicit. You can't accidentally forget to check a value because you literally can't access it unless you unwrap it.
 {% endhint %}
 
-```csharp
-class User
-{
-    public User(string firstName, string? middleName, string lastName)
-    {
-        FirstName = firstName;
-        MiddleName = string.IsNullOrWhiteSpace(middleName)
-            ? Option.Some(middleName)
-            : Option.None<string>();
-        LastName = lastName;
-    }
+## Anatomy of an Option
 
-    public string FirstName { get; }
-    public Option<string> MiddleName { get; set; }
-    public string LastName { get; }
-}
-```
-
-Now, it's clear to anyone accessing the `MiddleName` property that the result may _intentionally_ be absent - and they must handle both cases. For instance if we want to build a `FullName` from a `User`:
-
-```csharp
-class User
-{
-    public string FullName => MiddleName.Match(
-        some => $"{FirstName} {MiddleName} {LastName}",
-        none => $"{FirstName} {LastName}"
-    );
-}
-```
-
-## Benefits
-
-The `Option` type replaces the ambiguous uses of `null` with an explicit, type-safe alternative that makes the possibility of missing data part of the type system, not a hidden runtime hazard.
-
-### Makes Absence Explicit
-
-Using nullable reference types:
-
-```csharp
-User? FindUser(string username)
-```
-
-{% hint style="warning" %}
-The caller must guess if `null` means an error, a valid absence, or an accidental bug
-{% endhint %}
-
-With the `Option` type, it becomes clear that the function may or may not return a value, and the caller is required to handle both cases. This leads to more robust, self-documenting code.
-
-```csharp
-Option<User> FindUser(string username)
-```
-
-### Avoid Null Reference Exceptions
-
-The C# compiler can't always protect you from `null`, even with nullable reference types enabled. It's easy to forget a check or suppress a warning.
-
-`Option<T>` provides guaranteed null-safety: you can't get at the value inside an `Option<T>` without explicitly handling the `None` case.
-
-```csharp
-userOption.Match(
-    some: user => Console.WriteLine(user.Name),
-    none: () => Console.WriteLine("No user found.")
-);
-```
-
-{% hint style="success" %}
-Avoid one of the most common runtime bugs in C#, and eliminate entire classes of tests
-{% endhint %}
-
-### Supports Functional Composition
-
-The `Option<T>` type supports fluent, expressive pipelines:
-
-```csharp
-Option<string> email = GetUser(username)
-    .Map(user => user.Profile)
-    .Map(profile => profile.Email)
-    .Filter(email => email.Contains("example.com"));
-```
-
-{% hint style="success" %}
-Each step only runs if the previous one returns `Some` . If at any point a `None` is encountered, the chain short-circuits cleanly. This reduces `if` nesting, makes logic more readable, and simplifies null-guarding code.
-{% endhint %}
-
-### Easier to Test and Reason About
-
-Because `Option<T>` is a value, not a special case like `null`, it behaves predictably in tests
-
-```csharp
-var user = Option.Some(new User("Grace"));
-var none = Option.None<User>();
-```
-
-You can test `Some` and `None` cases without worrying about runtime exceptions or mocks. It's also easier to assert
-
-```csharp
-Assert.True(user.IsSome);
-Assert.Equal("Grace", result.Unwrap().Name);
-```
-
-## Summary
-
-Functions that return `Option<T>` are self-documenting and force correctness on the caller. This leads to:
-
-* Safer return types with fewer assumptions
-* Clear contracts: "I may not return a value - you must check"
-* Stronger type safety in teams or large codebases
-* Encourages consistent handling of absence, unlike `null`, which often gets missed

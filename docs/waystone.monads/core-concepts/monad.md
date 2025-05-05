@@ -5,64 +5,82 @@ icon: diamond-half-stroke
 
 # Monad
 
-## Introduction
+## What is a monad?
 
-A monad is a design pattern used to model computations that include context - like "might fail", "might be missing", or "produces side effects" - in a consistent, composable way.
+Monads sound intimidating - because people often describe them in terms of abstract math. But in practice, they're just a way to chain operations while carrying some context.
 
-If that sounds a bit abstract, don't worry. In this library, you've already seen two concrete examples of monads:
+In C#, we usually deal with values directly. Monads, on the other hand, wrap values and give you a consistent way to work with them, even when things get messy.
 
-* `Option<T>`: a computation that may or may not return a value
-* `Result<T,E>`: a computation that may succeed and return `T` or fail with an error `E`
-
-## The Rule of Thumb
-
-{% hint style="info" %}
-A monad is a container that lets you chain operations while preserving context
+{% hint style="success" %}
+Monads provide a structured way to represent chained computations, especially ones that might fail, return nothing, or produce side effects
 {% endhint %}
 
-If you are new to functional programming, think of monads as _pipelines for values that might have extra "baggage" - like being optional or fallible_. They help you write clear, linear code even when those values come with conditions.
+In Waystone.Monads, monads are used to encode optional values and fallible computations without resorting to `null` or `try/catch`. The library implements two monads:
 
-## Core Capabilities
+* `Option<T>` for "maybe there's a value"
+* `Result<T, E>` for "this might succeed or fail"
 
-### Added Context
+## A practical definition
 
-Monads wrap raw values to provide a level of additional context to them, e.g.
+A monad is a type that wraps a value and provides consistent semantics for composing operations on it.&#x20;
+
+{% hint style="success" %}
+A monad must:
+
+1. let you wrap a value, e.g. `Some`, `Ok`&#x20;
+2. let you chain operations, e.g. `Map`, `AndThen`&#x20;
+3. preserve context, e.g. whether it's missing or failed
+{% endhint %}
+
+## Why use monads?
+
+Because C# encourages code like this:
 
 ```csharp
-Option.Some("Grace"); // there is definitely a string here
-Option.None<string>(); // this string is intentionally absent
+Request? PrepareRequest(decimal input);
+Response DoWork(Request request);
 
-Result.Ok<string, string>("some random string"); // this string now means a success
-Result.Err<string, string>("some other string"); // this one now means an error
+Response SaveData(decmial? input)
+{
+    if (input is null) {
+        return Fallback();
+    }
+    
+    try
+    {
+        Request? request = PrepareRequest(input);
+        
+        return request is not null
+            ? DoWork(request)
+            : Fallback();
+    } 
+    catch (FailedToPrepareRequestException ex)
+    {
+        _logger.LogWarning(ex, "Failed to parse request");
+        throw;
+    }
+}
 ```
 
-### Safe Operation Chaining
-
-Monads let you chain operations using methods like `Map`, `Bind`, etc. This lets you build pipelines of operations without needing to manually check for `null`, exceptions, or missing data.
+And monads let you write this:
 
 ```csharp
-Option<User> user = GetUserById(id);
-Option<string> email = user.Map(u => u.Email);
+Option<Request> PrepareRequest(decimal input);
+Result<Response, Error> DoWork(Request request);
+
+Result<Response, Error> SaveData(Option<decimal> input) => 
+    input.FlatMap(PrepareRequest) // Option<Request>
+         .Map(DoWork)             // Option<Result<Response, Error>>
+         .Transpose()             // Result<Option<Response>, Error>
+         .InspectErr(error => _logger.LogWarning(error))    // Triggered on error
+         .Map(response => response.UnwrapOrElse(Fallback)); // Result<Response, Error>
 ```
 
 {% hint style="success" %}
-This avoid nested `if` statements, `try` blocks, or repeated null checks
+Monads enable you to build a pipeline of transformations that can short-circuit cleanly. No conditionals, no defensive null-checking, no local variables spread everywhere.
 {% endhint %}
 
-### Containing Failures and Absences
-
-Instead of throwing exceptions or returning `null`, monads encapsulate failures - i.e. `Err(...)` - or absences - i.e. `None` - inside the type system. That makes it impossible to ignore errors or missing values without explicitly handling them.
-
-## Why Monads Matter
-
-Monads bring structure to your code. They let you:
-
-* Write safer code that won't fail silently
-* Avoid repetitive error checking and null-handling
-* Focus on the core logic, rather than defensive programming
-* Make failure and absence part of your types - not runtime surprises
-
-## Example: The Railway Tracks
+## Example: The railway tracks
 
 Imagine your program as a train moving along a railway track. Each step of your logic is a station. You want the train to move from station to station - loading data, transforming it, performing checks, etc, but things can go wrong.
 
@@ -72,7 +90,7 @@ Imagine your program as a train moving along a railway track. Each step of your 
 * A file might not be found, or an input might be malformed
 {% endhint %}
 
-### Without Monads (Derailment Everywhere)
+### Without monads (derailment everywhere)
 
 In regular C# code, errors or missing values derail the train. You get thrown into:
 
@@ -82,7 +100,7 @@ In regular C# code, errors or missing values derail the train. You get thrown in
 
 It becomes hard to know what to expect, and even harder to safely chain operations together.
 
-### With Monads (Safe, Predictable Tracks)
+### With monads (safe, predictable tracks)
 
 Monads like `Option<T>` and `Result<T,E>` put your logic on two parallel railway tracks:
 
@@ -106,12 +124,15 @@ string displayEmail = email.Match(
 );
 ```
 
-## Summary
+## TL;DR
 
-By using monads, you build defensive, predictable programs and your logic stays clear, even in the face of complexity.
+Monads give you a standard pattern for chaining operations with context - like failure or absence - without losing your mind in `if` statements or exception handling.
 
-{% hint style="success" %}
-* The train keeps moving automatically through the pipeline of steps
-* The train stops as soon as a failure or absence is encountered
-* No suproses - you always know which track you're on
-{% endhint %}
+In `Waystone.Monads`:
+
+* Use `Option<T>` when you might have no value
+* Use `Result<T, E>` when something might go wrong
+* Use `FlatMap` and `AndThen` to compose operations
+* Use `Bind` to safely enter the monadic world from unsafe operations
+
+They’re not magic. They just make your code suck less.

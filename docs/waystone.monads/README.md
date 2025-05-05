@@ -21,70 +21,69 @@ layout:
 
 # Welcome
 
-Welcome to the documentation for [Waystone.Monads](https://github.com/draekien-industries/waystone-dotnet/tree/main/src/Waystone.Monads), a C# library that brings principled, functional error handing, and optional values to the .NET ecosystem.
+Waystone.Monads is a lightweight, idiomatic C# library that implements two fundamental functional types: `Option<T>` and `Result<T, E>`. Inspired by Rust's standard library but designed to feel natural in C#, this package brings safer and more expressive handling of optional and fallible data - without the overhead or jargon of most functional programming libraries.
+
+## Why this library exists
+
+Most C# codebases default to `null` and exceptions for absence and failure. That's fine, until it isn't.
+
+{% hint style="warning" %}
+`null` and exceptions result in guard clauses everywhere, unpredictable runtime crashes, and unclear API intent.
+{% endhint %}
+
+Waystone.Monads replaces that with explicit types that make the intent clear at the type level:
+
+* `Option<T>` means a value might be there.
+* `Result<T, E>` means a computation might fail.
+
+## Who should use this
+
+You should use this library if:
+
+* You want to eliminate `null` and exceptions from business logic
+* You prefer expressive, explicit code over defensive boilerplate
+* You appreciate functional patterns but still want to write C#, not Haskell
+
+{% hint style="success" %}
+If you've ever used `Option` and `Result` in Rust or F#, you'll fee right at home. If you haven't, you'll pick it up quickly - and wonder how you ever lived without it.
+{% endhint %}
+
+## Core types
+
+### Option\<T>
+
+Represents a value that may or may not be present. Eliminates the ambiguity and risk of `null`, while remaining easy to compose.
+
+```csharp
+Option<string> name = Option.Some("Laura Bailey");
+Option<string> empty = Option.None<string>();
+```
+
+### Result\<T, E>
+
+Represents success or failure as a value instead of throwing exceptions. Encourages you to handle both outcomes explicitly.
+
+```csharp
+Result<int, string> parsed = Parse("123"); // Ok(123)
+Result<int, string> failed = Parse("abc"); // Err("Input 'abc' is not a number")
+```
+
+## Key features
+
+✅ Fluent and idiomatic API\
+✅ No obscure functional programming terms like `Functor` or `Applicative`\
+✅ Lightweight: zero dependencies\*, zero magic\
+✅ Great DX: pattern matching, deconstruction, and clear errors
 
 {% hint style="info" %}
-At its core, this library provides two main types:
+Zero dependencies when using versions of .NET greater than or equal to .NET 8.
 
-* `Option<T>`: an optional value - either `Some(T)` or `None`.
-* `Result<TOk, TErr>`: the result of a computation that can succeed - `Ok(TOk)`, or fail - `Err(TErr)`.
+The .NET standard version of the package depends on [PolySharp](https://github.com/Sergio0694/PolySharp) internally to enable `record` types.
 {% endhint %}
 
-{% hint style="success" %}
-The aim of this library is to enable expressive and predictable composition of operations while reducing the risk of null-related bugs and scattered exception handling.
-{% endhint %}
+## Next steps
 
-## :bulb: Inspired by Rust
-
-Rust's [`Option<T>`](https://doc.rust-lang.org/std/option/) and [`Result<T,E>`](https://doc.rust-lang.org/std/result/index.html) have become gold standards for safe, composable programming. This library brings their elegance and power to C#.
-
-## :thinking: Why use this library?
-
-C# has evolved to reduce null-related bugs, most notably through the introduction of [nullable reference types](https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references). However, nullable reference types have limitations:
-
-{% hint style="success" %}
-* Integrated with the compiler and static analysis
-* Helps surface null-safety issues at compile time
-* No need to introduce new types - easy adoption
-{% endhint %}
-
-{% hint style="danger" %}
-* `null` still exists at runtime - nullable reference types are just a hint, not a runtime guarantee
-* Not enforced at runtime, making it possible to misuse or ignore annotations
-* Inadequate for modelling [_intentional absence_](core-concepts/option.md#intentional-absence) or [_recoverable failures_](core-concepts/result.md#recoverable-failures) in a composable way
-* No built-in mechanism for chaining operations safely
-{% endhint %}
-
-This library contains implementations of the monadic types `Option<T>` and `Result<T,E>`. By using these types, your code gains:
-
-{% hint style="success" %}
-* The presence/absence of a value, or success/failure of an operation becomes part of the type system
-* Methods such as `Map` and `Bind` allows for the safe chaining of operations
-* Methods such as `Match` enforce the handling of branch logic
-* Encourages a more functional, declarative, and predictable coding style
-{% endhint %}
-
-{% hint style="danger" %}
-* Slightly more verbose than nullable types or exceptions for simple cases
-* May require learning functional programming concepts
-* Not as idiomatic in traditional .NET ecosystems
-{% endhint %}
-
-## :eyes: When to use this library?
-
-Use this library when you want to:
-
-* Replace `null` with explicit optional values
-* Avoid exceptions for expected error cases
-* Enforce the handling of errors and the absence of values
-* Work in a functional or domain-driven design style
-
-This package is especially useful in:
-
-* Operations that return optional results or fallible operations
-* Business logic where error propagation needs to be explicit and safe
-* Systems that aim to be robust, testable, and expressive
-
-***
-
-Ready to dive in? Head over to the [Quickstart ](getting-started/quickstart.md)section to learn how to use this library in your projects.
+1. [Install the package](getting-started/quickstart.md)
+2. Learn how to use `Option<T>`
+3. Dive into `Result<T, E>`
+4. Check out usage examples for real-world scenarios
