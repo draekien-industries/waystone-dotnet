@@ -14,8 +14,11 @@ public static class MonadsGlobalConfig
 {
     private static Option<Action<Exception, string>> LogAction { get; set; } =
 #if DEBUG
-        Option.Some<Action<Exception, string>>((ex, source) => Debug.WriteLine(
-                                                   $"[Waystone.Monads::{source}] {ex}"));
+        Option.Some<Action<Exception, string>>((ex, source) =>
+        {
+            Debug.WriteLine(
+                $"[Waystone.Monads::{source}] Handled exception of type '{ex.GetType().Name}': {ex}");
+        });
 #else
         Option.None<Action<Exception, string>>();
 #endif
