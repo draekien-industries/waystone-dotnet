@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Options;
 
 /// <summary>
@@ -11,17 +12,18 @@ using Options;
 /// </summary>
 public static class MonadsGlobalConfig
 {
-    internal static Option<Action<Exception>> LogAction { get; set; } =
+    internal static Option<Action<Exception, string>> LogAction { get; set; } =
 #if DEBUG
-        Option.Some<Action<Exception>>(ex => Debug.WriteLine(
-                                           $"[Waystone.Monads] {ex}"));
+        Option.Some<Action<Exception, string>>((ex, source) => Debug.WriteLine(
+                                                   $"[Waystone.Monads::{source}] {ex}"));
 #else
-        Option.None<Action<Exception>>();
+        Option.None<Action<Exception, string>>();
 #endif
 
     internal static void LogException(
-        Exception ex) =>
-        LogAction.Inspect(action => action.Invoke(ex));
+        Exception ex,
+        [CallerMemberName] string source = "") =>
+        LogAction.Inspect(action => action.Invoke(ex, source));
 
 
     /// <summary>
@@ -36,6 +38,6 @@ public static class MonadsGlobalConfig
     public static void UseExceptionLogger(
         Action<Exception> log)
     {
-        LogAction = Option.Some(log);
+        LogAction = Option.Some<Action<Exception, string>>((ex, _) => log(ex));
     }
 }
