@@ -25,12 +25,14 @@ Option<string> some = Option.Some("I have a value");
 Option<string> none = Option.None<string>();
 ```
 
-### Bind
+### Try
 
-The `Bind` method allows you to convert the return value of a function into an
+> [!NOTE]
+> This was previously named `Bind` in v1.x
+
+The `Try` method allows you to convert the return value of a function into an
 `Option` type. It will execute the factory you provide inside a `try catch`
-block, and provides a callback function parameter where you can handle any
-exceptions thrown by the factory.
+block.
 
 #### Examples
 

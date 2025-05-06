@@ -9,6 +9,8 @@ items:
         href: waystone-monads-option-collections.md
       - name: Result
         href: waystone-monads-result.md
+      - name: Upgrading
+        href: waystone-monads-migration.md
   - name: Waystone.Monads.FluentValidation
     items:
       - name: Fluent Validation

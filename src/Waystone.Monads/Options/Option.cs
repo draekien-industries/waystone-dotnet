@@ -2,30 +2,26 @@
 
 using System;
 using System.Threading.Tasks;
+using Configs;
 
 /// <summary>Static functions for <see cref="Option{T}" /></summary>
 public static class Option
 {
     /// <summary>
-    /// Binds the result of a <paramref name="factory" /> into an
+    /// Tries to store the result of a <paramref name="factory" /> into an
     /// <see cref="Option{T}" />
     /// </summary>
     /// <param name="factory">
     /// A method which when executed will produce the value of
     /// the <see cref="Option{T}" />
     /// </param>
-    /// <param name="onError">
-    /// Optional. Provides access to any exceptions the factory
-    /// throws. Not providing a callback will mean the exception gets swallowed.
-    /// </param>
     /// <typeparam name="T">The factory return value's type</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory executes successfully,
     /// otherwise a <see cref="None{T}" />
     /// </returns>
-    public static Option<T> Bind<T>(
-        Func<T> factory,
-        Action<Exception>? onError = null)
+    public static Option<T> Try<T>(
+        Func<T> factory)
         where T : notnull
     {
         try
@@ -35,31 +31,26 @@ public static class Option
         }
         catch (Exception ex)
         {
-            onError?.Invoke(ex);
+            MonadsGlobalConfig.LogException(ex);
             return None<T>();
         }
     }
 
     /// <summary>
-    /// Binds the result of an <paramref name="asyncFactory" /> into an
-    /// <see cref="Option{T}" />
+    /// Tries to store the result of an <paramref name="asyncFactory" /> into
+    /// an <see cref="Option{T}" />
     /// </summary>
     /// <param name="asyncFactory">
     /// An asynchronous method which when awaited will
     /// produce the value for the <see cref="Option{T}" />
-    /// </param>
-    /// <param name="onError">
-    /// Optional. Provides access to any exceptions the factory
-    /// throws. Not providing a callback will mean the exception gets swallowed.
     /// </param>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
     /// <see cref="None{T}" />
     /// </returns>
-    public static async Task<Option<T>> Bind<T>(
-        Func<Task<T>> asyncFactory,
-        Action<Exception>? onError = null) where T : notnull
+    public static async Task<Option<T>> Try<T>(
+        Func<Task<T>> asyncFactory) where T : notnull
     {
         try
         {
@@ -68,7 +59,7 @@ public static class Option
         }
         catch (Exception ex)
         {
-            onError?.Invoke(ex);
+            MonadsGlobalConfig.LogException(ex);
             return None<T>();
         }
     }

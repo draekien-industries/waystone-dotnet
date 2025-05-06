@@ -35,3 +35,16 @@ representing an error and containing an error value.
 > [!NOTE]
 > Each concrete result type requires the other's generic type parameters in
 > order to correlate correctly with each other.
+
+## Configuration
+
+You can configure an action to be invoked when an exception is caught and
+handled by the library. Invoke the `UseExceptionLogger` function once during the
+lifetime of your app:
+
+```csharp
+MonadsGlobalConfig.UseExceptionLogger(ex => 
+{
+    Log.Error(ex, "Exception when creating monad"); // use Serilog/NLog/Etc
+});
+```

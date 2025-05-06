@@ -2,12 +2,13 @@
 
 using System;
 using System.Threading.Tasks;
+using Configs;
 
 /// <summary>Static methods for <see cref="Result{TOk,TErr}" /></summary>
 public static class Result
 {
     /// <summary>
-    /// Binds the result of a <paramref name="factory" /> into a
+    /// Tries to store the result of a <paramref name="factory" /> into a
     /// <see cref="Result{TOk,TErr}" />, invoking <paramref name="onError" /> if the
     /// factory throws an exception.
     /// </summary>
@@ -25,7 +26,7 @@ public static class Result
     /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
     /// otherwise a <see cref="Err{TOk,TErr}" />
     /// </returns>
-    public static Result<TOk, TErr> Bind<TOk, TErr>(
+    public static Result<TOk, TErr> Try<TOk, TErr>(
         Func<TOk> factory,
         Func<Exception, TErr> onError) where TOk : notnull where TErr : notnull
     {
@@ -35,13 +36,14 @@ public static class Result
         }
         catch (Exception ex)
         {
+            MonadsGlobalConfig.LogException(ex);
             return Err<TOk, TErr>(onError(ex));
         }
     }
 
     /// <summary>
-    /// Binds the result of an <paramref name="asyncFactory" /> into a
-    /// <see cref="Result{TOk, TErr}" />, invoking <paramref name="onError" /> if the
+    /// Tries to store the result of an <paramref name="asyncFactory" /> into
+    /// a <see cref="Result{TOk, TErr}" />, invoking <paramref name="onError" /> if the
     /// factory throws an exception.
     /// </summary>
     /// <param name="asyncFactory">
@@ -58,7 +60,7 @@ public static class Result
     /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
     /// otherwise a <see cref="Err{TOk,TErr}" />
     /// </returns>
-    public static async Task<Result<TOk, TErr>> Bind<TOk, TErr>(
+    public static async Task<Result<TOk, TErr>> Try<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError) where TOk : notnull where TErr : notnull
     {
@@ -68,6 +70,7 @@ public static class Result
         }
         catch (Exception ex)
         {
+            MonadsGlobalConfig.LogException(ex);
             return Err<TOk, TErr>(onError(ex));
         }
     }
