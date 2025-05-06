@@ -12,7 +12,7 @@ using Options;
 /// </summary>
 public static class MonadsGlobalConfig
 {
-    internal static Option<Action<Exception, string>> LogAction { get; set; } =
+    private static Option<Action<Exception, string>> LogAction { get; set; } =
 #if DEBUG
         Option.Some<Action<Exception, string>>((ex, source) => Debug.WriteLine(
                                                    $"[Waystone.Monads::{source}] {ex}"));
