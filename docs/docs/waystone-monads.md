@@ -44,7 +44,7 @@ methods which return `Task` and `ValueTask`.
 ### Example
 
 ```csharp
-Option<string> fromAsyncFactory = await Option.Bind(() => Task.FromResult("John Smith"));
+Option<string> fromAsyncFactory = await Option.Try(() => Task.FromResult("John Smith"));
 ```
 
 > [!NOTE]

@@ -32,13 +32,13 @@ exception thrown into an error value of your choice.
 #### Examples
 
 ```csharp
-Result<int, string> ok = Result.Bind<int, string>(() => 10, ex => "error");
+Result<int, string> ok = Result.Try<int, string>(() => 10, ex => "error");
 Debug.Assert(ok == Result.Ok<int, string>(10));
 
-Result<int, string> err = Result.Bind<int, string>(() => throw new ExampleException(), ex => "error");
+Result<int, string> err = Result.Try<int, string>(() => throw new ExampleException(), ex => "error");
 Debug.Assert(err == Result.Err<int, string>("error");
     
-Result<int, string> ok = await Result.BindAsync<int, string>(() => Task.FromResult(1));
+Result<int, string> ok = await Result.Try<int, string>(() => Task.FromResult(1));
 ```
 
 ## Accessing the value of a `Result`
@@ -309,7 +309,7 @@ Checks to see if the current result is `Err` and its value matches a predicate.
 Evaluates the current result against another result using an `And` logical
 operator.
 
-| X    | Y    | Result | 
+| X    | Y    | Result |
 |------|------|--------|
 | Ok1  | Ok2  | Ok2    |
 | Ok   | Err  | Err    |

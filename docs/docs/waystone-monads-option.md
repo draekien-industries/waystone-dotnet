@@ -38,17 +38,14 @@ block.
 
 ```csharp
 // basic usage
-Option<string> some = Option.Bind(() => "hello world!");
+Option<string> some = Option.Try(() => "hello world!");
 
-// with exception handling
 // returns a none while exposing any exception that is thrown
-Option<string> none = Option.Bind(
-    () => throw new ExampleException(), 
-    ex => Console.WriteLine("Error thrown"));
+Option<string> none = Option.Try(() => throw new ExampleException());
 
 // with async factory
-Option<string> someTask = await Option.Bind(() => Task.FromResult("hello world!"));
-Option<string> someValueTask = await Option.Bind(() => new ValueTask("value"));
+Option<string> someTask = await Option.Try(() => Task.FromResult("hello world!"));
+Option<string> someValueTask = await Option.Try(() => new ValueTask("value"));
 ```
 
 ## Accessing the value of an `Option`
