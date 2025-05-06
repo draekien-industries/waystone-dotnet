@@ -2,9 +2,9 @@
 
 ## Common Concepts
 
-### Bind
+### Try
 
-Provides a way to bind the result of a function into an `Option` or `Result`
+Provides a way to store the result of a function into an `Option` or `Result`
 type.
 
 ### Match
