@@ -27,6 +27,9 @@ Option<string> none = Option.None<string>();
 
 ### Try
 
+> [!NOTE]
+> This was previously named `Bind` in v1.x
+
 The `Try` method allows you to convert the return value of a function into an
 `Option` type. It will execute the factory you provide inside a `try catch`
 block.

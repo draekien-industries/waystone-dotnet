@@ -7,6 +7,9 @@
 Provides a way to store the result of a function into an `Option` or `Result`
 type.
 
+> [!NOTE]
+> This was previously named `Bind` in v1.x
+
 ### Match
 
 Performing a `Match` will ensure you handle all possible states of an `Option`

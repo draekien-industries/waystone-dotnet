@@ -21,6 +21,9 @@ Result<int, string> err = Result.Err<int, string>("error");
 
 ### Try
 
+> [!NOTE]
+> This was previously named `Bind` in v1.x
+
 The `Try` method allows you to convert the return value of a function into an
 `Result` type. It will execute the factory you provide inside a `try catch`
 block, and provides a callback function parameter where you can map any
