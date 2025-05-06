@@ -2,12 +2,13 @@
 
 using System;
 using System.Threading.Tasks;
+using Configs;
 
 /// <summary>Static functions for <see cref="Option{T}" /></summary>
 public static class Option
 {
     /// <summary>
-    /// Binds the result of a <paramref name="factory" /> into an
+    /// Tries to store the result of a <paramref name="factory" /> into an
     /// <see cref="Option{T}" />
     /// </summary>
     /// <param name="factory">
@@ -23,7 +24,7 @@ public static class Option
     /// A <see cref="Some{T}" /> if the factory executes successfully,
     /// otherwise a <see cref="None{T}" />
     /// </returns>
-    public static Option<T> Bind<T>(
+    public static Option<T> Try<T>(
         Func<T> factory,
         Action<Exception>? onError = null)
         where T : notnull
@@ -36,13 +37,14 @@ public static class Option
         catch (Exception ex)
         {
             onError?.Invoke(ex);
+            MonadsGlobalConfig.LogException(ex);
             return None<T>();
         }
     }
 
     /// <summary>
-    /// Binds the result of an <paramref name="asyncFactory" /> into an
-    /// <see cref="Option{T}" />
+    /// Tries to store the result of an <paramref name="asyncFactory" /> into
+    /// an <see cref="Option{T}" />
     /// </summary>
     /// <param name="asyncFactory">
     /// An asynchronous method which when awaited will
@@ -57,7 +59,7 @@ public static class Option
     /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
     /// <see cref="None{T}" />
     /// </returns>
-    public static async Task<Option<T>> Bind<T>(
+    public static async Task<Option<T>> Try<T>(
         Func<Task<T>> asyncFactory,
         Action<Exception>? onError = null) where T : notnull
     {
@@ -69,6 +71,7 @@ public static class Option
         catch (Exception ex)
         {
             onError?.Invoke(ex);
+            MonadsGlobalConfig.LogException(ex);
             return None<T>();
         }
     }
