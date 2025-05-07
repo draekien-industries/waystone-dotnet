@@ -11,20 +11,21 @@
 * [Option](core-concepts/option.md)
 * [Result](core-concepts/result.md)
 
-## Basic Usage
+## Using the Library
 
-* [Option\<T>](basic-usage/option-less-than-t-greater-than/README.md)
-  * [Match](basic-usage/option-less-than-t-greater-than/match.md)
-  * [Map\*](basic-usage/option-less-than-t-greater-than/map.md)
-  * [FlatMap](basic-usage/option-less-than-t-greater-than/flatmap.md)
-  * [Unwrap\*](basic-usage/option-less-than-t-greater-than/unwrap.md)
-  * [Expect](basic-usage/option-less-than-t-greater-than/expect.md)
-  * [Inspect](basic-usage/option-less-than-t-greater-than/inspect.md)
+* [Option: Basic Usage](using-the-library/option-basic-usage/README.md)
+  * [Match](using-the-library/option-basic-usage/match.md)
+  * [Map\*](using-the-library/option-basic-usage/map.md)
+  * [FlatMap](using-the-library/option-basic-usage/flatmap.md)
+  * [Unwrap\*](using-the-library/option-basic-usage/unwrap.md)
+  * [Expect](using-the-library/option-basic-usage/expect.md)
+  * [Inspect](using-the-library/option-basic-usage/inspect.md)
 
 ***
 
 * [Result\<TOk, TErr>](result-less-than-tok-terr-greater-than.md)
 * [Chaining Operations](chaining-operations.md)
+* [Configuration](configuration.md)
 
 ## Examples
 
