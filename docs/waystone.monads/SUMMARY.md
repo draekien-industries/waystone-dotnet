@@ -15,7 +15,7 @@
 
 * [Option: Basic Usage](using-the-library/option-basic-usage/README.md)
   * [Match](using-the-library/option-basic-usage/match.md)
-  * [Map\*](using-the-library/option-basic-usage/map.md)
+  * [Map](using-the-library/option-basic-usage/map.md)
   * [FlatMap](using-the-library/option-basic-usage/flatmap.md)
   * [Unwrap\*](using-the-library/option-basic-usage/unwrap.md)
   * [Expect](using-the-library/option-basic-usage/expect.md)
@@ -24,6 +24,7 @@
 ***
 
 * [Result\<TOk, TErr>](result-less-than-tok-terr-greater-than.md)
+* [Async](async.md)
 * [Chaining Operations](chaining-operations.md)
 * [Configuration](configuration.md)
 

@@ -4,6 +4,8 @@ The `Match` method is how you consume n `Option<T>` in Waystone.Monads. It's the
 
 Think of it like a switch statement, but safer - you can't forget to handle the empty case.
 
+## Usage
+
 ```csharp
 Option<string> maybeName = Option.Some("Matt");
 
@@ -19,7 +21,7 @@ If `maybeName` is `Some("Matt")`, the result will be `"Hello, Matt!"`. If it's `
 `Match` forces exhaustiveness. There's no default or fallthrough logic like in a `switch`. This makes your intent clear and total.
 {% endhint %}
 
-## Real-World Example
+## Example
 
 Imagine you're retrieving the URL of a profile image stored in a database, and you want to display a default image if one cannot be found:
 
@@ -34,31 +36,6 @@ string imageUrl = maybeProfileImage.Match(
 
 No nulls, no if/else clutter, just direct expression of fallback logic.
 
-## Async Overloads
-
-`Match` also has async-friendly versions that support delegates that return a `Task` or `ValueTask` for scenarios where your fallback or transform logic is asynchronous.
-
-```csharp
-Option<string> maybeToken = await TryGetSessionTokenAsync(cancellationToken);
-
-string token = await maybeToken.Match(
-    some: t => DecryptTokenAsync(t, cancellationToken),
-    none: () => FetchFallbackTokenAsync(cancellationToken)
-);
-```
-
-This lets you stay entirely in async land without awkward blocking or state juggling.
-
-{% hint style="warning" %}
-Do not use the `async/await` keywords in your lamdas. This stops the compiler from figuring out the correct return type and you'll have to specify the type params for `Match` yourself.
-{% endhint %}
-
-{% hint style="danger" %}
-Be careful with `async` lambdas. If you forget to `await` the `Match`, you'll just get a `Task` or `ValueTask` back.
-{% endhint %}
-
 ## Summary
 
 `Match` is how you safely extract and use values inside an `Option<T>`. It forces you to handle both possible states and supports both sync and async workflows. Use it when you want to use the value inside an `Option`, not just transform or inspect it.
-
-Next up: [Map](map.md) - how to transform an `Option<T>` without consuming it.
