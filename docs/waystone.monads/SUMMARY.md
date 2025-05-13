@@ -13,7 +13,7 @@
 
 ## Using the Library
 
-* [Shared Functionality](using-the-library/shared-functionality.md)
+* [Configuration](using-the-library/configuration.md)
 * [Option: Basic Usage](using-the-library/option-basic-usage/README.md)
   * [Match](using-the-library/option-basic-usage/match.md)
   * [Map](using-the-library/option-basic-usage/map.md)
