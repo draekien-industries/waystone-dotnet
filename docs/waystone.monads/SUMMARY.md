@@ -14,20 +14,14 @@
 ## Using the Library
 
 * [Configuration](using-the-library/configuration.md)
-* [Option: Basic Usage](using-the-library/option-basic-usage/README.md)
-  * [Match](using-the-library/option-basic-usage/match.md)
-  * [Map](using-the-library/option-basic-usage/map.md)
-  * [FlatMap](using-the-library/option-basic-usage/flatmap.md)
-  * [Unwrap\*](using-the-library/option-basic-usage/unwrap.md)
-  * [Expect](using-the-library/option-basic-usage/expect.md)
-  * [Inspect](using-the-library/option-basic-usage/inspect.md)
+* [Core Operations](using-the-library/core-operations.md)
+* [Option\<T> Operations](using-the-library/option-less-than-t-greater-than-operations/README.md)
+  * [Option Collections](using-the-library/option-less-than-t-greater-than-operations/option-collections.md)
 
 ***
 
-* [Result\<TOk, TErr>](result-less-than-tok-terr-greater-than.md)
-* [Async](async.md)
-* [Chaining Operations](chaining-operations.md)
-* [Configuration](configuration.md)
+* [Result\<T, E> Operations](result-less-than-t-e-greater-than-operations.md)
+* [Migrating](migrating.md)
 
 ## Examples
 
