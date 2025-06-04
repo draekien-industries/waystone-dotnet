@@ -14,13 +14,13 @@
 ## Using the Library
 
 * [Configuration](using-the-library/configuration.md)
-* [Core Operations](using-the-library/core-operations.md)
-* [Option\<T> Operations](using-the-library/option-less-than-t-greater-than-operations/README.md)
-  * [Option Collections](using-the-library/option-less-than-t-greater-than-operations/option-collections.md)
+* [Core Functionality](using-the-library/core-functionality.md)
+* [Option\<T>](using-the-library/option-less-than-t-greater-than/README.md)
+  * [Collections](using-the-library/option-less-than-t-greater-than/collections.md)
 
 ***
 
-* [Result\<T, E> Operations](result-less-than-t-e-greater-than-operations.md)
+* [Result\<T, E>](result-less-than-t-e-greater-than.md)
 * [Migrating](migrating.md)
 
 ## Examples

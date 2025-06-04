@@ -1,12 +1,12 @@
-# Core Operations
+# Core Functionality
+
+## Introduction
 
 While `Option<T>` and `Result<T, E>` serve different purposes (absence vs. success/failure), they share a common operational model. If you are fluent with either the `Option<T>` or `Result<T, E>` already, you're 90% of the way to mastering the other.
 
 The core APIs defined below work the same across both types, differing only in terms of semantics.
 
-## Create
-
-### Factory
+## Creation
 
 Both `Option` and `Result` types have factory methods that allow you to create an instance of the monad in one of it's two states.
 
@@ -26,9 +26,7 @@ Result<int, string> err = Result.Err<int, string>("Something went wrong...");
 {% endtab %}
 {% endtabs %}
 
-### Try
-
-Use `Try` to safely capture potentially exception-throwing logic inside a monadic wrapper.
+Use `Try` to safely capture potentially exception-throwing logic inside a monadic wrapper. This is useful if you want to begin a monadic chain from a method you do not have control over.
 
 {% tabs %}
 {% tab title="Option" %}
@@ -80,6 +78,32 @@ Result<int, string> lengthResult =  nameResult.Map(name => name.Length);
 {% hint style="info" %}
 `Map` returns the same monadic wrapper type - `Option<T>` stays an `Option`, and `Result<T, E>` stays a `Result`.
 {% endhint %}
+
+### Flatten
+
+Removes a level of nesting from the monadic wrapper.
+
+{% tabs %}
+{% tab title="Option" %}
+Removes one level of nesting from an `Option<Option<T>>`
+
+```csharp
+Option<Option<string>> some = Option.Some(Option.Some("John"));
+Option<string> result = some.Flatten();
+```
+{% endtab %}
+
+{% tab title="Result" %}
+Removes one level of nesting from an `Result<Result<T, E>, E>`&#x20;
+
+```csharp
+Result<int, string> DoWork(string source);
+Result<string, string> start = Result.Ok<string, string>("Hello world!");
+Result<Result<int, string, string>> output= start.Map(x => DoWork(x));
+Result<int, string> flattened = output.Flatten();
+```
+{% endtab %}
+{% endtabs %}
 
 ## Consume
 

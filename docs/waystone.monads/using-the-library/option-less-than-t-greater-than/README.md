@@ -1,4 +1,4 @@
-# Option\<T> Operations
+# Option\<T>
 
 ## Control Flow
 
@@ -14,7 +14,7 @@ maybeName.IsNone; // false
 ```
 
 {% hint style="info" %}
-These are ideal for short-circuiting logic or quick guards, but avoid using them for full branching. Reach for [`Match`](../core-operations.md#match) when both branches matter.
+These are ideal for short-circuiting logic or quick guards, but avoid using them for full branching. Reach for [`Match`](../core-functionality.md#match) when both branches matter.
 {% endhint %}
 
 ### IsSomeAnd
@@ -89,7 +89,7 @@ If either `Option` being zipped is a `None`, then a `None` will be returned.
 
 ### Unzip
 
-Reverses a `Zip`, splitting the tuple into two.
+Reverses a `Zip`, splitting the tuple into two options.
 
 ```csharp
 Option<(string, string)> some = Option.Some(("a", "b"));
@@ -97,15 +97,6 @@ Option<(string, string)> none = Option.None<(string, string)>();
 
 (Option<string>, Option<string>) unzippedSome = some.Unzip(); // (Some("a"), Some("b"))
 (Option<string>, Option<string>) unzippedNone = none.Unzip(); // (None, None)
-```
-
-### Flatten
-
-Removes one level of nesting from an `Option<Option<T>>`
-
-```csharp
-Option<Option<string>> some = Option.Some(Option.Some("John"));
-Option<string> result = some.Flatten();
 ```
 
 ## Logical Operators
