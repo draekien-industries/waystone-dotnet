@@ -31,14 +31,6 @@ public abstract record Option<T> where T : notnull
     /// <param name="predicate">The condition to evaluate the option against</param>
     public abstract bool IsSomeAnd(Func<T, bool> predicate);
 
-    /// <inheritdoc cref="IsSomeAnd(System.Func{T,bool})" />
-    public abstract Task<bool> IsSomeAnd(
-        Func<T, Task<bool>> predicate);
-
-    /// <inheritdoc cref="IsSomeAnd(System.Func{T,bool})" />
-    public abstract ValueTask<bool> IsSomeAnd(
-        Func<T, ValueTask<bool>> predicate);
-
     /// <summary>
     /// Returns <see langword="true" /> if the option is a
     /// <see cref="None{T}" /> or the value inside of it matches a predicate.

@@ -35,14 +35,6 @@ public sealed record Some<T> : Option<T>
         predicate(Value);
 
     /// <inheritdoc />
-    public override async Task<bool> IsSomeAnd(Func<T, Task<bool>> predicate) =>
-        await predicate(Value);
-
-    /// <inheritdoc />
-    public override async ValueTask<bool> IsSomeAnd(
-        Func<T, ValueTask<bool>> predicate) => await predicate(Value);
-
-    /// <inheritdoc />
     public override bool IsNoneOr(Func<T, bool> predicate) =>
         predicate(Value);
 

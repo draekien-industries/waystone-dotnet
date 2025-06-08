@@ -20,14 +20,6 @@ public sealed record None<T> : Option<T>
         false;
 
     /// <inheritdoc />
-    public override Task<bool> IsSomeAnd(Func<T, Task<bool>> predicate) =>
-        Task.FromResult(false);
-
-    /// <inheritdoc />
-    public override ValueTask<bool> IsSomeAnd(
-        Func<T, ValueTask<bool>> predicate) => new(false);
-
-    /// <inheritdoc />
     public override bool IsNoneOr(Func<T, bool> predicate) =>
         true;
 
