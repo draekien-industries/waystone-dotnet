@@ -24,15 +24,6 @@ public sealed record None<T> : Option<T>
         true;
 
     /// <inheritdoc />
-    public override Task<bool> IsNoneOr(Func<T, Task<bool>> predicate) =>
-        Task.FromResult(true);
-
-    /// <inheritdoc />
-    public override ValueTask<bool>
-        IsNoneOr(Func<T, ValueTask<bool>> predicate) =>
-        new(true);
-
-    /// <inheritdoc />
     public override TOut Match<TOut>(
         Func<T, TOut> onSome,
         Func<TOut> onNone) => onNone();

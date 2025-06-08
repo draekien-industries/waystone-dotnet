@@ -38,13 +38,6 @@ public abstract record Option<T> where T : notnull
     /// <param name="predicate">The condition to evaluate the option against</param>
     public abstract bool IsNoneOr(Func<T, bool> predicate);
 
-    /// <inheritdoc cref="IsNoneOr(System.Func{T,bool})" />
-    public abstract Task<bool> IsNoneOr(Func<T, Task<bool>> predicate);
-
-    /// <inheritdoc cref="IsNoneOr(System.Func{T,bool})" />
-    public abstract ValueTask<bool> IsNoneOr(
-        Func<T, ValueTask<bool>> predicate);
-
     /// <summary>
     /// Performs a <see langword="switch" /> on the option, invoking the
     /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
