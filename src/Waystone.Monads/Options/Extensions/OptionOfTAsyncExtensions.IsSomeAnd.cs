@@ -21,17 +21,10 @@ public static partial class OptionOfTAsyncExtensions
     /// contains a boolean: - true if the option contains a value and the value
     /// satisfies the predicate. - false otherwise.
     /// </returns>
-    public static async Task<bool> IsSomeAnd<T>(
+    public static Task<bool> IsSomeAnd<T>(
         this Option<T> option,
-        Func<T, Task<bool>> predicate) where T : notnull
-    {
-        if (option.IsSome)
-        {
-            return await predicate(option.Unwrap()).ConfigureAwait(false);
-        }
-
-        return false;
-    }
+        Func<T, Task<bool>> predicate) where T : notnull =>
+        option.Match(predicate, () => Task.FromResult(false));
 
     /// <summary>
     /// Asynchronously evaluates whether the option contains a value (is Some)
@@ -51,13 +44,10 @@ public static partial class OptionOfTAsyncExtensions
     /// <c>true</c> if the option contains a value and the value satisfies the
     /// predicate; otherwise, <c>false</c>.
     /// </returns>
-    public static async Task<bool> IsSomeAnd<T>(
+    public static Task<bool> IsSomeAnd<T>(
         this Task<Option<T>> optionTask,
-        Func<T, Task<bool>> predicate) where T : notnull
-    {
-        Option<T> option = await optionTask.ConfigureAwait(false);
-        return await option.IsSomeAnd(predicate).ConfigureAwait(false);
-    }
+        Func<T, Task<bool>> predicate) where T : notnull =>
+        optionTask.Match(predicate, () => Task.FromResult(false));
 
     /// <summary>
     /// Determines whether the option contains a value that satisfies the
@@ -74,17 +64,10 @@ public static partial class OptionOfTAsyncExtensions
     /// result contains a boolean: - true if the option contains a value and the value
     /// satisfies the predicate. - false otherwise.
     /// </returns>
-    public static async ValueTask<bool> IsSomeAnd<T>(
+    public static ValueTask<bool> IsSomeAnd<T>(
         this Option<T> option,
-        Func<T, ValueTask<bool>> predicate) where T : notnull
-    {
-        if (option.IsSome)
-        {
-            return await predicate(option.Unwrap()).ConfigureAwait(false);
-        }
-
-        return false;
-    }
+        Func<T, ValueTask<bool>> predicate) where T : notnull =>
+        option.Match(predicate, () => new ValueTask<bool>(false));
 
     /// <summary>
     /// Determines asynchronously whether the option task contains a value
@@ -101,11 +84,8 @@ public static partial class OptionOfTAsyncExtensions
     /// task result contains a boolean: - true if the option contains a value and the
     /// value satisfies the predicate, or - false otherwise.
     /// </returns>
-    public static async ValueTask<bool> IsSomeAnd<T>(
+    public static ValueTask<bool> IsSomeAnd<T>(
         this ValueTask<Option<T>> optionTask,
         Func<T, ValueTask<bool>> predicate) where T : notnull
-    {
-        Option<T> option = await optionTask.ConfigureAwait(false);
-        return await option.IsSomeAnd(predicate).ConfigureAwait(false);
-    }
+        => optionTask.Match(predicate, () => new ValueTask<bool>(false));
 }
