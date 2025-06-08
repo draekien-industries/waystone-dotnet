@@ -66,38 +66,6 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
     /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
-    /// <typeparam name="TOut">The returned type.</typeparam>
-    /// <returns>
-    /// The output of either the <paramref name="onSome" /> or
-    /// <paramref name="onNone" /> callback.
-    /// </returns>
-    public abstract Task<TOut> Match<TOut>(
-        Func<T, Task<TOut>> onSome,
-        Func<Task<TOut>> onNone);
-
-    /// <summary>
-    /// Performs a <see langword="switch" /> on the option, invoking the
-    /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
-    /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
-    /// </summary>
-    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
-    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
-    /// <typeparam name="TOut">The returned type.</typeparam>
-    /// <returns>
-    /// The output of either the <paramref name="onSome" /> or
-    /// <paramref name="onNone" /> callback.
-    /// </returns>
-    public abstract ValueTask<TOut> Match<TOut>(
-        Func<T, ValueTask<TOut>> onSome,
-        Func<ValueTask<TOut>> onNone);
-
-    /// <summary>
-    /// Performs a <see langword="switch" /> on the option, invoking the
-    /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
-    /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
-    /// </summary>
-    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
-    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
     public abstract void Match(Action<T> onSome, Action onNone);
 
     /// <summary>

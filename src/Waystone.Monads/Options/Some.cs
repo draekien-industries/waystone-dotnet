@@ -52,16 +52,6 @@ public sealed record Some<T> : Option<T>
         Func<TOut> onNone) => onSome(Value);
 
     /// <inheritdoc />
-    public override async Task<TOut> Match<TOut>(
-        Func<T, Task<TOut>> onSome,
-        Func<Task<TOut>> onNone) => await onSome(Value);
-
-    /// <inheritdoc />
-    public override async ValueTask<TOut> Match<TOut>(
-        Func<T, ValueTask<TOut>> onSome,
-        Func<ValueTask<TOut>> onNone) => await onSome(Value);
-
-    /// <inheritdoc />
     public override void Match(Action<T> onSome, Action onNone)
     {
         onSome(Value);

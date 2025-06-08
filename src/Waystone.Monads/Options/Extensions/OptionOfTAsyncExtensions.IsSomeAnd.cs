@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 
 /// <summary>Async extensions for <see cref="Option{T}" /></summary>
-public static class OptionOfTAsyncExtensions
+public static partial class OptionOfTAsyncExtensions
 {
     /// <summary>
     /// Determines whether the option contains a value that satisfies the
@@ -26,7 +26,10 @@ public static class OptionOfTAsyncExtensions
         Func<T, Task<bool>> predicate) where T : notnull
     {
         if (option.IsSome)
+        {
             return await predicate(option.Unwrap()).ConfigureAwait(false);
+        }
+
         return false;
     }
 
@@ -76,7 +79,10 @@ public static class OptionOfTAsyncExtensions
         Func<T, ValueTask<bool>> predicate) where T : notnull
     {
         if (option.IsSome)
+        {
             return await predicate(option.Unwrap()).ConfigureAwait(false);
+        }
+
         return false;
     }
 
