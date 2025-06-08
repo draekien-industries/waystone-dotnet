@@ -6,9 +6,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5FB28234-858
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{67A04439-B9B7-4420-A229-6353EAD7E265}"
-	ProjectSection(SolutionItems) = preProject
-		test\Directory.Build.props = test\Directory.Build.props
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads", "src\Waystone.Monads\Waystone.Monads.csproj", "{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}"
 EndProject
