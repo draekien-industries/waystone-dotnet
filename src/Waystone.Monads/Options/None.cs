@@ -63,16 +63,6 @@ public sealed record None<T> : Option<T>
         @default;
 
     /// <inheritdoc />
-    public override Task<T2>
-        MapOrAsync<T2>(T2 @default, Func<T, Task<T2>> map) =>
-        Task.FromResult(@default);
-
-    /// <inheritdoc />
-    public override ValueTask<T2> MapOrAsync<T2>(
-        T2 @default,
-        Func<T, ValueTask<T2>> map) => new(@default);
-
-    /// <inheritdoc />
     public override T2 MapOrElse<T2>(
         Func<T2> createDefault,
         Func<T, T2> map) => createDefault();

@@ -150,26 +150,6 @@ public abstract record Option<T> where T : notnull
     public abstract T2 MapOr<T2>(T2 @default, Func<T, T2> map);
 
     /// <summary>
-    /// Returns the provided default result (if <see cref="None{T}" />), or
-    /// applies a function to the contained value (if <see cref="Some{T}" />).
-    /// </summary>
-    /// <param name="default">The default value for a <see cref="None{T}" />.</param>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract Task<T2> MapOrAsync<T2>(T2 @default, Func<T, Task<T2>> map);
-
-    /// <summary>
-    /// Returns the provided default result (if <see cref="None{T}" />), or
-    /// applies a function to the contained value (if <see cref="Some{T}" />).
-    /// </summary>
-    /// <param name="default">The default value for a <see cref="None{T}" />.</param>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract ValueTask<T2> MapOrAsync<T2>(
-        T2 @default,
-        Func<T, ValueTask<T2>> map);
-
-    /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
