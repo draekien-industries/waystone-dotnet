@@ -33,17 +33,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         predicate(Value);
 
     /// <inheritdoc />
-    public override async Task<bool>
-        IsErrAndAsync(Func<TErr, Task<bool>> predicate) =>
-        await predicate(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<bool> IsErrAndAsync(
-        Func<TErr, ValueTask<bool>> predicate) =>
-        await predicate(Value).ConfigureAwait(false);
-
-
-    /// <inheritdoc />
     public override TOut Match<TOut>(
         Func<TOk, TOut> onOk,
         Func<TErr, TOut> onErr) =>

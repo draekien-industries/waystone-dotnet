@@ -30,16 +30,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override bool IsErrAnd(Func<TErr, bool> predicate) => false;
 
-    /// <inheritdoc />
-    public override Task<bool>
-        IsErrAndAsync(Func<TErr, Task<bool>> predicate) =>
-        Task.FromResult(false);
-
-    /// <inheritdoc />
-    public override ValueTask<bool> IsErrAndAsync(
-        Func<TErr, ValueTask<bool>> predicate) =>
-        new(false);
-
 
     /// <inheritdoc />
     public override TOut Match<TOut>(

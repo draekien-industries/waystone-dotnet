@@ -41,21 +41,6 @@ public abstract record Result<TOk, TErr>
     public abstract bool IsErrAnd(Func<TErr, bool> predicate);
 
     /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the error value must satisfy</param>
-    public abstract Task<bool> IsErrAndAsync(Func<TErr, Task<bool>> predicate);
-
-    /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the error value must satisfy</param>
-    public abstract ValueTask<bool> IsErrAndAsync(
-        Func<TErr, ValueTask<bool>> predicate);
-
-    /// <summary>
     /// Performs a <see langword="switch" /> on the result, invoking the
     /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
     /// the <paramref name="onErr" /> callback when it is a
