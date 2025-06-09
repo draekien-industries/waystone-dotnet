@@ -241,9 +241,9 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         Option<int> resultOr =
-            await some.OrElse(() => Task.FromResult(Option.Some(2)));
+            await some.OrElseAsync(() => Task.FromResult(Option.Some(2)));
         Option<int> resultOrElse =
-            await some.OrElse(() => Task.FromResult(Option.Some(2)));
+            await some.OrElseAsync(() => Task.FromResult(Option.Some(2)));
 
         resultOr.ShouldBe(some);
         resultOrElse.ShouldBe(some);
@@ -293,7 +293,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
 
-        int result = await some.MapOr(10, x => Task.FromResult(x + 1));
+        int result = await some.MapOrAsync(10, x => Task.FromResult(x + 1));
 
         result.ShouldBe(2);
     }
@@ -303,7 +303,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
 
-        int result = await some.MapOrElse(
+        int result = await some.MapOrElseAsync(
             () => Task.FromResult(10),
             x => Task.FromResult(x + 1));
 
@@ -315,7 +315,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         var action = Substitute.For<Func<int, Task>>();
-        await some.Inspect(action);
+        await some.InspectAsync(action);
 
         await action.Received().Invoke(1);
     }
@@ -326,7 +326,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         Option<int> result =
-            await some.Filter(x => Task.FromResult(x == 1));
+            await some.FilterAsync(x => Task.FromResult(x == 1));
         result.ShouldBe(some);
     }
 
@@ -336,7 +336,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         Option<int> result =
-            await some.Filter(x => Task.FromResult(x == 2));
+            await some.FilterAsync(x => Task.FromResult(x == 2));
         result.ShouldBe(Option.None<int>());
     }
 
@@ -380,12 +380,12 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         Option<int> resultOr = await some
-               .OrElse(() => new ValueTask<Option<int>>(
-                           Option.Some(2)))
+               .OrElseAsync(() => new ValueTask<Option<int>>(
+                                Option.Some(2)))
             ;
         Option<int> resultOrElse = await some
-               .OrElse(() => new ValueTask<Option<int>>(
-                           Option.Some(2)))
+               .OrElseAsync(() => new ValueTask<Option<int>>(
+                                Option.Some(2)))
             ;
 
         resultOr.ShouldBe(some);
@@ -440,7 +440,7 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         int result =
-            await some.MapOr(10, x => new ValueTask<int>(x + 1));
+            await some.MapOrAsync(10, x => new ValueTask<int>(x + 1));
 
         result.ShouldBe(2);
     }
@@ -451,7 +451,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
 
-        int result = await some.MapOrElse(
+        int result = await some.MapOrElseAsync(
             () => new ValueTask<int>(10),
             x => new ValueTask<int>(x + 1));
 
@@ -463,7 +463,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         var action = Substitute.For<Func<int, ValueTask>>();
-        await some.Inspect(action);
+        await some.InspectAsync(action);
 
         await action.Received().Invoke(1);
     }
@@ -474,7 +474,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         Option<int> result =
-            await some.Filter(x => new ValueTask<bool>(x == 1));
+            await some.FilterAsync(x => new ValueTask<bool>(x == 1));
         result.ShouldBe(some);
     }
 
@@ -484,7 +484,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         Option<int> result =
-            await some.Filter(x => new ValueTask<bool>(x == 2));
+            await some.FilterAsync(x => new ValueTask<bool>(x == 2));
         result.ShouldBe(Option.None<int>());
     }
 

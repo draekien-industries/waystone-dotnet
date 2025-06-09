@@ -215,7 +215,7 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        int result = await none.MapOr(10, x => Task.FromResult(x + 1));
+        int result = await none.MapOrAsync(10, x => Task.FromResult(x + 1));
 
         result.ShouldBe(10);
     }
@@ -226,7 +226,7 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        int result = await none.MapOr(10, x => new ValueTask<int>(x + 1));
+        int result = await none.MapOrAsync(10, x => new ValueTask<int>(x + 1));
 
         result.ShouldBe(10);
     }
@@ -236,7 +236,7 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        int result = await none.MapOrElse(
+        int result = await none.MapOrElseAsync(
             () => Task.FromResult(10),
             x => Task.FromResult(x + 1));
 
@@ -249,7 +249,7 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        int result = await none.MapOrElse(
+        int result = await none.MapOrElseAsync(
             () => new ValueTask<int>(10),
             x => new ValueTask<int>(x + 1));
 
@@ -263,7 +263,7 @@ public class NoneTest
 
         var action = Substitute.For<Func<int, Task>>();
 
-        Option<int> result = await none.Inspect(action);
+        Option<int> result = await none.InspectAsync(action);
 
         result.ShouldBe(none);
         await action.DidNotReceive().Invoke(Arg.Any<int>());
@@ -277,7 +277,7 @@ public class NoneTest
 
         var action = Substitute.For<Func<int, ValueTask>>();
 
-        Option<int> result = await none.Inspect(action);
+        Option<int> result = await none.InspectAsync(action);
 
         result.ShouldBe(none);
         await action.DidNotReceive().Invoke(Arg.Any<int>());
@@ -290,7 +290,7 @@ public class NoneTest
 
         var filter = Substitute.For<Func<int, Task<bool>>>();
 
-        Option<int> result = await none.Filter(filter);
+        Option<int> result = await none.FilterAsync(filter);
 
         result.ShouldBe(none);
         await filter.DidNotReceive().Invoke(Arg.Any<int>());
@@ -303,7 +303,7 @@ public class NoneTest
 
         var filter = Substitute.For<Func<int, ValueTask<bool>>>();
 
-        Option<int> result = await none.Filter(filter);
+        Option<int> result = await none.FilterAsync(filter);
 
         result.ShouldBe(none);
         await filter.DidNotReceive().Invoke(Arg.Any<int>());
@@ -315,7 +315,7 @@ public class NoneTest
         Option<int> none = Option.None<int>();
 
         Option<int> result =
-            await none.OrElse(() => Task.FromResult(Option.Some(1)));
+            await none.OrElseAsync(() => Task.FromResult(Option.Some(1)));
 
         result.ShouldBe(Option.Some(1));
     }
@@ -327,7 +327,8 @@ public class NoneTest
         Option<int> none = Option.None<int>();
 
         Option<int> result =
-            await none.OrElse(() => new ValueTask<Option<int>>(Option.Some(1)));
+            await none.OrElseAsync(() => new ValueTask<Option<int>>(
+                                       Option.Some(1)));
 
         result.ShouldBe(Option.Some(1));
     }

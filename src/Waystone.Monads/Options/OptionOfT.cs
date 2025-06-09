@@ -156,7 +156,7 @@ public abstract record Option<T> where T : notnull
     /// <param name="default">The default value for a <see cref="None{T}" />.</param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract Task<T2> MapOr<T2>(T2 @default, Func<T, Task<T2>> map);
+    public abstract Task<T2> MapOrAsync<T2>(T2 @default, Func<T, Task<T2>> map);
 
     /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
@@ -165,7 +165,7 @@ public abstract record Option<T> where T : notnull
     /// <param name="default">The default value for a <see cref="None{T}" />.</param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract ValueTask<T2> MapOr<T2>(
+    public abstract ValueTask<T2> MapOrAsync<T2>(
         T2 @default,
         Func<T, ValueTask<T2>> map);
 
@@ -191,7 +191,7 @@ public abstract record Option<T> where T : notnull
     /// </param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract Task<T2> MapOrElse<T2>(
+    public abstract Task<T2> MapOrElseAsync<T2>(
         Func<Task<T2>> createDefault,
         Func<T, Task<T2>> map);
 
@@ -205,7 +205,7 @@ public abstract record Option<T> where T : notnull
     /// </param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract ValueTask<T2> MapOrElse<T2>(
+    public abstract ValueTask<T2> MapOrElseAsync<T2>(
         Func<ValueTask<T2>> createDefault,
         Func<T, ValueTask<T2>> map);
 
@@ -223,7 +223,7 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="action">The function to execute against the value.</param>
     /// <returns>The original <see cref="Option{T}" /></returns>
-    public abstract Task<Option<T>> Inspect(Func<T, Task> action);
+    public abstract Task<Option<T>> InspectAsync(Func<T, Task> action);
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
@@ -231,7 +231,8 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="action">The function to execute against the value.</param>
     /// <returns>The original <see cref="Option{T}" /></returns>
-    public abstract ValueTask<Option<T>> Inspect(Func<T, ValueTask> action);
+    public abstract ValueTask<Option<T>> InspectAsync(
+        Func<T, ValueTask> action);
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
@@ -269,7 +270,7 @@ public abstract record Option<T> where T : notnull
     /// </list>
     /// </summary>
     /// <param name="predicate">The filter function.</param>
-    public abstract Task<Option<T>> Filter(Func<T, Task<bool>> predicate);
+    public abstract Task<Option<T>> FilterAsync(Func<T, Task<bool>> predicate);
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
@@ -288,7 +289,7 @@ public abstract record Option<T> where T : notnull
     /// </list>
     /// </summary>
     /// <param name="predicate">The filter function.</param>
-    public abstract ValueTask<Option<T>> Filter(
+    public abstract ValueTask<Option<T>> FilterAsync(
         Func<T, ValueTask<bool>> predicate);
 
     /// <summary>
@@ -310,14 +311,15 @@ public abstract record Option<T> where T : notnull
     /// <paramref name="createElse" /> function and returns the result.
     /// </summary>
     /// <param name="createElse">The function that will create the other option.</param>
-    public abstract Task<Option<T>> OrElse(Func<Task<Option<T>>> createElse);
+    public abstract Task<Option<T>> OrElseAsync(
+        Func<Task<Option<T>>> createElse);
 
     /// <summary>
     /// Returns the option if it contains a value, otherwise invokes the
     /// <paramref name="createElse" /> function and returns the result.
     /// </summary>
     /// <param name="createElse">The function that will create the other option.</param>
-    public abstract ValueTask<Option<T>> OrElse(
+    public abstract ValueTask<Option<T>> OrElseAsync(
         Func<ValueTask<Option<T>>> createElse);
 
     /// <summary>
