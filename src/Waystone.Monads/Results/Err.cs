@@ -73,16 +73,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         createOther(Value);
 
     /// <inheritdoc />
-    public override async Task<Result<TOk, TOut>> OrElseAsync<TOut>(
-        Func<TErr, Task<Result<TOk, TOut>>> createOther) =>
-        await createOther(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-        Func<TErr, ValueTask<Result<TOk, TOut>>> createOther) =>
-        await createOther(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
     public override TOk Expect(string message) =>
         throw UnmetExpectationException.For(message, Value);
 

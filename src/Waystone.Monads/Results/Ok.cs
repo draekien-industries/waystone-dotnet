@@ -72,16 +72,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Result.Ok<TOk, TOut>(Value);
 
     /// <inheritdoc />
-    public override Task<Result<TOk, TOut>> OrElseAsync<TOut>(
-        Func<TErr, Task<Result<TOk, TOut>>> createOther) =>
-        Task.FromResult(Result.Ok<TOk, TOut>(Value));
-
-    /// <inheritdoc />
-    public override ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-        Func<TErr, ValueTask<Result<TOk, TOut>>> createOther) =>
-        new(Value);
-
-    /// <inheritdoc />
     public override TOk Expect(string message) => Value;
 
     /// <inheritdoc />

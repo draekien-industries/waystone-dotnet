@@ -178,29 +178,6 @@ public abstract record Result<TOk, TErr>
         Func<TErr, Result<TOk, TOut>> createOther) where TOut : notnull;
 
     /// <summary>
-    /// Calls <paramref name="createOther" /> if the result is
-    /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
-    /// value of this result instance.
-    /// </summary>
-    /// <remarks>This function can be used for control flow based on result values.</remarks>
-    /// <param name="createOther">A function which creates the other result.</param>
-    /// <typeparam name="TOut">The other result's error value type.</typeparam>
-    public abstract Task<Result<TOk, TOut>> OrElseAsync<TOut>(
-        Func<TErr, Task<Result<TOk, TOut>>> createOther) where TOut : notnull;
-
-    /// <summary>
-    /// Calls <paramref name="createOther" /> if the result is
-    /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
-    /// value of this result instance.
-    /// </summary>
-    /// <remarks>This function can be used for control flow based on result values.</remarks>
-    /// <param name="createOther">A function which creates the other result.</param>
-    /// <typeparam name="TOut">The other result's error value type.</typeparam>
-    public abstract ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-        Func<TErr, ValueTask<Result<TOk, TOut>>> createOther)
-        where TOut : notnull;
-
-    /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value, consuming the
     /// result instance.
     /// </summary>
