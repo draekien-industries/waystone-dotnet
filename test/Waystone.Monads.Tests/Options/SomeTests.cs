@@ -212,18 +212,18 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
 
-        bool isSome = await some.IsSomeAnd(_ => Task.FromResult(true));
-        bool isNone = await some.IsNoneOr(_ => Task.FromResult(false));
+        bool isSome = await some.IsSomeAndAsync(_ => Task.FromResult(true));
+        bool isNone = await some.IsNoneOrAsync(_ => Task.FromResult(false));
 
         isSome.ShouldBeTrue();
         isNone.ShouldBeFalse();
 
-        int value = await some.UnwrapOrElse(() => Task.FromResult(10));
-        int valueOr = await some.UnwrapOrElse(() => Task.FromResult(10));
+        int value = await some.UnwrapOrElseAsync(() => Task.FromResult(10));
+        int valueOr = await some.UnwrapOrElseAsync(() => Task.FromResult(10));
         int valueOrDefault =
-            await some.UnwrapOrElse(() => Task.FromResult(0));
+            await some.UnwrapOrElseAsync(() => Task.FromResult(0));
         int valueOrElse =
-            await some.UnwrapOrElse(() => Task.FromResult(10));
+            await some.UnwrapOrElseAsync(() => Task.FromResult(10));
 
         value.ShouldBe(1);
         valueOr.ShouldBe(1);
@@ -231,7 +231,7 @@ public sealed class SomeTests
         valueOrElse.ShouldBe(1);
 
         int expectedValue =
-            await some.UnwrapOrElse(() => Task.FromResult(1));
+            await some.UnwrapOrElseAsync(() => Task.FromResult(1));
         expectedValue.ShouldBe(1);
     }
 
@@ -283,7 +283,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
 
-        Option<int> result = await some.Map(x => Task.FromResult(x + 1));
+        Option<int> result = await some.MapAsync(x => Task.FromResult(x + 1));
 
         result.Unwrap().ShouldBe(2);
     }
@@ -347,21 +347,21 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         bool isSome =
-            await some.IsSomeAnd(_ => new ValueTask<bool>(true));
+            await some.IsSomeAndAsync(_ => new ValueTask<bool>(true));
         bool isNone =
-            await some.IsNoneOr(_ => new ValueTask<bool>(false));
+            await some.IsNoneOrAsync(_ => new ValueTask<bool>(false));
 
         isSome.ShouldBeTrue();
         isNone.ShouldBeFalse();
 
         int value =
-            await some.UnwrapOrElse(() => new ValueTask<int>(10));
+            await some.UnwrapOrElseAsync(() => new ValueTask<int>(10));
         int valueOr =
-            await some.UnwrapOrElse(() => new ValueTask<int>(10));
+            await some.UnwrapOrElseAsync(() => new ValueTask<int>(10));
         int valueOrDefault =
-            await some.UnwrapOrElse(() => new ValueTask<int>(0));
+            await some.UnwrapOrElseAsync(() => new ValueTask<int>(0));
         int valueOrElse =
-            await some.UnwrapOrElse(() => new ValueTask<int>(10));
+            await some.UnwrapOrElseAsync(() => new ValueTask<int>(10));
 
         value.ShouldBe(1);
         valueOr.ShouldBe(1);
@@ -369,7 +369,7 @@ public sealed class SomeTests
         valueOrElse.ShouldBe(1);
 
         int expectedValue =
-            await some.UnwrapOrElse(() => new ValueTask<int>(1));
+            await some.UnwrapOrElseAsync(() => new ValueTask<int>(1));
         expectedValue.ShouldBe(1);
     }
 
@@ -429,7 +429,7 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         Option<int> result =
-            await some.Map(x => new ValueTask<int>(x + 1));
+            await some.MapAsync(x => new ValueTask<int>(x + 1));
 
         result.Unwrap().ShouldBe(2);
     }
@@ -500,9 +500,9 @@ public sealed class SomeTests
     public async Task WhenFlatMapAsync_ThenReturnMappedOption()
     {
         Option<int> some = Option.Some(1);
-        Option<int> result = await some.FlatMap(x =>
-                                                    Task.FromResult(
-                                                        Option.Some(x + 1)));
+        Option<int> result = await some.FlatMapAsync(x =>
+                Task.FromResult(
+                    Option.Some(x + 1)));
         result.Unwrap().ShouldBe(2);
     }
 
@@ -510,9 +510,9 @@ public sealed class SomeTests
     public async Task WhenFlatMapAsyncWithValueTask_ThenReturnMappedOption()
     {
         Option<int> some = Option.Some(1);
-        Option<int> result = await some.FlatMap(x =>
-                                                    new ValueTask<Option<int>>(
-                                                        Option.Some(x + 1)));
+        Option<int> result = await some.FlatMapAsync(x =>
+                new ValueTask<Option<int>>(
+                    Option.Some(x + 1)));
         result.Unwrap().ShouldBe(2);
     }
 }

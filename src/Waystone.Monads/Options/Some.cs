@@ -73,14 +73,6 @@ public sealed record Some<T> : Option<T>
         map(Value);
 
     /// <inheritdoc />
-    public override async Task<Option<T2>> Map<T2>(Func<T, Task<T2>> map) =>
-        await map(Value);
-
-    /// <inheritdoc />
-    public override async ValueTask<Option<T2>> Map<T2>(
-        Func<T, ValueTask<T2>> map) => await map(Value);
-
-    /// <inheritdoc />
     public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
         map(Value);
 

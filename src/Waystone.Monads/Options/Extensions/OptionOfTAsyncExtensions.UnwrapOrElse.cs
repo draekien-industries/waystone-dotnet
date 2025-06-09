@@ -23,7 +23,7 @@ public static partial class OptionOfTAsyncExtensions
     /// unwrapped value if the option is "Some", or a fallback value obtained from the
     /// provided delegate if the option is "None".
     /// </returns>
-    public static Task<T> UnwrapOrElse<T>(
+    public static Task<T> UnwrapOrElseAsync<T>(
         this Option<T> option,
         Func<Task<T>> @else) where T : notnull =>
         option.Match(Task.FromResult, @else);
@@ -47,7 +47,7 @@ public static partial class OptionOfTAsyncExtensions
     /// operation, returning the unwrapped value if the option is "Some", or a fallback
     /// value obtained from the provided delegate if the option is "None".
     /// </returns>
-    public static ValueTask<T> UnwrapOrElse<T>(
+    public static ValueTask<T> UnwrapOrElseAsync<T>(
         this Option<T> option,
         Func<ValueTask<T>> @else) where T : notnull =>
         option.Match(value => new ValueTask<T>(value), @else);
@@ -71,12 +71,12 @@ public static partial class OptionOfTAsyncExtensions
     /// unwrapped value if the option is "Some", or a default value produced by the
     /// provided delegate if the option is "None".
     /// </returns>
-    public static async Task<T> UnwrapOrElse<T>(
+    public static async Task<T> UnwrapOrElseAsync<T>(
         this Task<Option<T>> optionTask,
         Func<Task<T>> @else) where T : notnull
     {
         Option<T> option = await optionTask.ConfigureAwait(false);
-        return await option.UnwrapOrElse(@else).ConfigureAwait(false);
+        return await option.UnwrapOrElseAsync(@else).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -98,11 +98,11 @@ public static partial class OptionOfTAsyncExtensions
     /// unwrapped value if the option is "Some", or a fallback value obtained from the
     /// provided delegate if the option is "None".
     /// </returns>
-    public static async ValueTask<T> UnwrapOrElse<T>(
+    public static async ValueTask<T> UnwrapOrElseAsync<T>(
         this ValueTask<Option<T>> optionTask,
         Func<ValueTask<T>> @else) where T : notnull
     {
         Option<T> option = await optionTask.ConfigureAwait(false);
-        return await option.UnwrapOrElse(@else).ConfigureAwait(false);
+        return await option.UnwrapOrElseAsync(@else).ConfigureAwait(false);
     }
 }

@@ -124,26 +124,6 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T2> Map<T2>(Func<T, T2> map) where T2 : notnull;
 
     /// <summary>
-    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
-    /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
-    /// <see cref="None{T}" /> (if <see cref="None{T}" />).
-    /// </summary>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract Task<Option<T2>> Map<T2>(Func<T, Task<T2>> map)
-        where T2 : notnull;
-
-    /// <summary>
-    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
-    /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
-    /// <see cref="None{T}" /> (if <see cref="None{T}" />).
-    /// </summary>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract ValueTask<Option<T2>> Map<T2>(Func<T, ValueTask<T2>> map)
-        where T2 : notnull;
-
-    /// <summary>
     /// Projects the inner value of the <see cref="Option{T}" /> to another
     /// <see cref="Option{T}" /> and flattens the result into a single
     /// <see cref="Option{T}" />.
@@ -159,41 +139,6 @@ public abstract record Option<T> where T : notnull
     /// </returns>
     public Option<T2> FlatMap<T2>(Func<T, Option<T2>> map) where T2 : notnull =>
         Map(map).Flatten();
-
-    /// <summary>
-    /// Projects the inner value of the <see cref="Option{T}" /> to another
-    /// <see cref="Option{T}" /> and flattens the result into a single
-    /// <see cref="Option{T}" />.
-    /// </summary>
-    /// <param name="map">
-    /// A transform function to apply to the inner value if the
-    /// option is a <see cref="Some{T}" />.
-    /// </param>
-    /// <typeparam name="T2">The type of the value contained in the resulting option.</typeparam>
-    /// <returns>
-    /// A flattened <see cref="Option{T2}" /> resulting from applying the
-    /// transform function and flattening the nested option.
-    /// </returns>
-    public async Task<Option<T2>> FlatMap<T2>(Func<T, Task<Option<T2>>> map)
-        where T2 : notnull => (await Map(map)).Flatten();
-
-    /// <summary>
-    /// Projects the inner value of the <see cref="Option{T}" /> to another
-    /// <see cref="Option{T}" /> and flattens the result into a single
-    /// <see cref="Option{T}" />.
-    /// </summary>
-    /// <param name="map">
-    /// A transform function to apply to the inner value if the
-    /// option is a <see cref="Some{T}" />.
-    /// </param>
-    /// <typeparam name="T2">The type of the value contained in the resulting option.</typeparam>
-    /// <returns>
-    /// A flattened <see cref="Option{T2}" /> resulting from applying the
-    /// transform function and flattening the nested option.
-    /// </returns>
-    public async ValueTask<Option<T2>> FlatMap<T2>(
-        Func<T, ValueTask<Option<T2>>> map) where T2 : notnull =>
-        (await Map(map)).Flatten();
 
     /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or

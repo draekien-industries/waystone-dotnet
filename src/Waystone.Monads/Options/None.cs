@@ -59,14 +59,6 @@ public sealed record None<T> : Option<T>
         Option.None<T2>();
 
     /// <inheritdoc />
-    public override Task<Option<T2>> Map<T2>(Func<T, Task<T2>> map) =>
-        Task.FromResult(Option.None<T2>());
-
-    /// <inheritdoc />
-    public override ValueTask<Option<T2>> Map<T2>(Func<T, ValueTask<T2>> map) =>
-        new(Option.None<T2>());
-
-    /// <inheritdoc />
     public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
         @default;
 

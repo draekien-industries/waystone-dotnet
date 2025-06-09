@@ -19,7 +19,7 @@ public static partial class OptionOfTAsyncExtensions
     /// A task representing the asynchronous operation that returns true if
     /// the option is None or the predicate returns true; otherwise, false.
     /// </returns>
-    public static Task<bool> IsNoneOr<T>(
+    public static Task<bool> IsNoneOrAsync<T>(
         this Option<T> option,
         Func<T, Task<bool>> predicate) where T : notnull =>
         option.Match(predicate, () => Task.FromResult(true));
@@ -38,7 +38,7 @@ public static partial class OptionOfTAsyncExtensions
     /// A task representing the asynchronous operation that returns true if
     /// the option is None or the predicate evaluates to true; otherwise, false.
     /// </returns>
-    public static ValueTask<bool> IsNoneOr<T>(
+    public static ValueTask<bool> IsNoneOrAsync<T>(
         this Option<T> option,
         Func<T, ValueTask<bool>> predicate) where T : notnull =>
         option.Match(predicate, () => new ValueTask<bool>(true));
@@ -57,10 +57,10 @@ public static partial class OptionOfTAsyncExtensions
     /// A task representing the asynchronous operation that returns true if
     /// the option is None or the predicate returns true; otherwise, false.
     /// </returns>
-    public static Task<bool> IsNoneOr<T>(
+    public static Task<bool> IsNoneOrAsync<T>(
         this Task<Option<T>> optionTask,
         Func<T, Task<bool>> predicate) where T : notnull =>
-        optionTask.Match(predicate, () => Task.FromResult(true));
+        optionTask.MatchAsync(predicate, () => Task.FromResult(true));
 
     /// <summary>
     /// Determines whether the asynchronous option is None or satisfies the
@@ -76,8 +76,8 @@ public static partial class OptionOfTAsyncExtensions
     /// A value task representing the asynchronous operation that returns true
     /// if the option is None or the predicate returns true; otherwise, false.
     /// </returns>
-    public static ValueTask<bool> IsNoneOr<T>(
+    public static ValueTask<bool> IsNoneOrAsync<T>(
         this ValueTask<Option<T>> optionTask,
         Func<T, ValueTask<bool>> predicate) where T : notnull =>
-        optionTask.Match(predicate, () => new ValueTask<bool>(true));
+        optionTask.MatchAsync(predicate, () => new ValueTask<bool>(true));
 }

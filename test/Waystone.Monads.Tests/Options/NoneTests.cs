@@ -130,13 +130,13 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        bool isSome = await none.IsSomeAnd(_ => Task.FromResult(true));
-        bool isNone = await none.IsNoneOr(_ => Task.FromResult(false));
+        bool isSome = await none.IsSomeAndAsync(_ => Task.FromResult(true));
+        bool isNone = await none.IsNoneOrAsync(_ => Task.FromResult(false));
 
         isSome.ShouldBeFalse();
         isNone.ShouldBeTrue();
 
-        int value = await none.UnwrapOrElse(() => Task.FromResult(10));
+        int value = await none.UnwrapOrElseAsync(() => Task.FromResult(10));
         value.ShouldBe(10);
     }
 
@@ -146,13 +146,13 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        bool isSome = await none.IsSomeAnd(_ => new ValueTask<bool>(true));
-        bool isNone = await none.IsNoneOr(_ => new ValueTask<bool>(false));
+        bool isSome = await none.IsSomeAndAsync(_ => new ValueTask<bool>(true));
+        bool isNone = await none.IsNoneOrAsync(_ => new ValueTask<bool>(false));
 
         isSome.ShouldBeFalse();
         isNone.ShouldBeTrue();
 
-        int value = await none.UnwrapOrElse(() => new ValueTask<int>(10));
+        int value = await none.UnwrapOrElseAsync(() => new ValueTask<int>(10));
         value.ShouldBe(10);
     }
 
@@ -194,7 +194,7 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        Option<int> result = await none.Map(x => Task.FromResult(x + 1));
+        Option<int> result = await none.MapAsync(x => Task.FromResult(x + 1));
 
         result.ShouldBe(none);
     }
@@ -204,7 +204,8 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        Option<int> result = await none.Map(x => new ValueTask<int>(x + 1));
+        Option<int> result =
+            await none.MapAsync(x => new ValueTask<int>(x + 1));
 
         result.ShouldBe(none);
     }
@@ -347,7 +348,7 @@ public class NoneTest
         Option<int> none = Option.None<int>();
 
         Option<int> result =
-            await none.FlatMap(x => Task.FromResult(Option.Some(x + 1)));
+            await none.FlatMapAsync(x => Task.FromResult(Option.Some(x + 1)));
 
         result.ShouldBe(none);
     }
@@ -358,8 +359,8 @@ public class NoneTest
         Option<int> none = Option.None<int>();
 
         Option<int> result =
-            await none.FlatMap(x => new ValueTask<Option<int>>(
-                                   Option.Some(x + 1)));
+            await none.FlatMapAsync(x => new ValueTask<Option<int>>(
+                                        Option.Some(x + 1)));
 
         result.ShouldBe(none);
     }

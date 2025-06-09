@@ -18,7 +18,7 @@ public static partial class OptionOfTAsyncExtensions
     /// A task that represents the asynchronous operation and returns the
     /// result of the invoked function.
     /// </returns>
-    public static Task<TOut> Match<TIn, TOut>(
+    public static Task<TOut> MatchAsync<TIn, TOut>(
         this Option<TIn> option,
         Func<TIn, Task<TOut>> onSome,
         Func<Task<TOut>> onNone) where TIn : notnull =>
@@ -37,7 +37,7 @@ public static partial class OptionOfTAsyncExtensions
     /// A task that represents the asynchronous operation and returns the
     /// result of the invoked function.
     /// </returns>
-    public static ValueTask<TOut> Match<TIn, TOut>(
+    public static ValueTask<TOut> MatchAsync<TIn, TOut>(
         this Option<TIn> option,
         Func<TIn, ValueTask<TOut>> onSome,
         Func<ValueTask<TOut>> onNone) where TIn : notnull =>
@@ -58,7 +58,7 @@ public static partial class OptionOfTAsyncExtensions
     /// A task that represents the asynchronous operation, encapsulating the
     /// result of the executed function.
     /// </returns>
-    public static async Task Match<TIn>(
+    public static async Task MatchAsync<TIn>(
         this Task<Option<TIn>> optionTask,
         Func<TIn, Task> onSome,
         Func<Task> onNone) where TIn : notnull
@@ -82,7 +82,7 @@ public static partial class OptionOfTAsyncExtensions
     /// </param>
     /// <typeparam name="TIn">The type of the value contained in the option.</typeparam>
     /// <returns>A task representing the result of the invoked asynchronous function.</returns>
-    public static async ValueTask Match<TIn>(
+    public static async ValueTask MatchAsync<TIn>(
         this ValueTask<Option<TIn>> optionTask,
         Func<TIn, ValueTask> onSome,
         Func<ValueTask> onNone) where TIn : notnull
@@ -104,7 +104,7 @@ public static partial class OptionOfTAsyncExtensions
     /// A task that represents the asynchronous operation and returns the
     /// result of the invoked function.
     /// </returns>
-    public static async Task<TOut> Match<TIn, TOut>(
+    public static async Task<TOut> MatchAsync<TIn, TOut>(
         this Task<Option<TIn>> optionTask,
         Func<TIn, Task<TOut>> onSome,
         Func<Task<TOut>> onNone) where TIn : notnull
@@ -132,7 +132,7 @@ public static partial class OptionOfTAsyncExtensions
     /// A value task that represents the asynchronous operation and returns
     /// the result of the invoked function.
     /// </returns>
-    public static async ValueTask<TOut> Match<TIn, TOut>(
+    public static async ValueTask<TOut> MatchAsync<TIn, TOut>(
         this ValueTask<Option<TIn>> optionTask,
         Func<TIn, ValueTask<TOut>> onSome,
         Func<ValueTask<TOut>> onNone) where TIn : notnull
