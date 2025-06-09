@@ -323,22 +323,6 @@ public abstract record Result<TOk, TErr>
     public abstract Result<TOk, TErr> InspectErr(Action<TErr> action);
 
     /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Err{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract Task<Result<TOk, TErr>> InspectErrAsync(
-        Func<TErr, Task> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Err{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract ValueTask<Result<TOk, TErr>> InspectErrAsync(
-        Func<TErr, ValueTask> action);
-
-    /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
     /// <c>Result&lt;TOut, TErr&gt;</c> by applying a function to a contained
     /// <see cref="Ok{TOk,TErr}" /> value, leaving an <see cref="Err{TOk,TErr}" />

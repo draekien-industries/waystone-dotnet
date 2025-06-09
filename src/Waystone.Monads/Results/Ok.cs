@@ -125,16 +125,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     public override Result<TOk, TErr> InspectErr(Action<TErr> action) => this;
 
     /// <inheritdoc />
-    public override Task<Result<TOk, TErr>> InspectErrAsync(
-        Func<TErr, Task> action) =>
-        Task.FromResult<Result<TOk, TErr>>(this);
-
-    /// <inheritdoc />
-    public override ValueTask<Result<TOk, TErr>> InspectErrAsync(
-        Func<TErr, ValueTask> action) =>
-        new(this);
-
-    /// <inheritdoc />
     public override Result<TOut, TErr> Map<TOut>(Func<TOk, TOut> map) =>
         map(Value);
 

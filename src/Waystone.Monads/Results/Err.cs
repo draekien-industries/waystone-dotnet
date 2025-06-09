@@ -128,22 +128,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     }
 
     /// <inheritdoc />
-    public override async Task<Result<TOk, TErr>> InspectErrAsync(
-        Func<TErr, Task> action)
-    {
-        await action(Value).ConfigureAwait(false);
-        return this;
-    }
-
-    /// <inheritdoc />
-    public override async ValueTask<Result<TOk, TErr>> InspectErrAsync(
-        Func<TErr, ValueTask> action)
-    {
-        await action(Value).ConfigureAwait(false);
-        return this;
-    }
-
-    /// <inheritdoc />
     public override Result<TOut, TErr> Map<TOut>(Func<TOk, TOut> map) =>
         Value;
 

@@ -16,7 +16,7 @@ public static partial class ResultOfTOkTErrAsyncExtensions
     /// </param>
     /// <typeparam name="TOk">The type of the "Ok" value contained in the result.</typeparam>
     /// <typeparam name="TErr">The type of the "Err" value contained in the result.</typeparam>
-    /// <returns>The original result after executing the action if applicable.</returns>
+    /// <returns>The original result.</returns>
     public static async Task<Result<TOk, TErr>> InspectAsync<TOk, TErr>(
         this Result<TOk, TErr> result,
         Func<TOk, Task> action)
@@ -41,7 +41,7 @@ public static partial class ResultOfTOkTErrAsyncExtensions
     /// </param>
     /// <typeparam name="TOk">The type of the "Ok" value contained in the result.</typeparam>
     /// <typeparam name="TErr">The type of the "Err" value contained in the result.</typeparam>
-    /// <returns>The original result after executing the action if applicable.</returns>
+    /// <returns>The original result.</returns>
     public static async ValueTask<Result<TOk, TErr>> InspectAsync<TOk, TErr>(
         this Result<TOk, TErr> result,
         Func<TOk, ValueTask> action)
@@ -66,10 +66,7 @@ public static partial class ResultOfTOkTErrAsyncExtensions
     /// </param>
     /// <typeparam name="TOk">The type of the "Ok" value contained in the result.</typeparam>
     /// <typeparam name="TErr">The type of the "Err" value contained in the result.</typeparam>
-    /// <returns>
-    /// A task representing the asynchronous operation, containing the
-    /// original result.
-    /// </returns>
+    /// <returns>The original result.</returns>
     public static async Task<Result<TOk, TErr>> InspectAsync<TOk, TErr>(
         this Task<Result<TOk, TErr>> resultTask,
         Func<TOk, Task> action)
@@ -90,7 +87,7 @@ public static partial class ResultOfTOkTErrAsyncExtensions
     /// </param>
     /// <typeparam name="TOk">The type of the "Ok" value contained in the result.</typeparam>
     /// <typeparam name="TErr">The type of the "Err" value contained in the result.</typeparam>
-    /// <returns>The original result after executing the action if applicable.</returns>
+    /// <returns>The original result.</returns>
     public static async ValueTask<Result<TOk, TErr>> InspectAsync<TOk, TErr>(
         this ValueTask<Result<TOk, TErr>> resultTask,
         Func<TOk, ValueTask> action)
