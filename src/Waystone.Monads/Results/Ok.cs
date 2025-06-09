@@ -28,16 +28,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     public override bool IsOkAnd(Func<TOk, bool> predicate) => predicate(Value);
 
     /// <inheritdoc />
-    public override async Task<bool> IsOkAndAsync(
-        Func<TOk, Task<bool>> predicate) =>
-        await predicate(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<bool> IsOkAndAsync(
-        Func<TOk, ValueTask<bool>> predicate) =>
-        await predicate(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
     public override bool IsErrAnd(Func<TErr, bool> predicate) => false;
 
     /// <inheritdoc />

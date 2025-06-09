@@ -35,21 +35,6 @@ public abstract record Result<TOk, TErr>
 
     /// <summary>
     /// Returns <see langword="true" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the ok value must satisfy</param>
-    public abstract Task<bool> IsOkAndAsync(Func<TOk, Task<bool>> predicate);
-
-    /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the ok value must satisfy</param>
-    public abstract ValueTask<bool> IsOkAndAsync(
-        Func<TOk, ValueTask<bool>> predicate);
-
-    /// <summary>
-    /// Returns <see langword="true" /> if the result is
     /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition that the error value must satisfy</param>
