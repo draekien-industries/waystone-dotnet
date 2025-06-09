@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
-using System.Threading.Tasks;
 using Exceptions;
 using Options;
 
