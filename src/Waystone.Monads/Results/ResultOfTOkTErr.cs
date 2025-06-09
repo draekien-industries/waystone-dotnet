@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
-using System.Threading.Tasks;
 using Exceptions;
 using Options;
 
@@ -35,40 +34,10 @@ public abstract record Result<TOk, TErr>
 
     /// <summary>
     /// Returns <see langword="true" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the ok value must satisfy</param>
-    public abstract Task<bool> IsOkAnd(Func<TOk, Task<bool>> predicate);
-
-    /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the ok value must satisfy</param>
-    public abstract ValueTask<bool> IsOkAnd(
-        Func<TOk, ValueTask<bool>> predicate);
-
-    /// <summary>
-    /// Returns <see langword="true" /> if the result is
     /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition that the error value must satisfy</param>
     public abstract bool IsErrAnd(Func<TErr, bool> predicate);
-
-    /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the error value must satisfy</param>
-    public abstract Task<bool> IsErrAnd(Func<TErr, Task<bool>> predicate);
-
-    /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
-    /// </summary>
-    /// <param name="predicate">The condition that the error value must satisfy</param>
-    public abstract ValueTask<bool> IsErrAnd(
-        Func<TErr, ValueTask<bool>> predicate);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the result, invoking the
@@ -88,44 +57,6 @@ public abstract record Result<TOk, TErr>
     public abstract TOut Match<TOut>(
         Func<TOk, TOut> onOk,
         Func<TErr, TOut> onErr);
-
-    /// <summary>
-    /// Performs a <see langword="switch" /> on the result, invoking the
-    /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
-    /// the <paramref name="onErr" /> callback when it is a
-    /// <see cref="Err{TOk,TErr}" />.
-    /// </summary>
-    /// <param name="onOk">
-    /// A callback for handling the <see cref="Ok{TOk,TErr}" />
-    /// case.
-    /// </param>
-    /// <param name="onErr">
-    /// A callback for handling the <see cref="Err{TOk,TErr}" />
-    /// case.
-    /// </param>
-    /// <typeparam name="TOut">The returned type.</typeparam>
-    public abstract Task<TOut> Match<TOut>(
-        Func<TOk, Task<TOut>> onOk,
-        Func<TErr, Task<TOut>> onErr);
-
-    /// <summary>
-    /// Performs a <see langword="switch" /> on the result, invoking the
-    /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
-    /// the <paramref name="onErr" /> callback when it is a
-    /// <see cref="Err{TOk,TErr}" />.
-    /// </summary>
-    /// <param name="onOk">
-    /// A callback for handling the <see cref="Ok{TOk,TErr}" />
-    /// case.
-    /// </param>
-    /// <param name="onErr">
-    /// A callback for handling the <see cref="Err{TOk,TErr}" />
-    /// case.
-    /// </param>
-    /// <typeparam name="TOut">The returned type.</typeparam>
-    public abstract ValueTask<TOut> Match<TOut>(
-        Func<TOk, ValueTask<TOut>> onOk,
-        Func<TErr, ValueTask<TOut>> onErr);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the result, invoking the
@@ -198,33 +129,6 @@ public abstract record Result<TOk, TErr>
         Func<TOk, Result<TOut, TErr>> createOther) where TOut : notnull;
 
     /// <summary>
-    /// Calls the <paramref name="createOther" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" />, otherwise returns the <see cref="Err{TOk,TErr}" />
-    /// value of <see langword="this" /> instance.
-    /// </summary>
-    /// <param name="createOther">A function that creates the other result.</param>
-    /// <typeparam name="TOut">
-    /// The <see cref="Ok{TOk,TErr}" /> value's type of the
-    /// other result.
-    /// </typeparam>
-    public abstract Task<Result<TOut, TErr>> AndThen<TOut>(
-        Func<TOk, Task<Result<TOut, TErr>>> createOther) where TOut : notnull;
-
-    /// <summary>
-    /// Calls the <paramref name="createOther" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" />, otherwise returns the <see cref="Err{TOk,TErr}" />
-    /// value of <see langword="this" /> instance.
-    /// </summary>
-    /// <param name="createOther">A function that creates the other result.</param>
-    /// <typeparam name="TOut">
-    /// The <see cref="Ok{TOk,TErr}" /> value's type of the
-    /// other result.
-    /// </typeparam>
-    public abstract ValueTask<Result<TOut, TErr>> AndThen<TOut>(
-        Func<TOk, ValueTask<Result<TOut, TErr>>> createOther)
-        where TOut : notnull;
-
-    /// <summary>
     /// Returns <paramref name="other" /> if the result is
     /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
     /// value of this result instance.
@@ -244,29 +148,6 @@ public abstract record Result<TOk, TErr>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
     public abstract Result<TOk, TOut> OrElse<TOut>(
         Func<TErr, Result<TOk, TOut>> createOther) where TOut : notnull;
-
-    /// <summary>
-    /// Calls <paramref name="createOther" /> if the result is
-    /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
-    /// value of this result instance.
-    /// </summary>
-    /// <remarks>This function can be used for control flow based on result values.</remarks>
-    /// <param name="createOther">A function which creates the other result.</param>
-    /// <typeparam name="TOut">The other result's error value type.</typeparam>
-    public abstract Task<Result<TOk, TOut>> OrElse<TOut>(
-        Func<TErr, Task<Result<TOk, TOut>>> createOther) where TOut : notnull;
-
-    /// <summary>
-    /// Calls <paramref name="createOther" /> if the result is
-    /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
-    /// value of this result instance.
-    /// </summary>
-    /// <remarks>This function can be used for control flow based on result values.</remarks>
-    /// <param name="createOther">A function which creates the other result.</param>
-    /// <typeparam name="TOut">The other result's error value type.</typeparam>
-    public abstract ValueTask<Result<TOk, TOut>> OrElse<TOut>(
-        Func<TErr, ValueTask<Result<TOk, TOut>>> createOther)
-        where TOut : notnull;
 
     /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value, consuming the
@@ -345,27 +226,6 @@ public abstract record Result<TOk, TErr>
     public abstract TOk UnwrapOrElse(Func<TErr, TOk> onErr);
 
     /// <summary>
-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
-    /// from the callback function.
-    /// </summary>
-    /// <param name="onErr">
-    /// The callback function for computing the
-    /// <see cref="Err{TOk,TErr}" /> return value.
-    /// </param>
-    public abstract Task<TOk> UnwrapOrElse(Func<TErr, Task<TOk>> onErr);
-
-    /// <summary>
-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
-    /// from the callback function.
-    /// </summary>
-    /// <param name="onErr">
-    /// The callback function for computing the
-    /// <see cref="Err{TOk,TErr}" /> return value.
-    /// </param>
-    public abstract ValueTask<TOk> UnwrapOrElse(
-        Func<TErr, ValueTask<TOk>> onErr);
-
-    /// <summary>
     /// Returns the contained <see cref="Err{TOk,TErr}" /> value, consuming
     /// the result instance.
     /// </summary>
@@ -385,40 +245,10 @@ public abstract record Result<TOk, TErr>
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
-    /// <see cref="Ok{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract Task<Result<TOk, TErr>> Inspect(Func<TOk, Task> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Ok{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract ValueTask<Result<TOk, TErr>> Inspect(
-        Func<TOk, ValueTask> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
     /// <see cref="Err{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
     public abstract Result<TOk, TErr> InspectErr(Action<TErr> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Err{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract Task<Result<TOk, TErr>> InspectErr(Func<TErr, Task> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Err{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract ValueTask<Result<TOk, TErr>> InspectErr(
-        Func<TErr, ValueTask> action);
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
@@ -433,32 +263,6 @@ public abstract record Result<TOk, TErr>
         where TOut : notnull;
 
     /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOut, TErr&gt;</c> by applying a function to a contained
-    /// <see cref="Ok{TOk,TErr}" /> value, leaving an <see cref="Err{TOk,TErr}" />
-    /// untouched.
-    /// </summary>
-    /// <remarks>This function can be used to compose the results of two functions.</remarks>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="TOut">The output value type.</typeparam>
-    public abstract Task<Result<TOut, TErr>> Map<TOut>(
-        Func<TOk, Task<TOut>> map)
-        where TOut : notnull;
-
-    /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOut, TErr&gt;</c> by applying a function to a contained
-    /// <see cref="Ok{TOk,TErr}" /> value, leaving an <see cref="Err{TOk,TErr}" />
-    /// untouched.
-    /// </summary>
-    /// <remarks>This function can be used to compose the results of two functions.</remarks>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="TOut">The output value type.</typeparam>
-    public abstract ValueTask<Result<TOut, TErr>> Map<TOut>(
-        Func<TOk, ValueTask<TOut>> map)
-        where TOut : notnull;
-
-    /// <summary>
     /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
     /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
     /// </summary>
@@ -468,32 +272,6 @@ public abstract record Result<TOk, TErr>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut MapOr<TOut>(TOut @default, Func<TOk, TOut> map);
-
-    /// <summary>
-    /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
-    /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
-    /// </summary>
-    /// <param name="default">
-    /// The default value for an <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    public abstract Task<TOut> MapOr<TOut>(
-        TOut @default,
-        Func<TOk, Task<TOut>> map);
-
-    /// <summary>
-    /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
-    /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
-    /// </summary>
-    /// <param name="default">
-    /// The default value for an <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    public abstract ValueTask<TOut> MapOr<TOut>(
-        TOut @default,
-        Func<TOk, ValueTask<TOut>> map);
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
@@ -513,40 +291,6 @@ public abstract record Result<TOk, TErr>
         Func<TOk, TOut> map);
 
     /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
-    /// by applying fallback function <paramref name="createDefault" /> to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
-    /// a contained <see cref="Ok{TOk,TErr}" /> value.
-    /// </summary>
-    /// <param name="createDefault">
-    /// A function to create the default value for an
-    /// <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    /// <returns></returns>
-    public abstract Task<TOut> MapOrElse<TOut>(
-        Func<TErr, Task<TOut>> createDefault,
-        Func<TOk, Task<TOut>> map);
-
-    /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
-    /// by applying fallback function <paramref name="createDefault" /> to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
-    /// a contained <see cref="Ok{TOk,TErr}" /> value.
-    /// </summary>
-    /// <param name="createDefault">
-    /// A function to create the default value for an
-    /// <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    /// <returns></returns>
-    public abstract ValueTask<TOut> MapOrElse<TOut>(
-        Func<TErr, ValueTask<TOut>> createDefault,
-        Func<TOk, ValueTask<TOut>> map);
-
-    /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
     /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
     /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
@@ -561,42 +305,6 @@ public abstract record Result<TOk, TErr>
     /// </param>
     /// <typeparam name="TOut">The output error value type</typeparam>
     public abstract Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map)
-        where TOut : notnull;
-
-    /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
-    /// value untouched.
-    /// </summary>
-    /// <remarks>
-    /// This function can be used to pass through a successful result while
-    /// handling an error.
-    /// </remarks>
-    /// <param name="map">
-    /// The map function to apply to the <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <typeparam name="TOut">The output error value type</typeparam>
-    public abstract Task<Result<TOk, TOut>> MapErr<TOut>(
-        Func<TErr, Task<TOut>> map)
-        where TOut : notnull;
-
-    /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
-    /// value untouched.
-    /// </summary>
-    /// <remarks>
-    /// This function can be used to pass through a successful result while
-    /// handling an error.
-    /// </remarks>
-    /// <param name="map">
-    /// The map function to apply to the <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <typeparam name="TOut">The output error value type</typeparam>
-    public abstract ValueTask<Result<TOk, TOut>> MapErr<TOut>(
-        Func<TErr, ValueTask<TOut>> map)
         where TOut : notnull;
 
     /// <summary>

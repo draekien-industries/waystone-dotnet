@@ -1,7 +1,6 @@
-﻿namespace Waystone.Monads.Fixtures
+﻿namespace Waystone.Monads.Fixtures;
+
+public sealed class TestClass
 {
-    public sealed class TestClass
-    {
-        public string Value { get; set; }
-    }
+    public string Value { get; set; } = null!;
 }
