@@ -172,14 +172,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         map(Value);
 
     /// <inheritdoc />
-    public override async Task<Result<TOk, TOut>> MapErrAsync<TOut>(
-        Func<TErr, Task<TOut>> map) => await map(Value);
-
-    /// <inheritdoc />
-    public override async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
-        Func<TErr, ValueTask<TOut>> map) => await map(Value);
-
-    /// <inheritdoc />
     public override Option<TOk> GetOk() => Option.None<TOk>();
 
     /// <inheritdoc />

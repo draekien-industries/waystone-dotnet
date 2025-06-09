@@ -412,42 +412,6 @@ public abstract record Result<TOk, TErr>
         where TOut : notnull;
 
     /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
-    /// value untouched.
-    /// </summary>
-    /// <remarks>
-    /// This function can be used to pass through a successful result while
-    /// handling an error.
-    /// </remarks>
-    /// <param name="map">
-    /// The map function to apply to the <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <typeparam name="TOut">The output error value type</typeparam>
-    public abstract Task<Result<TOk, TOut>> MapErrAsync<TOut>(
-        Func<TErr, Task<TOut>> map)
-        where TOut : notnull;
-
-    /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
-    /// value untouched.
-    /// </summary>
-    /// <remarks>
-    /// This function can be used to pass through a successful result while
-    /// handling an error.
-    /// </remarks>
-    /// <param name="map">
-    /// The map function to apply to the <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <typeparam name="TOut">The output error value type</typeparam>
-    public abstract ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
-        Func<TErr, ValueTask<TOut>> map)
-        where TOut : notnull;
-
-    /// <summary>
     /// Converts from a <see cref="Result{TOk,TErr}" /> into an
     /// <c>Option&lt;TOk&gt;</c>
     /// </summary>

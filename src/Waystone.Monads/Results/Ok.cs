@@ -169,16 +169,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Value;
 
     /// <inheritdoc />
-    public override Task<Result<TOk, TOut>> MapErrAsync<TOut>(
-        Func<TErr, Task<TOut>> map) =>
-        Task.FromResult<Result<TOk, TOut>>(Value);
-
-    /// <inheritdoc />
-    public override ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
-        Func<TErr, ValueTask<TOut>> map) =>
-        new(Value);
-
-    /// <inheritdoc />
     public override Option<TOk> GetOk() => Option.Some(Value);
 
     /// <inheritdoc />
