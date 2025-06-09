@@ -130,33 +130,6 @@ public abstract record Result<TOk, TErr>
         Func<TOk, Result<TOut, TErr>> createOther) where TOut : notnull;
 
     /// <summary>
-    /// Calls the <paramref name="createOther" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" />, otherwise returns the <see cref="Err{TOk,TErr}" />
-    /// value of <see langword="this" /> instance.
-    /// </summary>
-    /// <param name="createOther">A function that creates the other result.</param>
-    /// <typeparam name="TOut">
-    /// The <see cref="Ok{TOk,TErr}" /> value's type of the
-    /// other result.
-    /// </typeparam>
-    public abstract Task<Result<TOut, TErr>> AndThenAsync<TOut>(
-        Func<TOk, Task<Result<TOut, TErr>>> createOther) where TOut : notnull;
-
-    /// <summary>
-    /// Calls the <paramref name="createOther" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" />, otherwise returns the <see cref="Err{TOk,TErr}" />
-    /// value of <see langword="this" /> instance.
-    /// </summary>
-    /// <param name="createOther">A function that creates the other result.</param>
-    /// <typeparam name="TOut">
-    /// The <see cref="Ok{TOk,TErr}" /> value's type of the
-    /// other result.
-    /// </typeparam>
-    public abstract ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-        Func<TOk, ValueTask<Result<TOut, TErr>>> createOther)
-        where TOut : notnull;
-
-    /// <summary>
     /// Returns <paramref name="other" /> if the result is
     /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
     /// value of this result instance.

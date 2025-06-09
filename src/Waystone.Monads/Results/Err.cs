@@ -54,16 +54,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         Value;
 
     /// <inheritdoc />
-    public override Task<Result<TOut, TErr>> AndThenAsync<TOut>(
-        Func<TOk, Task<Result<TOut, TErr>>> createOther) =>
-        Task.FromResult<Result<TOut, TErr>>(Value);
-
-    /// <inheritdoc />
-    public override ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-        Func<TOk, ValueTask<Result<TOut, TErr>>> createOther) =>
-        new(Value);
-
-    /// <inheritdoc />
     public override Result<TOk, TOut> Or<TOut>(Result<TOk, TOut> other) =>
         other;
 

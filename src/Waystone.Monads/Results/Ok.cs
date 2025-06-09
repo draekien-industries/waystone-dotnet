@@ -53,16 +53,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         createOther(Value);
 
     /// <inheritdoc />
-    public override async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
-        Func<TOk, Task<Result<TOut, TErr>>> createOther) =>
-        await createOther(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-        Func<TOk, ValueTask<Result<TOut, TErr>>> createOther) =>
-        await createOther(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
     public override Result<TOk, TOut> Or<TOut>(Result<TOk, TOut> other) =>
         Result.Ok<TOk, TOut>(Value);
 
