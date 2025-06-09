@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
-using System.Threading.Tasks;
 
 /// <summary>Some value of type <typeparamref name="T" /></summary>
 /// <typeparam name="T">
@@ -99,15 +98,6 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> OrElse(Func<Option<T>> createElse) =>
         this;
-
-    /// <inheritdoc />
-    public override Task<Option<T>> OrElseAsync(
-        Func<Task<Option<T>>> createElse) => Task.FromResult<Option<T>>(this);
-
-    /// <inheritdoc />
-    public override ValueTask<Option<T>> OrElseAsync(
-        Func<ValueTask<Option<T>>> createElse) =>
-        new(this);
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>

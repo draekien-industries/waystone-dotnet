@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
-using System.Threading.Tasks;
 using Exceptions;
 
 /// <summary>No value of type <typeparamref name="T" />.</summary>
@@ -82,14 +81,6 @@ public sealed record None<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> OrElse(Func<Option<T>> createElse) =>
         createElse();
-
-    /// <inheritdoc />
-    public override async Task<Option<T>> OrElseAsync(
-        Func<Task<Option<T>>> createElse) => await createElse();
-
-    /// <inheritdoc />
-    public override async ValueTask<Option<T>> OrElseAsync(
-        Func<ValueTask<Option<T>>> createElse) => await createElse();
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>

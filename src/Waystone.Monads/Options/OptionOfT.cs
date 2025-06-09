@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
-using System.Threading.Tasks;
 using Exceptions;
 using Extensions;
 
@@ -201,22 +200,6 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="createElse">The function that will create the other option.</param>
     public abstract Option<T> OrElse(Func<Option<T>> createElse);
-
-    /// <summary>
-    /// Returns the option if it contains a value, otherwise invokes the
-    /// <paramref name="createElse" /> function and returns the result.
-    /// </summary>
-    /// <param name="createElse">The function that will create the other option.</param>
-    public abstract Task<Option<T>> OrElseAsync(
-        Func<Task<Option<T>>> createElse);
-
-    /// <summary>
-    /// Returns the option if it contains a value, otherwise invokes the
-    /// <paramref name="createElse" /> function and returns the result.
-    /// </summary>
-    /// <param name="createElse">The function that will create the other option.</param>
-    public abstract ValueTask<Option<T>> OrElseAsync(
-        Func<ValueTask<Option<T>>> createElse);
 
     /// <summary>
     /// Returns <see cref="Some{T}" /> if exactly one of
