@@ -1,8 +1,10 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
+[ExcludeFromCodeCoverage]
 public static partial class ResultOfTOkTErrAsyncExtensions
 {
     /// <summary>

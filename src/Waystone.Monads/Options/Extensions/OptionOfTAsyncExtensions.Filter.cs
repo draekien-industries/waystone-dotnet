@@ -1,8 +1,10 @@
 ﻿namespace Waystone.Monads.Options.Extensions;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
+[ExcludeFromCodeCoverage]
 public static partial class OptionOfTAsyncExtensions
 {
     /// <summary>Filters an asynchronous Option based on a predicate.</summary>
