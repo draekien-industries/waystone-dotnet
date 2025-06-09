@@ -103,44 +103,6 @@ public abstract record Result<TOk, TErr>
     /// A callback for handling the <see cref="Err{TOk,TErr}" />
     /// case.
     /// </param>
-    /// <typeparam name="TOut">The returned type.</typeparam>
-    public abstract Task<TOut> MatchAsync<TOut>(
-        Func<TOk, Task<TOut>> onOk,
-        Func<TErr, Task<TOut>> onErr);
-
-    /// <summary>
-    /// Performs a <see langword="switch" /> on the result, invoking the
-    /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
-    /// the <paramref name="onErr" /> callback when it is a
-    /// <see cref="Err{TOk,TErr}" />.
-    /// </summary>
-    /// <param name="onOk">
-    /// A callback for handling the <see cref="Ok{TOk,TErr}" />
-    /// case.
-    /// </param>
-    /// <param name="onErr">
-    /// A callback for handling the <see cref="Err{TOk,TErr}" />
-    /// case.
-    /// </param>
-    /// <typeparam name="TOut">The returned type.</typeparam>
-    public abstract ValueTask<TOut> MatchAsync<TOut>(
-        Func<TOk, ValueTask<TOut>> onOk,
-        Func<TErr, ValueTask<TOut>> onErr);
-
-    /// <summary>
-    /// Performs a <see langword="switch" /> on the result, invoking the
-    /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
-    /// the <paramref name="onErr" /> callback when it is a
-    /// <see cref="Err{TOk,TErr}" />.
-    /// </summary>
-    /// <param name="onOk">
-    /// A callback for handling the <see cref="Ok{TOk,TErr}" />
-    /// case.
-    /// </param>
-    /// <param name="onErr">
-    /// A callback for handling the <see cref="Err{TOk,TErr}" />
-    /// case.
-    /// </param>
     public abstract void Match(Action<TOk> onOk, Action<TErr> onErr);
 
     /// <summary>

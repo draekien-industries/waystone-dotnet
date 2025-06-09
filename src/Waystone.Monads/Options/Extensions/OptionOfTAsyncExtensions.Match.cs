@@ -22,7 +22,7 @@ public static partial class OptionOfTAsyncExtensions
         this Option<TIn> option,
         Func<TIn, Task<TOut>> onSome,
         Func<Task<TOut>> onNone) where TIn : notnull =>
-        option.IsSome ? onSome(option.Unwrap()) : onNone();
+        option.Match(onSome, onNone);
 
     /// <summary>
     /// Executes one of the provided asynchronous functions based on the state
@@ -41,7 +41,7 @@ public static partial class OptionOfTAsyncExtensions
         this Option<TIn> option,
         Func<TIn, ValueTask<TOut>> onSome,
         Func<ValueTask<TOut>> onNone) where TIn : notnull =>
-        option.IsSome ? onSome(option.Unwrap()) : onNone();
+        option.Match(onSome, onNone);
 
     /// <summary>
     /// Matches and executes an appropriate function based on the state of an

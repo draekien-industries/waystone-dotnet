@@ -59,18 +59,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         onErr(Value);
 
     /// <inheritdoc />
-    public override async Task<TOut> MatchAsync<TOut>(
-        Func<TOk, Task<TOut>> onOk,
-        Func<TErr, Task<TOut>> onErr) =>
-        await onErr(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<TOut> MatchAsync<TOut>(
-        Func<TOk, ValueTask<TOut>> onOk,
-        Func<TErr, ValueTask<TOut>> onErr) =>
-        await onErr(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
     public override void Match(Action<TOk> onOk, Action<TErr> onErr)
     {
         onErr(Value);
