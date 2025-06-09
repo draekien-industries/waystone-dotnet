@@ -170,23 +170,6 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T> Inspect(Action<T> action);
 
     /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Some{T}" />
-    /// </summary>
-    /// <param name="action">The function to execute against the value.</param>
-    /// <returns>The original <see cref="Option{T}" /></returns>
-    public abstract Task<Option<T>> InspectAsync(Func<T, Task> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Some{T}" />
-    /// </summary>
-    /// <param name="action">The function to execute against the value.</param>
-    /// <returns>The original <see cref="Option{T}" /></returns>
-    public abstract ValueTask<Option<T>> InspectAsync(
-        Func<T, ValueTask> action);
-
-    /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
     /// otherwise calls the <paramref name="predicate" /> with the wrapped value and
     /// returns:

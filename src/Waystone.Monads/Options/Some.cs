@@ -89,22 +89,6 @@ public sealed record Some<T> : Option<T>
     }
 
     /// <inheritdoc />
-    public override async Task<Option<T>> InspectAsync(Func<T, Task> action)
-    {
-        await action(Value);
-        return this;
-    }
-
-
-    /// <inheritdoc />
-    public override async ValueTask<Option<T>> InspectAsync(
-        Func<T, ValueTask> action)
-    {
-        await action(Value);
-        return this;
-    }
-
-    /// <inheritdoc />
     public override Option<T> Filter(Func<T, bool> predicate) =>
         predicate(Value) ? this : Option.None<T>();
 
