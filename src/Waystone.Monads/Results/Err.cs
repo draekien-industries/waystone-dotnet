@@ -168,18 +168,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         Func<TOk, TOut> map) => createDefault(Value);
 
     /// <inheritdoc />
-    public override async Task<TOut> MapOrElseAsync<TOut>(
-        Func<TErr, Task<TOut>> createDefault,
-        Func<TOk, Task<TOut>> map) =>
-        await createDefault(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<TOut> MapOrElseAsync<TOut>(
-        Func<TErr, ValueTask<TOut>> createDefault,
-        Func<TOk, ValueTask<TOut>> map) =>
-        await createDefault(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
     public override Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map) =>
         map(Value);
 

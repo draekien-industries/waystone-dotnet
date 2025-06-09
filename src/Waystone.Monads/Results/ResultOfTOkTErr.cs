@@ -395,40 +395,6 @@ public abstract record Result<TOk, TErr>
         Func<TOk, TOut> map);
 
     /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
-    /// by applying fallback function <paramref name="createDefault" /> to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
-    /// a contained <see cref="Ok{TOk,TErr}" /> value.
-    /// </summary>
-    /// <param name="createDefault">
-    /// A function to create the default value for an
-    /// <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    /// <returns></returns>
-    public abstract Task<TOut> MapOrElseAsync<TOut>(
-        Func<TErr, Task<TOut>> createDefault,
-        Func<TOk, Task<TOut>> map);
-
-    /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
-    /// by applying fallback function <paramref name="createDefault" /> to a contained
-    /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
-    /// a contained <see cref="Ok{TOk,TErr}" /> value.
-    /// </summary>
-    /// <param name="createDefault">
-    /// A function to create the default value for an
-    /// <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    /// <returns></returns>
-    public abstract ValueTask<TOut> MapOrElseAsync<TOut>(
-        Func<TErr, ValueTask<TOut>> createDefault,
-        Func<TOk, ValueTask<TOut>> map);
-
-    /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
     /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
     /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
