@@ -68,16 +68,6 @@ public sealed record None<T> : Option<T>
         Func<T, T2> map) => createDefault();
 
     /// <inheritdoc />
-    public override async Task<T2> MapOrElseAsync<T2>(
-        Func<Task<T2>> createDefault,
-        Func<T, Task<T2>> map) => await createDefault();
-
-    /// <inheritdoc />
-    public override async ValueTask<T2> MapOrElseAsync<T2>(
-        Func<ValueTask<T2>> createDefault,
-        Func<T, ValueTask<T2>> map) => await createDefault();
-
-    /// <inheritdoc />
     public override Option<T> Inspect(Action<T> action) =>
         this;
 

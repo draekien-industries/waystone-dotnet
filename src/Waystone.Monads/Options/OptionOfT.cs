@@ -162,34 +162,6 @@ public abstract record Option<T> where T : notnull
     public abstract T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map);
 
     /// <summary>
-    /// Computes a default from a function (if <see cref="None{T}" />), or
-    /// applies a function to the contained value (if <see cref="Some{T}" />).
-    /// </summary>
-    /// <param name="createDefault">
-    /// The function that will create a default value for a
-    /// <see cref="None{T}" />.
-    /// </param>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract Task<T2> MapOrElseAsync<T2>(
-        Func<Task<T2>> createDefault,
-        Func<T, Task<T2>> map);
-
-    /// <summary>
-    /// Computes a default from a function (if <see cref="None{T}" />), or
-    /// applies a function to the contained value (if <see cref="Some{T}" />).
-    /// </summary>
-    /// <param name="createDefault">
-    /// The function that will create a default value for a
-    /// <see cref="None{T}" />.
-    /// </param>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract ValueTask<T2> MapOrElseAsync<T2>(
-        Func<ValueTask<T2>> createDefault,
-        Func<T, ValueTask<T2>> map);
-
-    /// <summary>
     /// Calls a function with a reference to the contained value if
     /// <see cref="Some{T}" />
     /// </summary>
