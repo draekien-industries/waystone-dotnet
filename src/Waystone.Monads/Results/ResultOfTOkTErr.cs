@@ -38,14 +38,14 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition that the ok value must satisfy</param>
-    public abstract Task<bool> IsOkAnd(Func<TOk, Task<bool>> predicate);
+    public abstract Task<bool> IsOkAndAsync(Func<TOk, Task<bool>> predicate);
 
     /// <summary>
     /// Returns <see langword="true" /> if the result is
     /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition that the ok value must satisfy</param>
-    public abstract ValueTask<bool> IsOkAnd(
+    public abstract ValueTask<bool> IsOkAndAsync(
         Func<TOk, ValueTask<bool>> predicate);
 
     /// <summary>
@@ -60,14 +60,14 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition that the error value must satisfy</param>
-    public abstract Task<bool> IsErrAnd(Func<TErr, Task<bool>> predicate);
+    public abstract Task<bool> IsErrAndAsync(Func<TErr, Task<bool>> predicate);
 
     /// <summary>
     /// Returns <see langword="true" /> if the result is
     /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition that the error value must satisfy</param>
-    public abstract ValueTask<bool> IsErrAnd(
+    public abstract ValueTask<bool> IsErrAndAsync(
         Func<TErr, ValueTask<bool>> predicate);
 
     /// <summary>
@@ -104,7 +104,7 @@ public abstract record Result<TOk, TErr>
     /// case.
     /// </param>
     /// <typeparam name="TOut">The returned type.</typeparam>
-    public abstract Task<TOut> Match<TOut>(
+    public abstract Task<TOut> MatchAsync<TOut>(
         Func<TOk, Task<TOut>> onOk,
         Func<TErr, Task<TOut>> onErr);
 
@@ -123,7 +123,7 @@ public abstract record Result<TOk, TErr>
     /// case.
     /// </param>
     /// <typeparam name="TOut">The returned type.</typeparam>
-    public abstract ValueTask<TOut> Match<TOut>(
+    public abstract ValueTask<TOut> MatchAsync<TOut>(
         Func<TOk, ValueTask<TOut>> onOk,
         Func<TErr, ValueTask<TOut>> onErr);
 
@@ -207,7 +207,7 @@ public abstract record Result<TOk, TErr>
     /// The <see cref="Ok{TOk,TErr}" /> value's type of the
     /// other result.
     /// </typeparam>
-    public abstract Task<Result<TOut, TErr>> AndThen<TOut>(
+    public abstract Task<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, Task<Result<TOut, TErr>>> createOther) where TOut : notnull;
 
     /// <summary>
@@ -220,7 +220,7 @@ public abstract record Result<TOk, TErr>
     /// The <see cref="Ok{TOk,TErr}" /> value's type of the
     /// other result.
     /// </typeparam>
-    public abstract ValueTask<Result<TOut, TErr>> AndThen<TOut>(
+    public abstract ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> createOther)
         where TOut : notnull;
 
@@ -253,7 +253,7 @@ public abstract record Result<TOk, TErr>
     /// <remarks>This function can be used for control flow based on result values.</remarks>
     /// <param name="createOther">A function which creates the other result.</param>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
-    public abstract Task<Result<TOk, TOut>> OrElse<TOut>(
+    public abstract Task<Result<TOk, TOut>> OrElseAsync<TOut>(
         Func<TErr, Task<Result<TOk, TOut>>> createOther) where TOut : notnull;
 
     /// <summary>
@@ -264,7 +264,7 @@ public abstract record Result<TOk, TErr>
     /// <remarks>This function can be used for control flow based on result values.</remarks>
     /// <param name="createOther">A function which creates the other result.</param>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
-    public abstract ValueTask<Result<TOk, TOut>> OrElse<TOut>(
+    public abstract ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
         Func<TErr, ValueTask<Result<TOk, TOut>>> createOther)
         where TOut : notnull;
 
@@ -352,7 +352,7 @@ public abstract record Result<TOk, TErr>
     /// The callback function for computing the
     /// <see cref="Err{TOk,TErr}" /> return value.
     /// </param>
-    public abstract Task<TOk> UnwrapOrElse(Func<TErr, Task<TOk>> onErr);
+    public abstract Task<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> onErr);
 
     /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
@@ -362,7 +362,7 @@ public abstract record Result<TOk, TErr>
     /// The callback function for computing the
     /// <see cref="Err{TOk,TErr}" /> return value.
     /// </param>
-    public abstract ValueTask<TOk> UnwrapOrElse(
+    public abstract ValueTask<TOk> UnwrapOrElseAsync(
         Func<TErr, ValueTask<TOk>> onErr);
 
     /// <summary>
@@ -388,14 +388,15 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
-    public abstract Task<Result<TOk, TErr>> Inspect(Func<TOk, Task> action);
+    public abstract Task<Result<TOk, TErr>>
+        InspectAsync(Func<TOk, Task> action);
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
     /// <see cref="Ok{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
-    public abstract ValueTask<Result<TOk, TErr>> Inspect(
+    public abstract ValueTask<Result<TOk, TErr>> InspectAsync(
         Func<TOk, ValueTask> action);
 
     /// <summary>
@@ -410,14 +411,15 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
-    public abstract Task<Result<TOk, TErr>> InspectErr(Func<TErr, Task> action);
+    public abstract Task<Result<TOk, TErr>> InspectErrAsync(
+        Func<TErr, Task> action);
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
     /// <see cref="Err{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
-    public abstract ValueTask<Result<TOk, TErr>> InspectErr(
+    public abstract ValueTask<Result<TOk, TErr>> InspectErrAsync(
         Func<TErr, ValueTask> action);
 
     /// <summary>
@@ -441,7 +443,7 @@ public abstract record Result<TOk, TErr>
     /// <remarks>This function can be used to compose the results of two functions.</remarks>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TOut">The output value type.</typeparam>
-    public abstract Task<Result<TOut, TErr>> Map<TOut>(
+    public abstract Task<Result<TOut, TErr>> MapAsync<TOut>(
         Func<TOk, Task<TOut>> map)
         where TOut : notnull;
 
@@ -454,7 +456,7 @@ public abstract record Result<TOk, TErr>
     /// <remarks>This function can be used to compose the results of two functions.</remarks>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TOut">The output value type.</typeparam>
-    public abstract ValueTask<Result<TOut, TErr>> Map<TOut>(
+    public abstract ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
         Func<TOk, ValueTask<TOut>> map)
         where TOut : notnull;
 
@@ -478,7 +480,7 @@ public abstract record Result<TOk, TErr>
     /// </param>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
-    public abstract Task<TOut> MapOr<TOut>(
+    public abstract Task<TOut> MapOrAsync<TOut>(
         TOut @default,
         Func<TOk, Task<TOut>> map);
 
@@ -491,7 +493,7 @@ public abstract record Result<TOk, TErr>
     /// </param>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
-    public abstract ValueTask<TOut> MapOr<TOut>(
+    public abstract ValueTask<TOut> MapOrAsync<TOut>(
         TOut @default,
         Func<TOk, ValueTask<TOut>> map);
 
@@ -525,7 +527,7 @@ public abstract record Result<TOk, TErr>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     /// <returns></returns>
-    public abstract Task<TOut> MapOrElse<TOut>(
+    public abstract Task<TOut> MapOrElseAsync<TOut>(
         Func<TErr, Task<TOut>> createDefault,
         Func<TOk, Task<TOut>> map);
 
@@ -542,7 +544,7 @@ public abstract record Result<TOk, TErr>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     /// <returns></returns>
-    public abstract ValueTask<TOut> MapOrElse<TOut>(
+    public abstract ValueTask<TOut> MapOrElseAsync<TOut>(
         Func<TErr, ValueTask<TOut>> createDefault,
         Func<TOk, ValueTask<TOut>> map);
 
@@ -577,7 +579,7 @@ public abstract record Result<TOk, TErr>
     /// The map function to apply to the <see cref="Err{TOk,TErr}" />
     /// </param>
     /// <typeparam name="TOut">The output error value type</typeparam>
-    public abstract Task<Result<TOk, TOut>> MapErr<TOut>(
+    public abstract Task<Result<TOk, TOut>> MapErrAsync<TOut>(
         Func<TErr, Task<TOut>> map)
         where TOut : notnull;
 
@@ -595,7 +597,7 @@ public abstract record Result<TOk, TErr>
     /// The map function to apply to the <see cref="Err{TOk,TErr}" />
     /// </param>
     /// <typeparam name="TOut">The output error value type</typeparam>
-    public abstract ValueTask<Result<TOk, TOut>> MapErr<TOut>(
+    public abstract ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
         Func<TErr, ValueTask<TOut>> map)
         where TOut : notnull;
 

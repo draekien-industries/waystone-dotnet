@@ -28,11 +28,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     public override bool IsOkAnd(Func<TOk, bool> predicate) => predicate(Value);
 
     /// <inheritdoc />
-    public override async Task<bool> IsOkAnd(Func<TOk, Task<bool>> predicate) =>
+    public override async Task<bool> IsOkAndAsync(
+        Func<TOk, Task<bool>> predicate) =>
         await predicate(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
-    public override async ValueTask<bool> IsOkAnd(
+    public override async ValueTask<bool> IsOkAndAsync(
         Func<TOk, ValueTask<bool>> predicate) =>
         await predicate(Value).ConfigureAwait(false);
 
@@ -41,11 +42,11 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Task<bool>
-        IsErrAnd(Func<TErr, Task<bool>> predicate) =>
+        IsErrAndAsync(Func<TErr, Task<bool>> predicate) =>
         Task.FromResult(false);
 
     /// <inheritdoc />
-    public override ValueTask<bool> IsErrAnd(
+    public override ValueTask<bool> IsErrAndAsync(
         Func<TErr, ValueTask<bool>> predicate) =>
         new(false);
 
@@ -57,13 +58,13 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         onOk(Value);
 
     /// <inheritdoc />
-    public override async Task<TOut> Match<TOut>(
+    public override async Task<TOut> MatchAsync<TOut>(
         Func<TOk, Task<TOut>> onOk,
         Func<TErr, Task<TOut>> onErr) =>
         await onOk(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
-    public override async ValueTask<TOut> Match<TOut>(
+    public override async ValueTask<TOut> MatchAsync<TOut>(
         Func<TOk, ValueTask<TOut>> onOk,
         Func<TErr, ValueTask<TOut>> onErr) =>
         await onOk(Value).ConfigureAwait(false);
@@ -84,12 +85,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         createOther(Value);
 
     /// <inheritdoc />
-    public override async Task<Result<TOut, TErr>> AndThen<TOut>(
+    public override async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, Task<Result<TOut, TErr>>> createOther) =>
         await createOther(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
-    public override async ValueTask<Result<TOut, TErr>> AndThen<TOut>(
+    public override async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> createOther) =>
         await createOther(Value).ConfigureAwait(false);
 
@@ -103,12 +104,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Result.Ok<TOk, TOut>(Value);
 
     /// <inheritdoc />
-    public override Task<Result<TOk, TOut>> OrElse<TOut>(
+    public override Task<Result<TOk, TOut>> OrElseAsync<TOut>(
         Func<TErr, Task<Result<TOk, TOut>>> createOther) =>
         Task.FromResult(Result.Ok<TOk, TOut>(Value));
 
     /// <inheritdoc />
-    public override ValueTask<Result<TOk, TOut>> OrElse<TOut>(
+    public override ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
         Func<TErr, ValueTask<Result<TOk, TOut>>> createOther) =>
         new(Value);
 
@@ -134,11 +135,11 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Value;
 
     /// <inheritdoc />
-    public override Task<TOk> UnwrapOrElse(Func<TErr, Task<TOk>> onErr) =>
+    public override Task<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> onErr) =>
         Task.FromResult(Value);
 
     /// <inheritdoc />
-    public override ValueTask<TOk> UnwrapOrElse(
+    public override ValueTask<TOk> UnwrapOrElseAsync(
         Func<TErr, ValueTask<TOk>> onErr) =>
         new(Value);
 
@@ -153,7 +154,7 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     }
 
     /// <inheritdoc />
-    public override async Task<Result<TOk, TErr>> Inspect(
+    public override async Task<Result<TOk, TErr>> InspectAsync(
         Func<TOk, Task> action)
     {
         await action(Value).ConfigureAwait(false);
@@ -161,7 +162,7 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     }
 
     /// <inheritdoc />
-    public override async ValueTask<Result<TOk, TErr>> Inspect(
+    public override async ValueTask<Result<TOk, TErr>> InspectAsync(
         Func<TOk, ValueTask> action)
     {
         await action(Value).ConfigureAwait(false);
@@ -172,12 +173,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     public override Result<TOk, TErr> InspectErr(Action<TErr> action) => this;
 
     /// <inheritdoc />
-    public override Task<Result<TOk, TErr>> InspectErr(
+    public override Task<Result<TOk, TErr>> InspectErrAsync(
         Func<TErr, Task> action) =>
         Task.FromResult<Result<TOk, TErr>>(this);
 
     /// <inheritdoc />
-    public override ValueTask<Result<TOk, TErr>> InspectErr(
+    public override ValueTask<Result<TOk, TErr>> InspectErrAsync(
         Func<TErr, ValueTask> action) =>
         new(this);
 
@@ -186,11 +187,11 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         map(Value);
 
     /// <inheritdoc />
-    public override async Task<Result<TOut, TErr>> Map<TOut>(
+    public override async Task<Result<TOut, TErr>> MapAsync<TOut>(
         Func<TOk, Task<TOut>> map) => await map(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
-    public override async ValueTask<Result<TOut, TErr>> Map<TOut>(
+    public override async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
         Func<TOk, ValueTask<TOut>> map) =>
         await map(Value).ConfigureAwait(false);
 
@@ -200,12 +201,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Func<TOk, TOut> map) => map(Value);
 
     /// <inheritdoc />
-    public override async Task<TOut> MapOr<TOut>(
+    public override async Task<TOut> MapOrAsync<TOut>(
         TOut @default,
         Func<TOk, Task<TOut>> map) => await map(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
-    public override async ValueTask<TOut> MapOr<TOut>(
+    public override async ValueTask<TOut> MapOrAsync<TOut>(
         TOut @default,
         Func<TOk, ValueTask<TOut>> map) =>
         await map(Value).ConfigureAwait(false);
@@ -216,12 +217,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Func<TOk, TOut> map) => map(Value);
 
     /// <inheritdoc />
-    public override async Task<TOut> MapOrElse<TOut>(
+    public override async Task<TOut> MapOrElseAsync<TOut>(
         Func<TErr, Task<TOut>> createDefault,
         Func<TOk, Task<TOut>> map) => await map(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
-    public override async ValueTask<TOut> MapOrElse<TOut>(
+    public override async ValueTask<TOut> MapOrElseAsync<TOut>(
         Func<TErr, ValueTask<TOut>> createDefault,
         Func<TOk, ValueTask<TOut>> map) =>
         await map(Value).ConfigureAwait(false);
@@ -231,12 +232,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Value;
 
     /// <inheritdoc />
-    public override Task<Result<TOk, TOut>> MapErr<TOut>(
+    public override Task<Result<TOk, TOut>> MapErrAsync<TOut>(
         Func<TErr, Task<TOut>> map) =>
         Task.FromResult<Result<TOk, TOut>>(Value);
 
     /// <inheritdoc />
-    public override ValueTask<Result<TOk, TOut>> MapErr<TOut>(
+    public override ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
         Func<TErr, ValueTask<TOut>> map) =>
         new(Value);
 
