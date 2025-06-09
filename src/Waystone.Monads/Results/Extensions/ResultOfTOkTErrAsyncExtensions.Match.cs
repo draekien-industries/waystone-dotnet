@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 
 /// <summary>Async extension methods for <see cref="Result{TOk,TErr}" />.</summary>
-public static class ResultOfTOkTErrAsyncExtensions
+public static partial class ResultOfTOkTErrAsyncExtensions
 {
     /// <summary>
     /// Processes a result asynchronously by executing the appropriate
