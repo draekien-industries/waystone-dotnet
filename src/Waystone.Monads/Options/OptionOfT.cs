@@ -189,45 +189,6 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T> Filter(Func<T, bool> predicate);
 
     /// <summary>
-    /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
-    /// otherwise calls the <paramref name="predicate" /> with the wrapped value and
-    /// returns:
-    /// <list type="bullet">
-    /// <item>
-    /// <see cref="Some{T}" /> if the <paramref name="predicate" /> returns
-    /// <see langword="true" /> (where <typeparamref name="T" /> is the wrapped value),
-    /// and
-    /// </item>
-    /// <item>
-    /// <see cref="None{T}" /> if the <paramref name="predicate" /> returns
-    /// <see langword="false" />.
-    /// </item>
-    /// </list>
-    /// </summary>
-    /// <param name="predicate">The filter function.</param>
-    public abstract Task<Option<T>> FilterAsync(Func<T, Task<bool>> predicate);
-
-    /// <summary>
-    /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
-    /// otherwise calls the <paramref name="predicate" /> with the wrapped value and
-    /// returns:
-    /// <list type="bullet">
-    /// <item>
-    /// <see cref="Some{T}" /> if the <paramref name="predicate" /> returns
-    /// <see langword="true" /> (where <typeparamref name="T" /> is the wrapped value),
-    /// and
-    /// </item>
-    /// <item>
-    /// <see cref="None{T}" /> if the <paramref name="predicate" /> returns
-    /// <see langword="false" />.
-    /// </item>
-    /// </list>
-    /// </summary>
-    /// <param name="predicate">The filter function.</param>
-    public abstract ValueTask<Option<T>> FilterAsync(
-        Func<T, ValueTask<bool>> predicate);
-
-    /// <summary>
     /// Returns the option if it contains a value, otherwise returns
     /// <paramref name="other" />
     /// </summary>

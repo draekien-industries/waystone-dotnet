@@ -76,16 +76,6 @@ public sealed record None<T> : Option<T>
         this;
 
     /// <inheritdoc />
-    public override Task<Option<T>> FilterAsync(
-        Func<T, Task<bool>> predicate) =>
-        Task.FromResult<Option<T>>(this);
-
-    /// <inheritdoc />
-    public override ValueTask<Option<T>> FilterAsync(
-        Func<T, ValueTask<bool>> predicate) =>
-        new(this);
-
-    /// <inheritdoc />
     public override Option<T> Or(Option<T> other) =>
         other;
 
