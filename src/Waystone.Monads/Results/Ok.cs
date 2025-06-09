@@ -103,15 +103,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Value;
 
     /// <inheritdoc />
-    public override Task<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> onErr) =>
-        Task.FromResult(Value);
-
-    /// <inheritdoc />
-    public override ValueTask<TOk> UnwrapOrElseAsync(
-        Func<TErr, ValueTask<TOk>> onErr) =>
-        new(Value);
-
-    /// <inheritdoc />
     public override TErr UnwrapErr() => throw UnwrapException.For(this);
 
     /// <inheritdoc />

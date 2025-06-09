@@ -277,27 +277,6 @@ public abstract record Result<TOk, TErr>
     public abstract TOk UnwrapOrElse(Func<TErr, TOk> onErr);
 
     /// <summary>
-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
-    /// from the callback function.
-    /// </summary>
-    /// <param name="onErr">
-    /// The callback function for computing the
-    /// <see cref="Err{TOk,TErr}" /> return value.
-    /// </param>
-    public abstract Task<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> onErr);
-
-    /// <summary>
-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
-    /// from the callback function.
-    /// </summary>
-    /// <param name="onErr">
-    /// The callback function for computing the
-    /// <see cref="Err{TOk,TErr}" /> return value.
-    /// </param>
-    public abstract ValueTask<TOk> UnwrapOrElseAsync(
-        Func<TErr, ValueTask<TOk>> onErr);
-
-    /// <summary>
     /// Returns the contained <see cref="Err{TOk,TErr}" /> value, consuming
     /// the result instance.
     /// </summary>

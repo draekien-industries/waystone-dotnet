@@ -105,16 +105,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         onErr(Value);
 
     /// <inheritdoc />
-    public override async Task<TOk> UnwrapOrElseAsync(
-        Func<TErr, Task<TOk>> onErr) =>
-        await onErr(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<TOk> UnwrapOrElseAsync(
-        Func<TErr, ValueTask<TOk>> onErr) =>
-        await onErr(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
     public override TErr UnwrapErr() => Value;
 
     /// <inheritdoc />
