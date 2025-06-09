@@ -367,32 +367,6 @@ public abstract record Result<TOk, TErr>
         where TOut : notnull;
 
     /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOut, TErr&gt;</c> by applying a function to a contained
-    /// <see cref="Ok{TOk,TErr}" /> value, leaving an <see cref="Err{TOk,TErr}" />
-    /// untouched.
-    /// </summary>
-    /// <remarks>This function can be used to compose the results of two functions.</remarks>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="TOut">The output value type.</typeparam>
-    public abstract Task<Result<TOut, TErr>> MapAsync<TOut>(
-        Func<TOk, Task<TOut>> map)
-        where TOut : notnull;
-
-    /// <summary>
-    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
-    /// <c>Result&lt;TOut, TErr&gt;</c> by applying a function to a contained
-    /// <see cref="Ok{TOk,TErr}" /> value, leaving an <see cref="Err{TOk,TErr}" />
-    /// untouched.
-    /// </summary>
-    /// <remarks>This function can be used to compose the results of two functions.</remarks>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="TOut">The output value type.</typeparam>
-    public abstract ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
-        Func<TOk, ValueTask<TOut>> map)
-        where TOut : notnull;
-
-    /// <summary>
     /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
     /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
     /// </summary>
@@ -402,32 +376,6 @@ public abstract record Result<TOk, TErr>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut MapOr<TOut>(TOut @default, Func<TOk, TOut> map);
-
-    /// <summary>
-    /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
-    /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
-    /// </summary>
-    /// <param name="default">
-    /// The default value for an <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    public abstract Task<TOut> MapOrAsync<TOut>(
-        TOut @default,
-        Func<TOk, Task<TOut>> map);
-
-    /// <summary>
-    /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
-    /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
-    /// </summary>
-    /// <param name="default">
-    /// The default value for an <see cref="Err{TOk,TErr}" />
-    /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
-    public abstract ValueTask<TOut> MapOrAsync<TOut>(
-        TOut @default,
-        Func<TOk, ValueTask<TOut>> map);
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />

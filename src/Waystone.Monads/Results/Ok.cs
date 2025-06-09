@@ -155,29 +155,9 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         map(Value);
 
     /// <inheritdoc />
-    public override async Task<Result<TOut, TErr>> MapAsync<TOut>(
-        Func<TOk, Task<TOut>> map) => await map(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
-        Func<TOk, ValueTask<TOut>> map) =>
-        await map(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
     public override TOut MapOr<TOut>(
         TOut @default,
         Func<TOk, TOut> map) => map(Value);
-
-    /// <inheritdoc />
-    public override async Task<TOut> MapOrAsync<TOut>(
-        TOut @default,
-        Func<TOk, Task<TOut>> map) => await map(Value).ConfigureAwait(false);
-
-    /// <inheritdoc />
-    public override async ValueTask<TOut> MapOrAsync<TOut>(
-        TOut @default,
-        Func<TOk, ValueTask<TOut>> map) =>
-        await map(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
     public override TOut MapOrElse<TOut>(
