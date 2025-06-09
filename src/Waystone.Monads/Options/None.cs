@@ -55,14 +55,6 @@ public sealed record None<T> : Option<T>
         @else();
 
     /// <inheritdoc />
-    public override async Task<T> UnwrapOrElse(Func<Task<T>> @else) =>
-        await @else();
-
-    /// <inheritdoc />
-    public override async ValueTask<T> UnwrapOrElse(Func<ValueTask<T>> @else) =>
-        await @else();
-
-    /// <inheritdoc />
     public override Option<T2> Map<T2>(Func<T, T2> map) =>
         Option.None<T2>();
 

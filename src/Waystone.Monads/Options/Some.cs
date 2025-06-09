@@ -69,14 +69,6 @@ public sealed record Some<T> : Option<T>
         Value;
 
     /// <inheritdoc />
-    public override Task<T> UnwrapOrElse(Func<Task<T>> @else) =>
-        Task.FromResult(Value);
-
-    /// <inheritdoc />
-    public override ValueTask<T> UnwrapOrElse(Func<ValueTask<T>> @else) =>
-        new(Value);
-
-    /// <inheritdoc />
     public override Option<T2> Map<T2>(Func<T, T2> map) =>
         map(Value);
 

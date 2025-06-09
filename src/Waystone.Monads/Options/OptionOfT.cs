@@ -115,26 +115,6 @@ public abstract record Option<T> where T : notnull
     public abstract T UnwrapOrElse(Func<T> @else);
 
     /// <summary>
-    /// Returns the contained <see cref="Some{T}" /> value or computes it from
-    /// a delegate.
-    /// </summary>
-    /// <param name="else">
-    /// The delegate which computes the <see cref="None{T}" />
-    /// value.
-    /// </param>
-    public abstract Task<T> UnwrapOrElse(Func<Task<T>> @else);
-
-    /// <summary>
-    /// Returns the contained <see cref="Some{T}" /> value or computes it from
-    /// a delegate.
-    /// </summary>
-    /// <param name="else">
-    /// The delegate which computes the <see cref="None{T}" />
-    /// value.
-    /// </param>
-    public abstract ValueTask<T> UnwrapOrElse(Func<ValueTask<T>> @else);
-
-    /// <summary>
     /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
     /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
     /// <see cref="None{T}" /> (if <see cref="None{T}" />).
