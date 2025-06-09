@@ -122,22 +122,6 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     }
 
     /// <inheritdoc />
-    public override async Task<Result<TOk, TErr>> InspectAsync(
-        Func<TOk, Task> action)
-    {
-        await action(Value).ConfigureAwait(false);
-        return this;
-    }
-
-    /// <inheritdoc />
-    public override async ValueTask<Result<TOk, TErr>> InspectAsync(
-        Func<TOk, ValueTask> action)
-    {
-        await action(Value).ConfigureAwait(false);
-        return this;
-    }
-
-    /// <inheritdoc />
     public override Result<TOk, TErr> InspectErr(Action<TErr> action) => this;
 
     /// <inheritdoc />

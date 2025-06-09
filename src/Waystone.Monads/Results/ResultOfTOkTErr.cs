@@ -317,22 +317,6 @@ public abstract record Result<TOk, TErr>
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
-    /// <see cref="Ok{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract Task<Result<TOk, TErr>>
-        InspectAsync(Func<TOk, Task> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Ok{TOk,TErr}" />
-    /// </summary>
-    /// <param name="action">The function to be invoked.</param>
-    public abstract ValueTask<Result<TOk, TErr>> InspectAsync(
-        Func<TOk, ValueTask> action);
-
-    /// <summary>
-    /// Calls a function with a reference to the contained value if
     /// <see cref="Err{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>

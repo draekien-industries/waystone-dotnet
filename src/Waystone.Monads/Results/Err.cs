@@ -121,16 +121,6 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     public override Result<TOk, TErr> Inspect(Action<TOk> action) => this;
 
     /// <inheritdoc />
-    public override Task<Result<TOk, TErr>> InspectAsync(
-        Func<TOk, Task> action) =>
-        Task.FromResult<Result<TOk, TErr>>(this);
-
-    /// <inheritdoc />
-    public override ValueTask<Result<TOk, TErr>> InspectAsync(
-        Func<TOk, ValueTask> action) =>
-        new(this);
-
-    /// <inheritdoc />
     public override Result<TOk, TErr> InspectErr(Action<TErr> action)
     {
         action(Value);
