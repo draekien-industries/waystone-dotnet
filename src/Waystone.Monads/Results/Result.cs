@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
 
@@ -20,6 +21,12 @@ public static class Result
     /// A callback method that will be invoked for any exceptions
     /// thrown by the <paramref name="factory" />
     /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
     /// <returns>
@@ -28,7 +35,12 @@ public static class Result
     /// </returns>
     public static Result<TOk, TErr> Try<TOk, TErr>(
         Func<TOk> factory,
-        Func<Exception, TErr> onError) where TOk : notnull where TErr : notnull
+        Func<Exception, TErr> onError,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(factory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull where TErr : notnull
     {
         try
         {
@@ -36,7 +48,11 @@ public static class Result
         }
         catch (Exception ex)
         {
-            MonadsGlobalConfig.LogException(ex);
+            var caller = new CallerInfo(
+                callerMemberName,
+                callerArgumentExpression,
+                callerLineNumber);
+            MonadsGlobalConfig.Log(ex, caller);
             return Err<TOk, TErr>(onError(ex));
         }
     }
@@ -54,6 +70,12 @@ public static class Result
     /// A callback method that will be invoked for any exceptions
     /// thrown by the <paramref name="asyncFactory" />
     /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
     /// <returns>
@@ -62,7 +84,12 @@ public static class Result
     /// </returns>
     public static async Task<Result<TOk, TErr>> Try<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
-        Func<Exception, TErr> onError) where TOk : notnull where TErr : notnull
+        Func<Exception, TErr> onError,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(asyncFactory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull where TErr : notnull
     {
         try
         {
@@ -70,7 +97,11 @@ public static class Result
         }
         catch (Exception ex)
         {
-            MonadsGlobalConfig.LogException(ex);
+            var caller = new CallerInfo(
+                callerMemberName,
+                callerArgumentExpression,
+                callerLineNumber);
+            MonadsGlobalConfig.Log(ex, caller);
             return Err<TOk, TErr>(onError(ex));
         }
     }

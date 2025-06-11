@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Options;
 
 /// <summary>
@@ -12,21 +11,30 @@ using Options;
 /// </summary>
 public static class MonadsGlobalConfig
 {
-    private static Option<Action<Exception, string>> LogAction { get; set; } =
+    private static Option<Action<Exception, CallerInfo>>
+        LogAction { get; set; } =
 #if DEBUG
-        Option.Some<Action<Exception, string>>((ex, source) =>
+        Option.Some<Action<Exception, CallerInfo>>((ex, callerInfo) =>
         {
             Debug.WriteLine(
-                $"[Waystone.Monads::{source}] Handled exception of type '{ex.GetType().Name}': {ex}");
+                $"[Waystone.Monads] Handled exception of type '{ex.GetType().Name}':");
+            Debug.Indent();
+            Debug.WriteLine($"- Caller Member Name: {callerInfo.MemberName}");
+            Debug.WriteLine($"- Caller Line Number: {callerInfo.LineNumber}");
+            Debug.WriteLine(
+                $"- Caller Argument Expression: {callerInfo.ArgumentExpression}");
+            Debug.WriteLine("--- Exception Details ---");
+            Debug.WriteLine(ex);
+            Debug.Unindent();
         });
 #else
-        Option.None<Action<Exception, string>>();
+        Option.None<Action<Exception, CallerInfo>>();
 #endif
 
-    internal static void LogException(
+    internal static void Log(
         Exception ex,
-        [CallerMemberName] string source = "") =>
-        LogAction.Inspect(action => action.Invoke(ex, source));
+        CallerInfo callerInfo) =>
+        LogAction.Inspect(action => action.Invoke(ex, callerInfo));
 
 
     /// <summary>
@@ -41,6 +49,23 @@ public static class MonadsGlobalConfig
     public static void UseExceptionLogger(
         Action<Exception> log)
     {
-        LogAction = Option.Some<Action<Exception, string>>((ex, _) => log(ex));
+        LogAction =
+            Option.Some<Action<Exception, CallerInfo>>((ex, _) => log(ex));
+    }
+
+    /// <summary>
+    /// Configures the global exception logger used in the Waystone.Monads
+    /// library. This allows capturing and logging exceptions thrown during monadic
+    /// operations, including information about the caller of the operation.
+    /// </summary>
+    /// <param name="log">
+    /// An action to execute when logging exceptions. The action
+    /// receives an <see cref="Exception" /> and a <see cref="CallerInfo" /> object
+    /// containing details about the caller that caused the exception to throw.
+    /// </param>
+    public static void UseExceptionLogger(
+        Action<Exception, CallerInfo> log)
+    {
+        LogAction = Option.Some(log);
     }
 }

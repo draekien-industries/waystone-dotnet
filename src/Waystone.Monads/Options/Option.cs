@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
 
@@ -15,13 +16,23 @@ public static class Option
     /// A method which when executed will produce the value of
     /// the <see cref="Option{T}" />
     /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
     /// <typeparam name="T">The factory return value's type</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory executes successfully,
     /// otherwise a <see cref="None{T}" />
     /// </returns>
     public static Option<T> Try<T>(
-        Func<T> factory)
+        Func<T> factory,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(factory))]
+        string callerArgumentExpression = "")
         where T : notnull
     {
         try
@@ -31,7 +42,11 @@ public static class Option
         }
         catch (Exception ex)
         {
-            MonadsGlobalConfig.LogException(ex);
+            var caller = new CallerInfo(
+                callerMemberName,
+                callerArgumentExpression,
+                callerLineNumber);
+            MonadsGlobalConfig.Log(ex, caller);
             return None<T>();
         }
     }
@@ -44,13 +59,23 @@ public static class Option
     /// An asynchronous method which when awaited will
     /// produce the value for the <see cref="Option{T}" />
     /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
     /// <see cref="None{T}" />
     /// </returns>
     public static async Task<Option<T>> Try<T>(
-        Func<Task<T>> asyncFactory) where T : notnull
+        Func<Task<T>> asyncFactory,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(asyncFactory))]
+        string callerArgumentExpression = "") where T : notnull
     {
         try
         {
@@ -59,7 +84,11 @@ public static class Option
         }
         catch (Exception ex)
         {
-            MonadsGlobalConfig.LogException(ex);
+            var caller = new CallerInfo(
+                callerMemberName,
+                callerArgumentExpression,
+                callerLineNumber);
+            MonadsGlobalConfig.Log(ex, caller);
             return None<T>();
         }
     }
