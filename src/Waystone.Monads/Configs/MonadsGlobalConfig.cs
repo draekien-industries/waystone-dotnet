@@ -11,10 +11,8 @@ using Options;
 /// </summary>
 public static class MonadsGlobalConfig
 {
-    private static Option<Action<Exception, CallerInfo>>
-        LogAction { get; set; } =
-#if DEBUG
-        Option.Some<Action<Exception, CallerInfo>>((ex, callerInfo) =>
+    private static Action<Exception, CallerInfo> LogAction =>
+        (ex, callerInfo) =>
         {
             Debug.WriteLine(
                 $"[Waystone.Monads] Handled exception of type '{ex.GetType().Name}':");
@@ -23,18 +21,25 @@ public static class MonadsGlobalConfig
             Debug.WriteLine($"- Caller Line Number: {callerInfo.LineNumber}");
             Debug.WriteLine(
                 $"- Caller Argument Expression: {callerInfo.ArgumentExpression}");
-            Debug.WriteLine("--- Exception Details ---");
+            Debug.WriteLine("--- Handled Exception Details ---");
             Debug.WriteLine(ex);
+            Debug.WriteLine("--- End of Exception Details ---");
             Debug.Unindent();
-        });
-#else
-        Option.None<Action<Exception, CallerInfo>>();
-#endif
+
+            ConfiguredLogAction.Inspect(action =>
+                                            action.Invoke(ex, callerInfo));
+        };
+
+    private static Option<Action<Exception, CallerInfo>> ConfiguredLogAction
+    {
+        get;
+        set;
+    } = Option.None<Action<Exception, CallerInfo>>();
 
     internal static void Log(
         Exception ex,
         CallerInfo callerInfo) =>
-        LogAction.Inspect(action => action.Invoke(ex, callerInfo));
+        LogAction.Invoke(ex, callerInfo);
 
 
     /// <summary>
@@ -49,7 +54,7 @@ public static class MonadsGlobalConfig
     public static void UseExceptionLogger(
         Action<Exception> log)
     {
-        LogAction =
+        ConfiguredLogAction =
             Option.Some<Action<Exception, CallerInfo>>((ex, _) => log(ex));
     }
 
@@ -66,6 +71,6 @@ public static class MonadsGlobalConfig
     public static void UseExceptionLogger(
         Action<Exception, CallerInfo> log)
     {
-        LogAction = Option.Some(log);
+        ConfiguredLogAction = Option.Some(log);
     }
 }
