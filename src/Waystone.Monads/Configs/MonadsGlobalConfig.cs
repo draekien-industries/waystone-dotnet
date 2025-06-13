@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Options;
 
 /// <summary>
@@ -9,6 +10,7 @@ using Options;
 /// operations in the Waystone.Monads library, including global exception handling
 /// mechanisms.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class MonadsGlobalConfig
 {
     private static Action<Exception, CallerInfo> LogAction =>
