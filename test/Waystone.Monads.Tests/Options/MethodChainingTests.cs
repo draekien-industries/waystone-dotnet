@@ -32,4 +32,19 @@ public sealed class MethodChainingTests
         result.ShouldBe("3");
         await inspect.Received(1).Invoke(2);
     }
+
+    [Fact]
+    public async Task
+        GivenAsyncOption_AndMatchThatReturnsTask_ThenMethodsShouldAllChain()
+    {
+        var onSome = Substitute.For<Func<int, Task>>();
+        var onNone = Substitute.For<Func<Task>>();
+
+        await Task.FromResult(Option.Some(1))
+                  .MapAsync(x => Task.FromResult(x + 1))
+                  .MatchAsync(onSome, onNone);
+
+        await onSome.Received(1).Invoke(2);
+        await onNone.DidNotReceive().Invoke();
+    }
 }

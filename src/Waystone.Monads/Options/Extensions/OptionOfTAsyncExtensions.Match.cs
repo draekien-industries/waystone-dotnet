@@ -6,6 +6,59 @@ using System.Threading.Tasks;
 public static partial class OptionOfTAsyncExtensions
 {
     /// <summary>
+    /// Executes the provided asynchronous functions based on the state of the
+    /// <see cref="Option{T}" />.
+    /// </summary>
+    /// <param name="option">
+    /// The option whose state determines which function to
+    /// execute.
+    /// </param>
+    /// <param name="onSome">
+    /// The asynchronous function to invoke if the option is in
+    /// the Some state.
+    /// </param>
+    /// <param name="onNone">
+    /// The asynchronous function to invoke if the option is in
+    /// the None state.
+    /// </param>
+    /// <typeparam name="TIn">The type of the value contained within the option.</typeparam>
+    /// <returns>
+    /// A task that represents the asynchronous operation and yields the
+    /// result of the invoked function.
+    /// </returns>
+    public static Task MatchAsync<TIn>(
+        this Option<TIn> option,
+        Func<TIn, Task> onSome,
+        Func<Task> onNone) where TIn : notnull => option.Match(onSome, onNone);
+
+    /// <summary>
+    /// Executes the provided asynchronous functions based on the state of the
+    /// <see cref="Option{T}" /> retrieved from the task.
+    /// </summary>
+    /// <param name="optionTask">
+    /// A task that resolves to an option whose state
+    /// determines which function to execute.
+    /// </param>
+    /// <param name="onSome">
+    /// The asynchronous function to invoke if the option is in
+    /// the Some state.
+    /// </param>
+    /// <param name="onNone">
+    /// The asynchronous function to invoke if the option is in
+    /// the None state.
+    /// </param>
+    /// <typeparam name="TIn">The type of the value contained within the option.</typeparam>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public static async Task MatchAsync<TIn>(
+        this Task<Option<TIn>> optionTask,
+        Func<TIn, Task> onSome,
+        Func<Task> onNone) where TIn : notnull
+    {
+        Option<TIn> option = await optionTask.ConfigureAwait(false);
+        await option.MatchAsync(onSome, onNone).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Executes one of the provided functions based on the state of the
     /// <see cref="Option{T}" />.
     /// </summary>
