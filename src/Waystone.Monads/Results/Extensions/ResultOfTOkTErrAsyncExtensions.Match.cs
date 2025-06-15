@@ -7,6 +7,59 @@ using System.Threading.Tasks;
 public static partial class ResultOfTOkTErrAsyncExtensions
 {
     /// <summary>
+    /// Processes a result asynchronously by executing a function based on the
+    /// result's state.
+    /// </summary>
+    /// <param name="result">
+    /// The result to be processed, of type
+    /// <see cref="Result{TOk, TErr}" />.
+    /// </param>
+    /// <param name="onOk">
+    /// A function to execute asynchronously if the result is in an
+    /// "ok" state. The function will be passed the successful value.
+    /// </param>
+    /// <param name="onErr">
+    /// A function to execute asynchronously if the result is in an
+    /// "error" state. The function will be passed the error value.
+    /// </param>
+    /// <typeparam name="TOk">The type of the successful value contained in the result.</typeparam>
+    /// <typeparam name="TErr">The type of the error value contained in the result.</typeparam>
+    /// <returns>A <see cref="Task" /> that represents the asynchronous operation.</returns>
+    public static Task MatchAsync<TOk, TErr>(
+        this Result<TOk, TErr> result,
+        Func<TOk, Task> onOk,
+        Func<TErr, Task> onErr)
+        where TOk : notnull where TErr : notnull => result.Match(onOk, onErr);
+
+    /// <summary>
+    /// Processes a result asynchronously by executing a function based on the
+    /// result's state.
+    /// </summary>
+    /// <param name="resultTask">
+    /// The result to be processed, of type
+    /// <see cref="Result{TOk, TErr}" />.
+    /// </param>
+    /// <param name="onOk">
+    /// A function to execute asynchronously if the result is in an
+    /// "ok" state. The function will be passed the successful value.
+    /// </param>
+    /// <param name="onErr">
+    /// A function to execute asynchronously if the result is in an
+    /// "error" state. The function will be passed the error value.
+    /// </param>
+    /// <typeparam name="TOk">The type of the successful value contained in the result.</typeparam>
+    /// <typeparam name="TErr">The type of the error value contained in the result.</typeparam>
+    /// <returns>A <see cref="Task" /> that represents the asynchronous operation.</returns>
+    public static async Task MatchAsync<TOk, TErr>(
+        this Task<Result<TOk, TErr>> resultTask,
+        Func<TOk, Task> onOk,
+        Func<TErr, Task> onErr) where TOk : notnull where TErr : notnull
+    {
+        Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+        await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Processes a result asynchronously by executing the appropriate
     /// function based on the result's state.
     /// </summary>
