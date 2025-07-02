@@ -2,12 +2,14 @@ namespace Waystone.Monads.Configs;
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Waystone.Monads.Options;
 using Waystone.Monads.Results.Errors;
 
 /// <summary>
 /// Global configuration options for the Waystone.Monads library.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class MonadOptions
 {
     private static readonly Lazy<MonadOptions> _singleton =
