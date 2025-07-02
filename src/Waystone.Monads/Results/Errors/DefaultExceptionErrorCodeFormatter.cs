@@ -2,6 +2,7 @@
 
 using System;
 
+[Obsolete]
 internal sealed class DefaultExceptionErrorCodeFormatter<T>
     : IErrorCodeFormatter<T> where T : Exception
 {
