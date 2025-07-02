@@ -43,8 +43,8 @@ handled by the library. Invoke the `UseExceptionLogger` function once during the
 lifetime of your app:
 
 ```csharp
-MonadsGlobalConfig.UseExceptionLogger(ex => 
+MonadOptions.UseExceptionLogger((exception, callerInfo) => 
 {
-    Log.Error(ex, "Exception when creating monad"); // use Serilog/NLog/Etc
+    Log.Error(exception, "Exception when creating monad"); // use Serilog/NLog/Etc
 });
 ```

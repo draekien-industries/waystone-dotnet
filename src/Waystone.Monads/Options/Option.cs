@@ -46,7 +46,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadsGlobalConfig.Log(ex, caller);
+            MonadOptions.Instance.Log(ex, caller);
             return None<T>();
         }
     }
@@ -88,7 +88,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadsGlobalConfig.Log(ex, caller);
+            MonadOptions.Instance.Log(ex, caller);
             return None<T>();
         }
     }

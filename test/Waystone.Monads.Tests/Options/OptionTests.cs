@@ -11,12 +11,12 @@ using Xunit;
 [TestSubject(typeof(Option))]
 public sealed class OptionTests
 {
-    private readonly Action<Exception> _callback;
+    private readonly Action<Exception, CallerInfo> _callback;
 
     public OptionTests()
     {
-        _callback = Substitute.For<Action<Exception>>();
-        MonadsGlobalConfig.UseExceptionLogger(_callback);
+        _callback = Substitute.For<Action<Exception, CallerInfo>>();
+        MonadOptions.UseExceptionLogger(_callback);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public sealed class OptionTests
         Option<int> option = await optionTask;
 
         option.ShouldBe(Option.None<int>());
-        _callback.Received().Invoke(Arg.Any<Exception>());
+        _callback.Received().Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
     }
 
 
@@ -52,7 +52,7 @@ public sealed class OptionTests
     {
         Option<int> option = Option.Try(() => 1);
         option.ShouldBe(Option.Some(1));
-        _callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+        _callback.DidNotReceive().Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class OptionTests
 #pragma warning restore CS0162 // Unreachable code detected
         });
         option.ShouldBe(Option.None<int>());
-        _callback.Received(1).Invoke(Arg.Any<Exception>());
+        _callback.Received(1).Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
     }
 
 

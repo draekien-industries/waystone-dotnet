@@ -8,7 +8,7 @@
     [TestSubject(typeof(OptionOfTExtensions))]
     public sealed class OptionOfTExtensionsTests
     {
-#region unzip
+        #region unzip
 
         [Fact]
         public void GivenSomeWithTuple_WhenUnzip_ThenReturnSome()
@@ -40,9 +40,9 @@
             result.ShouldBe((none, none));
         }
 
-#endregion unzip
+        #endregion unzip
 
-#region flatten
+        #region flatten
 
         [Fact]
         public void GivenSomeOfSome_WhenFlatten_ThenReturnOption()
@@ -61,9 +61,9 @@
             result.ShouldBe(Option.None<int>());
         }
 
-#endregion flatten
+        #endregion flatten
 
-#region transpose
+        #region transpose
 
         [Fact]
         public void GivenSomeOfOk_WhenTranspose_ThenReturnOkOfSome()
@@ -105,6 +105,6 @@
             result.ShouldBe(Result.Ok<Option<int>, int>(Option.None<int>()));
         }
 
-#endregion transpose
+        #endregion transpose
     }
 }

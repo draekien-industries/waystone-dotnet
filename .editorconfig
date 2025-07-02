@@ -1,0 +1,8 @@
+[*]
+root = true
+tab_width = 2
+indent_stype = space
+charset = utf-8
+
+[*.{cs, csproj, csx, sln}]
+tab_width = 4

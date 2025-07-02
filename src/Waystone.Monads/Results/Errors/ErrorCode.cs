@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Results.Errors;
 
 using System;
+using Waystone.Monads.Configs;
 
 /// <summary>A short code representing an error type in the application.</summary>
 /// <example>
@@ -59,12 +60,29 @@ public record ErrorCode
         return new ErrorCode(formatter.Format(value));
     }
 
-    internal static ErrorCode FromException<TException>(
-        TException exception,
-        IErrorCodeFormatter<TException>? formatter = null)
-        where TException : Exception
+    /// <summary>
+    /// Creates an instance of an <see cref="ErrorCode" /> from an enum value.
+    /// </summary>
+    /// <remarks>
+    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
+    /// </remarks>
+    /// <param name="value">The enum value to create the error code from.</param>
+    /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
+    public static ErrorCode FromEnum(Enum value) => MonadOptions.Instance.ErrorCodeFactory.FromEnum(value);
+
+    /// <summary>
+    /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" /> from an exception.
+    /// </summary>
+    /// <remarks>
+    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
+    /// </remarks>
+    /// <param name="exception"></param>
+    /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
+    public static ErrorCode FromException(Exception exception) => MonadOptions.Instance.ErrorCodeFactory.FromException(exception);
+
+    internal static ErrorCode FromException<T>(T exception, IErrorCodeFormatter<T>? formatter = null) where T : Exception
     {
-        formatter ??= new DefaultExceptionErrorCodeFormatter<TException>();
+        formatter ??= new DefaultExceptionErrorCodeFormatter<T>();
         return new ErrorCode(formatter.Format(exception));
     }
 

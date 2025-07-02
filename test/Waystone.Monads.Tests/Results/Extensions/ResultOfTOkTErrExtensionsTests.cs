@@ -8,7 +8,7 @@
     [TestSubject(typeof(Result))]
     public sealed class ResultOfTOkTErrExtensionsTests
     {
-#region flatten
+        #region flatten
 
         [Fact]
         public void WhenFlatteningResult_ThenReduceNestingByOne()
@@ -22,9 +22,9 @@
             flattened.Unwrap().ShouldBe("1");
         }
 
-#endregion flatten
+        #endregion flatten
 
-#region transpose
+        #region transpose
 
         [Fact]
         public void GivenOkResultOfSome_WhenTranspose_ThenReturnSomeOfOk()
@@ -74,6 +74,6 @@
             result.Unwrap().ShouldBe(err);
         }
 
-#endregion transpose
+        #endregion transpose
     }
 }
