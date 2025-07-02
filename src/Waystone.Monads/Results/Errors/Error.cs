@@ -55,6 +55,7 @@ public record Error
     /// </param>
     /// <typeparam name="TException">The exception instance type</typeparam>
     /// <returns>The created <see cref="Error" /></returns>
+    [Obsolete(ErrorCode.ErrorCodeFormatterObsolete)]
     public static Error FromException<TException>(
         TException exception,
         IErrorCodeFormatter<TException>? errorCodeFormatter = null)

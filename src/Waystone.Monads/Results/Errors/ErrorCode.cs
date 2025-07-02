@@ -21,6 +21,9 @@ using Waystone.Monads.Configs;
 public record ErrorCode
 {
     private const string UnspecifiedValue = "Err.Unspecified";
+    internal const string ErrorCodeFormatterObsolete = "Use the overload without the `formatter` parameter "
+        + "which uses the globally configured `ErrorCodeFactory`. "
+        + "This method will be removed in a future version.";
 
     /// <summary>
     /// Creates a new instance of <see cref="ErrorCode" /> from a string
@@ -52,6 +55,7 @@ public record ErrorCode
     /// </param>
     /// <typeparam name="TEnum">The error code enum type.</typeparam>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
+    [Obsolete(ErrorCodeFormatterObsolete)]
     public static ErrorCode FromEnum<TEnum>(
         TEnum value,
         IErrorCodeFormatter<TEnum>? formatter = null) where TEnum : Enum
@@ -87,6 +91,7 @@ public record ErrorCode
     /// <param name="exception">The exception to convert into an error code</param>
     /// <param name="formatter">The optional <see cref="IErrorCodeFormatter{T}"/></param>
     /// <returns>The created <see cref="ErrorCode"/></returns>
+    [Obsolete(ErrorCodeFormatterObsolete)]
     public static ErrorCode FromException<T>(T exception, IErrorCodeFormatter<T>? formatter = null) where T : Exception
     {
         formatter ??= new DefaultExceptionErrorCodeFormatter<T>();

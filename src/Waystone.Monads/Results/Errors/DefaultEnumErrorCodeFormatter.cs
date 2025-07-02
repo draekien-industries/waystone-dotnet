@@ -2,6 +2,7 @@
 
 using System;
 
+[Obsolete]
 internal sealed class DefaultEnumErrorCodeFormatter<T> : IErrorCodeFormatter<T>
     where T : Enum
 {
