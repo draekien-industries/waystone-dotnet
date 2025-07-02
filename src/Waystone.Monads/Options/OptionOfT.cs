@@ -3,6 +3,7 @@
 using System;
 using Exceptions;
 using Extensions;
+using Waystone.Monads.Results;
 
 /// <summary>
 /// A type which can be in two states, a <see cref="Some{T}" /> or a
@@ -222,6 +223,53 @@ public abstract record Option<T> where T : notnull
     /// </returns>
     public abstract Option<(T, T2)> Zip<T2>(Option<T2> other)
         where T2 : notnull;
+
+    /// <summary>
+    /// Zips the current option with another option using the provided function.
+    /// </summary>
+    /// <typeparam name="TOther">The type of the value contained in the other option.</typeparam>
+    /// <typeparam name="TOut">The output value's type.</typeparam>
+    /// <param name="other">The option to zip.</param>
+    /// <param name="zip">The function that will perform the zip operation.</param>
+    /// <returns>
+    /// If the current option is <see cref="Some{T}" /> and <paramref name="other"/> is <see cref="Some{T}"/>,
+    /// this method returns <c>Some&lt;TOut&gt;</c> where <c>TOut</c> is the result of applying
+    /// <paramref name="zip"/> to the values of both options. Otherwise, <c>None&lt;TOut&gt;</c> is returned.
+    /// </returns>
+    public abstract Option<TOut> ZipWith<TOther, TOut>(Option<TOther> other, Func<T, TOther, TOut> zip)
+        where TOther : notnull
+        where TOut : notnull;
+
+    /// <summary>
+    /// Transforms the current <see cref="Option{T}"/> into a <see cref="Result{TOk, TErr}"/>, mapping <see cref="Some{T}"/>
+    /// to <see cref="Ok{TOk, TErr}"/> and <see cref="None{T}"/> to <see cref="Err{TOk, TErr}"/>.
+    /// </summary>
+    /// <remarks>
+    /// Arguments passed to this method must be eagerly evauated. If you are passing the result of a function call,
+    /// it is recommended to use <see cref="OkOrElse{TErr}"/>, which is lazily evaluated.
+    /// </remarks>
+    /// <typeparam name="TErr">The type of the error value.</typeparam>
+    /// <param name="error">The error to return when the current option is a <see cref="None{T}"/>.</param>
+    /// <returns>
+    /// An <see cref="Ok{TOk, TErr}"/> if the current option is a <see cref="Some{T}"/>, otherwise an <see cref="Err{TOk, TErr}"/>.
+    /// </returns>
+    public abstract Result<T, TErr> OkOr<TErr>(TErr error)
+        where TErr : notnull;
+
+    /// <summary>
+    /// Transforms the current <see cref="Option{T}"/> into a <see cref="Result{TOk, TErr}"/>, mapping <see cref="Some{T}"/>
+    /// to <see cref="Ok{TOk, TErr}"/> and <see cref="None{T}"/> to <see cref="Err{TOk, TErr}"/>.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="errorFactory"/> is lazily evaluated, meaning it will only be invoked if the current option is a <see cref="None{T}"/>.
+    /// </remarks>
+    /// <typeparam name="TErr">The type of the error value returned by the factory.</typeparam>
+    /// <param name="errorFactory">The function, which when invoked, will return the error value.</param>
+    /// <returns>
+    /// An <see cref="Ok{TOk, TErr}"/> if the current option is a <see cref="Some{T}"/>, otherwise an <see cref="Err{TOk, TErr}"/>.
+    /// </returns>
+    public abstract Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory)
+        where TErr : notnull;
 
     /// <summary>
     /// Implicitly converts a value of type <typeparamref name="T" /> into an
