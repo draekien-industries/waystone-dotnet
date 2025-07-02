@@ -92,4 +92,42 @@ public sealed class OptionTests
         option5.IsSome.ShouldBeFalse();
         option6.IsSome.ShouldBeTrue();
     }
+
+    [Fact]
+    public void GivenNullReferenceType_WhenCreatingOption_ThenReturnNone()
+    {
+        string? value = null;
+        var result = Option.FromNullable(value);
+        result.IsNone.ShouldBeTrue();
+        result.ShouldBeOfType<None<string>>();
+    }
+
+    [Fact]
+    public void GivenNullValueType_WhenCreatingOption_ThenReturnNone()
+    {
+        int? value = null;
+        var result = Option.FromNullable(value);
+        result.IsNone.ShouldBeTrue();
+        result.ShouldBeOfType<None<int>>();
+    }
+
+    [Fact]
+    public void GivenNotNullReferenceType_WhenCreatingOption_ThenReturnSome()
+    {
+        string? value = "test";
+        var result = Option.FromNullable(value);
+        result.IsSome.ShouldBeTrue();
+        result.ShouldBeOfType<Some<string>>();
+        result.Unwrap().ShouldBe("test");
+    }
+
+    [Fact]
+    public void GivenNotNullValueType_WhenCreatingOption_ThenReturnSome()
+    {
+        int? value = 42;
+        var result = Option.FromNullable(value);
+        result.IsSome.ShouldBeTrue();
+        result.ShouldBeOfType<Some<int>>();
+        result.Unwrap().ShouldBe(42);
+    }
 }
