@@ -48,3 +48,19 @@ MonadOptions.Global.UseExceptionLogger((exception, callerInfo) =>
     Log.Error(exception, "Exception when creating monad"); // use Serilog/NLog/Etc
 });
 ```
+
+There may be times where you want to generate an `ErrorCode` from an `Enum` or an `Exception`.
+You can configure the formatting of the generated error codes using the `UseErrorCodeFactory`.
+
+```csharp
+class MyErrorCodeFactory : ErrorCodeFactory
+{
+  // override as needed
+}
+
+MonadOptions.Global.UseErrorCodeFactory(new MyErrorCodeFactory());
+```
+
+> ![NOTE]
+> The `MonadOptions` class acts like a singleton, so you should only configure it once
+> in your application's life-cycle.

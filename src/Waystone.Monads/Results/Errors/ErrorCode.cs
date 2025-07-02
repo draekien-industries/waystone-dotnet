@@ -80,7 +80,14 @@ public record ErrorCode
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
     public static ErrorCode FromException(Exception exception) => MonadOptions.Global.ErrorCodeFactory.FromException(exception);
 
-    internal static ErrorCode FromException<T>(T exception, IErrorCodeFormatter<T>? formatter = null) where T : Exception
+    /// <summary>
+    /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" /> from an exception.
+    /// </summary>
+    /// <typeparam name="T">The exception type.</typeparam>
+    /// <param name="exception">The exception to convert into an error code</param>
+    /// <param name="formatter">The optional <see cref="IErrorCodeFormatter{T}"/></param>
+    /// <returns>The created <see cref="ErrorCode"/></returns>
+    public static ErrorCode FromException<T>(T exception, IErrorCodeFormatter<T>? formatter = null) where T : Exception
     {
         formatter ??= new DefaultExceptionErrorCodeFormatter<T>();
         return new ErrorCode(formatter.Format(exception));
