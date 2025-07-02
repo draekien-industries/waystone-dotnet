@@ -35,19 +35,19 @@ public static class AssertionExtensions
     public static void ShouldBeNone<T>(this Option<T> option)
         where T : notnull
     {
-        option.IsSome.ShouldBeTrue();
-        option.IsNone.ShouldBeFalse();
+        option.IsSome.ShouldBeFalse();
+        option.IsNone.ShouldBeTrue();
         option.ShouldBeOfType<None<T>>();
     }
 
-    public static void ShouldWrapSomeValue<T>(this Option<T> option, T value)
+    public static void ShouldBeSomeValue<T>(this Option<T> option, T value)
         where T : notnull
     {
         option.ShouldBeSome();
         option.Unwrap().ShouldBe(value);
     }
 
-    public static void ShouldWrapOkValue<TOk, TErr>(this Result<TOk, TErr> result, TOk value)
+    public static void ShouldBeOkValue<TOk, TErr>(this Result<TOk, TErr> result, TOk value)
         where TOk : notnull
         where TErr : notnull
     {
@@ -55,7 +55,7 @@ public static class AssertionExtensions
         result.Unwrap().ShouldBe(value);
     }
 
-    public static void ShouldWrapErrValue<TOk, TErr>(this Result<TOk, TErr> result, TErr value)
+    public static void ShouldBeErrValue<TOk, TErr>(this Result<TOk, TErr> result, TErr value)
         where TOk : notnull
         where TErr : notnull
     {
