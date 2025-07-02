@@ -16,7 +16,7 @@ public sealed class OptionTests
     public OptionTests()
     {
         _callback = Substitute.For<Action<Exception, CallerInfo>>();
-        MonadOptions.UseExceptionLogger(_callback);
+        MonadOptions.Global.UseExceptionLogger(_callback);
     }
 
     [Fact]

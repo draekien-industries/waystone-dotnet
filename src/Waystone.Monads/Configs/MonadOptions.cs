@@ -10,10 +10,10 @@ using Waystone.Monads.Results.Errors;
 /// </summary>
 public class MonadOptions
 {
-    private static readonly Lazy<MonadOptions> _instance =
+    private static readonly Lazy<MonadOptions> _singleton =
         new(() => new MonadOptions());
 
-    internal static MonadOptions Instance => _instance.Value;
+    internal static MonadOptions Global => _singleton.Value;
 
     private MonadOptions()
     {
@@ -45,10 +45,10 @@ public class MonadOptions
     /// </summary>
     /// <param name="action">The log action that will be executed.</param>
     /// <returns>The <see cref="MonadOptions"/> instance for you to chain additional configurations.</returns>
-    public static MonadOptions UseExceptionLogger(Action<Exception, CallerInfo> action)
+    public MonadOptions UseExceptionLogger(Action<Exception, CallerInfo> action)
     {
-        Instance.ExceptionLogger = Option.Some(action);
-        return Instance;
+        ExceptionLogger = Option.Some(action);
+        return this;
     }
 
     /// <summary>
@@ -57,9 +57,9 @@ public class MonadOptions
     /// </summary>
     /// <param name="factory">The implementation of <see cref="ErrorCodeFactory"/> you want the library to use.</param>
     /// <returns>The <see cref="MonadOptions"/> instance for you to chain additional configurations.</returns>
-    public static MonadOptions UseErrorCodeFactory(ErrorCodeFactory factory)
+    public MonadOptions UseErrorCodeFactory(ErrorCodeFactory factory)
     {
-        Instance.ErrorCodeFactory = factory;
-        return Instance;
+        ErrorCodeFactory = factory;
+        return this;
     }
 }

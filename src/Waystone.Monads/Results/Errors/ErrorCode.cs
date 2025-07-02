@@ -68,7 +68,7 @@ public record ErrorCode
     /// </remarks>
     /// <param name="value">The enum value to create the error code from.</param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    public static ErrorCode FromEnum(Enum value) => MonadOptions.Instance.ErrorCodeFactory.FromEnum(value);
+    public static ErrorCode FromEnum(Enum value) => MonadOptions.Global.ErrorCodeFactory.FromEnum(value);
 
     /// <summary>
     /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" /> from an exception.
@@ -78,7 +78,7 @@ public record ErrorCode
     /// </remarks>
     /// <param name="exception"></param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    public static ErrorCode FromException(Exception exception) => MonadOptions.Instance.ErrorCodeFactory.FromException(exception);
+    public static ErrorCode FromException(Exception exception) => MonadOptions.Global.ErrorCodeFactory.FromException(exception);
 
     internal static ErrorCode FromException<T>(T exception, IErrorCodeFormatter<T>? formatter = null) where T : Exception
     {

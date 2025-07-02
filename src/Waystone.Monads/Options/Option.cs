@@ -46,7 +46,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Instance.Log(ex, caller);
+            MonadOptions.Global.Log(ex, caller);
             return None<T>();
         }
     }
@@ -88,7 +88,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Instance.Log(ex, caller);
+            MonadOptions.Global.Log(ex, caller);
             return None<T>();
         }
     }
@@ -126,7 +126,7 @@ public static class Option
     /// <typeparam name="T">The non-nullable value's type</typeparam>
     /// <param name="value">The nullable value to convert into an <see cref="Option{T}"/></param>
     /// <returns>
-    /// Returns a <see cref="Some{T}"/> if the value is not null, 
+    /// Returns a <see cref="Some{T}"/> if the value is not null,
     /// otherwise returns a <see cref="None{T}"/>.
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
