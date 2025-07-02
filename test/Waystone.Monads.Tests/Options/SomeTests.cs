@@ -6,6 +6,8 @@ using Extensions;
 using JetBrains.Annotations;
 using NSubstitute;
 using Shouldly;
+using Waystone.Monads.Extensions;
+using Waystone.Monads.Results;
 using Xunit;
 
 [TestSubject(typeof(Some<>))]
@@ -514,5 +516,69 @@ public sealed class SomeTests
                 new ValueTask<Option<int>>(
                     Option.Some(x + 1)));
         result.Unwrap().ShouldBe(2);
+    }
+
+    [Fact]
+    public void WhenOkOr_ThenReturnOk()
+    {
+        Option<int> some = Option.Some(1);
+        Result<int, string> result = some.OkOr("Error");
+        result.ShouldWrapOkValue(1);
+    }
+
+    [Fact]
+    public async Task WhenOkOrAsync_ThenReturnOk()
+    {
+        Task<Option<int>> some = Task.FromResult(Option.Some(1));
+        Result<int, string> result = await some.OkOrAsync("Error");
+        result.ShouldWrapOkValue(1);
+    }
+
+    [Fact]
+    public async Task WhenOkOrAsyncWithValueTask_ThenReturnOk()
+    {
+        ValueTask<Option<int>> some = new(Option.Some(1));
+        Result<int, string> result = await some.OkOrAsync("Error");
+        result.ShouldWrapOkValue(1);
+    }
+
+    [Fact]
+    public void WhenOkOrElse_ThenReturnOk()
+    {
+        Option<int> some = Option.Some(1);
+        Result<int, string> result = some.OkOrElse(() => "Error");
+        result.ShouldWrapOkValue(1);
+    }
+
+    [Fact]
+    public async Task GivenOptionTask_WhenOkOrElseAsync_ThenReturnOk()
+    {
+        Task<Option<int>> some = Task.FromResult(Option.Some(1));
+        Result<int, string> result = await some.OkOrElseAsync(() => Task.FromResult("Error"));
+        result.ShouldWrapOkValue(1);
+    }
+
+    [Fact]
+    public async Task GivenOption_WhenOkOrElseAsync_ThenReturnOk()
+    {
+        Option<int> some = Option.Some(1);
+        Result<int, string> result = await some.OkOrElseAsync(() => Task.FromResult("Error"));
+        result.ShouldWrapOkValue(1);
+    }
+
+    [Fact]
+    public async Task GivenOptionValueTask_WhenOkOrElseAsyncWithValueTask_ThenReturnOk()
+    {
+        ValueTask<Option<int>> some = new(Option.Some(1));
+        Result<int, string> result = await some.OkOrElseAsync(() => new ValueTask<string>("Error"));
+        result.ShouldWrapOkValue(1);
+    }
+
+    [Fact]
+    public async Task GivenOption_WhenOkOrElseAsyncWithValueTask_ThenReturnOk()
+    {
+        Option<int> some = Option.Some(1);
+        Result<int, string> result = await some.OkOrElseAsync(() => new ValueTask<string>("Error"));
+        result.ShouldWrapOkValue(1);
     }
 }
