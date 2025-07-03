@@ -1,0 +1,16 @@
+root = true
+
+[*]
+tab_width = 2
+indent_stype = space
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+
+[*.{cs, csproj, csx, sln}]
+tab_width = 4
+
+[*.cs]
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = inside_namespace

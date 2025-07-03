@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Results.Errors;
 
 using System;
+using Waystone.Monads.Configs;
 
 /// <summary>
 /// Represents an error that contains both an error code and a descriptive
@@ -14,8 +15,6 @@ using System;
 /// </remarks>
 public record Error
 {
-    private const string UnspecifiedMessage = "An unexpected error occurred.";
-
     /// <summary>
     /// Creates a new instance of <see cref="Error" /> from an
     /// <see cref="ErrorCode" /> and a message string.
@@ -32,7 +31,7 @@ public record Error
     {
         Code = code;
         Message = string.IsNullOrWhiteSpace(message)
-            ? UnspecifiedMessage
+            ? MonadOptions.Global.FallbackErrorMessage
             : message.Trim();
     }
 
@@ -45,21 +44,16 @@ public record Error
     /// <summary>A descriptive error message providing more context about the error.</summary>
     public string Message { get; }
 
-    /// <summary>Creates a new instance of <see cref="Error" /> from an exception</summary>
-    /// <param name="exception">The exception</param>
-    /// <param name="errorCodeFormatter">
-    /// Optional. An
-    /// <see cref="IErrorCodeFormatter{T}" /> that will be used to generate the error
-    /// code
-    /// </param>
-    /// <typeparam name="TException">The exception instance type</typeparam>
+    /// <summary>
+    /// Creates a new instance of <see cref="Error" /> from an exception.
+    /// </summary>
+    /// <remarks>
+    /// Uses the <see cref="ErrorCodeFactory"/> configured in
+    /// <see cref="MonadOptions"/> to create the error code.
+    /// </remarks>
+    /// <param name="exception">The exception.</param>
     /// <returns>The created <see cref="Error" /></returns>
-    public static Error FromException<TException>(
-        TException exception,
-        IErrorCodeFormatter<TException>? errorCodeFormatter = null)
-        where TException : Exception => new(
-        ErrorCode.FromException(exception, errorCodeFormatter),
-        exception.Message);
+    public static Error FromException(Exception exception) => new(ErrorCode.FromException(exception), exception.Message);
 
     /// <inheritdoc />
     public override string ToString() => $"[{Code}] {Message}";

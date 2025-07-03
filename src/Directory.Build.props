@@ -13,7 +13,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/draekien-industries/waystone-dotnet</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/draekien-industries/waystone-dotnet</PackageProjectUrl>
+        <PackageProjectUrl>https://draekien-industries.wpei.me</PackageProjectUrl>
         <PackageReleaseNotes>https://github.com/draekien-industries/waystone-dotnet/releases</PackageReleaseNotes>
     </PropertyGroup>
 </Project>

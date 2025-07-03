@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Results.Errors;
 
 using System;
+using Waystone.Monads.Configs;
 
 /// <summary>A short code representing an error type in the application.</summary>
 /// <example>
@@ -19,8 +20,6 @@ using System;
 /// </remarks>
 public record ErrorCode
 {
-    private const string UnspecifiedValue = "Err.Unspecified";
-
     /// <summary>
     /// Creates a new instance of <see cref="ErrorCode" /> from a string
     /// value.
@@ -29,7 +28,7 @@ public record ErrorCode
     public ErrorCode(string value)
     {
         Value = string.IsNullOrWhiteSpace(value)
-            ? UnspecifiedValue
+            ? MonadOptions.Global.FallbackErrorCode
             : value.Trim();
     }
 
@@ -37,36 +36,24 @@ public record ErrorCode
     public string Value { get; }
 
     /// <summary>
-    /// Creates an instance of an <see cref="ErrorCode" /> from an enum value
-    /// of type <typeparamref name="TEnum" />.
+    /// Creates an instance of an <see cref="ErrorCode" /> from an enum value.
     /// </summary>
     /// <remarks>
-    /// The default format for error codes created in this way is
-    /// <c>$"{typeof(TEnum).Name}.{value}"</c>
+    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
     /// </remarks>
-    /// <param name="value">The error code enum value.</param>
-    /// <param name="formatter">
-    /// Optional. A formatter for mapping the enum value to a
-    /// string error code value.
-    /// </param>
-    /// <typeparam name="TEnum">The error code enum type.</typeparam>
+    /// <param name="value">The enum value to create the error code from.</param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    public static ErrorCode FromEnum<TEnum>(
-        TEnum value,
-        IErrorCodeFormatter<TEnum>? formatter = null) where TEnum : Enum
-    {
-        formatter ??= new DefaultEnumErrorCodeFormatter<TEnum>();
-        return new ErrorCode(formatter.Format(value));
-    }
+    public static ErrorCode FromEnum(Enum value) => MonadOptions.Global.ErrorCodeFactory.FromEnum(value);
 
-    internal static ErrorCode FromException<TException>(
-        TException exception,
-        IErrorCodeFormatter<TException>? formatter = null)
-        where TException : Exception
-    {
-        formatter ??= new DefaultExceptionErrorCodeFormatter<TException>();
-        return new ErrorCode(formatter.Format(exception));
-    }
+    /// <summary>
+    /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" /> from an exception.
+    /// </summary>
+    /// <remarks>
+    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
+    /// </remarks>
+    /// <param name="exception"></param>
+    /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
+    public static ErrorCode FromException(Exception exception) => MonadOptions.Global.ErrorCodeFactory.FromException(exception);
 
     /// <summary>
     /// Implicitly converts an <see cref="ErrorCode" /> instance to its string

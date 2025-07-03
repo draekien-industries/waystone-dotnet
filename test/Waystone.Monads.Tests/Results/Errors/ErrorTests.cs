@@ -36,7 +36,7 @@ public sealed class ErrorTests
     {
         Error error = Error.FromException(
             new InvalidOperationException("Something went wrong"));
-        error.Code.ShouldBe(new ErrorCode("Err.InvalidOperation"));
+        error.Code.ShouldBe(new ErrorCode("InvalidOperation"));
         error.Message.ShouldBe("Something went wrong");
     }
 }
