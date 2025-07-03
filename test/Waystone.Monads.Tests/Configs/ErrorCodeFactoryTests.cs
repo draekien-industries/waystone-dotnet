@@ -40,4 +40,14 @@ public sealed class ErrorCodeFactoryTests
         var result = _sut.FromException(exception);
         result.Value.ShouldBe(nameof(Exception));
     }
+
+    public class NonConforming : Exception { }
+
+    [Fact]
+    public void GivenNonConformingException_WhenInvokingFromException_ThenReturnExceptionName()
+    {
+        NonConforming exception = new();
+        var result = _sut.FromException(exception);
+        result.Value.ShouldBe(nameof(NonConforming));
+    }
 }
