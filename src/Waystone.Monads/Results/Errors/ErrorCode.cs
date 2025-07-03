@@ -20,7 +20,6 @@ using Waystone.Monads.Configs;
 /// </remarks>
 public record ErrorCode
 {
-    private const string UnspecifiedValue = "Err.Unspecified";
     internal const string ErrorCodeFormatterObsolete = "Use the overload without the `formatter` parameter "
         + "which uses the globally configured `ErrorCodeFactory`. "
         + "This method will be removed in a future version.";
@@ -33,7 +32,7 @@ public record ErrorCode
     public ErrorCode(string value)
     {
         Value = string.IsNullOrWhiteSpace(value)
-            ? UnspecifiedValue
+            ? MonadOptions.Global.FallbackErrorCode
             : value.Trim();
     }
 

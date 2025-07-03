@@ -15,8 +15,6 @@ using Waystone.Monads.Configs;
 /// </remarks>
 public record Error
 {
-    private const string UnspecifiedMessage = "An unexpected error occurred.";
-
     /// <summary>
     /// Creates a new instance of <see cref="Error" /> from an
     /// <see cref="ErrorCode" /> and a message string.
@@ -33,7 +31,7 @@ public record Error
     {
         Code = code;
         Message = string.IsNullOrWhiteSpace(message)
-            ? UnspecifiedMessage
+            ? MonadOptions.Global.FallbackErrorMessage
             : message.Trim();
     }
 

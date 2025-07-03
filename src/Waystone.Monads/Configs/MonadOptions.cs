@@ -21,10 +21,14 @@ public class MonadOptions
     {
         ExceptionLogger = Option.None<Action<Exception, CallerInfo>>();
         ErrorCodeFactory = new ErrorCodeFactory();
+        FallbackErrorCode = "Err.Unspecified";
+        FallbackErrorMessage = "An unexpected error occurred.";
     }
 
     internal Option<Action<Exception, CallerInfo>> ExceptionLogger { get; set; }
     internal ErrorCodeFactory ErrorCodeFactory { get; set; }
+    internal string FallbackErrorCode { get; set; }
+    internal string FallbackErrorMessage { get; set; }
 
     internal void Log(Exception exception, CallerInfo callerInfo)
     {
@@ -71,6 +75,38 @@ public class MonadOptions
     public MonadOptions UseErrorCodeFactory(ErrorCodeFactory factory)
     {
         ErrorCodeFactory = factory;
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the fallback error code that will be used when a null or whitespace value
+    /// is used to create an <see cref="ErrorCode"/> instance.
+    /// </summary>
+    /// <remarks>The default fallback is `Err.Unspecified`</remarks>
+    /// <param name="errorCode">The fallback error code to use</param>
+    /// <returns>The <see cref="MonadOptions"/> instance for you to chain additional configurations.</returns>
+    public MonadOptions UseFallbackErrorCode(string errorCode)
+    {
+        if (string.IsNullOrWhiteSpace(errorCode))
+            throw new InvalidOperationException("The fallback error code cannot be null or whitespace.");
+
+        FallbackErrorCode = errorCode.Trim();
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the fallback error message that will be used when a null or whitespace message
+    /// is used to create an <see cref="Error"/> instance.
+    /// </summary>
+    /// <remarks>The default fallback is `An unexpected error occurred.`</remarks>
+    /// <param name="errorMessage">The fallback error message to use</param>
+    /// <returns>The <see cref="MonadOptions"/> instance for you to chain additional configurations.</returns>
+    public MonadOptions UseFallbackErrorMessage(string errorMessage)
+    {
+        if (string.IsNullOrWhiteSpace(errorMessage))
+            throw new InvalidOperationException("The fallback error message cannot be null or whitespace.");
+
+        FallbackErrorMessage = errorMessage.Trim();
         return this;
     }
 }
