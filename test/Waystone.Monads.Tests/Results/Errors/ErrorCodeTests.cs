@@ -22,8 +22,8 @@ public sealed class ErrorCodeTests
             string? value)
     {
         var sut = new ErrorCode(value!);
-        sut.Value.ShouldBe("Err.Unspecified");
-        sut.ToString().ShouldBe("Err.Unspecified");
+        sut.Value.ShouldBe("Unspecified");
+        sut.ToString().ShouldBe("Unspecified");
     }
 
 
@@ -40,8 +40,8 @@ public sealed class ErrorCodeTests
         GivenException_WhenCreatingErrorCode_ThenReturnExpectedCode()
     {
         ErrorCode result = ErrorCode.FromException(new TestException());
-        result.Value.ShouldBe("Err.Test");
-        result.ToString().ShouldBe("Err.Test");
+        result.Value.ShouldBe("Test");
+        result.ToString().ShouldBe("Test");
     }
 
     private enum TestErrorCodes

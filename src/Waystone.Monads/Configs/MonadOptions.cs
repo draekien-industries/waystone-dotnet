@@ -21,7 +21,7 @@ public class MonadOptions
     {
         ExceptionLogger = Option.None<Action<Exception, CallerInfo>>();
         ErrorCodeFactory = new ErrorCodeFactory();
-        FallbackErrorCode = "Err.Unspecified";
+        FallbackErrorCode = "Unspecified";
         FallbackErrorMessage = "An unexpected error occurred.";
     }
 
@@ -82,7 +82,7 @@ public class MonadOptions
     /// Configures the fallback error code that will be used when a null or whitespace value
     /// is used to create an <see cref="ErrorCode"/> instance.
     /// </summary>
-    /// <remarks>The default fallback is `Err.Unspecified`</remarks>
+    /// <remarks>The default fallback is `Unspecified`</remarks>
     /// <param name="errorCode">The fallback error code to use</param>
     /// <returns>The <see cref="MonadOptions"/> instance for you to chain additional configurations.</returns>
     public MonadOptions UseFallbackErrorCode(string errorCode)
