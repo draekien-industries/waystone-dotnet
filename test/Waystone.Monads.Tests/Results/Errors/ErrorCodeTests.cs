@@ -37,17 +37,6 @@ public sealed class ErrorCodeTests
 
     [Fact]
     public void
-        GivenEnum_AndCustomFormatter_WhenCreatingErrorCode_ThenReturnExpectedCode()
-    {
-        ErrorCode result = ErrorCode.FromEnum(
-            TestErrorCodes.TestValue,
-            new TestErrorCodeFormatter());
-        result.Value.ShouldBe("ABC.TestValue");
-        result.ToString().ShouldBe("ABC.TestValue");
-    }
-
-    [Fact]
-    public void
         GivenException_WhenCreatingErrorCode_ThenReturnExpectedCode()
     {
         ErrorCode result = ErrorCode.FromException(new TestException());
@@ -55,37 +44,11 @@ public sealed class ErrorCodeTests
         result.ToString().ShouldBe("Err.Test");
     }
 
-    [Fact]
-    public void
-        GivenException_AndCustomFormatter_WhenCreatingErrorCode_ThenReturnExpectedCode()
-    {
-        var formatter = new TestExceptionFormatter();
-        ErrorCode result = ErrorCode.FromException(
-            new TestException(),
-            formatter);
-        result.Value.ShouldBe("ABC");
-        result.ToString().ShouldBe("ABC");
-    }
-
     private enum TestErrorCodes
     {
         TestValue,
     }
 
-    private class TestErrorCodeFormatter
-        : IErrorCodeFormatter<TestErrorCodes>
-    {
-        /// <inheritdoc />
-        public string Format(TestErrorCodes value) => $"ABC.{value}";
-    }
-
     private class TestException : Exception
     { }
-
-    private class TestExceptionFormatter
-        : IErrorCodeFormatter<TestException>
-    {
-        /// <inheritdoc />
-        public string Format(TestException value) => "ABC";
-    }
 }

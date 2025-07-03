@@ -44,23 +44,6 @@ public record Error
     /// <summary>A descriptive error message providing more context about the error.</summary>
     public string Message { get; }
 
-    /// <summary>Creates a new instance of <see cref="Error" /> from an exception</summary>
-    /// <param name="exception">The exception</param>
-    /// <param name="errorCodeFormatter">
-    /// Optional. An
-    /// <see cref="IErrorCodeFormatter{T}" /> that will be used to generate the error
-    /// code
-    /// </param>
-    /// <typeparam name="TException">The exception instance type</typeparam>
-    /// <returns>The created <see cref="Error" /></returns>
-    [Obsolete(ErrorCode.ErrorCodeFormatterObsolete)]
-    public static Error FromException<TException>(
-        TException exception,
-        IErrorCodeFormatter<TException>? errorCodeFormatter = null)
-        where TException : Exception => new(
-        ErrorCode.FromException(exception, errorCodeFormatter),
-        exception.Message);
-
     /// <summary>
     /// Creates a new instance of <see cref="Error" /> from an exception.
     /// </summary>
