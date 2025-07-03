@@ -42,6 +42,15 @@ public class MonadOptions
     }
 
     /// <summary>
+    /// Configures the global options for the Waystone.Monads library.
+    /// </summary>
+    /// <param name="configure">The action that will configure the <see cref="MonadOptions"/></param>
+    public static void Configure(Action<MonadOptions> configure)
+    {
+        configure.Invoke(Global);
+    }
+
+    /// <summary>
     /// Configures the log action that should be executed when an exception is silently
     /// handled by the library.
     /// </summary>

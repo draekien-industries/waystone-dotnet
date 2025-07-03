@@ -8,10 +8,13 @@ using Xunit;
 [TestSubject(typeof(MonadOptions))]
 public sealed class MonadOptionsTests
 {
+    public class CustomErrorCodeFactory : ErrorCodeFactory;
+
     [Fact]
     public void GivenDefaultOptions_ThenErrorCodeFactoryShouldBeSet()
     {
+        MonadOptions.Configure(option => option.UseErrorCodeFactory(new CustomErrorCodeFactory()));
         MonadOptions.Global.ErrorCodeFactory.ShouldNotBeNull();
-        MonadOptions.Global.ErrorCodeFactory.ShouldBeOfType<ErrorCodeFactory>();
+        MonadOptions.Global.ErrorCodeFactory.ShouldBeOfType<CustomErrorCodeFactory>();
     }
 }
