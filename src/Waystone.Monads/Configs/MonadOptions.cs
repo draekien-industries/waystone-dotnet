@@ -10,7 +10,7 @@ using Waystone.Monads.Results.Errors;
 /// Global configuration options for the Waystone.Monads library.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class MonadOptions
+public sealed class MonadOptions
 {
     private static readonly Lazy<MonadOptions> _singleton =
         new(() => new MonadOptions());
@@ -88,7 +88,7 @@ public class MonadOptions
     public MonadOptions UseFallbackErrorCode(string errorCode)
     {
         if (string.IsNullOrWhiteSpace(errorCode))
-            throw new InvalidOperationException("The fallback error code cannot be null or whitespace.");
+            throw new ArgumentException("The fallback error code cannot be null or whitespace.", nameof(errorCode));
 
         FallbackErrorCode = errorCode.Trim();
         return this;
@@ -104,7 +104,7 @@ public class MonadOptions
     public MonadOptions UseFallbackErrorMessage(string errorMessage)
     {
         if (string.IsNullOrWhiteSpace(errorMessage))
-            throw new InvalidOperationException("The fallback error message cannot be null or whitespace.");
+            throw new ArgumentException("The fallback error message cannot be null or whitespace.", nameof(errorMessage));
 
         FallbackErrorMessage = errorMessage.Trim();
         return this;
