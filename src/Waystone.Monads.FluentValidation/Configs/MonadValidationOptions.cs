@@ -29,7 +29,7 @@ public sealed class MonadValidationOptions
     internal string FallbackValidationErrorMessage { get; set; }
 
     /// <summary>
-    /// Configures he error code that will be used when converting a <see cref="ValidationErr"/>
+    /// Configures the error code that will be used when converting a <see cref="ValidationErr"/>
     /// into an <see cref="Error"/>
     /// </summary>
     /// <remarks>The default error code is `validation.failed`.</remarks>

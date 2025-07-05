@@ -55,7 +55,7 @@ public sealed class ValidationErr
     /// Converts the <see cref="ValidationErr" /> to an <see cref="Error" />.
     /// </summary>
     /// <remarks>
-    /// Uses the options configured in <see cref="MonadValidationOptions"/> to determine\
+    /// Uses the options configured in <see cref="MonadValidationOptions"/> to determine
     /// the error code and the fallback error message (for when there are no errors in the validation result).
     /// </remarks>
     /// <returns>The created <see cref="Error"/></returns>

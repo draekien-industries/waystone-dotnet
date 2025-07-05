@@ -43,7 +43,7 @@ public class ValidationErrTests
         var validationErr = ValidationErr.Create(validationResult);
         var error = validationErr.Unwrap().ToError();
 
-        error.Code.Value.ShouldBe("validation.failed"); ;
+        error.Code.Value.ShouldBe("validation.failed");
         error.Message.ShouldBe("Error message 1; Error message 2;");
     }
 }
