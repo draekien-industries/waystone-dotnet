@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
+using System.Collections.Generic;
 using Exceptions;
 using Extensions;
 using Waystone.Monads.Results;
@@ -270,6 +271,18 @@ public abstract record Option<T> where T : notnull
     /// </returns>
     public abstract Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory)
         where TErr : notnull;
+
+    /// <summary>
+    /// Converts the option into an <see cref="IEnumerable{T}"/>
+    /// of possibly contained values.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="IEnumerable{T}"/> of <see cref="Option{T}"/>.
+    /// </returns>
+    public IEnumerable<Option<T>> Iter()
+    {
+        yield return this;
+    }
 
     /// <summary>
     /// Implicitly converts a value of type <typeparamref name="T" /> into an

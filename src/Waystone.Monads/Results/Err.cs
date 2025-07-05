@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
+using System.Collections.Generic;
 using Exceptions;
 using Options;
 
@@ -119,4 +120,10 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Option<TErr> GetErr() => Option.Some(Value);
+
+    /// <inheritdoc />
+    public override IEnumerable<Option<TOk>> Iter()
+    {
+        yield return Option.None<TOk>();
+    }
 }
