@@ -35,4 +35,17 @@ public sealed class ArrayIterator<T> : Iterator<T>
         CurrentItem = Option.None<T>();
         return false;
     }
+
+    /// <inheritdoc/>
+    public override (int LowerBound, Option<int> UpperBound) SizeHint()
+    {
+        int lowerBound = Length - (CurrentIndex + 1);
+        Option<int> upperBound = lowerBound > 0 ? Option.Some(lowerBound) : Option.None<int>();
+
+        return CurrentIndex switch
+        {
+            _ when CurrentIndex < Length => (lowerBound, upperBound),
+            _ => base.SizeHint()
+        };
+    }
 }
