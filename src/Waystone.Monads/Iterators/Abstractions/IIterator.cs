@@ -71,4 +71,14 @@ public interface IIterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     /// A <see cref="StepByIterator{T}"/> iterator.
     /// </returns>
     StepByIterator<T> StepBy(PosInt interval);
+
+    /// <summary>
+    /// Takes two iterators and creates a new iterator over both in sequence.
+    /// </summary>
+    /// <param name="other">The second iterator to iterate over.</param>
+    /// <returns>
+    /// A new iterator which will first iterate over values
+    /// from the first iterator, then over values from the second iterator.
+    /// </returns>
+    ChainIterator<T> Chain(Iterator<T> other);
 }

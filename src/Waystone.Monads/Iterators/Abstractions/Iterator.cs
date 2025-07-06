@@ -91,4 +91,7 @@ public abstract class Iterator<T> : IIterator<T>
 
     /// <inheritdoc/>
     public virtual StepByIterator<T> StepBy(PosInt interval) => new(this, interval);
+
+    /// <inheritdoc/>
+    public ChainIterator<T> Chain(Iterator<T> other) => new(this, other);
 }
