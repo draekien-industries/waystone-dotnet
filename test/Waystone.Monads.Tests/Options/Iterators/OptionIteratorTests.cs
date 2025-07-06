@@ -44,4 +44,19 @@ public sealed class OptionIteratorTests
         var result = some.Iter().Count();
         result.ShouldBe(1);
     }
+
+    [Fact]
+    public void WhenInvokingSizeHint_ThenReturnExpected()
+    {
+        Option<int> some = Option.Some(1);
+        var iter = some.Iter();
+        var sizeHint = iter.SizeHint();
+        sizeHint.LowerBound.ShouldBe(1);
+        sizeHint.UpperBound.ShouldBeSomeValue(1);
+
+        iter.Next();
+        sizeHint = iter.SizeHint();
+        sizeHint.LowerBound.ShouldBe(0);
+        sizeHint.UpperBound.ShouldBeNone();
+    }
 }
