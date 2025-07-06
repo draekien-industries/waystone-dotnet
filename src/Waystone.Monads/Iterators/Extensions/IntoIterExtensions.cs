@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Waystone.Monads.Iterators.Abstractions;
+using Waystone.Monads.Options;
+using Waystone.Monads.Results;
 
 /// <summary>
 /// Extensions for converting various types into an <see cref="Iterator{T}"/>.
@@ -11,7 +13,7 @@ using Waystone.Monads.Iterators.Abstractions;
 public static class IntoIterExtensions
 {
     /// <summary>
-    /// Converts an array of items into an <see cref="ArrayIterator{T}"/>.
+    /// Converts an array of items into an <see cref="Iterator{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of the value contained inside the array</typeparam>
     /// <param name="items">The array to iterate over</param>
@@ -20,7 +22,7 @@ public static class IntoIterExtensions
         where T : notnull => new(items);
 
     /// <summary>
-    /// Converts any <see cref="IEnumerable{T}"/> of items into an <see cref="ArrayIterator{T}"/>.
+    /// Converts any <see cref="IEnumerable{T}"/> of items into an <see cref="Iterator{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of the value contained inside the array</typeparam>
     /// <param name="items">The array to iterate over</param>

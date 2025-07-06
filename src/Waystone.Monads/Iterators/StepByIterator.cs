@@ -1,14 +1,12 @@
 namespace Waystone.Monads.Iterators;
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Waystone.Monads.Iterators.Abstractions;
 using Waystone.Monads.Options;
 using Waystone.Monads.Primitives;
 
 /// <summary>
-/// An <see cref="IIterator{T}"/> for stepping iterators by a custom amount.
+/// An <see cref="Iterator{T}"/> for stepping iterators by a custom amount.
 /// </summary>
 /// <typeparam name="T">The type of the value contained in the iterator.</typeparam>
 public sealed class StepByIterator<T> : Iterator<T>

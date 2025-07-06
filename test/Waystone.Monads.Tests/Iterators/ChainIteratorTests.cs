@@ -31,8 +31,8 @@ public sealed class ChainIteratorTests
         var third = new[] { 3 };
 
         var chained = first.IntoIter()
-            .Chain(second.IntoIter())
-            .Chain(third.IntoIter());
+            .Chain(second)
+            .Chain(third);
 
         chained.Next().ShouldBeSomeValue(1);
         chained.Next().ShouldBeSomeValue(2);

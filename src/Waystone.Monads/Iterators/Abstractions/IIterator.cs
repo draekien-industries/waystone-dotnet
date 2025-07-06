@@ -56,7 +56,7 @@ public interface IIterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     Option<T> Nth(PosInt n);
 
     /// <summary>
-    /// Creates an <see cref="IIterator{T}"/> starting at the same point,
+    /// Creates an <see cref="Iterator{T}"/> starting at the same point,
     /// but stepping by the given amount each iteration.
     /// </summary>
     /// <remarks>
