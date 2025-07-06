@@ -75,4 +75,23 @@ public sealed class StepByIteratorTests
         iter.Nth(6).ShouldBeSomeValue(31);
         iter.Nth(30).ShouldBeNone();
     }
+
+    [Fact]
+    public void GivenStepBy_WhenInvokingStepBy_ThenReturnExpected()
+    {
+        // Arrange
+        var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        int step = 2;
+        var iter = items.IntoIter().StepBy(step);
+        iter.Next().ShouldBeSomeValue(1);
+        iter.Next().ShouldBeSomeValue(3);
+
+        // Act
+        var stepByIter = iter.StepBy(2);
+
+        // Assert
+        stepByIter.Next().ShouldBeSomeValue(5);
+        stepByIter.Next().ShouldBeSomeValue(9);
+        stepByIter.Next().ShouldBeNone();
+    }
 }
