@@ -15,24 +15,24 @@ public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T
     /// <summary>
     /// The current element in the iteration.
     /// </summary>
-    protected Option<T> _current;
+    protected Option<T> CurrentItem;
 
     /// <summary>
     /// The current index being accessed.
     /// </summary>
-    protected int _index;
+    protected int CurrentIndex;
 
     /// <summary>
     /// Creates a new instance of <see cref="Iterator{T}"/>
     /// </summary>
     protected Iterator()
     {
-        _current = Option.None<T>();
-        _index = -1;
+        CurrentItem = Option.None<T>();
+        CurrentIndex = -1;
     }
 
     /// <inheritdoc />
-    public Option<T> Current => _current;
+    public Option<T> Current => CurrentItem;
 
     object IEnumerator.Current => Current;
 
@@ -63,7 +63,11 @@ public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T
     public abstract bool MoveNext();
 
     /// <inheritdoc />
-    public abstract void Reset();
+    public virtual void Reset()
+    {
+        CurrentIndex = -1;
+        CurrentItem = Option.None<T>();
+    }
 
     /// <inheritdoc />
     public IEnumerator<Option<T>> GetEnumerator() => this;
