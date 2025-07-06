@@ -74,4 +74,23 @@ public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T
 
     /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <summary>
+    /// Provides a size hint for the iterator. It can be used for
+    /// optimisations such as reserving space for the elements
+    /// of the iterator, but must not be trusted.
+    /// </summary>
+    /// <remarks>
+    /// A <see cref="None{T}"/> in the upper bound means there is either
+    /// no upper bound, or the upper bound is larger than `int.MaxValue`.
+    /// </remarks>
+    /// <returns>
+    /// The bounds on the remaining length of the iterator.
+    /// </returns>
+    public virtual (int LowerBound, Option<int> UpperBound) SizeHint()
+    {
+        // Default implementation assumes an unbounded iterator.
+        // Subclasses can override this to provide a more accurate size hint.
+        return (0, Option.None<int>());
+    }
 }

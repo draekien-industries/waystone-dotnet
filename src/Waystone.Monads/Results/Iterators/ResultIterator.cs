@@ -32,4 +32,12 @@ public sealed class ResultIterator<TOk, TErr> : Iterator<TOk>
         CurrentItem = Option.None<TOk>();
         return false;
     }
+
+    /// <inheritdoc/>
+    public override (int LowerBound, Option<int> UpperBound) SizeHint() =>
+        CurrentIndex switch
+        {
+            -1 => (1, Option.Some(1)),
+            _ => base.SizeHint()
+        };
 }
