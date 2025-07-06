@@ -21,6 +21,9 @@ public sealed class ResultIterator<TOk, TErr> : Iterator<TOk>
     }
 
     /// <inheritdoc/>
+    public override int Length => 1;
+
+    /// <inheritdoc/>
     public override bool MoveNext()
     {
         if (++CurrentIndex < 1)

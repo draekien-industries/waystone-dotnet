@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Iterators;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Waystone.Monads.Options;
@@ -21,6 +22,11 @@ public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T
     /// The current index being accessed.
     /// </summary>
     protected int CurrentIndex;
+
+    /// <summary>
+    /// The length of the collection being iterated over.
+    /// </summary>
+    public abstract int Length { get; }
 
     /// <summary>
     /// Creates a new instance of <see cref="Iterator{T}"/>
@@ -92,5 +98,23 @@ public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T
         // Default implementation assumes an unbounded iterator.
         // Subclasses can override this to provide a more accurate size hint.
         return (0, Option.None<int>());
+    }
+
+    /// <summary>
+    /// Returns the 'nth' element in the iterator. Note that calling 'Nth(0)' multiple times
+    /// on the same iterator will return different elements.
+    /// </summary>
+    /// <remarks>
+    /// Like most indexing operations, the count starts from zero,
+    /// so `Nth(0)` returns the first element, `Nth(1)` the second, etc.
+    /// </remarks>
+    /// <param name="n"></param>
+    /// <returns>
+    /// Returns the 'nth' element in the iterator.
+    /// </returns>
+    public virtual Option<T> Nth(uint n)
+    {
+        CurrentIndex += (int)n;
+        return Next();
     }
 }

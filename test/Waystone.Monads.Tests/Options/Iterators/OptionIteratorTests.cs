@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Options.Iterators;
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Shouldly;
@@ -58,5 +59,14 @@ public sealed class OptionIteratorTests
         sizeHint = iter.SizeHint();
         sizeHint.LowerBound.ShouldBe(0);
         sizeHint.UpperBound.ShouldBeNone();
+    }
+
+    [Fact]
+    public void WhenInvokingNth_ThenReturnExpected()
+    {
+        Option<int> some = Option.Some(1);
+        var iter = some.Iter();
+        iter.Nth(0).ShouldBeSomeValue(1);
+        iter.Nth(0).ShouldBeNone();
     }
 }
