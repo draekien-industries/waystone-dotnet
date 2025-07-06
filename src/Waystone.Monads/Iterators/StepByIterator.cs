@@ -79,19 +79,5 @@ public sealed class StepByIterator<T> : Iterator<T>
     }
 
     /// <inheritdoc/>
-    public override Option<T> Nth(PosInt n)
-    {
-        for (int i = 0; i <= n; i++)
-        {
-            if (!MoveNext())
-            {
-                return Option.None<T>();
-            }
-        }
-
-        return Current;
-    }
-
-    /// <inheritdoc/>
     public override StepByIterator<T> StepBy(PosInt interval) => new(this, interval);
 }

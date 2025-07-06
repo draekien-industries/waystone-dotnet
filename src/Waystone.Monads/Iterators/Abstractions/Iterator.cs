@@ -78,8 +78,15 @@ public abstract class Iterator<T> : IIterator<T>
     /// <inheritdoc/>
     public virtual Option<T> Nth(PosInt n)
     {
-        CurrentIndex += n;
-        return Next();
+        for (int i = 0; i <= n; i++)
+        {
+            if (!MoveNext())
+            {
+                return Option.None<T>();
+            }
+        }
+
+        return Current;
     }
 
     /// <inheritdoc/>
