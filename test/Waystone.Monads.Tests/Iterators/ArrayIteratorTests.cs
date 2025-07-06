@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Iterators;
 
+using System.Linq;
 using Shouldly;
 using Waystone.Monads.Extensions;
 using Waystone.Monads.Iterators.Extensions;
