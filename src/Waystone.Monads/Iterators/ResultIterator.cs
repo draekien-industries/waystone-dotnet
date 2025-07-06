@@ -4,6 +4,7 @@ namespace Waystone.Monads.Iterators;
 using Waystone.Monads.Results;
 using Waystone.Monads.Iterators.Abstractions;
 using Waystone.Monads.Options;
+using Waystone.Monads.Iterators.Primitives;
 
 /// <summary>
 /// An <see cref="Iterator{T}"/> for a <see cref="Result{TOk, TErr}"/>
@@ -35,10 +36,10 @@ public sealed class ResultIterator<TOk, TErr> : Iterator<TOk>
     }
 
     /// <inheritdoc/>
-    public override (int LowerBound, Option<int> UpperBound) SizeHint() =>
+    public override (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint() =>
         CurrentIndex switch
         {
-            -1 => (1, Option.Some(1)),
+            -1 => (1, Option.Some<PosInt>(1)),
             _ => base.SizeHint()
         };
 }

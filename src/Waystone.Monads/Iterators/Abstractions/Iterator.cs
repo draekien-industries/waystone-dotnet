@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Waystone.Monads.Iterators;
+using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
 
 /// <summary>
@@ -67,20 +68,20 @@ public abstract class Iterator<T> : IIterator<T>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public virtual (int LowerBound, Option<int> UpperBound) SizeHint()
+    public virtual (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint()
     {
         // Default implementation assumes an unbounded iterator.
         // Subclasses can override this to provide a more accurate size hint.
-        return (0, Option.None<int>());
+        return (0, Option.None<PosInt>());
     }
 
     /// <inheritdoc/>
-    public virtual Option<T> Nth(int n)
+    public virtual Option<T> Nth(PosInt n)
     {
         CurrentIndex += n;
         return Next();
     }
 
     /// <inheritdoc/>
-    public virtual StepByIterator<T> StepBy(int interval) => new(this, interval);
+    public virtual StepByIterator<T> StepBy(PosInt interval) => new(this, interval);
 }

@@ -2,6 +2,7 @@ namespace Waystone.Monads.Iterators;
 
 using System;
 using Waystone.Monads.Iterators.Abstractions;
+using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
 
 /// <summary>
@@ -37,10 +38,10 @@ public sealed class ArrayIterator<T> : Iterator<T>
     }
 
     /// <inheritdoc/>
-    public override (int LowerBound, Option<int> UpperBound) SizeHint()
+    public override (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint()
     {
-        int lowerBound = Length - (CurrentIndex + 1);
-        Option<int> upperBound = lowerBound > 0 ? Option.Some(lowerBound) : Option.None<int>();
+        PosInt lowerBound = Math.Max(0, Length - (CurrentIndex + 1));
+        Option<PosInt> upperBound = lowerBound > 0 ? Option.Some(lowerBound) : Option.None<PosInt>();
 
         return CurrentIndex switch
         {

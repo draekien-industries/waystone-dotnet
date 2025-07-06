@@ -4,6 +4,7 @@ using System.Linq;
 using Shouldly;
 using Waystone.Monads.Extensions;
 using Waystone.Monads.Iterators.Extensions;
+using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
 using Xunit;
 
@@ -33,21 +34,21 @@ public sealed class ArrayIteratorTests
         var iter = items.IntoIter();
 
         // Act + Assert
-        iter.SizeHint().ShouldBe((5, Option.Some(5)));
+        iter.SizeHint().ShouldBe(((PosInt)5, Option.Some<PosInt>(5)));
 
         iter.Next(); // Move to first item
-        iter.SizeHint().ShouldBe((4, Option.Some(4)));
+        iter.SizeHint().ShouldBe(((PosInt)4, Option.Some<PosInt>(4)));
 
         iter.Next(); // Move to second item
-        iter.SizeHint().ShouldBe((3, Option.Some(3)));
+        iter.SizeHint().ShouldBe(((PosInt)3, Option.Some<PosInt>(3)));
 
         iter.Next(); // Move to third item
-        iter.SizeHint().ShouldBe((2, Option.Some(2)));
+        iter.SizeHint().ShouldBe(((PosInt)2, Option.Some<PosInt>(2)));
 
         iter.Next(); // Move to fourth item
-        iter.SizeHint().ShouldBe((1, Option.Some(1)));
+        iter.SizeHint().ShouldBe(((PosInt)1, Option.Some<PosInt>(1)));
 
         iter.Next(); // Move to fifth item
-        iter.SizeHint().ShouldBe((0, Option.None<int>()));
+        iter.SizeHint().ShouldBe(((PosInt)0, Option.None<PosInt>()));
     }
 }

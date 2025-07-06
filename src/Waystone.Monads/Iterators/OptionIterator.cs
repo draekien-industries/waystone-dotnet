@@ -3,6 +3,7 @@ namespace Waystone.Monads.Iterators;
 
 using Waystone.Monads.Options;
 using Waystone.Monads.Iterators.Abstractions;
+using Waystone.Monads.Iterators.Primitives;
 
 /// <summary>
 /// An <see cref="Iterator{T}"/> for an <see cref="Option{T}"/>
@@ -32,10 +33,10 @@ public sealed class OptionIterator<T> : Iterator<T>
     }
 
     /// <inheritdoc/>
-    public override (int LowerBound, Option<int> UpperBound) SizeHint() =>
+    public override (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint() =>
         CurrentIndex switch
         {
-            -1 => (1, Option.Some(1)),
+            -1 => (1, Option.Some<PosInt>(1)),
             _ => base.SizeHint()
         };
 }

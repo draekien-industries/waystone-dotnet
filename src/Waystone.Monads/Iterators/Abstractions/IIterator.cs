@@ -2,6 +2,7 @@ namespace Waystone.Monads.Iterators.Abstractions;
 
 using System;
 using System.Collections.Generic;
+using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
 
 /// <summary>
@@ -38,7 +39,7 @@ public interface IIterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     /// <returns>
     /// The bounds on the remaining length of the iterator.
     /// </returns>
-    (int LowerBound, Option<int> UpperBound) SizeHint();
+    (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint();
 
     /// <summary>
     /// Returns the 'nth' element in the iterator. Note that calling 'Nth(0)' multiple times
@@ -52,7 +53,7 @@ public interface IIterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     /// <returns>
     /// Returns the 'nth' element in the iterator.
     /// </returns>
-    Option<T> Nth(int n);
+    Option<T> Nth(PosInt n);
 
     /// <summary>
     /// Creates an <see cref="IIterator{T}"/> starting at the same point,
@@ -69,5 +70,5 @@ public interface IIterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     /// <returns>
     /// A <see cref="StepByIterator{T}"/> iterator.
     /// </returns>
-    StepByIterator<T> StepBy(int interval);
+    StepByIterator<T> StepBy(PosInt interval);
 }

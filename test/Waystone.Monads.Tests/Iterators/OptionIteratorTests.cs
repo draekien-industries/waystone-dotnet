@@ -5,6 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Shouldly;
 using Waystone.Monads.Extensions;
+using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
 using Xunit;
 
@@ -53,12 +54,12 @@ public sealed class OptionIteratorTests
         Option<int> some = Option.Some(1);
         var iter = some.Iter();
         var sizeHint = iter.SizeHint();
-        sizeHint.LowerBound.ShouldBe(1);
+        sizeHint.LowerBound.ShouldBe((PosInt)1);
         sizeHint.UpperBound.ShouldBeSomeValue(1);
 
         iter.Next();
         sizeHint = iter.SizeHint();
-        sizeHint.LowerBound.ShouldBe(0);
+        sizeHint.LowerBound.ShouldBe((PosInt)0);
         sizeHint.UpperBound.ShouldBeNone();
     }
 

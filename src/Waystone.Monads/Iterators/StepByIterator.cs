@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Waystone.Monads.Iterators.Abstractions;
+using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
 
 /// <summary>
@@ -13,7 +14,7 @@ using Waystone.Monads.Options;
 public sealed class StepByIterator<T> : IIterator<T>
     where T : notnull
 {
-    private readonly int _interval;
+    private readonly PosInt _interval;
     private readonly Iterator<T> _iterator;
     private readonly int _initialIndex;
     private bool _isFirstStep;
@@ -72,27 +73,27 @@ public sealed class StepByIterator<T> : IIterator<T>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public (int LowerBound, Option<int> UpperBound) SizeHint()
+    public (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint()
     {
         var (lowerBound, upperBound) = _iterator.SizeHint();
 
-        int adjustedLowerBound = Math.Max(0, (lowerBound + _interval - 1) / _interval);
+        PosInt adjustedLowerBound = Math.Max(0, (lowerBound + _interval - 1) / _interval);
 
-        Option<int> adjustedUpperBound = upperBound
-            .Map(x => (x + _interval - 1) / _interval)
+        Option<PosInt> adjustedUpperBound = upperBound
+            .Map<PosInt>(x => Math.Max(0, (x + _interval - 1) / _interval))
             .Filter(x => x > 0);
 
         return (adjustedLowerBound, adjustedUpperBound);
     }
 
     /// <inheritdoc/>
-    public Option<T> Nth(int n)
+    public Option<T> Nth(PosInt n)
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public StepByIterator<T> StepBy(int interval)
+    public StepByIterator<T> StepBy(PosInt interval)
     {
         throw new NotImplementedException();
     }
