@@ -6,7 +6,7 @@ using Waystone.Monads.Iterators;
 /// An <see cref="Iterator{T}"/> for an <see cref="Option{T}"/>
 /// </summary>
 /// <typeparam name="T">The type of the value contained within the <see cref="Option{T}"/></typeparam>
-public class OptionIterator<T> : Iterator<T>
+public sealed class OptionIterator<T> : Iterator<T>
     where T : notnull
 {
     private readonly Option<T> _option;
