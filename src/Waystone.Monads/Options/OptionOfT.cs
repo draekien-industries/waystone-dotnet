@@ -4,7 +4,7 @@ using System;
 using Exceptions;
 using Extensions;
 using Waystone.Monads.Iterators;
-using Waystone.Monads.Options.Iterators;
+using Waystone.Monads.Iterators.Abstractions;
 using Waystone.Monads.Results;
 
 /// <summary>

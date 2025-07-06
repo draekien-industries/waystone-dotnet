@@ -1,7 +1,8 @@
-namespace Waystone.Monads.Results.Iterators;
 
-using System;
-using Waystone.Monads.Iterators;
+namespace Waystone.Monads.Iterators;
+
+using Waystone.Monads.Results;
+using Waystone.Monads.Iterators.Abstractions;
 using Waystone.Monads.Options;
 
 /// <summary>

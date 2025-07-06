@@ -1,6 +1,8 @@
-namespace Waystone.Monads.Options.Iterators;
 
-using Waystone.Monads.Iterators;
+namespace Waystone.Monads.Iterators;
+
+using Waystone.Monads.Options;
+using Waystone.Monads.Iterators.Abstractions;
 
 /// <summary>
 /// An <see cref="Iterator{T}"/> for an <see cref="Option{T}"/>

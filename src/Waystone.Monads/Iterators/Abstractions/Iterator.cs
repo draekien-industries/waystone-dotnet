@@ -1,15 +1,17 @@
-namespace Waystone.Monads.Iterators;
+namespace Waystone.Monads.Iterators.Abstractions;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Waystone.Monads.Iterators;
 using Waystone.Monads.Options;
 
 /// <summary>
-/// An iterator that returns an <see cref="Option{T}"/> when
+/// An <see cref="IIterator{T}"/> that returns an <see cref="Option{T}"/> when
 /// enumerated.
 /// </summary>
 /// <typeparam name="T">The type of the value contained in the iterator.</typeparam>
-public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
+public abstract class Iterator<T> : IIterator<T>
     where T : notnull
 {
     /// <summary>
@@ -111,4 +113,21 @@ public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T
         CurrentIndex += (int)n;
         return Next();
     }
+
+    /// <summary>
+    /// Creates an <see cref="IIterator{T}"/> starting at the same point,
+    /// but stepping by the given amount each iteration.
+    /// </summary>
+    /// <remarks>
+    /// The first element of the iterator will always be returned, regardless
+    /// of the step given.
+    /// </remarks>
+    /// <param name="interval">The interval to step by for each iteration</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The given interval cannot be 0.
+    /// </exception>
+    /// <returns>
+    /// A <see cref="StepByIterator{T}"/> iterator.
+    /// </returns>
+    public virtual StepByIterator<T> StepBy(uint interval) => new(this, interval);
 }

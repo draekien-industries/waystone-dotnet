@@ -3,13 +3,14 @@ namespace Waystone.Monads.Iterators;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Waystone.Monads.Iterators.Abstractions;
 using Waystone.Monads.Options;
 
 /// <summary>
-/// An <see cref="Iterator{T}"/> for stepping iterators by a custom amount.
+/// An <see cref="IIterator{T}"/> for stepping iterators by a custom amount.
 /// </summary>
 /// <typeparam name="T">The type of the value contained in the iterator.</typeparam>
-public sealed class StepBy<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
+public sealed class StepByIterator<T> : IIterator<T>
     where T : notnull
 {
     private readonly uint _interval;
@@ -17,7 +18,7 @@ public sealed class StepBy<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     private readonly int _initialIndex;
     private bool _isFirstStep;
 
-    internal StepBy(Iterator<T> iterator, uint interval)
+    internal StepByIterator(Iterator<T> iterator, uint interval)
     {
         if (interval is 0)
             throw new ArgumentOutOfRangeException("Step By interval must be greater than '0'", nameof(interval));
