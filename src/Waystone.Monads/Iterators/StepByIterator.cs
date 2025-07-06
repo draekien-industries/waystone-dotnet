@@ -42,6 +42,9 @@ public sealed class StepByIterator<T> : IIterator<T>
     public IEnumerator<Option<T>> GetEnumerator() => this;
 
     /// <inheritdoc/>
+    public Option<T> Next() => MoveNext() ? Current : Option.None<T>();
+
+    /// <inheritdoc/>
     public bool MoveNext()
     {
         if (_isFirstStep)
@@ -67,4 +70,30 @@ public sealed class StepByIterator<T> : IIterator<T>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    public (int LowerBound, Option<int> UpperBound) SizeHint()
+    {
+        var (lowerBound, upperBound) = _iterator.SizeHint();
+
+        int adjustedLowerBound = Math.Max(0, (lowerBound + (int)_interval - 1) / (int)_interval);
+
+        Option<int> adjustedUpperBound = upperBound
+            .Map(x => (x + (int)_interval - 1) / (int)_interval)
+            .Filter(x => x > 0);
+
+        return (adjustedLowerBound, adjustedUpperBound);
+    }
+
+    /// <inheritdoc/>
+    public Option<T> Nth(uint n)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public StepByIterator<T> StepBy(uint interval)
+    {
+        throw new NotImplementedException();
+    }
 }
