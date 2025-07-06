@@ -54,7 +54,7 @@ public sealed class StepByIterator<T> : IIterator<T>
             return _iterator.MoveNext();
         }
 
-        for (uint i = 0; i < _interval; i++)
+        for (int i = 0; i < _interval; i++)
         {
             if (!_iterator.MoveNext()) return false;
         }
@@ -89,12 +89,17 @@ public sealed class StepByIterator<T> : IIterator<T>
     /// <inheritdoc/>
     public Option<T> Nth(PosInt n)
     {
-        throw new NotImplementedException();
+        for (int i = 0; i <= n; i++)
+        {
+            if (!MoveNext())
+            {
+                return Option.None<T>();
+            }
+        }
+
+        return Current;
     }
 
     /// <inheritdoc/>
-    public StepByIterator<T> StepBy(PosInt interval)
-    {
-        throw new NotImplementedException();
-    }
+    public StepByIterator<T> StepBy(PosInt interval) => new(_iterator, interval);
 }

@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Iterators;
 
 using System;
+using System.Linq;
 using Shouldly;
 using Waystone.Monads.Extensions;
 using Waystone.Monads.Iterators.Extensions;
@@ -57,5 +58,21 @@ public sealed class StepByIteratorTests
 
         iter.Next();
         iter.SizeHint().ShouldBe(((PosInt)0, Option.None<PosInt>()));
+    }
+
+    [Fact]
+    public void WhenInvokingNth_ThenReturnExpected()
+    {
+        // Arrange
+        var items = Enumerable.Range(0, 100).Select(i => i + 1);
+        int step = 3;
+        var iter = items.IntoIter().StepBy(step);
+
+        // Act + Assert
+        iter.Nth(0).ShouldBeSomeValue(1);
+        iter.Nth(0).ShouldBeSomeValue(4);
+        iter.Nth(1).ShouldBeSomeValue(10);
+        iter.Nth(6).ShouldBeSomeValue(31);
+        iter.Nth(30).ShouldBeNone();
     }
 }
