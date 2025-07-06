@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
-using System.Collections.Generic;
 using Exceptions;
 using Options;
 
@@ -327,16 +326,6 @@ public abstract record Result<TOk, TErr>
     /// consuming the result instance, and discarding the success value, if any.
     /// </remarks>
     public abstract Option<TErr> GetErr();
-
-    /// <summary>
-    /// Converts the result into an <see cref="IEnumerable{T}"/>
-    /// of possibly contained values.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerable{T}"/> of <see cref="Option{T}"/>
-    /// where the option value's type is <typeparamref name="TOk"/>
-    /// </returns>
-    public abstract IEnumerable<Option<TOk>> Iter();
 
     /// <summary>
     /// Implicitly creates an <see cref="Ok{TOk,TErr}" /> result from a value

@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
-using System.Collections.Generic;
 using Exceptions;
 using Extensions;
 using Waystone.Monads.Results;
@@ -273,18 +272,6 @@ public abstract record Option<T> where T : notnull
         where TErr : notnull;
 
     /// <summary>
-    /// Converts the option into an <see cref="IEnumerable{T}"/>
-    /// of possibly contained values.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerable{T}"/> of <see cref="Option{T}"/>.
-    /// </returns>
-    public IEnumerable<Option<T>> Iter()
-    {
-        yield return this;
-    }
-
-    /// <summary>
     /// Implicitly converts a value of type <typeparamref name="T" /> into an
     /// <see cref="Option{T}" />
     /// </summary>
@@ -294,5 +281,5 @@ public abstract record Option<T> where T : notnull
     /// type, otherwise a <see cref="None{T}" />
     /// </returns>
     public static implicit operator Option<T>(T value) =>
-        Equals(value, default(T)) ? new None<T>() : new Some<T>(value);
+          Equals(value, default(T)) ? new None<T>() : new Some<T>(value);
 }
