@@ -11,11 +11,11 @@ using Waystone.Monads.Primitives;
 /// An <see cref="IIterator{T}"/> for stepping iterators by a custom amount.
 /// </summary>
 /// <typeparam name="T">The type of the value contained in the iterator.</typeparam>
-public sealed class StepByIterator<T> : IIterator<T>
+public sealed class StepByIterator<T> : Iterator<T>
     where T : notnull
 {
     private readonly PosInt _interval;
-    private readonly Iterator<T> _iterator;
+    private readonly Iterator<T> _wrapped;
     private readonly int _initialIndex;
     private bool _isFirstStep;
 
@@ -25,57 +25,49 @@ public sealed class StepByIterator<T> : IIterator<T>
             throw new ArgumentOutOfRangeException("Step By interval must be greater than '0'", nameof(interval));
 
         _interval = interval;
-        _iterator = iterator;
+        _wrapped = iterator;
         _initialIndex = iterator.CurrentIndex;
         _isFirstStep = true;
     }
 
     /// <inheritdoc/>
-    public Option<T> Current => _iterator.Current;
+    public override Option<T> Current => _wrapped.Current;
 
     /// <inheritdoc/>
-    object IEnumerator.Current => Current;
+    public override void Dispose() => _wrapped.Dispose();
 
     /// <inheritdoc/>
-    public void Dispose() => _iterator.Dispose();
+    public override Option<T> Next() => MoveNext() ? Current : Option.None<T>();
 
     /// <inheritdoc/>
-    public IEnumerator<Option<T>> GetEnumerator() => this;
-
-    /// <inheritdoc/>
-    public Option<T> Next() => MoveNext() ? Current : Option.None<T>();
-
-    /// <inheritdoc/>
-    public bool MoveNext()
+    public override bool MoveNext()
     {
         if (_isFirstStep)
         {
             _isFirstStep = false;
-            return _iterator.MoveNext();
+            return _wrapped.MoveNext();
         }
 
         for (int i = 0; i < _interval; i++)
         {
-            if (!_iterator.MoveNext()) return false;
+            if (!_wrapped.MoveNext()) return false;
         }
 
         return true;
     }
 
     /// <inheritdoc/>
-    public void Reset()
+    public override void Reset()
     {
-        _iterator.CurrentIndex = _initialIndex;
-        _iterator.CurrentItem = Option.None<T>();
+        _wrapped.CurrentIndex = _initialIndex;
+        _wrapped.CurrentItem = Option.None<T>();
         _isFirstStep = true;
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
     /// <inheritdoc/>
-    public (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint()
+    public override (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint()
     {
-        var (lowerBound, upperBound) = _iterator.SizeHint();
+        var (lowerBound, upperBound) = _wrapped.SizeHint();
 
         PosInt adjustedLowerBound = Math.Max(0, (lowerBound + _interval - 1) / _interval);
 
@@ -87,7 +79,7 @@ public sealed class StepByIterator<T> : IIterator<T>
     }
 
     /// <inheritdoc/>
-    public Option<T> Nth(PosInt n)
+    public override Option<T> Nth(PosInt n)
     {
         for (int i = 0; i <= n; i++)
         {
@@ -101,5 +93,5 @@ public sealed class StepByIterator<T> : IIterator<T>
     }
 
     /// <inheritdoc/>
-    public StepByIterator<T> StepBy(PosInt interval) => new(_iterator, interval);
+    public override StepByIterator<T> StepBy(PosInt interval) => new(this, interval);
 }

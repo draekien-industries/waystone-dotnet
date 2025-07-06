@@ -35,7 +35,7 @@ public abstract class Iterator<T> : IIterator<T>
     protected internal int CurrentIndex { get; set; }
 
     /// <inheritdoc />
-    public Option<T> Current => CurrentItem;
+    public virtual Option<T> Current => CurrentItem;
 
     object IEnumerator.Current => Current;
 
