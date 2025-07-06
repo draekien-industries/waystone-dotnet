@@ -118,10 +118,4 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Option<TErr> GetErr() => Option.None<TErr>();
-
-    /// <inheritdoc />
-    public override IEnumerable<Option<TOk>> Iter()
-    {
-        yield return Option.Some(Value);
-    }
 }
