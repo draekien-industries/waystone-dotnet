@@ -1,6 +1,5 @@
 namespace Waystone.Monads.Iterators;
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Waystone.Monads.Options;
@@ -9,25 +8,10 @@ using Waystone.Monads.Options;
 /// An iterator that returns an <see cref="Option{T}"/> when
 /// enumerated.
 /// </summary>
-/// <typeparam name="T">The type of the value contained in the collection.</typeparam>
+/// <typeparam name="T">The type of the value contained in the iterator.</typeparam>
 public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     where T : notnull
 {
-    /// <summary>
-    /// The current element in the iteration.
-    /// </summary>
-    protected Option<T> CurrentItem;
-
-    /// <summary>
-    /// The current index being accessed.
-    /// </summary>
-    protected int CurrentIndex;
-
-    /// <summary>
-    /// The length of the collection being iterated over.
-    /// </summary>
-    public abstract int Length { get; }
-
     /// <summary>
     /// Creates a new instance of <see cref="Iterator{T}"/>
     /// </summary>
@@ -36,6 +20,16 @@ public abstract class Iterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T
         CurrentItem = Option.None<T>();
         CurrentIndex = -1;
     }
+
+    /// <summary>
+    /// The current element in the iteration.
+    /// </summary>
+    protected internal Option<T> CurrentItem { get; set; }
+
+    /// <summary>
+    /// The current index being accessed.
+    /// </summary>
+    protected internal int CurrentIndex { get; set; }
 
     /// <inheritdoc />
     public Option<T> Current => CurrentItem;

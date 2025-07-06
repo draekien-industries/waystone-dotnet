@@ -17,12 +17,9 @@ public sealed class OptionIterator<T> : Iterator<T>
     }
 
     /// <inheritdoc/>
-    public override int Length => 1;
-
-    /// <inheritdoc/>
     public override bool MoveNext()
     {
-        if (++CurrentIndex < Length)
+        if (++CurrentIndex < 1)
         {
             CurrentItem = _option;
             return true;
