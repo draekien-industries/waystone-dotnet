@@ -14,7 +14,7 @@ public sealed class StepByIteratorTests
     {
         // Arrange
         var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        uint step = 3;
+        int step = 3;
         var iter = items.IntoIter().StepBy(step);
 
         // Act + Assert
@@ -30,7 +30,7 @@ public sealed class StepByIteratorTests
     {
         // Arrange
         var items = new[] { 1, 2, 3 };
-        uint step = 0;
+        int step = 0;
 
         Should.Throw<ArgumentOutOfRangeException>(() => items.IntoIter().StepBy(step));
     }
@@ -40,7 +40,7 @@ public sealed class StepByIteratorTests
     {
         // Arrange
         var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        uint step = 3;
+        int step = 3;
         var iter = items.IntoIter().StepBy(step);
 
         iter.SizeHint().ShouldBe((4, Option.Some(4)));

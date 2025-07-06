@@ -52,7 +52,7 @@ public interface IIterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     /// <returns>
     /// Returns the 'nth' element in the iterator.
     /// </returns>
-    Option<T> Nth(uint n);
+    Option<T> Nth(int n);
 
     /// <summary>
     /// Creates an <see cref="IIterator{T}"/> starting at the same point,
@@ -69,5 +69,5 @@ public interface IIterator<T> : IEnumerator<Option<T>>, IEnumerable<Option<T>>
     /// <returns>
     /// A <see cref="StepByIterator{T}"/> iterator.
     /// </returns>
-    StepByIterator<T> StepBy(uint interval);
+    StepByIterator<T> StepBy(int interval);
 }

@@ -75,12 +75,12 @@ public abstract class Iterator<T> : IIterator<T>
     }
 
     /// <inheritdoc/>
-    public virtual Option<T> Nth(uint n)
+    public virtual Option<T> Nth(int n)
     {
-        CurrentIndex += (int)n;
+        CurrentIndex += n;
         return Next();
     }
 
     /// <inheritdoc/>
-    public virtual StepByIterator<T> StepBy(uint interval) => new(this, interval);
+    public virtual StepByIterator<T> StepBy(int interval) => new(this, interval);
 }

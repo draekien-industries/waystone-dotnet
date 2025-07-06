@@ -13,12 +13,12 @@ using Waystone.Monads.Options;
 public sealed class StepByIterator<T> : IIterator<T>
     where T : notnull
 {
-    private readonly uint _interval;
+    private readonly int _interval;
     private readonly Iterator<T> _iterator;
     private readonly int _initialIndex;
     private bool _isFirstStep;
 
-    internal StepByIterator(Iterator<T> iterator, uint interval)
+    internal StepByIterator(Iterator<T> iterator, int interval)
     {
         if (interval is 0)
             throw new ArgumentOutOfRangeException("Step By interval must be greater than '0'", nameof(interval));
@@ -76,23 +76,23 @@ public sealed class StepByIterator<T> : IIterator<T>
     {
         var (lowerBound, upperBound) = _iterator.SizeHint();
 
-        int adjustedLowerBound = Math.Max(0, (lowerBound + (int)_interval - 1) / (int)_interval);
+        int adjustedLowerBound = Math.Max(0, (lowerBound + _interval - 1) / _interval);
 
         Option<int> adjustedUpperBound = upperBound
-            .Map(x => (x + (int)_interval - 1) / (int)_interval)
+            .Map(x => (x + _interval - 1) / _interval)
             .Filter(x => x > 0);
 
         return (adjustedLowerBound, adjustedUpperBound);
     }
 
     /// <inheritdoc/>
-    public Option<T> Nth(uint n)
+    public Option<T> Nth(int n)
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public StepByIterator<T> StepBy(uint interval)
+    public StepByIterator<T> StepBy(int interval)
     {
         throw new NotImplementedException();
     }
