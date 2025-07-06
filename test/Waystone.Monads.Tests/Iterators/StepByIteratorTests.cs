@@ -4,8 +4,8 @@ using System;
 using Shouldly;
 using Waystone.Monads.Extensions;
 using Waystone.Monads.Iterators.Extensions;
-using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
+using Waystone.Monads.Primitives;
 using Xunit;
 
 public sealed class StepByIteratorTests

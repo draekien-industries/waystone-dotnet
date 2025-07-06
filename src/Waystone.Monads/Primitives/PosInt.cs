@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Iterators.Primitives;
+namespace Waystone.Monads.Primitives;
 
 using System;
 

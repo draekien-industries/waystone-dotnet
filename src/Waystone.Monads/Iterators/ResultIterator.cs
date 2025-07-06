@@ -4,7 +4,7 @@ namespace Waystone.Monads.Iterators;
 using Waystone.Monads.Results;
 using Waystone.Monads.Iterators.Abstractions;
 using Waystone.Monads.Options;
-using Waystone.Monads.Iterators.Primitives;
+using Waystone.Monads.Primitives;
 
 /// <summary>
 /// An <see cref="Iterator{T}"/> for a <see cref="Result{TOk, TErr}"/>

@@ -2,8 +2,8 @@ namespace Waystone.Monads.Iterators;
 
 using System;
 using Waystone.Monads.Iterators.Abstractions;
-using Waystone.Monads.Iterators.Primitives;
 using Waystone.Monads.Options;
+using Waystone.Monads.Primitives;
 
 /// <summary>
 /// An <see cref="Iterator{T}"/> for arrays.

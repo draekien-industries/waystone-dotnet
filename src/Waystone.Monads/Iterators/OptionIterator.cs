@@ -3,7 +3,7 @@ namespace Waystone.Monads.Iterators;
 
 using Waystone.Monads.Options;
 using Waystone.Monads.Iterators.Abstractions;
-using Waystone.Monads.Iterators.Primitives;
+using Waystone.Monads.Primitives;
 
 /// <summary>
 /// An <see cref="Iterator{T}"/> for an <see cref="Option{T}"/>
