@@ -3,6 +3,8 @@
 using System;
 using Exceptions;
 using Options;
+using Waystone.Monads.Iterators;
+using Waystone.Monads.Results.Iterators;
 
 /// <summary>
 /// A type that represents either a success (<see cref="Ok{TOk,TErr}" />)
@@ -326,6 +328,12 @@ public abstract record Result<TOk, TErr>
     /// consuming the result instance, and discarding the success value, if any.
     /// </remarks>
     public abstract Option<TErr> GetErr();
+
+    /// <summary>
+    /// Converts the <see cref="Result{TOk, TErr}"/> into an <see cref="Iterator{T}"/>
+    /// </summary>
+    /// <returns></returns>
+    public ResultIterator<TOk, TErr> Iter() => new(this);
 
     /// <summary>
     /// Implicitly creates an <see cref="Ok{TOk,TErr}" /> result from a value

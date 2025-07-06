@@ -3,6 +3,8 @@
 using System;
 using Exceptions;
 using Extensions;
+using Waystone.Monads.Iterators;
+using Waystone.Monads.Options.Iterators;
 using Waystone.Monads.Results;
 
 /// <summary>
@@ -270,6 +272,14 @@ public abstract record Option<T> where T : notnull
     /// </returns>
     public abstract Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory)
         where TErr : notnull;
+
+    /// <summary>
+    /// Converts the <see cref="Option{T}"/> into an <see cref="Iterator{T}"/>
+    /// </summary>
+    /// <returns>
+    /// An <see cref="Iterator{T}"/> over the possibly contained value.
+    /// </returns>
+    public OptionIterator<T> Iter() => new(this);
 
     /// <summary>
     /// Implicitly converts a value of type <typeparamref name="T" /> into an
