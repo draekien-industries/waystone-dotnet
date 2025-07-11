@@ -3,8 +3,8 @@ namespace Waystone.Monads.Configs;
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Waystone.Monads.Options;
-using Waystone.Monads.Results.Errors;
+using Options;
+using Results.Errors;
 
 /// <summary>
 /// Global configuration options for the Waystone.Monads library.
@@ -12,10 +12,10 @@ using Waystone.Monads.Results.Errors;
 [ExcludeFromCodeCoverage]
 public sealed class MonadOptions
 {
-    private static readonly Lazy<MonadOptions> _singleton =
+    private static readonly Lazy<MonadOptions> Singleton =
         new(() => new MonadOptions());
 
-    internal static MonadOptions Global => _singleton.Value;
+    internal static MonadOptions Global => Singleton.Value;
 
     private MonadOptions()
     {

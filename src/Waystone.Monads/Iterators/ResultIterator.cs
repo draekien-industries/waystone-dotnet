@@ -1,13 +1,13 @@
 
 namespace Waystone.Monads.Iterators;
 
-using Waystone.Monads.Results;
-using Waystone.Monads.Iterators.Abstractions;
-using Waystone.Monads.Options;
-using Waystone.Monads.Primitives;
+using Abstractions;
+using Options;
+using Primitives;
+using Results;
 
 /// <summary>
-/// An <see cref="Iterator{T}"/> for a <see cref="Result{TOk, TErr}"/>
+/// An <see cref="Iterator{T}"/> for a <see cref="Result{TOk,TErr}"/>
 /// </summary>
 /// <typeparam name="TOk">The ok result value's type</typeparam>
 /// <typeparam name="TErr">The err result value's type</typeparam>

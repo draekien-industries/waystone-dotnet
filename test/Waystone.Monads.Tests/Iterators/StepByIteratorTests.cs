@@ -1,12 +1,13 @@
 namespace Waystone.Monads.Iterators;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Extensions;
+using Monads.Extensions;
+using Options;
+using Primitives;
 using Shouldly;
-using Waystone.Monads.Extensions;
-using Waystone.Monads.Iterators.Extensions;
-using Waystone.Monads.Options;
-using Waystone.Monads.Primitives;
 using Xunit;
 
 public sealed class StepByIteratorTests
@@ -16,8 +17,8 @@ public sealed class StepByIteratorTests
     {
         // Arrange
         var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        int step = 3;
-        var iter = items.IntoIter().StepBy(step);
+        var step = 3;
+        StepByIterator<int> iter = items.IntoIter().StepBy(step);
 
         // Act + Assert
         iter.Next().ShouldBeSomeValue(1);
@@ -32,18 +33,20 @@ public sealed class StepByIteratorTests
     {
         // Arrange
         var items = new[] { 1, 2, 3 };
-        int step = 0;
+        var step = 0;
 
-        Should.Throw<ArgumentOutOfRangeException>(() => items.IntoIter().StepBy(step));
+        Should.Throw<ArgumentOutOfRangeException>(() => items.IntoIter()
+                                                     .StepBy(step));
     }
 
     [Fact]
-    public void GivenStepGreaterThanZero_WhenInvokingSizeHint_ThenReturnExpectedHints()
+    public void
+        GivenStepGreaterThanZero_WhenInvokingSizeHint_ThenReturnExpectedHints()
     {
         // Arrange
         var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        int step = 3;
-        var iter = items.IntoIter().StepBy(step);
+        var step = 3;
+        StepByIterator<int> iter = items.IntoIter().StepBy(step);
 
         iter.SizeHint().ShouldBe(((PosInt)4, Option.Some<PosInt>(4)));
 
@@ -64,9 +67,9 @@ public sealed class StepByIteratorTests
     public void WhenInvokingNth_ThenReturnExpected()
     {
         // Arrange
-        var items = Enumerable.Range(0, 100).Select(i => i + 1);
-        int step = 3;
-        var iter = items.IntoIter().StepBy(step);
+        IEnumerable<int> items = Enumerable.Range(0, 100).Select(i => i + 1);
+        var step = 3;
+        StepByIterator<int> iter = items.IntoIter().StepBy(step);
 
         // Act + Assert
         iter.Nth(0).ShouldBeSomeValue(1);
@@ -81,13 +84,13 @@ public sealed class StepByIteratorTests
     {
         // Arrange
         var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        int step = 2;
-        var iter = items.IntoIter().StepBy(step);
+        var step = 2;
+        StepByIterator<int> iter = items.IntoIter().StepBy(step);
         iter.Next().ShouldBeSomeValue(1);
         iter.Next().ShouldBeSomeValue(3);
 
         // Act
-        var stepByIter = iter.StepBy(2);
+        StepByIterator<int> stepByIter = iter.StepBy(2);
 
         // Assert
         stepByIter.Next().ShouldBeSomeValue(5);

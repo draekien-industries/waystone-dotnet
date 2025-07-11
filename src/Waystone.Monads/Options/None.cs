@@ -2,7 +2,7 @@
 
 using System;
 using Exceptions;
-using Waystone.Monads.Results;
+using Results;
 
 /// <summary>No value of type <typeparamref name="T" />.</summary>
 /// <typeparam name="T">The option value's type.</typeparam>

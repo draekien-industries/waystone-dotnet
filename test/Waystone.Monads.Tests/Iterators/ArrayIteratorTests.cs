@@ -1,10 +1,10 @@
 namespace Waystone.Monads.Iterators;
 
+using Extensions;
+using Monads.Extensions;
+using Options;
+using Primitives;
 using Shouldly;
-using Waystone.Monads.Extensions;
-using Waystone.Monads.Iterators.Extensions;
-using Waystone.Monads.Options;
-using Waystone.Monads.Primitives;
 using Xunit;
 
 public sealed class ArrayIteratorTests

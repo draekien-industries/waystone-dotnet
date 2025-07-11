@@ -2,8 +2,8 @@ namespace Waystone.Monads.Iterators.Abstractions;
 
 using System;
 using System.Collections.Generic;
-using Waystone.Monads.Options;
-using Waystone.Monads.Primitives;
+using Options;
+using Primitives;
 
 /// <summary>
 /// An iterator that returns an <see cref="Option{T}"/> when

@@ -1,17 +1,15 @@
 namespace Waystone.Monads.Iterators;
 
-using Waystone.Monads.Iterators.Abstractions;
-using Waystone.Monads.Options;
-using Waystone.Monads.Primitives;
+using Abstractions;
+using Options;
+using Primitives;
 
 /// <summary>
-/// An <see cref="Iterator{T}"/> that chains two iterators together.
-/// The first iterator will be enumerated first, and if it is exhausted,
-/// the second iterator will be enumerated.
+/// An <see cref="Iterator{T}" /> that chains two iterators together. The
+/// first iterator will be enumerated first, and if it is exhausted, the second
+/// iterator will be enumerated.
 /// </summary>
-/// <typeparam name="T">
-/// The type of the value contained in the iterator.
-/// </typeparam>
+/// <typeparam name="T">The type of the value contained in the iterator.</typeparam>
 public sealed class ChainIterator<T> : Iterator<T>
     where T : notnull
 {
@@ -24,7 +22,7 @@ public sealed class ChainIterator<T> : Iterator<T>
         _second = second;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override bool MoveNext()
     {
         if (_first.MoveNext())
@@ -37,7 +35,10 @@ public sealed class ChainIterator<T> : Iterator<T>
         if (_second.MoveNext())
         {
             CurrentItem = _second.Current;
-            CurrentIndex = _first.CurrentIndex + _second.CurrentIndex + 1; // +1 for the switch to the second iterator
+            CurrentIndex =
+                _first.CurrentIndex
+              + _second.CurrentIndex
+              + 1; // +1 for the switch to the second iterator
             return true;
         }
 
@@ -45,7 +46,7 @@ public sealed class ChainIterator<T> : Iterator<T>
         return false;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void Reset()
     {
         _first.Reset();
@@ -53,21 +54,26 @@ public sealed class ChainIterator<T> : Iterator<T>
         CurrentItem = Option.None<T>();
     }
 
-    /// <inheritdoc/>
-    public override void Dispose()
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
     {
         _first.Dispose();
         _second.Dispose();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override (PosInt LowerBound, Option<PosInt> UpperBound) SizeHint()
     {
-        var (firstLowerBound, firstUpperBound) = _first.SizeHint();
-        var (secondLowerBound, secondUpperBound) = _second.SizeHint();
+        (PosInt firstLowerBound, Option<PosInt> firstUpperBound) =
+            _first.SizeHint();
+        (PosInt secondLowerBound, Option<PosInt> secondUpperBound) =
+            _second.SizeHint();
 
-        var lowerBound = firstLowerBound + secondLowerBound;
-        var upperBound = firstUpperBound.ZipWith<PosInt, PosInt>(secondUpperBound, (a, b) => a + b);
+        int lowerBound = firstLowerBound + secondLowerBound;
+        Option<PosInt> upperBound =
+            firstUpperBound.ZipWith<PosInt, PosInt>(
+                secondUpperBound,
+                (a, b) => a + b);
         return (lowerBound, upperBound);
     }
 }

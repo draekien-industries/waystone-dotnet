@@ -2,9 +2,9 @@
 
 using System;
 using Exceptions;
+using Iterators;
+using Iterators.Abstractions;
 using Options;
-using Waystone.Monads.Iterators;
-using Waystone.Monads.Iterators.Abstractions;
 
 /// <summary>
 /// A type that represents either a success (<see cref="Ok{TOk,TErr}" />)

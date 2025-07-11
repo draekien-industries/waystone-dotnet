@@ -1,7 +1,7 @@
 ﻿namespace Waystone.Monads.Results.Errors;
 
 using System;
-using Waystone.Monads.Configs;
+using Configs;
 
 /// <summary>A short code representing an error type in the application.</summary>
 /// <example>

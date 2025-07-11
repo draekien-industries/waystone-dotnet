@@ -4,10 +4,10 @@ using System;
 using System.Threading.Tasks;
 using Extensions;
 using JetBrains.Annotations;
+using Monads.Extensions;
 using NSubstitute;
+using Results;
 using Shouldly;
-using Waystone.Monads.Extensions;
-using Waystone.Monads.Results;
 using Xunit;
 
 [TestSubject(typeof(Some<>))]

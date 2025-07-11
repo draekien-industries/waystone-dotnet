@@ -55,7 +55,7 @@ public static partial class ResultOfTOkTErrAsyncExtensions
         Func<TOk, Task> onOk,
         Func<TErr, Task> onErr) where TOk : notnull where TErr : notnull
     {
-        Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+        Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
         await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
     }
 

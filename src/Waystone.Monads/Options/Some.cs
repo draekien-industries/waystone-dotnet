@@ -1,7 +1,7 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
-using Waystone.Monads.Results;
+using Results;
 
 /// <summary>Some value of type <typeparamref name="T" /></summary>
 /// <typeparam name="T">

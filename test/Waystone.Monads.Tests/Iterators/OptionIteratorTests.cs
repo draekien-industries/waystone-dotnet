@@ -1,12 +1,11 @@
 namespace Waystone.Monads.Iterators;
 
-using System;
 using System.Linq;
 using JetBrains.Annotations;
+using Monads.Extensions;
+using Options;
+using Primitives;
 using Shouldly;
-using Waystone.Monads.Extensions;
-using Waystone.Monads.Options;
-using Waystone.Monads.Primitives;
 using Xunit;
 
 [TestSubject(typeof(OptionIterator<>))]

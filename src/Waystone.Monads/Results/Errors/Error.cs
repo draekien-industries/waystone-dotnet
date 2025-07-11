@@ -1,7 +1,7 @@
 ﻿namespace Waystone.Monads.Results.Errors;
 
 using System;
-using Waystone.Monads.Configs;
+using Configs;
 
 /// <summary>
 /// Represents an error that contains both an error code and a descriptive

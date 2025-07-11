@@ -1,9 +1,8 @@
 namespace Waystone.Monads.FluentValidation.Results;
 
-using System.Collections.Generic;
 using global::FluentValidation.Results;
+using Monads.Extensions;
 using Shouldly;
-using Waystone.Monads.Extensions;
 using Xunit;
 
 public class ValidationErrTests

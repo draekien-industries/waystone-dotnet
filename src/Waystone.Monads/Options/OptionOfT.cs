@@ -3,9 +3,9 @@
 using System;
 using Exceptions;
 using Extensions;
-using Waystone.Monads.Iterators;
-using Waystone.Monads.Iterators.Abstractions;
-using Waystone.Monads.Results;
+using Iterators;
+using Iterators.Abstractions;
+using Results;
 
 /// <summary>
 /// A type which can be in two states, a <see cref="Some{T}" /> or a

@@ -1,9 +1,9 @@
 namespace Waystone.Monads.FluentValidation.Configs;
 
 using System.Diagnostics.CodeAnalysis;
-using Waystone.Monads.Configs;
-using Waystone.Monads.FluentValidation.Results;
-using Waystone.Monads.Results.Errors;
+using Monads.Configs;
+using Monads.Results.Errors;
+using Results;
 
 /// <summary>
 /// Extensions for chaining <see cref="MonadValidationOptions"/> configuration onto the global <see cref="MonadOptions"/>.

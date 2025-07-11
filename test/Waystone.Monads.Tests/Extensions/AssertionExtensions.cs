@@ -1,8 +1,8 @@
 namespace Waystone.Monads.Extensions;
 
+using Options;
+using Results;
 using Shouldly;
-using Waystone.Monads.Options;
-using Waystone.Monads.Results;
 
 public static class AssertionExtensions
 {

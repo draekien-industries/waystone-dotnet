@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
-using System.Collections.Generic;
 using Exceptions;
 using Options;
 
