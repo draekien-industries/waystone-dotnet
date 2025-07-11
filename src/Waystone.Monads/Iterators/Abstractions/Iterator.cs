@@ -83,6 +83,10 @@ public abstract class Iterator<T>
     protected virtual void Dispose(bool disposing)
     { }
 
+    /// <summary>
+    /// Releases resources used by the <see cref="Iterator{T}" /> instance
+    /// when visited by the garbage collector.
+    /// </summary>
     ~Iterator()
     {
         Dispose(false);
