@@ -14,8 +14,8 @@ using Options;
 /// </typeparam>
 public interface IIterator<TItem>
     : IEnumerable<Option<TItem>>,
-      IEnumerator<Option<TItem>>
-    where TItem : notnull
+      IEnumerator<Option<TItem>>,
+      IIntoIterator<TItem> where TItem : notnull
 {
     /// <summary>Gets the current index of the iterator within the collection.</summary>
     /// <remarks>
@@ -37,6 +37,9 @@ public interface IIterator<TItem>
     /// <inheritdoc />
     IEnumerator<Option<TItem>> IEnumerable<Option<TItem>>.GetEnumerator() =>
         this;
+
+    /// <inheritdoc />
+    IIterator<TItem> IIntoIterator<TItem>.IntoIter() => this;
 
     /// <summary>
     /// Advances the iterator and returns the next item in the collection if
