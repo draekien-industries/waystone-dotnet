@@ -284,4 +284,19 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// iterator, enabling peek functionality.
     /// </returns>
     PeekableIterator<TItem> Peekable() => new(this);
+
+    /// <summary>
+    /// Returns a new iterator that skips elements from the source iterator
+    /// while the specified predicate evaluates to true.
+    /// </summary>
+    /// <param name="predicate">
+    /// A function to test each item in the sequence. Items are
+    /// skipped while this predicate returns true.
+    /// </param>
+    /// <returns>
+    /// A <see cref="SkipWhileIterator{TItem}" /> that represents the sequence
+    /// of elements after skipping elements based on the provided predicate.
+    /// </returns>
+    SkipWhileIterator<TItem> SkipWhile(Func<TItem, bool> predicate) =>
+        new(this, predicate);
 }
