@@ -38,4 +38,11 @@ public sealed class EnumerateIterator<TItem> : Iterator<(int, TItem)>
     {
         _source.Dispose();
     }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        _source.Reset();
+        base.Reset();
+    }
 }

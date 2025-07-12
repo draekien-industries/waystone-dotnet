@@ -37,4 +37,11 @@ public sealed class FilterIterator<TItem> : Iterator<TItem>
     {
         _source.Dispose();
     }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        _source.Reset();
+        base.Reset();
+    }
 }

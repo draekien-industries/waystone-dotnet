@@ -21,9 +21,9 @@ public sealed class StepByIterator<TItem>
     : Iterator<TItem>
     where TItem : notnull
 {
-    private readonly bool _firstTake;
     private readonly int _nth;
     private readonly IIterator<TItem> _source;
+    private bool _firstTake;
 
     /// <summary>
     /// Creates an instance of the <see cref="StepByIterator{TItem}" />
@@ -49,12 +49,24 @@ public sealed class StepByIterator<TItem>
     }
 
     /// <inheritdoc />
-    public override Option<TItem> Next() =>
-        _firstTake ? _source.Next() : _source.Nth(_nth);
+    public override Option<TItem> Next()
+    {
+        if (!_firstTake) return _source.Nth(_nth);
+        _firstTake = false;
+        return _source.Next();
+    }
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
         _source.Dispose();
+    }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        _source.Reset();
+        _firstTake = true;
+        base.Reset();
     }
 }

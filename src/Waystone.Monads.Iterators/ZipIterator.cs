@@ -49,4 +49,12 @@ public sealed class ZipIterator<TFirst, TSecond> : Iterator<(TFirst, TSecond)>
         _first.Dispose();
         _second.Dispose();
     }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        _first.Reset();
+        _second.Reset();
+        base.Reset();
+    }
 }

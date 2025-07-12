@@ -12,15 +12,10 @@ using Options;
 /// The type of items being iterated. Must be a
 /// non-nullable type.
 /// </typeparam>
-/// <typeparam name="TIter">
-/// The type of the underlying iterator implementation.
-/// Must implement <see cref="IIterator{TItem}" />.
-/// </typeparam>
-public sealed class PeekableIterator<TItem, TIter> : Iterator<TItem>
-    where TIter : IIterator<TItem>
+public sealed class PeekableIterator<TItem> : Iterator<TItem>
     where TItem : notnull
 {
-    private readonly TIter _source;
+    private readonly IIterator<TItem> _source;
     private bool _hasPeeked;
     private Option<TItem> _peeked;
 
@@ -33,11 +28,7 @@ public sealed class PeekableIterator<TItem, TIter> : Iterator<TItem>
     /// Specifies the type of elements returned by the
     /// iterator. Must be non-nullable.
     /// </typeparam>
-    /// <typeparam name="TIter">
-    /// Defines the implementation of the underlying iterator.
-    /// Must implement <see cref="IIterator{TItem}" />.
-    /// </typeparam>
-    public PeekableIterator(TIter source)
+    public PeekableIterator(IIterator<TItem> source)
     {
         _source = source;
         _hasPeeked = false;

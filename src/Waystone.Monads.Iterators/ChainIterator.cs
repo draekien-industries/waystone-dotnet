@@ -43,4 +43,12 @@ public sealed class ChainIterator<TItem> : Iterator<TItem>
         _first.Dispose();
         _second.Dispose();
     }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        _first.Reset();
+        _second.Reset();
+        base.Reset();
+    }
 }

@@ -48,4 +48,11 @@ public sealed class MapIterator<TIn, TOut> : Iterator<TOut>
     {
         _source.Dispose();
     }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        _source.Reset();
+        base.Reset();
+    }
 }
