@@ -260,4 +260,14 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     FilterMapIterator<TItem, TOut> FilterMap<TOut>(
         Func<TItem, Option<TOut>> filterMap) where TOut : notnull =>
         new(this, filterMap);
+
+    /// <summary>
+    /// Creates an iterator that enumerates the items in the source iterator,
+    /// associating each item with its respective index in the sequence.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="EnumerateIterator{TItem}" /> that produces tuples
+    /// containing the index and the item for each item in the source iterator.
+    /// </returns>
+    EnumerateIterator<TItem> Enumerate() => new(this);
 }
