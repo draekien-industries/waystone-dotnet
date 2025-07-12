@@ -3,6 +3,8 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <PropertyGroup Label="PackageInformation">
