@@ -208,4 +208,30 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// </returns>
     MapIterator<TItem, TOut> Map<TOut>(Func<TItem, TOut> map)
         where TOut : notnull => new(this, map);
+
+    /// <summary>
+    /// Executes the specified action for each item in the iterator until the
+    /// end of the collection is reached.
+    /// </summary>
+    /// <param name="action">
+    /// A delegate representing the operation to perform on each
+    /// item of type <typeparamref name="TItem" />.
+    /// </param>
+    void ForEach(Action<TItem> action) => Next().Inspect(action);
+
+    /// <summary>
+    /// Filters items in the collection based on the provided predicate. Only
+    /// the items that satisfy the given predicate will remain in the resulting
+    /// iterator.
+    /// </summary>
+    /// <param name="filter">
+    /// A function that evaluates whether an item should be
+    /// included in the filtered collection. The function should return true to include
+    /// the item or false to exclude it.
+    /// </param>
+    /// <returns>
+    /// A <see cref="FilterIterator{TItem}" /> that iterates over the items
+    /// filtered by the given predicate.
+    /// </returns>
+    FilterIterator<TItem> Filter(Func<TItem, bool> filter) => new(this, filter);
 }
