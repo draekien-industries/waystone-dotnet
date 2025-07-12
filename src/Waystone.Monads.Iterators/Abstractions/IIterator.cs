@@ -270,4 +270,18 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// containing the index and the item for each item in the source iterator.
     /// </returns>
     EnumerateIterator<TItem> Enumerate() => new(this);
+
+    /// <summary>
+    /// Creates a new <see cref="PeekableIterator{TItem}" /> instance that
+    /// allows peeking at the next item in the sequence without advancing the iterator.
+    /// </summary>
+    /// <remarks>
+    /// Note that the underlying iterator is still advanced when peek is
+    /// called for the first time.
+    /// </remarks>
+    /// <returns>
+    /// A <see cref="PeekableIterator{TItem}" /> wrapping the current
+    /// iterator, enabling peek functionality.
+    /// </returns>
+    PeekableIterator<TItem> Peekable() => new(this);
 }
