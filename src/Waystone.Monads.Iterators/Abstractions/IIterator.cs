@@ -234,4 +234,30 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// filtered by the given predicate.
     /// </returns>
     FilterIterator<TItem> Filter(Func<TItem, bool> filter) => new(this, filter);
+
+    /// <summary>
+    /// Filters and maps the items in the current iterator using the specified
+    /// function. Only items for which the function returns a value are included in the
+    /// resulting iterator, with the value transformed as defined by the function.
+    /// </summary>
+    /// <typeparam name="TOut">
+    /// The type of the transformed items produced by the
+    /// function.
+    /// </typeparam>
+    /// <param name="filterMap">
+    /// A function that takes an item of type
+    /// <typeparamref name="TItem" /> and returns an
+    /// <see cref="Waystone.Monads.Options.Option{TOut}" />. If the function returns
+    /// <see cref="Waystone.Monads.Options.None{TOut}" />, the item will be excluded
+    /// from the resulting iterator. Otherwise, the resulting value is included in the
+    /// iterator.
+    /// </param>
+    /// <returns>
+    /// A new
+    /// <see cref="Waystone.Monads.Iterators.FilterMapIterator{TItem, TOut}" /> that
+    /// applies the specified filtering and mapping function.
+    /// </returns>
+    FilterMapIterator<TItem, TOut> FilterMap<TOut>(
+        Func<TItem, Option<TOut>> filterMap) where TOut : notnull =>
+        new(this, filterMap);
 }
