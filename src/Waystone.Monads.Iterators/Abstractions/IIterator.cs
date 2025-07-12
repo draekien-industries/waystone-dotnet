@@ -299,4 +299,22 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// </returns>
     SkipWhileIterator<TItem> SkipWhile(Func<TItem, bool> predicate) =>
         new(this, predicate);
+
+
+    /// <summary>
+    /// Returns a new iterator that yields items from the current iterator as
+    /// long as the provided predicate evaluates to true for each item. The iteration
+    /// stops as soon as the predicate evaluates to false for an item.
+    /// </summary>
+    /// <param name="predicate">
+    /// A function that defines the condition to evaluate for
+    /// each item. The iteration continues while the predicate returns true and stops
+    /// when it returns false.
+    /// </param>
+    /// <returns>
+    /// A <see cref="TakeWhileIterator{TItem}" /> representing an iterator
+    /// that yields items while the specified predicate evaluates to true.
+    /// </returns>
+    TakeWhileIterator<TItem> TakeWhile(Func<TItem, bool> predicate) =>
+        new(this, predicate);
 }
