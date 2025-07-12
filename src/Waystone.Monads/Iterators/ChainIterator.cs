@@ -27,14 +27,14 @@ public sealed class ChainIterator<T> : Iterator<T>
     {
         if (_first.MoveNext())
         {
-            CurrentItem = _first.Current;
+            CurrentItem = _first.CurrentItem;
             CurrentIndex = _first.CurrentIndex;
             return true;
         }
 
         if (_second.MoveNext())
         {
-            CurrentItem = _second.Current;
+            CurrentItem = _second.CurrentItem;
             CurrentIndex =
                 _first.CurrentIndex
               + _second.CurrentIndex

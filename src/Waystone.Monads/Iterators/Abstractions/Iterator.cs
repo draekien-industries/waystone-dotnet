@@ -24,10 +24,10 @@ public abstract class Iterator<T>
     }
 
     /// <summary>The current element in the iteration.</summary>
-    protected internal Option<T> CurrentItem { get; set; }
+    public Option<T> CurrentItem { get; set; }
 
     /// <summary>The current index being accessed.</summary>
-    protected internal int CurrentIndex { get; set; }
+    public int CurrentIndex { get; set; }
 
     /// <inheritdoc />
     public IEnumerator<Option<T>> GetEnumerator() => this;
@@ -67,7 +67,8 @@ public abstract class Iterator<T>
     /// Returns <see cref="Some{T}" /> as long as there are elements. Returns
     /// <see cref="None{T}" /> when iteration is finished.
     /// </returns>
-    public virtual Option<T> Next() => MoveNext() ? Current : Option.None<T>();
+    public virtual Option<T> Next() =>
+        MoveNext() ? CurrentItem : Option.None<T>();
 
     /// <summary>
     /// Releases the resources used by the <see cref="Iterator{T}" />

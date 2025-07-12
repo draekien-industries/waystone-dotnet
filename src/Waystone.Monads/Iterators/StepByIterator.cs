@@ -78,9 +78,9 @@ public sealed class StepByIterator<T> : Iterator<T>
 
         Option<PosInt> adjustedUpperBound = upperBound
                                            .Map<PosInt>(x => Math.Max(
-                                                0,
-                                                (x + _interval - 1)
-                                              / _interval))
+                                                    0,
+                                                    (x + _interval - 1)
+                                                  / _interval))
                                            .Filter(x => x > 0);
 
         return (adjustedLowerBound, adjustedUpperBound);
