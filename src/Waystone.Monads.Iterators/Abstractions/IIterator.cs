@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Iterators.Abstractions;
 
+using System.Collections;
 using Adapters;
 using Options;
 
@@ -11,7 +12,9 @@ using Options;
 /// The type of the item to iterate over. Must be a
 /// non-nullable type.
 /// </typeparam>
-public interface IIterator<TItem> : IEnumerator<Option<TItem>>
+public interface IIterator<TItem>
+    : IEnumerable<Option<TItem>>,
+      IEnumerator<Option<TItem>>
     where TItem : notnull
 {
     /// <summary>Gets the current index of the iterator within the collection.</summary>
@@ -27,6 +30,13 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// collection.
     /// </value>
     int Position { get; }
+
+    /// <inheritdoc />
+    IEnumerator IEnumerable.GetEnumerator() => this;
+
+    /// <inheritdoc />
+    IEnumerator<Option<TItem>> IEnumerable<Option<TItem>>.GetEnumerator() =>
+        this;
 
     /// <summary>
     /// Advances the iterator and returns the next item in the collection if
