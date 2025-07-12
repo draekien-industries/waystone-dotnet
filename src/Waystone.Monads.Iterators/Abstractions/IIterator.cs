@@ -188,4 +188,24 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     ZipIterator<TItem, TOther> Zip<TOther>(IIterator<TOther> other)
         where TOther : notnull =>
         new(this, other);
+
+    /// <summary>
+    /// Applies a mapping function to each element in the iterator and returns
+    /// a new iterator that yields the transformed elements.
+    /// </summary>
+    /// <typeparam name="TOut">
+    /// The type of the elements produced by the mapping
+    /// function. Must be a non-nullable type.
+    /// </typeparam>
+    /// <param name="map">
+    /// A function that defines the transformation to apply to each
+    /// element in the iterator.
+    /// </param>
+    /// <returns>
+    /// A <see cref="Waystone.Monads.Iterators.MapIterator{TItem, TOut}" />
+    /// that yields the elements of the original iterator transformed by the mapping
+    /// function.
+    /// </returns>
+    MapIterator<TItem, TOut> Map<TOut>(Func<TItem, TOut> map)
+        where TOut : notnull => new(this, map);
 }
