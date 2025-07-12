@@ -15,6 +15,13 @@ public interface IDoubleEndedIterator<TItem> : IIterator<TItem>
     where TItem : notnull
 {
     /// <summary>
+    /// Gets the current position of the iterator relative to the end of the
+    /// collection. This property tracks how far the iterator is from the last item in
+    /// the collection.
+    /// </summary>
+    int PositionFromEnd { get; }
+
+    /// <summary>
     /// Retrieves the next item from the back of the double-ended iterator, if
     /// available.
     /// </summary>

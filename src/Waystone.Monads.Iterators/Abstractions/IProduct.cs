@@ -15,10 +15,6 @@ public interface IProduct<TSelf>
     where TSelf : INumber<TSelf>
 {
     /// <summary>Computes the product of elements provided by the iterator.</summary>
-    /// <typeparam name="TIter">
-    /// The type of the iterator that provides the elements.
-    /// Must implement <see cref="IIterator{TSelf}" />.
-    /// </typeparam>
     /// <param name="iter">
     /// The iterator that provides the elements to compute the
     /// product.
@@ -27,5 +23,5 @@ public interface IProduct<TSelf>
     /// The product of the elements provided by the iterator as an instance of
     /// <typeparamref name="TSelf" />.
     /// </returns>
-    TSelf Product<TIter>(TIter iter) where TIter : IIterator<TSelf>;
+    TSelf Product(IIterator<TSelf> iter);
 }

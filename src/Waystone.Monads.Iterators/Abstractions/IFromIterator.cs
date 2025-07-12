@@ -14,7 +14,6 @@ namespace Waystone.Monads.Iterators.Abstractions;
 /// </typeparam>
 public interface IFromIterator<TItem, out TSelf>
     where TItem : notnull
-    where TSelf : IEnumerable<TItem>
 {
     /// <summary>
     /// Creates an instance of the implementing type from the provided
@@ -24,20 +23,9 @@ public interface IFromIterator<TItem, out TSelf>
     /// The iterator instance that will be used to provide items of
     /// type <typeparamref name="TItem" />.
     /// </param>
-    /// <typeparam name="TIter">
-    /// The type of the iterator that provides items of type
-    /// <typeparamref name="TItem" />. Must implement <see cref="IIterator{TItem}" />.
-    /// </typeparam>
-    /// <typeparam name="TIntoIter">
-    /// The type that can be converted into an iterator
-    /// providing items of type <typeparamref name="TItem" />. Must implement
-    /// <see cref="IIntoIterator{TItem}" />.
-    /// </typeparam>
     /// <returns>
     /// An instance of the implementing type created using the provided
     /// iterator.
     /// </returns>
-    TSelf FromIter<TIter, TIntoIter>(TIntoIter iter)
-        where TIter : IIterator<TItem>
-        where TIntoIter : IIntoIterator<TItem>;
+    TSelf FromIter(IIntoIterator<TItem> iter);
 }

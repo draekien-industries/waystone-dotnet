@@ -23,13 +23,14 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
     }
 
     /// <inheritdoc />
-    public virtual Option<TItem> Current { get; set; } = Option.None<TItem>();
+    public virtual Option<TItem> Current { get; } =
+        Option.None<TItem>();
 
     /// <inheritdoc />
     object? IEnumerator.Current => Current;
 
     /// <inheritdoc />
-    public int Position { get; set; } = -1;
+    public int Position { get; protected set; } = -1;
 
     /// <inheritdoc />
     public abstract Option<TItem> Next();
