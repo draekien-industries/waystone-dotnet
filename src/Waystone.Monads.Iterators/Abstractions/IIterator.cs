@@ -317,4 +317,24 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// </returns>
     TakeWhileIterator<TItem> TakeWhile(Func<TItem, bool> predicate) =>
         new(this, predicate);
+
+    /// <summary>
+    /// Maps items using the provided mapping function while the mapping
+    /// function returns a value wrapped in an <see cref="Option{TOut}" />. Iteration
+    /// halts when the mapping function returns <see cref="None{TOut}" />.
+    /// </summary>
+    /// <param name="map">
+    /// The function to apply to each item in the source collection.
+    /// This function returns an <see cref="Option{TOut}" /> for each input. Returning
+    /// <see cref="None{TOut}" /> indicates that iteration should stop.
+    /// </param>
+    /// <typeparam name="TOut">The type of the mapped items to output.</typeparam>
+    /// <returns>
+    /// A <see cref="MapWhileIterator{TItem, TOut}" /> that produces the
+    /// mapped items while the mapping function returns values wrapped in an
+    /// <see cref="Option{TOut}" />.
+    /// </returns>
+    MapWhileIterator<TItem, TOut>
+        MapWhile<TOut>(Func<TItem, Option<TOut>> map) where TOut : notnull =>
+        new(this, map);
 }
