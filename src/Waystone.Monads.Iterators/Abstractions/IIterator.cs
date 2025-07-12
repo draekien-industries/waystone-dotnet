@@ -152,4 +152,20 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// collection by stepping through the specified number of elements.
     /// </returns>
     StepByIterator<TItem> StepBy(int step) => new(this, step);
+
+    /// <summary>
+    /// Combines the current iterator with another iterator to create a
+    /// single, chainable iterator. The resulting iterator will iterate through the
+    /// items of the current iterator first, followed by the items of the provided
+    /// iterator.
+    /// </summary>
+    /// <param name="other">
+    /// The other iterator to chain after the current iterator.
+    /// Must not be null.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ChainIterator{TItem}" /> that iterates over the items
+    /// from both the current iterator and the provided iterator.
+    /// </returns>
+    ChainIterator<TItem> Chain(IIterator<TItem> other) => new(this, other);
 }
