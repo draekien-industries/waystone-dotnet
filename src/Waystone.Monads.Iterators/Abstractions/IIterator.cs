@@ -168,4 +168,24 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// from both the current iterator and the provided iterator.
     /// </returns>
     ChainIterator<TItem> Chain(IIterator<TItem> other) => new(this, other);
+
+    /// <summary>
+    /// Combines the elements of the current iterator with those of the
+    /// specified iterator, producing a new iterator that yields pairs of elements.
+    /// </summary>
+    /// <typeparam name="TOther">
+    /// The type of the elements in the other iterator. Must
+    /// be a non-nullable type.
+    /// </typeparam>
+    /// <param name="other">
+    /// The iterator whose elements will be combined with the
+    /// elements of the current iterator.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ZipIterator{TItem, TOther}" /> that combines elements
+    /// from the current iterator and the specified iterator into pairs.
+    /// </returns>
+    ZipIterator<TItem, TOther> Zip<TOther>(IIterator<TOther> other)
+        where TOther : notnull =>
+        new(this, other);
 }
