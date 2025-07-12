@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -17,7 +17,7 @@ using Options;
 /// size provided. The step size must be greater than zero; otherwise, behavior may
 /// be undefined.
 /// </remarks>
-public sealed class StepByIterator<TItem>
+public sealed class StepByAdapter<TItem>
     : Iterator<TItem>
     where TItem : notnull
 {
@@ -26,7 +26,7 @@ public sealed class StepByIterator<TItem>
     private bool _firstTake;
 
     /// <summary>
-    /// Creates an instance of the <see cref="StepByIterator{TItem}" />
+    /// Creates an instance of the <see cref="StepByAdapter{TItem}" />
     /// </summary>
     /// <param name="source">The <see cref="IIterator{TItem}" /> to iterate over</param>
     /// <param name="step">The number of items to step by</param>
@@ -34,7 +34,7 @@ public sealed class StepByIterator<TItem>
     /// <paramref name="step" /> must be
     /// greater than zero
     /// </exception>
-    public StepByIterator(IIterator<TItem> source, int step)
+    public StepByAdapter(IIterator<TItem> source, int step)
     {
         if (step <= 0)
         {

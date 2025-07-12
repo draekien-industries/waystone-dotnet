@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -15,7 +15,7 @@ using Options;
 /// The type of the elements produced by the transformation
 /// function. Must be a non-nullable type.
 /// </typeparam>
-public sealed class MapIterator<TIn, TOut> : Iterator<TOut>
+public sealed class MapAdapter<TIn, TOut> : Iterator<TOut>
     where TIn : notnull where TOut : notnull
 {
     private readonly Func<TIn, TOut> _map;
@@ -33,7 +33,7 @@ public sealed class MapIterator<TIn, TOut> : Iterator<TOut>
     /// The type of the elements produced by the transformation
     /// function. Must be a non-nullable type.
     /// </typeparam>
-    public MapIterator(IIterator<TIn> source, Func<TIn, TOut> map)
+    public MapAdapter(IIterator<TIn> source, Func<TIn, TOut> map)
     {
         _source = source;
         _map = map;

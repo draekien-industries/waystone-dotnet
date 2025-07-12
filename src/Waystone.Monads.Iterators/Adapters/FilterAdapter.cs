@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -12,18 +12,18 @@ using Options;
 /// The type of items being iterated over. Must be a
 /// non-nullable type.
 /// </typeparam>
-public sealed class FilterIterator<TItem> : Iterator<TItem>
+public sealed class FilterAdapter<TItem> : Iterator<TItem>
     where TItem : notnull
 {
     private readonly Func<TItem, bool> _predicate;
     private readonly IIterator<TItem> _source;
 
     /// <summary>
-    /// Creates an instance of the <see cref="FilterIterator{TItem}" />
+    /// Creates an instance of the <see cref="FilterAdapter{TItem}" />
     /// </summary>
     /// <param name="source">The <see cref="IIterator{TItem}" /> to filter over</param>
     /// <param name="predicate">The filter function to apply</param>
-    public FilterIterator(IIterator<TItem> source, Func<TItem, bool> predicate)
+    public FilterAdapter(IIterator<TItem> source, Func<TItem, bool> predicate)
     {
         _source = source;
         _predicate = predicate;

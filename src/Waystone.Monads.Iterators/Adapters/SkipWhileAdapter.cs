@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -11,7 +11,7 @@ using Options;
 /// The type of elements in the sequence. Must be a
 /// non-nullable type.
 /// </typeparam>
-public sealed class SkipWhileIterator<TItem> : Iterator<TItem>
+public sealed class SkipWhileAdapter<TItem> : Iterator<TItem>
     where TItem : notnull
 {
     private readonly Func<TItem, bool> _predicate;
@@ -27,7 +27,7 @@ public sealed class SkipWhileIterator<TItem> : Iterator<TItem>
     /// The type of elements in the sequence. Must be a
     /// non-nullable type.
     /// </typeparam>
-    public SkipWhileIterator(
+    public SkipWhileAdapter(
         IIterator<TItem> source,
         Func<TItem, bool> predicate)
     {

@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -12,7 +12,7 @@ using Options;
 /// The type of items being iterated. Must be a
 /// non-nullable type.
 /// </typeparam>
-public sealed class PeekableIterator<TItem> : Iterator<TItem>
+public sealed class PeekableAdapter<TItem> : Iterator<TItem>
     where TItem : notnull
 {
     private readonly IIterator<TItem> _source;
@@ -28,7 +28,7 @@ public sealed class PeekableIterator<TItem> : Iterator<TItem>
     /// Specifies the type of elements returned by the
     /// iterator. Must be non-nullable.
     /// </typeparam>
-    public PeekableIterator(IIterator<TItem> source)
+    public PeekableAdapter(IIterator<TItem> source)
     {
         _source = source;
         _hasPeeked = false;

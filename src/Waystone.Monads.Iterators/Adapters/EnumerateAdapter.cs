@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -11,7 +11,7 @@ using Options;
 /// The type of the items being enumerated. Must be a
 /// non-nullable type.
 /// </typeparam>
-public sealed class EnumerateIterator<TItem> : Iterator<(int, TItem)>
+public sealed class EnumerateAdapter<TItem> : Iterator<(int, TItem)>
     where TItem : notnull
 {
     private readonly IIterator<TItem> _source;
@@ -24,7 +24,7 @@ public sealed class EnumerateIterator<TItem> : Iterator<(int, TItem)>
     /// The type of the items being enumerated. Must be a
     /// non-nullable type.
     /// </typeparam>
-    public EnumerateIterator(IIterator<TItem> source)
+    public EnumerateAdapter(IIterator<TItem> source)
     {
         _source = source;
     }

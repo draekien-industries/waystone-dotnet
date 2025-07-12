@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -15,7 +15,7 @@ using Options;
 /// The type of elements produced by the second iterator.
 /// Must be a non-nullable type.
 /// </typeparam>
-public sealed class ZipIterator<TFirst, TSecond> : Iterator<(TFirst, TSecond)>
+public sealed class ZipAdapter<TFirst, TSecond> : Iterator<(TFirst, TSecond)>
     where TFirst : notnull where TSecond : notnull
 {
     private readonly IIterator<TFirst> _first;
@@ -33,7 +33,7 @@ public sealed class ZipIterator<TFirst, TSecond> : Iterator<(TFirst, TSecond)>
     /// The type of elements provided by the second iterator.
     /// Must be non-nullable.
     /// </typeparam>
-    public ZipIterator(IIterator<TFirst> first, IIterator<TSecond> second)
+    public ZipAdapter(IIterator<TFirst> first, IIterator<TSecond> second)
     {
         _first = first;
         _second = second;

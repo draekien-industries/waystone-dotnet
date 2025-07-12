@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -12,7 +12,7 @@ using Options;
 /// The type of the elements being iterated over. Must be a
 /// non-nullable type.
 /// </typeparam>
-public sealed class TakeWhileIterator<TItem> : Iterator<TItem>
+public sealed class TakeWhileAdapter<TItem> : Iterator<TItem>
     where TItem : notnull
 {
     private readonly Func<TItem, bool> _predicate;
@@ -29,7 +29,7 @@ public sealed class TakeWhileIterator<TItem> : Iterator<TItem>
     /// The type of the elements being iterated over. Must be a
     /// non-nullable type.
     /// </typeparam>
-    public TakeWhileIterator(
+    public TakeWhileAdapter(
         IIterator<TItem> source,
         Func<TItem, bool> predicate)
     {

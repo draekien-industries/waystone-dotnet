@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Iterators;
+﻿namespace Waystone.Monads.Iterators.Adapters;
 
 using Abstractions;
 using Options;
@@ -16,7 +16,7 @@ using Options;
 /// The type of items produced by the filter and map
 /// transformation. Must be a non-nullable type.
 /// </typeparam>
-public sealed class FilterMapIterator<TItem, TOut> : Iterator<TOut>
+public sealed class FilterMapAdapter<TItem, TOut> : Iterator<TOut>
     where TItem : notnull where TOut : notnull
 {
     private readonly Func<TItem, Option<TOut>> _filterMap;
@@ -37,7 +37,7 @@ public sealed class FilterMapIterator<TItem, TOut> : Iterator<TOut>
     /// The type of elements resulting after the filter and map
     /// operation. This must be a non-nullable type.
     /// </typeparam>
-    public FilterMapIterator(
+    public FilterMapAdapter(
         IIterator<TItem> source,
         Func<TItem, Option<TOut>> filterMap)
     {

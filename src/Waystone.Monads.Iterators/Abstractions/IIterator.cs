@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Iterators.Abstractions;
 
+using Adapters;
 using Options;
 
 /// <summary>
@@ -142,16 +143,16 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// the step given
     /// </item>
     /// <item>
-    /// Invoking <see cref="StepBy" /> on an <see cref="StepByIterator{TItem}" />
+    /// Invoking <see cref="StepBy" /> on an <see cref="StepByAdapter{TItem}" />
     /// will result in a compounding of steps.
     /// </item>
     /// </list>
     /// </remarks>
     /// <returns>
-    /// A <see cref="StepByIterator{TItem}" /> that iterates over the
+    /// A <see cref="StepByAdapter{TItem}" /> that iterates over the
     /// collection by stepping through the specified number of elements.
     /// </returns>
-    StepByIterator<TItem> StepBy(int step) => new(this, step);
+    StepByAdapter<TItem> StepBy(int step) => new(this, step);
 
     /// <summary>
     /// Combines the current iterator with another iterator to create a
@@ -164,10 +165,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// Must not be null.
     /// </param>
     /// <returns>
-    /// A <see cref="ChainIterator{TItem}" /> that iterates over the items
-    /// from both the current iterator and the provided iterator.
+    /// A <see cref="ChainAdapter{TItem}" /> that iterates over the items from
+    /// both the current iterator and the provided iterator.
     /// </returns>
-    ChainIterator<TItem> Chain(IIterator<TItem> other) => new(this, other);
+    ChainAdapter<TItem> Chain(IIterator<TItem> other) => new(this, other);
 
     /// <summary>
     /// Combines the elements of the current iterator with those of the
@@ -182,10 +183,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// elements of the current iterator.
     /// </param>
     /// <returns>
-    /// A <see cref="ZipIterator{TItem, TOther}" /> that combines elements
+    /// A <see cref="ZipAdapter{TFirst,TSecond}" /> that combines elements
     /// from the current iterator and the specified iterator into pairs.
     /// </returns>
-    ZipIterator<TItem, TOther> Zip<TOther>(IIterator<TOther> other)
+    ZipAdapter<TItem, TOther> Zip<TOther>(IIterator<TOther> other)
         where TOther : notnull =>
         new(this, other);
 
@@ -202,11 +203,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// element in the iterator.
     /// </param>
     /// <returns>
-    /// A <see cref="Waystone.Monads.Iterators.MapIterator{TItem, TOut}" />
-    /// that yields the elements of the original iterator transformed by the mapping
-    /// function.
+    /// A <see cref="MapAdapter{TIn,TOut}" /> that yields the elements of the
+    /// original iterator transformed by the mapping function.
     /// </returns>
-    MapIterator<TItem, TOut> Map<TOut>(Func<TItem, TOut> map)
+    MapAdapter<TItem, TOut> Map<TOut>(Func<TItem, TOut> map)
         where TOut : notnull => new(this, map);
 
     /// <summary>
@@ -230,10 +230,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// the item or false to exclude it.
     /// </param>
     /// <returns>
-    /// A <see cref="FilterIterator{TItem}" /> that iterates over the items
+    /// A <see cref="FilterAdapter{TItem}" /> that iterates over the items
     /// filtered by the given predicate.
     /// </returns>
-    FilterIterator<TItem> Filter(Func<TItem, bool> filter) => new(this, filter);
+    FilterAdapter<TItem> Filter(Func<TItem, bool> filter) => new(this, filter);
 
     /// <summary>
     /// Filters and maps the items in the current iterator using the specified
@@ -253,11 +253,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// iterator.
     /// </param>
     /// <returns>
-    /// A new
-    /// <see cref="Waystone.Monads.Iterators.FilterMapIterator{TItem, TOut}" /> that
-    /// applies the specified filtering and mapping function.
+    /// A new <see cref="FilterMapAdapter{TItem,TOut}" /> that applies the
+    /// specified filtering and mapping function.
     /// </returns>
-    FilterMapIterator<TItem, TOut> FilterMap<TOut>(
+    FilterMapAdapter<TItem, TOut> FilterMap<TOut>(
         Func<TItem, Option<TOut>> filterMap) where TOut : notnull =>
         new(this, filterMap);
 
@@ -266,13 +265,13 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// associating each item with its respective index in the sequence.
     /// </summary>
     /// <returns>
-    /// An <see cref="EnumerateIterator{TItem}" /> that produces tuples
+    /// An <see cref="EnumerateAdapter{TItem}" /> that produces tuples
     /// containing the index and the item for each item in the source iterator.
     /// </returns>
-    EnumerateIterator<TItem> Enumerate() => new(this);
+    EnumerateAdapter<TItem> Enumerate() => new(this);
 
     /// <summary>
-    /// Creates a new <see cref="PeekableIterator{TItem}" /> instance that
+    /// Creates a new <see cref="PeekableAdapter{TItem}" /> instance that
     /// allows peeking at the next item in the sequence without advancing the iterator.
     /// </summary>
     /// <remarks>
@@ -280,10 +279,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// called for the first time.
     /// </remarks>
     /// <returns>
-    /// A <see cref="PeekableIterator{TItem}" /> wrapping the current
-    /// iterator, enabling peek functionality.
+    /// A <see cref="PeekableAdapter{TItem}" /> wrapping the current iterator,
+    /// enabling peek functionality.
     /// </returns>
-    PeekableIterator<TItem> Peekable() => new(this);
+    PeekableAdapter<TItem> Peekable() => new(this);
 
     /// <summary>
     /// Returns a new iterator that skips elements from the source iterator
@@ -294,10 +293,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// skipped while this predicate returns true.
     /// </param>
     /// <returns>
-    /// A <see cref="SkipWhileIterator{TItem}" /> that represents the sequence
+    /// A <see cref="SkipWhileAdapter{TItem}" /> that represents the sequence
     /// of elements after skipping elements based on the provided predicate.
     /// </returns>
-    SkipWhileIterator<TItem> SkipWhile(Func<TItem, bool> predicate) =>
+    SkipWhileAdapter<TItem> SkipWhile(Func<TItem, bool> predicate) =>
         new(this, predicate);
 
 
@@ -312,10 +311,10 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// when it returns false.
     /// </param>
     /// <returns>
-    /// A <see cref="TakeWhileIterator{TItem}" /> representing an iterator
-    /// that yields items while the specified predicate evaluates to true.
+    /// A <see cref="TakeWhileAdapter{TItem}" /> representing an iterator that
+    /// yields items while the specified predicate evaluates to true.
     /// </returns>
-    TakeWhileIterator<TItem> TakeWhile(Func<TItem, bool> predicate) =>
+    TakeWhileAdapter<TItem> TakeWhile(Func<TItem, bool> predicate) =>
         new(this, predicate);
 
     /// <summary>
@@ -330,11 +329,11 @@ public interface IIterator<TItem> : IEnumerator<Option<TItem>>
     /// </param>
     /// <typeparam name="TOut">The type of the mapped items to output.</typeparam>
     /// <returns>
-    /// A <see cref="MapWhileIterator{TItem, TOut}" /> that produces the
-    /// mapped items while the mapping function returns values wrapped in an
+    /// A <see cref="MapWhileAdapter{TItem,TOut}" /> that produces the mapped
+    /// items while the mapping function returns values wrapped in an
     /// <see cref="Option{TOut}" />.
     /// </returns>
-    MapWhileIterator<TItem, TOut>
+    MapWhileAdapter<TItem, TOut>
         MapWhile<TOut>(Func<TItem, Option<TOut>> map) where TOut : notnull =>
         new(this, map);
 }
