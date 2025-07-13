@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators.Adapters;
 
+using System;
 using Abstractions;
 using Options;
 

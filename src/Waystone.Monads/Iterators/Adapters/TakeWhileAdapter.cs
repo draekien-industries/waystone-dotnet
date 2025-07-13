@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators.Adapters;
 
+using System;
 using Abstractions;
 using Options;
 
@@ -25,10 +26,6 @@ public sealed class TakeWhileAdapter<TItem> : Iterator<TItem>
     /// evaluates to true. Once the predicate evaluates to false for the first time,
     /// the iteration stops, and no further elements will be produced.
     /// </summary>
-    /// <typeparam name="TItem">
-    /// The type of the elements being iterated over. Must be a
-    /// non-nullable type.
-    /// </typeparam>
     public TakeWhileAdapter(
         IIterator<TItem> source,
         Func<TItem, bool> predicate)

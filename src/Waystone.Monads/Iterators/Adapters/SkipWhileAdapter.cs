@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators.Adapters;
 
+using System;
 using Abstractions;
 using Options;
 
@@ -23,10 +24,6 @@ public sealed class SkipWhileAdapter<TItem> : Iterator<TItem>
     /// fails the predicate, all subsequent elements are yielded from the source
     /// iterator without any further checks.
     /// </summary>
-    /// <typeparam name="TItem">
-    /// The type of elements in the sequence. Must be a
-    /// non-nullable type.
-    /// </typeparam>
     public SkipWhileAdapter(
         IIterator<TItem> source,
         Func<TItem, bool> predicate)

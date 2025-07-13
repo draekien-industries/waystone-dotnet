@@ -24,10 +24,6 @@ public sealed class PeekableAdapter<TItem> : Iterator<TItem>
     /// <see cref="IIterator{TItem}" /> by enabling the ability to look at the next
     /// item in the sequence without advancing the iterator.
     /// </summary>
-    /// <typeparam name="TItem">
-    /// Specifies the type of elements returned by the
-    /// iterator. Must be non-nullable.
-    /// </typeparam>
     public PeekableAdapter(IIterator<TItem> source)
     {
         _source = source;

@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators.Adapters;
 
+using System;
 using Abstractions;
 using Options;
 
@@ -25,14 +26,6 @@ public sealed class MapAdapter<TIn, TOut> : Iterator<TOut>
     /// Represents an iterator that applies a transformation function to each
     /// element of the source iterator and yields the transformed elements.
     /// </summary>
-    /// <typeparam name="TIn">
-    /// The type of the elements in the source iterator. Must be
-    /// a non-nullable type.
-    /// </typeparam>
-    /// <typeparam name="TOut">
-    /// The type of the elements produced by the transformation
-    /// function. Must be a non-nullable type.
-    /// </typeparam>
     public MapAdapter(IIterator<TIn> source, Func<TIn, TOut> map)
     {
         _source = source;

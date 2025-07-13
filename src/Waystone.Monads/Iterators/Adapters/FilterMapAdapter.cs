@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators.Adapters;
 
+using System;
 using Abstractions;
 using Options;
 
@@ -26,17 +27,8 @@ public sealed class FilterMapAdapter<TItem, TOut> : Iterator<TOut>
     /// Represents an iterator that processes elements from a source iterator.
     /// Each element is transformed using a filter-map function, which combines
     /// filtering and mapping into a single operation. The resulting collection
-    /// contains elements of the transformed type <typeparamref name="TOut" /> after
-    /// applying the operation.
+    /// contains elements of the transformed type after applying the operation.
     /// </summary>
-    /// <typeparam name="TItem">
-    /// The type of elements in the source iterator. This must
-    /// be a non-nullable type.
-    /// </typeparam>
-    /// <typeparam name="TOut">
-    /// The type of elements resulting after the filter and map
-    /// operation. This must be a non-nullable type.
-    /// </typeparam>
     public FilterMapAdapter(
         IIterator<TItem> source,
         Func<TItem, Option<TOut>> filterMap)

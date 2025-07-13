@@ -20,10 +20,6 @@ public sealed class EnumerateAdapter<TItem> : Iterator<(int, TItem)>
     /// An iterator that enumerates over a source iterator, providing each
     /// item along with its index.
     /// </summary>
-    /// <typeparam name="TItem">
-    /// The type of the items being enumerated. Must be a
-    /// non-nullable type.
-    /// </typeparam>
     public EnumerateAdapter(IIterator<TItem> source)
     {
         _source = source;

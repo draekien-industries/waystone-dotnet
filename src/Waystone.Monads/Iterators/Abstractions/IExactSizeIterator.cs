@@ -32,5 +32,9 @@ public interface IExactSizeIterator<TItem> : IIterator<TItem>
     /// <c>true</c> if the iterator contains no elements; otherwise,
     /// <c>false</c>.
     /// </value>
+#if NET5_0_OR_GREATER
     bool IsEmpty => Length <= 0;
+#else
+    bool IsEmpty { get;}
+#endif
 }

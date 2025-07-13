@@ -1,5 +1,7 @@
 ﻿namespace Waystone.Monads.Iterators;
 
+using System.Collections.Generic;
+using System.Linq;
 using Abstractions;
 using Options;
 
@@ -22,7 +24,6 @@ public sealed class ArrayIterator<TItem>
     /// current item, iterating forwards and backwards, resetting the iterator, and
     /// determining the length of the collection.
     /// </summary>
-    /// <typeparam name="TItem">The type of elements in the array.</typeparam>
     public ArrayIterator(TItem[] source)
     {
         _source = source;
@@ -80,6 +81,11 @@ public sealed class ArrayIterator<TItem>
 
     /// <inheritdoc />
     public int Length => _source.Length;
+
+#if !NETCOREAPP3_0_OR_GREATER
+    /// <inheritdoc />
+    public bool IsEmpty => Length <= 0;
+#endif
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)

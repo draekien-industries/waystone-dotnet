@@ -23,10 +23,6 @@ public sealed class ChainAdapter<TItem> : Iterator<TItem>
     /// item from the first iterator, and if no items are left, continues with the
     /// second iterator.
     /// </summary>
-    /// <typeparam name="TItem">
-    /// The type of the item to iterate over. Must be a
-    /// non-nullable type.
-    /// </typeparam>
     public ChainAdapter(IIterator<TItem> first, IIterator<TItem> second)
     {
         _first = first;

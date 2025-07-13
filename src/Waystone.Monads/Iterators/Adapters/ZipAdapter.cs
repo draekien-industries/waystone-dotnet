@@ -25,14 +25,6 @@ public sealed class ZipAdapter<TFirst, TSecond> : Iterator<(TFirst, TSecond)>
     /// Represents an iterator that combines two iterators, yielding pairs of
     /// elements from the first and second iterators respectively.
     /// </summary>
-    /// <typeparam name="TFirst">
-    /// The type of elements provided by the first iterator.
-    /// Must be non-nullable.
-    /// </typeparam>
-    /// <typeparam name="TSecond">
-    /// The type of elements provided by the second iterator.
-    /// Must be non-nullable.
-    /// </typeparam>
     public ZipAdapter(IIterator<TFirst> first, IIterator<TSecond> second)
     {
         _first = first;
