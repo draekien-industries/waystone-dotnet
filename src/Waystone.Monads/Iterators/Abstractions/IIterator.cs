@@ -338,4 +338,32 @@ public interface IIterator<TItem>
     /// <paramref name="n" /> items from the source iterator.
     /// </returns>
     TakeAdapter<TItem> Take(int n);
+
+    /// <summary>
+    /// Applies a stateful computation over the elements of the iterator,
+    /// producing a new iterator that yields the results of applying the computation at
+    /// each step. The computation uses both the current state and the current element
+    /// to produce the next state and output.
+    /// </summary>
+    /// <typeparam name="TState">
+    /// The type of the state used in the computation. Must be
+    /// a non-nullable type.
+    /// </typeparam>
+    /// <typeparam name="TOut">
+    /// The type of the output elements of the resulting
+    /// iterator. Must be a non-nullable type.
+    /// </typeparam>
+    /// <param name="initialState">The initial state to start the computation.</param>
+    /// <param name="scan">
+    /// A function that takes the current state, the current item
+    /// from the underlying iterator, and produces a new state and an output element.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ScanAdapter{TItem, TState, TOut}" /> that represents the
+    /// iterator yielding output based on the stateful computation.
+    /// </returns>
+    ScanAdapter<TItem, TState, TOut> Scan<TState, TOut>(
+        TState initialState,
+        Func<TState, TItem, Option<TOut>> scan)
+        where TState : notnull where TOut : notnull;
 }

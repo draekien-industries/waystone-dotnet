@@ -148,6 +148,13 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
     public TakeAdapter<TItem> Take(int n) => new(this, n);
 
     /// <inheritdoc />
+    public ScanAdapter<TItem, TState, TOut> Scan<TState, TOut>(
+        TState initialState,
+        Func<TState, TItem, Option<TOut>> scan)
+        where TState : notnull where TOut : notnull =>
+        new(this, initialState, scan);
+
+    /// <inheritdoc />
     public virtual IEnumerator<Option<TItem>> GetEnumerator() =>
         this;
 
