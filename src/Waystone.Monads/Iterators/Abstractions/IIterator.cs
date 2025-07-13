@@ -1,17 +1,9 @@
 namespace Waystone.Monads.Iterators.Abstractions;
 
-#if NETCOREAPP3_0_OR_GREATER
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Adapters;
-using Options;
-#else
 using System;
 using System.Collections.Generic;
 using Adapters;
 using Options;
-#endif
 
 /// <summary>
 /// Represents an interface for iterating over a collection of items of
@@ -40,19 +32,6 @@ public interface IIterator<TItem>
     /// </value>
     int Position { get; }
 
-#if NETCOREAPP3_0_OR_GREATER
-    /// <inheritdoc />
-    IEnumerator IEnumerable.GetEnumerator() => this;
-
-    /// <inheritdoc />
-    IEnumerator<Option<TItem>> IEnumerable<Option<TItem>>.GetEnumerator() =>
-        this;
-
-    /// <inheritdoc />
-    IIterator<TItem> IIntoIterator<TItem>.IntoIter() => this;
-#endif
-
-
     /// <summary>
     /// Advances the iterator and returns the next item in the collection if
     /// available. If the iterator has reached the end, it returns a
@@ -66,7 +45,6 @@ public interface IIterator<TItem>
     /// </returns>
     Option<TItem> Next();
 
-
     /// <summary>
     /// Provides a hint about the size of the remaining items in the
     /// collection through a lower bound and an optional upper bound. The lower bound
@@ -79,12 +57,7 @@ public interface IIterator<TItem>
     /// minimum number of items remaining, while the upper bound, if present, is an
     /// estimate of the maximum number of items remaining.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    (int LowerBound, Option<int> UpperBound) SizeHint() =>
-        (0, Option.None<int>());
-#else
     (int LowerBound, Option<int> UpperBound) SizeHint();
-#endif
 
     /// <summary>
     /// Consumes the iterator, counting the number of iterations and returning
@@ -100,16 +73,7 @@ public interface IIterator<TItem>
     /// An integer representing the total number of items remaining in the
     /// collection.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    int Count()
-    {
-        var count = 0;
-        while (Next().IsSome) count++;
-        return count;
-    }
-#else
     int Count();
-#endif
 
     /// <summary>Consumes the iterator, returning the last element.</summary>
     /// <remarks>
@@ -122,16 +86,7 @@ public interface IIterator<TItem>
     /// An <see cref="Option{TItem}" /> representing the last item in the
     /// collection, or <see cref="None{TItem}" /> if the collection is empty.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    Option<TItem> Last()
-    {
-        Option<TItem> last = Option.None<TItem>();
-        while (Next().IsSome) last = Next();
-        return last;
-    }
-#else
     Option<TItem> Last();
-#endif
 
     /// <summary>
     /// Returns the nth item in the collection if it exists. If the specified
@@ -151,24 +106,7 @@ public interface IIterator<TItem>
     /// An <see cref="Option{TItem}" /> representing the nth item in the
     /// collection, or <see cref="None{TItem}" /> if the index is out of bounds.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    Option<TItem> Nth(int n)
-    {
-        var count = 0;
-        Option<TItem> nth = Next();
-
-        while (nth.IsSome)
-        {
-            if (count == n) return nth;
-            nth = Next();
-            count++;
-        }
-
-        return nth;
-    }
-#else
     Option<TItem> Nth(int n);
-#endif
 
     /// <summary>
     /// Creates a new iterator that skips a specified number of items between
@@ -194,11 +132,7 @@ public interface IIterator<TItem>
     /// A <see cref="StepByAdapter{TItem}" /> that iterates over the
     /// collection by stepping through the specified number of elements.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    StepByAdapter<TItem> StepBy(int step) => new(this, step);
-#else
     StepByAdapter<TItem> StepBy(int step);
-#endif
 
     /// <summary>
     /// Combines the current iterator with another iterator to create a
@@ -214,11 +148,7 @@ public interface IIterator<TItem>
     /// A <see cref="ChainAdapter{TItem}" /> that iterates over the items from
     /// both the current iterator and the provided iterator.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    ChainAdapter<TItem> Chain(IIterator<TItem> other) => new(this, other);
-#else
     ChainAdapter<TItem> Chain(IIterator<TItem> other);
-#endif
 
     /// <summary>
     /// Combines the elements of the current iterator with those of the
@@ -236,14 +166,8 @@ public interface IIterator<TItem>
     /// A <see cref="ZipAdapter{TFirst,TSecond}" /> that combines elements
     /// from the current iterator and the specified iterator into pairs.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    ZipAdapter<TItem, TOther> Zip<TOther>(IIterator<TOther> other)
-        where TOther : notnull =>
-        new(this, other);
-#else
     ZipAdapter<TItem, TOther> Zip<TOther>(IIterator<TOther> other)
         where TOther : notnull;
-#endif
 
     /// <summary>
     /// Applies a mapping function to each element in the iterator and returns
@@ -261,13 +185,8 @@ public interface IIterator<TItem>
     /// A <see cref="MapAdapter{TIn,TOut}" /> that yields the elements of the
     /// original iterator transformed by the mapping function.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    MapAdapter<TItem, TOut> Map<TOut>(Func<TItem, TOut> map)
-        where TOut : notnull => new(this, map);
-#else
     MapAdapter<TItem, TOut> Map<TOut>(Func<TItem, TOut> map)
         where TOut : notnull;
-#endif
 
     /// <summary>
     /// Executes the specified action for each item in the iterator until the
@@ -277,19 +196,7 @@ public interface IIterator<TItem>
     /// A delegate representing the operation to perform on each
     /// item of type <typeparamref name="TItem" />.
     /// </param>
-#if NETCOREAPP3_0_OR_GREATER
-    void ForEach(Action<TItem> action)
-    {
-        Option<TItem> next = Next();
-        while (next.IsSome)
-        {
-            next.Inspect(action);
-            next = Next();
-        }
-    }
-#else
     void ForEach(Action<TItem> action);
-#endif
 
     /// <summary>
     /// Filters items in the collection based on the provided predicate. Only
@@ -305,11 +212,7 @@ public interface IIterator<TItem>
     /// A <see cref="FilterAdapter{TItem}" /> that iterates over the items
     /// filtered by the given predicate.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    FilterAdapter<TItem> Filter(Func<TItem, bool> filter) => new(this, filter);
-#else
     FilterAdapter<TItem> Filter(Func<TItem, bool> filter);
-#endif
 
     /// <summary>
     /// Filters and maps the items in the current iterator using the specified
@@ -332,14 +235,8 @@ public interface IIterator<TItem>
     /// A new <see cref="FilterMapAdapter{TItem,TOut}" /> that applies the
     /// specified filtering and mapping function.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    FilterMapAdapter<TItem, TOut> FilterMap<TOut>(
-        Func<TItem, Option<TOut>> filterMap) where TOut : notnull =>
-        new(this, filterMap);
-#else
     FilterMapAdapter<TItem, TOut> FilterMap<TOut>(
         Func<TItem, Option<TOut>> filterMap) where TOut : notnull;
-#endif
 
     /// <summary>
     /// Creates an iterator that enumerates the items in the source iterator,
@@ -349,11 +246,7 @@ public interface IIterator<TItem>
     /// An <see cref="EnumerateAdapter{TItem}" /> that produces tuples
     /// containing the index and the item for each item in the source iterator.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    EnumerateAdapter<TItem> Enumerate() => new(this);
-#else
     EnumerateAdapter<TItem> Enumerate();
-#endif
 
     /// <summary>
     /// Creates a new <see cref="PeekableAdapter{TItem}" /> instance that
@@ -367,11 +260,7 @@ public interface IIterator<TItem>
     /// A <see cref="PeekableAdapter{TItem}" /> wrapping the current iterator,
     /// enabling peek functionality.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    PeekableAdapter<TItem> Peekable() => new(this);
-#else
     PeekableAdapter<TItem> Peekable();
-#endif
 
     /// <summary>
     /// Returns a new iterator that skips elements from the source iterator
@@ -385,13 +274,7 @@ public interface IIterator<TItem>
     /// A <see cref="SkipWhileAdapter{TItem}" /> that represents the sequence
     /// of elements after skipping elements based on the provided predicate.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    SkipWhileAdapter<TItem> SkipWhile(Func<TItem, bool> predicate) =>
-        new(this, predicate);
-#else
     SkipWhileAdapter<TItem> SkipWhile(Func<TItem, bool> predicate);
-#endif
-
 
     /// <summary>
     /// Returns a new iterator that yields items from the current iterator as
@@ -407,12 +290,7 @@ public interface IIterator<TItem>
     /// A <see cref="TakeWhileAdapter{TItem}" /> representing an iterator that
     /// yields items while the specified predicate evaluates to true.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    TakeWhileAdapter<TItem> TakeWhile(Func<TItem, bool> predicate) =>
-        new(this, predicate);
-#else
     TakeWhileAdapter<TItem> TakeWhile(Func<TItem, bool> predicate);
-#endif
 
     /// <summary>
     /// Maps items using the provided mapping function while the mapping
@@ -430,12 +308,20 @@ public interface IIterator<TItem>
     /// items while the mapping function returns values wrapped in an
     /// <see cref="Option{TOut}" />.
     /// </returns>
-#if NETCOREAPP3_0_OR_GREATER
-    MapWhileAdapter<TItem, TOut>
-        MapWhile<TOut>(Func<TItem, Option<TOut>> map) where TOut : notnull =>
-        new(this, map);
-#else
-    MapWhileAdapter<TItem, TOut>
-        MapWhile<TOut>(Func<TItem, Option<TOut>> map) where TOut : notnull;
-#endif
+    MapWhileAdapter<TItem, TOut> MapWhile<TOut>(Func<TItem, Option<TOut>> map)
+        where TOut : notnull;
+
+    /// <summary>
+    /// Returns a new iterator that skips a specified number of elements from
+    /// the beginning of the current collection.
+    /// </summary>
+    /// <param name="n">
+    /// The number of elements to skip from the start of the
+    /// collection.
+    /// </param>
+    /// <returns>
+    /// A <see cref="SkipAdapter{TItem}" /> that begins iteration after the
+    /// specified number of elements have been skipped.
+    /// </returns>
+    SkipAdapter<TItem> Skip(int n);
 }

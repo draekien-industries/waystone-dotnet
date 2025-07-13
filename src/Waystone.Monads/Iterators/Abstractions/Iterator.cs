@@ -1,16 +1,10 @@
 ﻿namespace Waystone.Monads.Iterators.Abstractions;
 
-#if NETCOREAPP3_0_OR_GREATER
-using System;
-using System.Collections;
-using Options;
-#else
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Adapters;
 using Options;
-#endif
 
 /// <summary>
 /// Represents an abstract implementation of a custom iterator for
@@ -51,14 +45,6 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>Releases the resources used by the iterator.</summary>
-    /// <param name="disposing">
-    /// A boolean value indicating whether to release both
-    /// managed and unmanaged resources (true), or only unmanaged resources (false).
-    /// </param>
-    protected abstract void Dispose(bool disposing);
-
-#if !NETCOREAPP3_1_OR_GREATER
     /// <inheritdoc />
     public virtual (int LowerBound, Option<int> UpperBound) SizeHint() =>
         (0, Option.None<int>());
@@ -156,6 +142,9 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
         new(this, map);
 
     /// <inheritdoc />
+    public SkipAdapter<TItem> Skip(int n) => new(this, n);
+
+    /// <inheritdoc />
     public virtual IEnumerator<Option<TItem>> GetEnumerator() =>
         this;
 
@@ -165,5 +154,11 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
     /// <inheritdoc />
     public virtual IIterator<TItem> IntoIter() =>
         this;
-#endif
+
+    /// <summary>Releases the resources used by the iterator.</summary>
+    /// <param name="disposing">
+    /// A boolean value indicating whether to release both
+    /// managed and unmanaged resources (true), or only unmanaged resources (false).
+    /// </param>
+    protected abstract void Dispose(bool disposing);
 }
