@@ -324,4 +324,18 @@ public interface IIterator<TItem>
     /// specified number of elements have been skipped.
     /// </returns>
     SkipAdapter<TItem> Skip(int n);
+
+    /// <summary>
+    /// Creates an adapter that limits the number of items an iterator can
+    /// yield. When the specified limit is reached, the iterator terminates.
+    /// </summary>
+    /// <param name="n">
+    /// The maximum number of items to yield from the source iterator.
+    /// Must be a non-negative integer.
+    /// </param>
+    /// <returns>
+    /// A <see cref="TakeAdapter{TItem}" /> that iterates over at most
+    /// <paramref name="n" /> items from the source iterator.
+    /// </returns>
+    TakeAdapter<TItem> Take(int n);
 }

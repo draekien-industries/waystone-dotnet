@@ -145,6 +145,9 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
     public SkipAdapter<TItem> Skip(int n) => new(this, n);
 
     /// <inheritdoc />
+    public TakeAdapter<TItem> Take(int n) => new(this, n);
+
+    /// <inheritdoc />
     public virtual IEnumerator<Option<TItem>> GetEnumerator() =>
         this;
 
