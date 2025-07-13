@@ -2,7 +2,7 @@ namespace Waystone.Monads.FluentValidation.Configs;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Waystone.Monads.FluentValidation.Results;
+using Results;
 using Waystone.Monads.Results.Errors;
 
 /// <summary>
@@ -11,10 +11,10 @@ using Waystone.Monads.Results.Errors;
 [ExcludeFromCodeCoverage]
 public sealed class MonadValidationOptions
 {
-    private static readonly Lazy<MonadValidationOptions> _singleton =
+    private static readonly Lazy<MonadValidationOptions> Singleton =
         new(() => new MonadValidationOptions());
 
-    internal static MonadValidationOptions Global => _singleton.Value;
+    internal static MonadValidationOptions Global => Singleton.Value;
 
     private MonadValidationOptions()
     {

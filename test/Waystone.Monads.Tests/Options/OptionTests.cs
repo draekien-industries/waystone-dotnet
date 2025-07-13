@@ -114,7 +114,7 @@ public sealed class OptionTests
     [Fact]
     public void GivenNotNullReferenceType_WhenCreatingOption_ThenReturnSome()
     {
-        string? value = "test";
+        string value = "test";
         var result = Option.FromNullable(value);
         result.IsSome.ShouldBeTrue();
         result.ShouldBeOfType<Some<string>>();

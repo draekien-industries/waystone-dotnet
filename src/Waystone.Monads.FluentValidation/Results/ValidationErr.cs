@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using global::FluentValidation.Results;
 using Options;
-using Waystone.Monads.FluentValidation.Configs;
+using Configs;
 using Waystone.Monads.Results.Errors;
 
 /// <summary>The errors that were encountered while running a validator</summary>

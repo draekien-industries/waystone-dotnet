@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using NSubstitute;
 using Shouldly;
 using Waystone.Monads.Extensions;
-using Waystone.Monads.Results;
+using Results;
 using Xunit;
 
 [TestSubject(typeof(None<>))]

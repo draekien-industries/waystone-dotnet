@@ -1,6 +1,5 @@
 namespace Waystone.Monads.FluentValidation.Results;
 
-using System.Collections.Generic;
 using global::FluentValidation.Results;
 using Shouldly;
 using Waystone.Monads.Extensions;

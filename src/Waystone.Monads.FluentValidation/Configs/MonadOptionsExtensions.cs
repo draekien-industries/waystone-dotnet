@@ -2,7 +2,7 @@ namespace Waystone.Monads.FluentValidation.Configs;
 
 using System.Diagnostics.CodeAnalysis;
 using Waystone.Monads.Configs;
-using Waystone.Monads.FluentValidation.Results;
+using Results;
 using Waystone.Monads.Results.Errors;
 
 /// <summary>

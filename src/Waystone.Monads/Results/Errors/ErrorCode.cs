@@ -1,7 +1,7 @@
 ﻿namespace Waystone.Monads.Results.Errors;
 
 using System;
-using Waystone.Monads.Configs;
+using Configs;
 
 /// <summary>A short code representing an error type in the application.</summary>
 /// <example>
@@ -35,25 +35,28 @@ public record ErrorCode
     /// <summary>The error code string value</summary>
     public string Value { get; }
 
-    /// <summary>
-    /// Creates an instance of an <see cref="ErrorCode" /> from an enum value.
-    /// </summary>
+    /// <summary>Creates an instance of an <see cref="ErrorCode" /> from an enum value.</summary>
     /// <remarks>
-    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
+    /// Uses the <see cref="ErrorCodeFactory" /> configured in
+    /// <see cref="MonadOptions" />.
     /// </remarks>
     /// <param name="value">The enum value to create the error code from.</param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    public static ErrorCode FromEnum(Enum value) => MonadOptions.Global.ErrorCodeFactory.FromEnum(value);
+    public static ErrorCode FromEnum(Enum value) =>
+        MonadOptions.Global.ErrorCodeFactory.FromEnum(value);
 
     /// <summary>
-    /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" /> from an exception.
+    /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" />
+    /// from an exception.
     /// </summary>
     /// <remarks>
-    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
+    /// Uses the <see cref="ErrorCodeFactory" /> configured in
+    /// <see cref="MonadOptions" />.
     /// </remarks>
     /// <param name="exception"></param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    public static ErrorCode FromException(Exception exception) => MonadOptions.Global.ErrorCodeFactory.FromException(exception);
+    public static ErrorCode FromException(Exception exception) =>
+        MonadOptions.Global.ErrorCodeFactory.FromException(exception);
 
     /// <summary>
     /// Implicitly converts an <see cref="ErrorCode" /> instance to its string
