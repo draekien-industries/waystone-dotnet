@@ -1,6 +1,8 @@
 ﻿namespace Waystone.Monads.Iterators.Adapters;
 
+using System.Collections.Generic;
 using Abstractions;
+using Extensions;
 using Options;
 
 /// <summary>
@@ -27,6 +29,17 @@ public sealed class ChainAdapter<TItem> : Iterator<TItem>
     {
         _first = first;
         _second = second;
+    }
+
+    /// <summary>
+    /// Represents a chainable iterator that combines two separate iterators
+    /// into a single iterator. It attempts to retrieve the next item from the first
+    /// iterator, and if no items are left, it continues with the second iterator.
+    /// </summary>
+    public ChainAdapter(IEnumerable<TItem> first, IEnumerable<TItem> second)
+    {
+        _first = first.IntoIter();
+        _second = second.IntoIter();
     }
 
     /// <inheritdoc />

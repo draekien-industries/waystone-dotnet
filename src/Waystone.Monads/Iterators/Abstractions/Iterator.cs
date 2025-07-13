@@ -155,15 +155,16 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
         new(this, initialState, scan);
 
     /// <inheritdoc />
+    public FlatMapAdapter<TItem, TOut> FlatMap<TOut>(
+        Func<TItem, IEnumerable<TOut>> map) where TOut : notnull =>
+        new(this, map);
+
+    /// <inheritdoc />
     public virtual IEnumerator<Option<TItem>> GetEnumerator() =>
         this;
 
     /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    /// <inheritdoc />
-    public virtual IIterator<TItem> IntoIter() =>
-        this;
 
     /// <summary>Releases the resources used by the iterator.</summary>
     /// <param name="disposing">

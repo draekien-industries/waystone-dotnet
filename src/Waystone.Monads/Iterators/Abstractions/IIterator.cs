@@ -15,8 +15,7 @@ using Options;
 /// </typeparam>
 public interface IIterator<TItem>
     : IEnumerable<Option<TItem>>,
-      IEnumerator<Option<TItem>>,
-      IIntoIterator<TItem> where TItem : notnull
+      IEnumerator<Option<TItem>> where TItem : notnull
 {
     /// <summary>Gets the current index of the iterator within the collection.</summary>
     /// <remarks>
@@ -366,4 +365,24 @@ public interface IIterator<TItem>
         TState initialState,
         Func<TState, TItem, Option<TOut>> scan)
         where TState : notnull where TOut : notnull;
+
+    /// <summary>
+    /// Projects each item in the iterator into an
+    /// <see cref="IEnumerable{TOut}" />, flattens the resulting collections, and
+    /// returns a new iterator over the flattened results.
+    /// </summary>
+    /// <typeparam name="TOut">
+    /// The type of the output elements resulting from the
+    /// projection. Must be a non-nullable type.
+    /// </typeparam>
+    /// <param name="map">
+    /// A function to transform each item in the iterator into an
+    /// <see cref="IEnumerable{TOut}" />.
+    /// </param>
+    /// <returns>
+    /// A <see cref="FlatMapAdapter{TItem, TOut}" /> that represents an
+    /// iterator over the flattened collection.
+    /// </returns>
+    FlatMapAdapter<TItem, TOut> FlatMap<TOut>(
+        Func<TItem, IEnumerable<TOut>> map) where TOut : notnull;
 }
