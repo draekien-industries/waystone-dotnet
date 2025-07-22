@@ -385,4 +385,34 @@ public interface IIterator<TItem>
     /// </returns>
     FlatMapAdapter<TItem, TOut> FlatMap<TOut>(
         Func<TItem, IEnumerable<TOut>> map) where TOut : notnull;
+
+    /// <summary>
+    /// Returns an iterator that yields the first item of the current iterator
+    /// and then stops. If the iterator is empty, it yields <see cref="None{TItem}" />.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="OnceAdapter{TItem}" /> that produces at most one element
+    /// from the current iterator.
+    /// </returns>
+    OnceAdapter<TItem> Once();
+
+    /// <summary>
+    /// Transforms an iterator by applying a specified mapping function to its
+    /// items and returning a new iterator that produces the mapped items.
+    /// </summary>
+    /// <typeparam name="TOut">
+    /// The type of the items in the resulting iterator, which
+    /// is the result of applying the mapping function to the source items.
+    /// </typeparam>
+    /// <param name="map">
+    /// A function that is applied to each item in the source
+    /// iterator to produce a new item of type <typeparamref name="TOut" />.
+    /// </param>
+    /// <returns>
+    /// A <see cref="OnceWithAdapter{TItem, TOut}" /> that provides an
+    /// iterator transforming items from the source iterator using the specified
+    /// mapping function.
+    /// </returns>
+    OnceWithAdapter<TItem, TOut> OnceWith<TOut>(Func<TItem, TOut> map)
+        where TOut : notnull;
 }

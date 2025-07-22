@@ -160,6 +160,13 @@ public abstract class Iterator<TItem> : IIterator<TItem> where TItem : notnull
         new(this, map);
 
     /// <inheritdoc />
+    public OnceAdapter<TItem> Once() => new(this);
+
+    /// <inheritdoc />
+    public OnceWithAdapter<TItem, TOut> OnceWith<TOut>(Func<TItem, TOut> map)
+        where TOut : notnull => new(this, map);
+
+    /// <inheritdoc />
     public virtual IEnumerator<Option<TItem>> GetEnumerator() =>
         this;
 
