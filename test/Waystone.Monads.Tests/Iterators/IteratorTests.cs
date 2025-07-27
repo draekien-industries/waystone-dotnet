@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Iterators;
 
 using System.Collections.Generic;
+using Extensions;
 using Options;
 using Shouldly;
 using Xunit;

@@ -35,14 +35,4 @@ public interface IIterator<TItem> : IEnumerable<Option<TItem>>
     /// <see cref="None{T}" /> if the upper bound is unknown.
     /// </returns>
     (int Lower, Option<int> Upper) SizeHint();
-
-    /// <summary>
-    /// Retrieves all remaining items in the iterator as an
-    /// <see cref="IEnumerable{T}" />.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerable{T}" /> containing all remaining items from
-    /// the iterator.
-    /// </returns>
-    IEnumerable<TItem> Collect();
 }

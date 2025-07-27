@@ -16,7 +16,7 @@ using Options;
 /// The type of elements iterated over. Must be
 /// non-nullable.
 /// </typeparam>
-public struct Iterator<TItem> : IIterator<TItem>, IDisposable
+public class Iterator<TItem> : IIterator<TItem>, IDisposable
     where TItem : notnull
 {
     private readonly IEnumerable<TItem> _source;
@@ -33,6 +33,15 @@ public struct Iterator<TItem> : IIterator<TItem>, IDisposable
     }
 
     /// <inheritdoc />
+    public void Dispose()
+    {
+        _sourceEnumerator.Dispose();
+        _disposed = true;
+
+        GC.SuppressFinalize(this);
+    }
+
+    /// <inheritdoc />
     public IEnumerator<Option<TItem>> GetEnumerator()
     {
         for (Option<TItem> next = Next(); next.IsSome; next = Next())
@@ -45,7 +54,7 @@ public struct Iterator<TItem> : IIterator<TItem>, IDisposable
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc />
-    public Option<TItem> Next()
+    public virtual Option<TItem> Next()
     {
         if (_disposed || !_sourceEnumerator.MoveNext())
         {
@@ -56,30 +65,9 @@ public struct Iterator<TItem> : IIterator<TItem>, IDisposable
     }
 
     /// <inheritdoc />
-    public (int Lower, Option<int> Upper) SizeHint()
+    public virtual (int Lower, Option<int> Upper) SizeHint()
     {
         int size = _source.Count();
         return size > 0 ? (size, Option.Some(size)) : (0, Option.None<int>());
-    }
-
-    /// <inheritdoc />
-    public IEnumerable<TItem> Collect()
-    {
-        using (this)
-        {
-            if (_disposed) yield break;
-
-            for (Option<TItem> next = Next(); next.IsSome; next = Next())
-            {
-                yield return next.Unwrap();
-            }
-        }
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        _sourceEnumerator.Dispose();
-        _disposed = true;
     }
 }
