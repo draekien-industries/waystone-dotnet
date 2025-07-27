@@ -8,7 +8,7 @@ using Xunit;
 public sealed class ChainTests
 {
     [Fact]
-    public void Chain_WhenChainingTwoSequences_ShouldCombineThemInOrder()
+    public void Given_TwoSequences_When_ChainingThem_Then_ShouldCombineInOrder()
     {
         // Given
         var first = new List<int> { 1, 2, 3 };
@@ -25,7 +25,7 @@ public sealed class ChainTests
 
     [Fact]
     public void
-        Chain_WhenChainingWithEmptySequence_ShouldReturnOriginalSequence()
+        Given_NonEmptyAndEmptySequence_When_ChainingThem_Then_ShouldReturnOriginalSequence()
     {
         // Given
         var first = new List<int> { 1, 2, 3 };
@@ -41,7 +41,8 @@ public sealed class ChainTests
     }
 
     [Fact]
-    public void Chain_WhenChainingEmptyWithNonEmpty_ShouldReturnSecondSequence()
+    public void
+        Given_EmptyAndNonEmptySequence_When_ChainingThem_Then_ShouldReturnSecondSequence()
     {
         // Given
         var first = new List<int>();
@@ -57,7 +58,7 @@ public sealed class ChainTests
     }
 
     [Fact]
-    public void Chain_WhenDisposed_ShouldNotEnumerate()
+    public void Given_Chain_When_Disposed_Then_ShouldNotEnumerate()
     {
         // Given
         var first = new List<int> { 1, 2 };
@@ -71,5 +72,70 @@ public sealed class ChainTests
 
         // Then
         result.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public void
+        Given_AllEvenNumbers_When_CheckingAllElements_Then_ShouldReturnTrue()
+    {
+        // Given
+        var first = new List<int> { 2, 4 };
+        var second = new List<int> { 6, 8 };
+        Iterator<int> iterator = first.IntoIter();
+
+        // When
+        bool result = iterator.Chain(second).All(x => x % 2 == 0);
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void
+        Given_AllOddNumbers_When_CheckingForEvenNumbers_Then_ShouldReturnFalse()
+    {
+        // Given
+        var first = new List<int> { 1, 3 };
+        var second = new List<int> { 5, 7 };
+        Iterator<int> iterator = first.IntoIter();
+
+        // When
+        bool result = iterator.Chain(second).All(x => x % 2 == 0);
+
+        // Then
+        result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void
+        Given_MixedNumbers_When_CheckingForEvenNumbers_Then_ShouldReturnFalse()
+    {
+        // Given
+        var first = new List<int> { 2, 3 };
+        var second = new List<int> { 4, 5 };
+        Iterator<int> iterator = first.IntoIter();
+
+        // When
+        bool result = iterator.Chain(second).All(x => x % 2 == 0);
+
+        // Then
+        result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Given_DisposedChain_When_CheckingAll_Then_ShouldReturnTrue()
+    {
+        // Given
+        var first = new List<int> { 1, 2 };
+        var second = new List<int> { 3, 4 };
+        Iterator<int> iterator = first.IntoIter();
+        Chain<int> chain = iterator.Chain(second);
+
+        // When
+        chain.Dispose();
+        bool result = chain.All(x => x > 0);
+
+        // Then
+        result.ShouldBeTrue();
     }
 }
