@@ -162,21 +162,120 @@ public sealed class IteratorTests
     }
 
     [Fact]
-    public void
-        Given_NonEmptyCollection_When_All_Then_ReturnTrueIfPredicateMatchesAllItems()
+    public void Given_EmptyCollection_When_All_Then_ReturnsTrue()
     {
         // Given
-        var source = new List<string> { "first", "second", "third" };
+        var source = new List<string>();
         var iterator = new Iterator<string>(source);
 
         // When
-        bool result = iterator.All(x => x.StartsWith("f"));
+        bool result = iterator.All(x => x.StartsWith("test"));
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void
+        Given_NonEmptyCollection_When_AllPredicateMatches_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<string> { "test1", "test2", "test3" };
+        var iterator = new Iterator<string>(source);
+
+        // When
+        bool result = iterator.All(x => x.StartsWith("test"));
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void
+        Given_NonEmptyCollection_When_AllWithEarlyMismatch_Then_ReturnsFalse()
+    {
+        // Given
+        var source = new List<string> { "test1", "fail", "test3" };
+        var iterator = new Iterator<string>(source);
+
+        // When
+        bool result = iterator.All(x => x.StartsWith("test"));
 
         // Then
         result.ShouldBeFalse();
+    }
 
-        Option<string> next = iterator.Next();
-        next.IsSome.ShouldBeTrue();
-        next.Unwrap().ShouldBe("third");
+    [Fact]
+    public void Given_DisposedIterator_When_All_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<string> { "test1", "test2", "test3" };
+        var iterator = new Iterator<string>(source);
+        iterator.Dispose();
+
+        // When
+        bool result = iterator.All(x => x.StartsWith("test"));
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_EmptyCollection_When_Any_Then_ReturnsFalse()
+    {
+        // Given
+        var source = new List<string>();
+        var iterator = new Iterator<string>(source);
+
+        // When
+        bool result = iterator.Any(x => x.StartsWith("test"));
+
+        // Then
+        result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void
+        Given_NonEmptyCollection_When_AnyPredicateMatches_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<string> { "test1", "test2", "test3" };
+        var iterator = new Iterator<string>(source);
+
+        // When
+        bool result = iterator.Any(x => x.StartsWith("test"));
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void
+        Given_NonEmptyCollection_When_AnyWithEarlyMatch_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<string> { "other1", "test2", "other3" };
+        var iterator = new Iterator<string>(source);
+
+        // When
+        bool result = iterator.Any(x => x.StartsWith("test"));
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_DisposedIterator_When_Any_Then_ReturnsFalse()
+    {
+        // Given
+        var source = new List<string> { "test1", "test2", "test3" };
+        var iterator = new Iterator<string>(source);
+        iterator.Dispose();
+
+        // When
+        bool result = iterator.Any(x => x.StartsWith("test"));
+
+        // Then
+        result.ShouldBeFalse();
     }
 }

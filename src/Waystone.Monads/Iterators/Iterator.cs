@@ -99,15 +99,34 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
         if (_disposed) return true;
         if (SizeHint().Lower == 0) return true;
 
-        bool next = Next().IsSomeAnd(predicate);
-
-        while (next)
+        for (Option<TItem> next = Next(); next.IsSome; next = Next())
         {
-            next = Next().IsSomeAnd(predicate);
-            if (!next) return false;
+            if (next.Filter(predicate).IsNone) return false;
         }
 
-        return next;
+        return true;
+    }
+
+    /// <summary>
+    /// Determines whether any elements in the iterator satisfy the specified
+    /// predicate.
+    /// </summary>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <returns>
+    /// <see langword="true" /> if any elements satisfy the predicate;
+    /// otherwise, <see langword="false" />.
+    /// </returns>
+    public bool Any(Func<TItem, bool> predicate)
+    {
+        if (_disposed) return false;
+        if (SizeHint().Lower == 0) return false;
+
+        for (Option<TItem> next = Next(); next.IsSome; next = Next())
+        {
+            if (next.Filter(predicate).IsSome) return true;
+        }
+
+        return false;
     }
 
     /// <summary>
