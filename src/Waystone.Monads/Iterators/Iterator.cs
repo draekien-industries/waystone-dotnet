@@ -4,19 +4,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Abstractions;
 using Options;
 
 /// <summary>
-/// Represents an iterator that provides mechanisms for sequential access
-/// to elements of a collection and integrates with the
-/// <see cref="IIterator{TItem}" /> interface.
+/// Represents an iterator that provides sequential access to elements of
+/// a specified type wrapped in <see cref="Option{T}" />.
 /// </summary>
 /// <typeparam name="TItem">
-/// The type of elements iterated over. Must be
-/// non-nullable.
+/// The type of elements in the iterator. Must be a
+/// non-nullable type.
 /// </typeparam>
-public class Iterator<TItem> : IIterator<TItem>, IDisposable
+public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     where TItem : notnull
 {
     private readonly IEnumerable<TItem> _source;
@@ -53,7 +51,14 @@ public class Iterator<TItem> : IIterator<TItem>, IDisposable
     /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Retrieves the next <see cref="Option{T}" /> containing an item from
+    /// the iterator, or a <see cref="None{T}" /> if the iterator is exhausted.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="Option{T}" /> containing the next item in the iterator
+    /// or a <see cref="None{T}" /> if no items remain.
+    /// </returns>
     public virtual Option<TItem> Next()
     {
         if (_disposed || !_sourceEnumerator.MoveNext())
@@ -64,14 +69,31 @@ public class Iterator<TItem> : IIterator<TItem>, IDisposable
         return Option.Some(_sourceEnumerator.Current);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Returns an estimate of the lower and upper bounds of the remaining
+    /// items in the iterator.
+    /// </summary>
+    /// <returns>
+    /// A tuple where the first element is the lower bound, and the second
+    /// element is an <see cref="Option{T}" /> representing the upper bound or a
+    /// <see cref="None{T}" /> if the upper bound is unknown.
+    /// </returns>
     public virtual (int Lower, Option<int> Upper) SizeHint()
     {
         int size = _source.Count();
         return size > 0 ? (size, Option.Some(size)) : (0, Option.None<int>());
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Determines whether all elements in the iterator satisfy a specified
+    /// condition.
+    /// </summary>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <returns>
+    /// <see langword="true" /> if the iterator contains no elements or all
+    /// elements satisfy the condition specified by <paramref name="predicate" />;
+    /// otherwise, <see langword="false" />.
+    /// </returns>
     public bool All(Func<TItem, bool> predicate)
     {
         if (_disposed) return true;
@@ -86,5 +108,28 @@ public class Iterator<TItem> : IIterator<TItem>, IDisposable
         }
 
         return next;
+    }
+
+    /// <summary>
+    /// Collects all remaining elements from the iterator and returns them as
+    /// an <see cref="IEnumerable{T}" />.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="IEnumerable{T}" /> containing all elements in the
+    /// iterator that have not yet been yielded.
+    /// </returns>
+    public IEnumerable<TItem> Collect()
+    {
+        if (_disposed) yield break;
+
+        using (this)
+        {
+            for (Option<TItem> next = Next();
+                 next.IsSome;
+                 next = Next())
+            {
+                yield return next.Unwrap();
+            }
+        }
     }
 }
