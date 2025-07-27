@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators.Abstractions;
 
+using System;
 using System.Collections.Generic;
 using Options;
 
@@ -35,4 +36,16 @@ public interface IIterator<TItem> : IEnumerable<Option<TItem>>
     /// <see cref="None{T}" /> if the upper bound is unknown.
     /// </returns>
     (int Lower, Option<int> Upper) SizeHint();
+
+    /// <summary>
+    /// Determines whether all elements in the iterator satisfy a specified
+    /// condition.
+    /// </summary>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <returns>
+    /// <see langword="true" /> if the iterator contains no elements or all
+    /// elements satisfy the condition specified by <paramref name="predicate" />;
+    /// otherwise, <see langword="false" />.
+    /// </returns>
+    bool All(Func<TItem, bool> predicate);
 }

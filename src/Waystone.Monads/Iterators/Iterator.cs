@@ -70,4 +70,21 @@ public class Iterator<TItem> : IIterator<TItem>, IDisposable
         int size = _source.Count();
         return size > 0 ? (size, Option.Some(size)) : (0, Option.None<int>());
     }
+
+    /// <inheritdoc />
+    public bool All(Func<TItem, bool> predicate)
+    {
+        if (_disposed) return true;
+        if (SizeHint().Lower == 0) return true;
+
+        bool next = Next().IsSomeAnd(predicate);
+
+        while (next)
+        {
+            next = Next().IsSomeAnd(predicate);
+            if (!next) return false;
+        }
+
+        return next;
+    }
 }
