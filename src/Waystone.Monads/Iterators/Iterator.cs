@@ -17,24 +17,41 @@ using Options;
 public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     where TItem : notnull
 {
-    private readonly IEnumerable<TItem> _source;
-    private readonly IEnumerator<TItem> _sourceEnumerator;
-    private bool _disposed;
-
     /// <summary>Creates an instance of an <see cref="Iterator{TItem}" /></summary>
     /// <param name="source">The source <see cref="IEnumerable{T}" /></param>
     public Iterator(IEnumerable<TItem> source)
     {
-        _source = source;
-        _sourceEnumerator = _source.GetEnumerator();
-        _disposed = false;
+        Source = source;
+        SourceEnumerator = Source.GetEnumerator();
+        Disposed = false;
     }
+
+    /// <summary>
+    /// The source sequence of elements wrapped in <see cref="Option{T}" />.
+    /// This represents the input collection from which the iterator retrieves items.
+    /// </summary>
+    protected IEnumerable<TItem> Source { get; }
+
+    /// <summary>
+    /// The enumerator for the source sequence of elements wrapped in
+    /// <see cref="Option{T}" />. Provides the mechanism for iterating through the
+    /// elements in the source collection.
+    /// </summary>
+    protected IEnumerator<TItem> SourceEnumerator { get; }
+
+    /// <summary>
+    /// Indicates whether the <see cref="Iterator{TItem}" /> instance has been
+    /// disposed. When set to <see langword="true" />, it signifies that the
+    /// <see cref="Iterator{TItem}" /> has released its resources and should not be
+    /// used further.
+    /// </summary>
+    protected bool Disposed { get; set; }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        _sourceEnumerator.Dispose();
-        _disposed = true;
+        SourceEnumerator.Dispose();
+        Disposed = true;
 
         GC.SuppressFinalize(this);
     }
@@ -61,12 +78,12 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public virtual Option<TItem> Next()
     {
-        if (_disposed || !_sourceEnumerator.MoveNext())
+        if (Disposed || !SourceEnumerator.MoveNext())
         {
             return Option.None<TItem>();
         }
 
-        return Option.Some(_sourceEnumerator.Current);
+        return Option.Some(SourceEnumerator.Current);
     }
 
     /// <summary>
@@ -80,7 +97,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public virtual (int Lower, Option<int> Upper) SizeHint()
     {
-        int size = _source.Count();
+        int size = Source.Count();
         return size > 0 ? (size, Option.Some(size)) : (0, Option.None<int>());
     }
 
@@ -96,7 +113,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public bool All(Func<TItem, bool> predicate)
     {
-        if (_disposed) return true;
+        if (Disposed) return true;
         if (SizeHint().Lower == 0) return true;
 
         for (Option<TItem> next = Next(); next.IsSome; next = Next())
@@ -118,7 +135,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public bool Any(Func<TItem, bool> predicate)
     {
-        if (_disposed) return false;
+        if (Disposed) return false;
         if (SizeHint().Lower == 0) return false;
 
         for (Option<TItem> next = Next(); next.IsSome; next = Next())
@@ -130,6 +147,17 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     }
 
     /// <summary>
+    /// Combines the elements of the current iterator with those of another
+    /// <see cref="IEnumerable{T}" />, creating a new <see cref="Chain{TItem}" />.
+    /// </summary>
+    /// <param name="other">
+    /// The second <see cref="IEnumerable{T}" /> to combine with
+    /// the source.
+    /// </param>
+    /// <returns>A <see cref="Chain{TItem}" /> representing the combined sequence.</returns>
+    public Chain<TItem> Chain(IEnumerable<TItem> other) => new(Source, other);
+
+    /// <summary>
     /// Collects all remaining elements from the iterator and returns them as
     /// an <see cref="IEnumerable{T}" />.
     /// </summary>
@@ -139,7 +167,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public IEnumerable<TItem> Collect()
     {
-        if (_disposed) yield break;
+        if (Disposed) yield break;
 
         using (this)
         {
