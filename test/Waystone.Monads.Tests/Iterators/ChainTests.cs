@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Options;
 using Shouldly;
 using Xunit;
 
@@ -137,5 +138,29 @@ public sealed class ChainTests
 
         // Then
         result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void
+        Given_NonEmptyCollection_When_SizeHint_Then_ShouldReturnSizeOfCombinedChain()
+    {
+        var first = new List<int> { 1, 2, 3 };
+        var second = new List<int> { 3, 4 };
+
+        Iterator<int> iterator = first.IntoIter();
+        Chain<int> chain = iterator.Chain(second);
+
+        (int Lower, Option<int> Upper) result = chain.SizeHint();
+
+        result.Lower.ShouldBe(5);
+        result.Upper.IsSome.ShouldBeTrue();
+        result.Upper.Unwrap().ShouldBe(5);
+
+        chain.Next();
+
+        result = chain.SizeHint();
+        result.Lower.ShouldBe(4);
+        result.Upper.IsSome.ShouldBeTrue();
+        result.Upper.Unwrap().ShouldBe(4);
     }
 }

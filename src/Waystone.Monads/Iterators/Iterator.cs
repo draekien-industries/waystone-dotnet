@@ -24,6 +24,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
         Source = source;
         SourceEnumerator = Source.GetEnumerator();
         Disposed = false;
+        NextCounter = 0;
     }
 
     /// <summary>
@@ -46,6 +47,13 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// used further.
     /// </summary>
     protected bool Disposed { get; set; }
+
+    /// <summary>
+    /// Tracks the number of items accessed through the iterator. This counter
+    /// is incremented each time the <see cref="Iterator{TItem}.Next" /> method is
+    /// called to retrieve the next item from the sequence.
+    /// </summary>
+    protected int NextCounter { get; set; }
 
     /// <inheritdoc />
     public void Dispose()
@@ -83,6 +91,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
             return Option.None<TItem>();
         }
 
+        NextCounter++;
         return Option.Some(SourceEnumerator.Current);
     }
 
@@ -97,7 +106,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public virtual (int Lower, Option<int> Upper) SizeHint()
     {
-        int size = Source.Count();
+        int size = Source.Count() - NextCounter;
         return size > 0 ? (size, Option.Some(size)) : (0, Option.None<int>());
     }
 
