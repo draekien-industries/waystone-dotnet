@@ -16,7 +16,7 @@ public sealed class MapIteratorTests
 
         // Act
         IEnumerable<string> result =
-            new MapIterator<int, string>(source, x => x.ToString()).Collect();
+            source.IntoIter().Map(x => x.ToString()).Collect();
 
         // Assert
         result.ShouldBe(["1", "2", "3"]);
@@ -31,7 +31,7 @@ public sealed class MapIteratorTests
 
         // Act
         IEnumerable<int> result =
-            new MapIterator<string, int>(source, s => s.Length).Collect();
+            source.IntoIter().Map(s => s.Length).Collect();
 
         // Assert
         result.ShouldBe([1, 2, 3]);
@@ -45,7 +45,7 @@ public sealed class MapIteratorTests
 
         // Act
         IEnumerable<string> result =
-            new MapIterator<int, string>(source, x => x.ToString()).Collect();
+            source.IntoIter().Map(x => x.ToString()).Collect();
 
         // Assert
         result.ShouldBeEmpty();
@@ -60,8 +60,7 @@ public sealed class MapIteratorTests
         Func<int, string> mapper = null!;
 
         // Act & Assert
-        Should.Throw<ArgumentNullException>(() => new MapIterator<int, string>(
-                                                source,
-                                                mapper));
+        Should.Throw<ArgumentNullException>(() => source.IntoIter()
+                                               .Map(mapper));
     }
 }
