@@ -14,7 +14,8 @@ using Options;
 /// The type of elements in the iterator. Must be a
 /// non-nullable type.
 /// </typeparam>
-public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
+public class Iterator<TItem>
+    : IEnumerable<Option<TItem>>, IEnumerator<Option<TItem>>
     where TItem : notnull
 {
     /// <summary>Creates an instance of an <see cref="Iterator{TItem}" /></summary>
@@ -22,9 +23,11 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     public Iterator(IEnumerable<TItem> source)
     {
         Source = source;
-        SourceEnumerator = Source.GetEnumerator();
+        SourceEnumerator =
+            new Lazy<IEnumerator<TItem>>(() => Source.GetEnumerator());
         Disposed = false;
         NextCounter = 0;
+        Current = Option.None<TItem>();
     }
 
     /// <summary>
@@ -38,7 +41,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// <see cref="Option{T}" />. Provides the mechanism for iterating through the
     /// elements in the source collection.
     /// </summary>
-    protected IEnumerator<TItem> SourceEnumerator { get; }
+    protected Lazy<IEnumerator<TItem>> SourceEnumerator { get; }
 
     /// <summary>
     /// Indicates whether the <see cref="Iterator{TItem}" /> instance has been
@@ -56,25 +59,49 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     protected int NextCounter { get; set; }
 
     /// <inheritdoc />
+    public IEnumerator<Option<TItem>> GetEnumerator() => this;
+
+    /// <inheritdoc />
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc />
     public void Dispose()
     {
-        SourceEnumerator.Dispose();
+        if (SourceEnumerator.IsValueCreated)
+        {
+            SourceEnumerator.Value.Dispose();
+        }
+
         Disposed = true;
+        NextCounter = 0;
+        Current = Option.None<TItem>();
 
         GC.SuppressFinalize(this);
     }
 
     /// <inheritdoc />
-    public IEnumerator<Option<TItem>> GetEnumerator()
+    public bool MoveNext()
     {
-        for (Option<TItem> next = Next(); next.IsSome; next = Next())
-        {
-            yield return next;
-        }
+        Current = Next();
+
+        return Current.IsSome;
     }
 
     /// <inheritdoc />
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public void Reset()
+    {
+        if (Disposed) return;
+
+        SourceEnumerator.Value.Reset();
+        NextCounter = 0;
+        Current = Option.None<TItem>();
+    }
+
+    /// <inheritdoc />
+    public Option<TItem> Current { get; private set; }
+
+    /// <inheritdoc />
+    object? IEnumerator.Current => Current;
 
     /// <summary>
     /// Retrieves the next <see cref="Option{T}" /> containing an item from
@@ -86,13 +113,13 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public virtual Option<TItem> Next()
     {
-        if (Disposed || !SourceEnumerator.MoveNext())
+        if (Disposed || !SourceEnumerator.Value.MoveNext())
         {
             return Option.None<TItem>();
         }
 
         NextCounter++;
-        return Option.Some(SourceEnumerator.Current);
+        return Option.Some(SourceEnumerator.Value.Current);
     }
 
     /// <summary>
@@ -106,6 +133,7 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     /// </returns>
     public virtual (int Lower, Option<int> Upper) SizeHint()
     {
+        if (Disposed) return (0, Option.None<int>());
         int size = Source.Count() - NextCounter;
         return size > 0 ? (size, Option.Some(size)) : (0, Option.None<int>());
     }
@@ -178,14 +206,11 @@ public class Iterator<TItem> : IEnumerable<Option<TItem>>, IDisposable
     {
         if (Disposed) yield break;
 
-        using (this)
+        for (Option<TItem> next = Next();
+             next.IsSome;
+             next = Next())
         {
-            for (Option<TItem> next = Next();
-                 next.IsSome;
-                 next = Next())
-            {
-                yield return next.Unwrap();
-            }
+            yield return next.Unwrap();
         }
     }
 }
