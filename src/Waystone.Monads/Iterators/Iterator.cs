@@ -91,6 +91,7 @@ public class Iterator<TItem>
     public void Reset()
     {
         if (Disposed) return;
+        if (!SourceEnumerator.IsValueCreated) return;
 
         SourceEnumerator.Value.Reset();
         NextCounter = 0;
@@ -185,18 +186,23 @@ public class Iterator<TItem>
 
     /// <summary>
     /// Combines the elements of the current iterator with those of another
-    /// <see cref="IEnumerable{T}" />, creating a new <see cref="ChainIterator{TItem}" />.
+    /// <see cref="IEnumerable{T}" />, creating a new
+    /// <see cref="ChainIterator{TItem}" />.
     /// </summary>
     /// <param name="other">
     /// The second <see cref="IEnumerable{T}" /> to combine with
     /// the source.
     /// </param>
-    /// <returns>A <see cref="ChainIterator{TItem}" /> representing the combined sequence.</returns>
-    public ChainIterator<TItem> Chain(IEnumerable<TItem> other) => new(Source, other);
+    /// <returns>
+    /// A <see cref="ChainIterator{TItem}" /> representing the combined
+    /// sequence.
+    /// </returns>
+    public ChainIterator<TItem> Chain(IEnumerable<TItem> other) =>
+        new(Source, other);
 
     /// <summary>
-    /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that applies
-    /// a transformation function to each element of the source sequence.
+    /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
+    /// applies a transformation function to each element of the source sequence.
     /// </summary>
     /// <param name="mapper">
     /// A transformation function to apply to each element of type
@@ -207,8 +213,8 @@ public class Iterator<TItem>
     /// non-nullable.
     /// </typeparam>
     /// <returns>
-    /// A new <see cref="MapIterator{TItem,TOut}" /> instance that provides elements
-    /// of type <typeparamref name="TOut" /> transformed using the specified
+    /// A new <see cref="MapIterator{TItem,TOut}" /> instance that provides
+    /// elements of type <typeparamref name="TOut" /> transformed using the specified
     /// <paramref name="mapper" />.
     /// </returns>
     public MapIterator<TItem, TOut> Map<TOut>(Func<TItem, TOut> mapper)
