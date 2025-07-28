@@ -195,6 +195,27 @@ public class Iterator<TItem>
     public Chain<TItem> Chain(IEnumerable<TItem> other) => new(Source, other);
 
     /// <summary>
+    /// Creates a new instance of <see cref="Map{TItem, TOut}" /> that applies
+    /// a transformation function to each element of the source sequence.
+    /// </summary>
+    /// <param name="mapper">
+    /// A transformation function to apply to each element of type
+    /// <typeparamref name="TItem" />.
+    /// </param>
+    /// <typeparam name="TOut">
+    /// The type of the output values, which must be
+    /// non-nullable.
+    /// </typeparam>
+    /// <returns>
+    /// A new <see cref="Map{TItem, TOut}" /> instance that provides elements
+    /// of type <typeparamref name="TOut" /> transformed using the specified
+    /// <paramref name="mapper" />.
+    /// </returns>
+    public Map<TItem, TOut> Map<TOut>(Func<TItem, TOut> mapper)
+        where TOut : notnull =>
+        new(Source, mapper);
+
+    /// <summary>
     /// Collects all remaining elements from the iterator and returns them as
     /// an <see cref="IEnumerable{T}" />.
     /// </summary>
