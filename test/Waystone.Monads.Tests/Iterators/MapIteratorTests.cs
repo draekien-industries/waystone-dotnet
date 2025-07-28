@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Shouldly;
 using Xunit;
 
-public sealed class MapTests
+public sealed class MapIteratorTests
 {
     [Fact]
     public void
@@ -16,7 +16,7 @@ public sealed class MapTests
 
         // Act
         IEnumerable<string> result =
-            new Map<int, string>(source, x => x.ToString()).Collect();
+            new MapIterator<int, string>(source, x => x.ToString()).Collect();
 
         // Assert
         result.ShouldBe(["1", "2", "3"]);
@@ -31,7 +31,7 @@ public sealed class MapTests
 
         // Act
         IEnumerable<int> result =
-            new Map<string, int>(source, s => s.Length).Collect();
+            new MapIterator<string, int>(source, s => s.Length).Collect();
 
         // Assert
         result.ShouldBe([1, 2, 3]);
@@ -45,7 +45,7 @@ public sealed class MapTests
 
         // Act
         IEnumerable<string> result =
-            new Map<int, string>(source, x => x.ToString()).Collect();
+            new MapIterator<int, string>(source, x => x.ToString()).Collect();
 
         // Assert
         result.ShouldBeEmpty();
@@ -60,7 +60,7 @@ public sealed class MapTests
         Func<int, string> mapper = null!;
 
         // Act & Assert
-        Should.Throw<ArgumentNullException>(() => new Map<int, string>(
+        Should.Throw<ArgumentNullException>(() => new MapIterator<int, string>(
                                                 source,
                                                 mapper));
     }

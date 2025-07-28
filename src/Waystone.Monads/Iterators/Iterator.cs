@@ -185,17 +185,17 @@ public class Iterator<TItem>
 
     /// <summary>
     /// Combines the elements of the current iterator with those of another
-    /// <see cref="IEnumerable{T}" />, creating a new <see cref="Chain{TItem}" />.
+    /// <see cref="IEnumerable{T}" />, creating a new <see cref="ChainIterator{TItem}" />.
     /// </summary>
     /// <param name="other">
     /// The second <see cref="IEnumerable{T}" /> to combine with
     /// the source.
     /// </param>
-    /// <returns>A <see cref="Chain{TItem}" /> representing the combined sequence.</returns>
-    public Chain<TItem> Chain(IEnumerable<TItem> other) => new(Source, other);
+    /// <returns>A <see cref="ChainIterator{TItem}" /> representing the combined sequence.</returns>
+    public ChainIterator<TItem> Chain(IEnumerable<TItem> other) => new(Source, other);
 
     /// <summary>
-    /// Creates a new instance of <see cref="Map{TItem, TOut}" /> that applies
+    /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that applies
     /// a transformation function to each element of the source sequence.
     /// </summary>
     /// <param name="mapper">
@@ -207,11 +207,11 @@ public class Iterator<TItem>
     /// non-nullable.
     /// </typeparam>
     /// <returns>
-    /// A new <see cref="Map{TItem, TOut}" /> instance that provides elements
+    /// A new <see cref="MapIterator{TItem,TOut}" /> instance that provides elements
     /// of type <typeparamref name="TOut" /> transformed using the specified
     /// <paramref name="mapper" />.
     /// </returns>
-    public Map<TItem, TOut> Map<TOut>(Func<TItem, TOut> mapper)
+    public MapIterator<TItem, TOut> Map<TOut>(Func<TItem, TOut> mapper)
         where TOut : notnull =>
         new(Source, mapper);
 

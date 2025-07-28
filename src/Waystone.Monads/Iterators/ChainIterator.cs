@@ -12,10 +12,10 @@ using System.Linq;
 /// The type of elements in the chain. Must be a
 /// non-nullable type.
 /// </typeparam>
-public sealed class Chain<TItem> : Iterator<TItem> where TItem : notnull
+public sealed class ChainIterator<TItem> : Iterator<TItem> where TItem : notnull
 {
     /// <inheritdoc />
-    public Chain(IEnumerable<TItem> first, IEnumerable<TItem> second) : base(
+    public ChainIterator(IEnumerable<TItem> first, IEnumerable<TItem> second) : base(
         first.Concat(second))
     { }
 }

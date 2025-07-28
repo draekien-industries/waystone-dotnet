@@ -6,7 +6,7 @@ using Options;
 using Shouldly;
 using Xunit;
 
-public sealed class ChainTests
+public sealed class ChainIteratorTests
 {
     [Fact]
     public void Given_TwoSequences_When_ChainingThem_Then_ShouldCombineInOrder()
@@ -67,9 +67,9 @@ public sealed class ChainTests
         Iterator<int> iterator = first.IntoIter();
 
         // When
-        Chain<int> chain = iterator.Chain(second);
-        chain.Dispose();
-        List<int> result = chain.Collect().ToList();
+        ChainIterator<int> chainIterator = iterator.Chain(second);
+        chainIterator.Dispose();
+        List<int> result = chainIterator.Collect().ToList();
 
         // Then
         result.Count.ShouldBe(0);
@@ -130,11 +130,11 @@ public sealed class ChainTests
         var first = new List<int> { 1, 2 };
         var second = new List<int> { 3, 4 };
         Iterator<int> iterator = first.IntoIter();
-        Chain<int> chain = iterator.Chain(second);
+        ChainIterator<int> chainIterator = iterator.Chain(second);
 
         // When
-        chain.Dispose();
-        bool result = chain.All(x => x > 0);
+        chainIterator.Dispose();
+        bool result = chainIterator.All(x => x > 0);
 
         // Then
         result.ShouldBeTrue();
@@ -148,17 +148,17 @@ public sealed class ChainTests
         var second = new List<int> { 3, 4 };
 
         Iterator<int> iterator = first.IntoIter();
-        Chain<int> chain = iterator.Chain(second);
+        ChainIterator<int> chainIterator = iterator.Chain(second);
 
-        (int Lower, Option<int> Upper) result = chain.SizeHint();
+        (int Lower, Option<int> Upper) result = chainIterator.SizeHint();
 
         result.Lower.ShouldBe(5);
         result.Upper.IsSome.ShouldBeTrue();
         result.Upper.Unwrap().ShouldBe(5);
 
-        chain.Next();
+        chainIterator.Next();
 
-        result = chain.SizeHint();
+        result = chainIterator.SizeHint();
         result.Lower.ShouldBe(4);
         result.Upper.IsSome.ShouldBeTrue();
         result.Upper.Unwrap().ShouldBe(4);

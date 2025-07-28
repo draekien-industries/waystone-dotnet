@@ -16,11 +16,11 @@ using System.Linq;
 /// The type of elements in the resulting sequence after
 /// applying the mapping function. Must be a non-nullable type.
 /// </typeparam>
-public sealed class Map<TItem, TOut> : Iterator<TOut>
+public sealed class MapIterator<TItem, TOut> : Iterator<TOut>
     where TItem : notnull where TOut : notnull
 {
     /// <inheritdoc />
-    public Map(IEnumerable<TItem> source, Func<TItem, TOut> mapper) : base(
+    public MapIterator(IEnumerable<TItem> source, Func<TItem, TOut> mapper) : base(
         source.Select(mapper))
     { }
 }
