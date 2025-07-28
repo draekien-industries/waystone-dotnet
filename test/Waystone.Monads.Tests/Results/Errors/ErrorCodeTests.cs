@@ -13,6 +13,15 @@ public sealed class ErrorCodeTests
         sut.ToString().ShouldBe("bob");
     }
 
+    [Fact]
+    public void GivenString_WhenConvertingToErrorCode_ThenReturnExpectedCode()
+    {
+        const string code = "bob";
+        ErrorCode sut = code;
+        sut.Value.ShouldBe(code);
+        sut.ToString().ShouldBe(code);
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData(" ")]

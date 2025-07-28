@@ -1,19 +1,9 @@
 ﻿namespace Waystone.Monads.Results.Errors;
 
 using System;
-using Waystone.Monads.Configs;
+using Configs;
 
 /// <summary>A short code representing an error type in the application.</summary>
-/// <example>
-/// This shows how to create reusable error codes for your application.
-/// <code>
-/// public static class ErrorCodes
-/// {
-///     public static readonly ErrorCode EntityNotFound = new("Entity.NotFound");
-///     public static readonly ErrorCode EntityConflict = new("Entity.Conflict");
-/// }
-/// </code>
-/// </example>
 /// <remarks>
 /// Error codes should not change between occurrence to occurrence of the
 /// same error type, except for purposes of localization.
@@ -35,25 +25,28 @@ public record ErrorCode
     /// <summary>The error code string value</summary>
     public string Value { get; }
 
-    /// <summary>
-    /// Creates an instance of an <see cref="ErrorCode" /> from an enum value.
-    /// </summary>
+    /// <summary>Creates an instance of an <see cref="ErrorCode" /> from an enum value.</summary>
     /// <remarks>
-    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
+    /// Uses the <see cref="ErrorCodeFactory" /> configured in
+    /// <see cref="MonadOptions" />.
     /// </remarks>
     /// <param name="value">The enum value to create the error code from.</param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    public static ErrorCode FromEnum(Enum value) => MonadOptions.Global.ErrorCodeFactory.FromEnum(value);
+    public static ErrorCode FromEnum(Enum value) =>
+        MonadOptions.Global.ErrorCodeFactory.FromEnum(value);
 
     /// <summary>
-    /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" /> from an exception.
+    /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" />
+    /// from an exception.
     /// </summary>
     /// <remarks>
-    /// Uses the <see cref="ErrorCodeFactory"/> configured in <see cref="MonadOptions"/>.
+    /// Uses the <see cref="ErrorCodeFactory" /> configured in
+    /// <see cref="MonadOptions" />.
     /// </remarks>
     /// <param name="exception"></param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    public static ErrorCode FromException(Exception exception) => MonadOptions.Global.ErrorCodeFactory.FromException(exception);
+    public static ErrorCode FromException(Exception exception) =>
+        MonadOptions.Global.ErrorCodeFactory.FromException(exception);
 
     /// <summary>
     /// Implicitly converts an <see cref="ErrorCode" /> instance to its string
@@ -62,6 +55,20 @@ public record ErrorCode
     /// <param name="value">The <see cref="ErrorCode" /> instance to be converted.</param>
     /// <returns>The string value of the provided <see cref="ErrorCode" />.</returns>
     public static implicit operator string(ErrorCode value) => value.ToString();
+
+    /// <summary>
+    /// Implicitly converts a string value to an <see cref="ErrorCode" />
+    /// instance.
+    /// </summary>
+    /// <param name="value">
+    /// The string value to be converted to an
+    /// <see cref="ErrorCode" /> instance.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="ErrorCode" /> instance created from the provided
+    /// string value.
+    /// </returns>
+    public static implicit operator ErrorCode(string value) => new(value);
 
     /// <inheritdoc />
     public override string ToString() => Value;
