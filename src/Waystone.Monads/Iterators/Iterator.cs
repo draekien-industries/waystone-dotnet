@@ -120,7 +120,11 @@ public class Iterator<TItem>
         }
 
         NextCounter++;
-        return Option.Some(SourceEnumerator.Value.Current);
+        TItem current = SourceEnumerator.Value.Current;
+
+        return current.Equals(default(TItem))
+            ? Option.None<TItem>()
+            : Option.Some(current);
     }
 
     /// <summary>
