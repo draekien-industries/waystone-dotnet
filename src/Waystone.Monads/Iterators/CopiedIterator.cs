@@ -1,7 +1,5 @@
 ﻿namespace Waystone.Monads.Iterators;
 
-using System.Collections.Generic;
-
 /// <summary>
 /// Represents an iterator that clones the source collection to ensure
 /// that the sequence remains the same regardless of changes to the original
@@ -15,6 +13,6 @@ public sealed class CopiedIterator<TItem> : Iterator<TItem>
     where TItem : struct
 {
     /// <inheritdoc />
-    public CopiedIterator(IEnumerable<TItem> source) : base([..source])
+    public CopiedIterator(Iterator<TItem> source) : base([..source.Source])
     { }
 }

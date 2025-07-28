@@ -31,10 +31,24 @@ public class Iterator<TItem>
     }
 
     /// <summary>
+    /// Represents an iterator that provides sequential access to elements of
+    /// a specified type wrapped in <see cref="Option{T}" />.
+    /// </summary>
+    protected Iterator(Iterator<TItem> source)
+    {
+        Source = source.Source;
+        SourceEnumerator =
+            new Lazy<IEnumerator<TItem>>(() => Source.GetEnumerator());
+        Disposed = source.Disposed;
+        NextCounter = source.NextCounter;
+        Current = source.Current;
+    }
+
+    /// <summary>
     /// The source sequence of elements wrapped in <see cref="Option{T}" />.
     /// This represents the input collection from which the iterator retrieves items.
     /// </summary>
-    protected internal IEnumerable<TItem> Source { get; }
+    protected internal IEnumerable<TItem> Source { get; set; }
 
     /// <summary>
     /// The enumerator for the source sequence of elements wrapped in
@@ -99,7 +113,7 @@ public class Iterator<TItem>
     }
 
     /// <inheritdoc />
-    public Option<TItem> Current { get; private set; }
+    public Option<TItem> Current { get; protected set; }
 
     /// <inheritdoc />
     object? IEnumerator.Current => Current;
@@ -202,7 +216,7 @@ public class Iterator<TItem>
     /// sequence.
     /// </returns>
     public ChainIterator<TItem> Chain(IEnumerable<TItem> other) =>
-        new(Source, other);
+        new(this, other);
 
     /// <summary>Counts the number of elements in the iterator.</summary>
     /// <returns>The count of elements in the iterator.</returns>
@@ -238,7 +252,7 @@ public class Iterator<TItem>
     /// </returns>
     public MapIterator<TItem, TOut> Map<TOut>(Func<TItem, TOut> mapper)
         where TOut : notnull =>
-        new(Source, mapper);
+        new(this, mapper);
 
     /// <summary>
     /// Collects all remaining elements from the iterator and returns them as

@@ -26,7 +26,7 @@ public static class IteratorExtensions
     /// </returns>
     public static CopiedIterator<TItem> Copied<TItem>(
         this Iterator<TItem> source)
-        where TItem : struct => new(source.Source);
+        where TItem : struct => new(source);
 
     /// <summary>
     /// Creates a new <see cref="ClonedIterator{TItem}" /> from the given
@@ -46,5 +46,26 @@ public static class IteratorExtensions
     /// </returns>
     public static ClonedIterator<TItem> Cloned<TItem>(
         this Iterator<TItem> source) where TItem : class, ICloneable =>
-        new(source.Source);
+        new(source);
+
+    /// <summary>
+    /// Cycles through the elements of the given
+    /// <see cref="Iterator{TItem}" /> indefinitely. When the end of the source is
+    /// reached, it starts again from the beginning.
+    /// </summary>
+    /// <typeparam name="TItem">
+    /// The type of elements in the iterator. Must be a
+    /// reference type that implements <see cref="ICloneable" />.
+    /// </typeparam>
+    /// <param name="source">
+    /// The source <see cref="Iterator{TItem}" /> to be converted
+    /// into a <see cref="CycleIterator{TItem}" />.
+    /// </param>
+    /// <returns>
+    /// A <see cref="CycleIterator{TItem}" /> that cycles through the elements
+    /// of the original <see cref="Iterator{TItem}" />.
+    /// </returns>
+    public static CycleIterator<TItem> Cycle<TItem>(
+        this Iterator<TItem> source) where TItem : class, ICloneable =>
+        new(source);
 }

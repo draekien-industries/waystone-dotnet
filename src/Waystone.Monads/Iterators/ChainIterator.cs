@@ -15,7 +15,9 @@ using System.Linq;
 public sealed class ChainIterator<TItem> : Iterator<TItem> where TItem : notnull
 {
     /// <inheritdoc />
-    public ChainIterator(IEnumerable<TItem> first, IEnumerable<TItem> second) : base(
-        first.Concat(second))
+    public ChainIterator(
+        Iterator<TItem> first,
+        IEnumerable<TItem> second) : base(
+        first.Source.Concat(second))
     { }
 }

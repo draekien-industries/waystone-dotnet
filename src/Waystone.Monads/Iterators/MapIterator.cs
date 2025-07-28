@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
@@ -20,7 +19,7 @@ public sealed class MapIterator<TItem, TOut> : Iterator<TOut>
     where TItem : notnull where TOut : notnull
 {
     /// <inheritdoc />
-    public MapIterator(IEnumerable<TItem> source, Func<TItem, TOut> mapper) : base(
-        source.Select(mapper))
+    public MapIterator(Iterator<TItem> source, Func<TItem, TOut> mapper) : base(
+        source.Source.Select(mapper))
     { }
 }
