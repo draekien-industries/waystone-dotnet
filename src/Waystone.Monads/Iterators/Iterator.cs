@@ -204,6 +204,20 @@ public class Iterator<TItem>
     public ChainIterator<TItem> Chain(IEnumerable<TItem> other) =>
         new(Source, other);
 
+    /// <summary>Counts the number of elements in the iterator.</summary>
+    /// <returns>The count of elements in the iterator.</returns>
+    public int Count()
+    {
+        var count = 0;
+        if (Disposed) return count;
+
+        for (Option<TItem> next = Next(); next.IsSome; next = Next())
+        {
+            count++;
+        }
+
+        return count;
+    }
 
     /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that

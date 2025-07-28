@@ -274,4 +274,62 @@ public sealed class IteratorTests
         // Then
         result.ShouldBeFalse();
     }
+
+    [Fact]
+    public void Given_EmptyCollection_When_Count_Then_ReturnsZero()
+    {
+        // Given
+        var iterator = new Iterator<string>([]);
+
+        // When
+        int result = iterator.Count();
+
+        // Then
+        result.ShouldBe(0);
+    }
+
+    [Fact]
+    public void Given_NonEmptyCollection_When_Count_Then_ReturnsCorrectCount()
+    {
+        // Given
+        var source = new List<string> { "first", "second", "third" };
+        var iterator = new Iterator<string>(source);
+
+        // When
+        int result = iterator.Count();
+
+        // Then
+        result.ShouldBe(3);
+    }
+
+    [Fact]
+    public void
+        Given_NonEmptyCollection_When_CountAfterNext_Then_ReturnsRemainingCount()
+    {
+        // Given
+        var source = new List<string> { "first", "second", "third" };
+        var iterator = new Iterator<string>(source);
+        iterator.Next();
+
+        // When
+        int result = iterator.Count();
+
+        // Then
+        result.ShouldBe(2);
+    }
+
+    [Fact]
+    public void Given_DisposedIterator_When_Count_Then_ReturnsZero()
+    {
+        // Given
+        var source = new List<string> { "first", "second", "third" };
+        var iterator = new Iterator<string>(source);
+        iterator.Dispose();
+
+        // When
+        int result = iterator.Count();
+
+        // Then
+        result.ShouldBe(0);
+    }
 }
