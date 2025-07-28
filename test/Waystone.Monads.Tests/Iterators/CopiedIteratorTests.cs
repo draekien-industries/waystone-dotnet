@@ -1,10 +1,11 @@
 ﻿namespace Waystone.Monads.Iterators;
 
 using System.Collections.Generic;
+using Extensions;
 using Shouldly;
 using Xunit;
 
-public sealed class ClonedIteratorTests
+public sealed class CopiedIteratorTests
 {
     [Fact]
     public void
@@ -12,7 +13,7 @@ public sealed class ClonedIteratorTests
     {
         // Arrange
         var source = new List<int> { 1, 2, 3 };
-        IEnumerable<int> cloned = source.IntoIter().Cloned().Collect();
+        IEnumerable<int> cloned = source.IntoIter().Copied().Collect();
 
         // Act
         source.Add(4);
@@ -28,7 +29,7 @@ public sealed class ClonedIteratorTests
         var source = new List<int>();
 
         // Act
-        IEnumerable<int> result = source.IntoIter().Cloned().Collect();
+        IEnumerable<int> result = source.IntoIter().Copied().Collect();
 
         // Assert
         result.ShouldBeEmpty();

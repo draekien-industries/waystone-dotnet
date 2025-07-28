@@ -11,10 +11,10 @@ using System.Collections.Generic;
 /// The type of elements in the iterator. Must be a
 /// non-nullable type.
 /// </typeparam>
-public sealed class ClonedIterator<TItem> : Iterator<TItem>
-    where TItem : notnull
+public sealed class CopiedIterator<TItem> : Iterator<TItem>
+    where TItem : struct
 {
     /// <inheritdoc />
-    public ClonedIterator(IEnumerable<TItem> source) : base([..source])
+    public CopiedIterator(IEnumerable<TItem> source) : base([..source])
     { }
 }

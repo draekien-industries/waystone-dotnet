@@ -34,7 +34,7 @@ public class Iterator<TItem>
     /// The source sequence of elements wrapped in <see cref="Option{T}" />.
     /// This represents the input collection from which the iterator retrieves items.
     /// </summary>
-    protected IEnumerable<TItem> Source { get; }
+    protected internal IEnumerable<TItem> Source { get; }
 
     /// <summary>
     /// The enumerator for the source sequence of elements wrapped in
@@ -204,15 +204,6 @@ public class Iterator<TItem>
     public ChainIterator<TItem> Chain(IEnumerable<TItem> other) =>
         new(Source, other);
 
-    /// <summary>
-    /// Creates a new <see cref="ClonedIterator{TItem}" /> that clones the
-    /// source sequence to ensure immutability of the iteration.
-    /// </summary>
-    /// <returns>
-    /// A new instance of <see cref="ClonedIterator{TItem}" /> constructed
-    /// with the source sequence.
-    /// </returns>
-    public ClonedIterator<TItem> Cloned() => new(Source);
 
     /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
