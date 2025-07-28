@@ -85,8 +85,7 @@ public sealed class IteratorTests
         Given_EmptyCollection_When_SizeHint_Then_ReturnsZeroLowerAndNoneUpper()
     {
         // Given
-        var source = new List<string>();
-        var iterator = new Iterator<string>(source);
+        var iterator = new Iterator<string>([]);
 
         // When
         (int lower, Option<int> upper) = iterator.SizeHint();
@@ -129,8 +128,7 @@ public sealed class IteratorTests
     public void Given_EmptyCollection_When_Collect_Then_ReturnsEmptyCollection()
     {
         // Given
-        var source = new List<string>();
-        var iterator = new Iterator<string>(source);
+        var iterator = new Iterator<string>([]);
 
         // When
         IEnumerable<string> result = iterator.Collect();
@@ -165,8 +163,7 @@ public sealed class IteratorTests
     public void Given_EmptyCollection_When_All_Then_ReturnsTrue()
     {
         // Given
-        var source = new List<string>();
-        var iterator = new Iterator<string>(source);
+        var iterator = new Iterator<string>([]);
 
         // When
         bool result = iterator.All(x => x.StartsWith("test"));
@@ -224,8 +221,7 @@ public sealed class IteratorTests
     public void Given_EmptyCollection_When_Any_Then_ReturnsFalse()
     {
         // Given
-        var source = new List<string>();
-        var iterator = new Iterator<string>(source);
+        var iterator = new Iterator<string>([]);
 
         // When
         bool result = iterator.Any(x => x.StartsWith("test"));

@@ -205,6 +205,16 @@ public class Iterator<TItem>
         new(Source, other);
 
     /// <summary>
+    /// Creates a new <see cref="ClonedIterator{TItem}" /> that clones the
+    /// source sequence to ensure immutability of the iteration.
+    /// </summary>
+    /// <returns>
+    /// A new instance of <see cref="ClonedIterator{TItem}" /> constructed
+    /// with the source sequence.
+    /// </returns>
+    public ClonedIterator<TItem> Cloned() => new(Source);
+
+    /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
     /// applies a transformation function to each element of the source sequence.
     /// </summary>
