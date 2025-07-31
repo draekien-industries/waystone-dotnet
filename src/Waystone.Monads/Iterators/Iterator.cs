@@ -234,6 +234,17 @@ public class Iterator<TItem>
     }
 
     /// <summary>
+    /// Creates a new <see cref="EnumerateIterator{TItem}" /> that enumerates
+    /// the elements of the current iterator, pairing each element with its
+    /// corresponding index.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="EnumerateIterator{TItem}" /> that enumerates the
+    /// elements with their indices.
+    /// </returns>
+    public EnumerateIterator<TItem> Enumerate() => new(Source);
+
+    /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
     /// applies a transformation function to each element of the source sequence.
     /// </summary>
