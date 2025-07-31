@@ -25,4 +25,8 @@ public sealed class EnumerateIterator<TItem>
     public EnumerateIterator(IEnumerable<TItem> source) :
         base(source.Select((x, i) => (i, x)))
     { }
+
+    /// <inheritdoc />
+    public EnumerateIterator(Iterator<TItem> source) : this(source.Source)
+    { }
 }

@@ -34,11 +34,8 @@ public class Iterator<TItem>
     /// Represents an iterator that provides sequential access to elements of
     /// a specified type wrapped in <see cref="Option{T}" />.
     /// </summary>
-    protected Iterator(Iterator<TItem> source)
+    protected Iterator(Iterator<TItem> source) : this(source.Source)
     {
-        Source = source.Source;
-        SourceEnumerator =
-            new Lazy<IEnumerator<TItem>>(() => Source.GetEnumerator());
         Disposed = source.Disposed;
         NextCounter = source.NextCounter;
         Current = source.Current;
@@ -263,7 +260,7 @@ public class Iterator<TItem>
     /// An <see cref="EnumerateIterator{TItem}" /> that enumerates the
     /// elements with their indices.
     /// </returns>
-    public EnumerateIterator<TItem> Enumerate() => new(Source);
+    public EnumerateIterator<TItem> Enumerate() => new(this);
 
     /// <summary>
     /// Determines whether the elements of the current
@@ -294,6 +291,22 @@ public class Iterator<TItem>
     /// <see langword="false" />.
     /// </returns>
     public bool Eq(Iterator<TItem> other) => Eq(other.Source);
+
+    /// <summary>
+    /// Creates a new <see cref="FilterIterator{TItem}" /> that yields only elements
+    /// matching the specified <paramref name="predicate" /> from the current iterator.
+    /// </summary>
+    /// <param name="predicate">
+    /// A function to test each element for a condition. The function should returnW
+    /// <see langword="true" /> for elements that should be included and <see langword="false" />
+    /// for elements to be excluded.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="FilterIterator{TItem}" /> containing elements that satisfy the
+    /// <paramref name="predicate" />.
+    /// </returns>
+    public FilterIterator<TItem> Filter(Func<TItem, bool> predicate) =>
+        new(this, predicate);
 
     /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
