@@ -36,4 +36,8 @@ public sealed class CycleIterator<TItem> : Iterator<TItem>
                       _iter = _original.Clone();
                       return _iter.Next();
                   });
+
+    /// <inheritdoc />
+    public override (int Lower, Option<int> Upper) SizeHint() =>
+        (int.MaxValue, Option.Some(int.MaxValue));
 }

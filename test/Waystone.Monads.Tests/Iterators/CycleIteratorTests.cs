@@ -64,6 +64,23 @@ public sealed class CycleIteratorTests
         results.ShouldBe(new[] { "A", "A", "A" });
     }
 
+    [Fact]
+    public void Given_CycleIter_When_GettingSizeHint_Then_ReturnsCorrectBounds()
+    {
+        // Given
+        var source = new Iterator<TestCloneable>(
+            new[] { new TestCloneable("A"), new TestCloneable("B") });
+        CycleIterator<TestCloneable> cycle = source.Cycle();
+
+        // When
+        (int lower, Option<int> upper) = cycle.SizeHint();
+
+        // Then
+        lower.ShouldBe(int.MaxValue);
+        upper.IsSome.ShouldBeTrue();
+        upper.Unwrap().ShouldBe(int.MaxValue);
+    }
+
     private sealed class TestCloneable : ICloneable
     {
         public TestCloneable(string value)
