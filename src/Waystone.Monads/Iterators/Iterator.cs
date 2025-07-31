@@ -245,6 +245,36 @@ public class Iterator<TItem>
     public EnumerateIterator<TItem> Enumerate() => new(Source);
 
     /// <summary>
+    /// Determines whether the elements of the current
+    /// <see cref="Iterator{TItem}" /> are equal to the elements of another specified
+    /// <see cref="IEnumerable{T}" />.
+    /// </summary>
+    /// <param name="other">
+    /// An <see cref="IEnumerable{T}" /> to compare with the
+    /// current iterator.
+    /// </param>
+    /// <returns>
+    /// <see langword="true" /> if the two sequences are equal; otherwise,
+    /// <see langword="false" />.
+    /// </returns>
+    public bool Eq(IEnumerable<TItem> other) => Source.SequenceEqual(other);
+
+    /// <summary>
+    /// Determines whether the elements of the current
+    /// <see cref="Iterator{TItem}" /> are equal to the elements of another specified
+    /// <see cref="Iterator{TItem}" />.
+    /// </summary>
+    /// <param name="other">
+    /// An <see cref="Iterator{TItem}" /> to compare with the
+    /// current iterator.
+    /// </param>
+    /// <returns>
+    /// <see langword="true" /> if the two sequences are equal; otherwise,
+    /// <see langword="false" />.
+    /// </returns>
+    public bool Eq(Iterator<TItem> other) => Eq(other.Source);
+
+    /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
     /// applies a transformation function to each element of the source sequence.
     /// </summary>

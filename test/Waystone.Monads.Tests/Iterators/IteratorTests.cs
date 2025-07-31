@@ -332,4 +332,191 @@ public sealed class IteratorTests
         // Then
         result.ShouldBe(0);
     }
+
+    [Fact]
+    public void Given_TwoIdenticalSequences_When_Eq_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3 };
+        var other = new List<int> { 1, 2, 3 };
+        var iterator = new Iterator<int>(source);
+
+        // When
+        bool result = iterator.Eq(other);
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_TwoDifferentSequences_When_Eq_Then_ReturnsFalse()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3 };
+        var other = new List<int> { 1, 2, 4 };
+        var iterator = new Iterator<int>(source);
+
+        // When
+        bool result = iterator.Eq(other);
+
+        // Then
+        result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Given_SequencesWithDifferentLengths_When_Eq_Then_ReturnsFalse()
+    {
+        // Given
+        var source = new List<string> { "a", "b", "c" };
+        var other = new List<string> { "a", "b" };
+        var iterator = new Iterator<string>(source);
+
+        // When
+        bool result = iterator.Eq(other);
+
+        // Then
+        result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Given_EmptySequences_When_Eq_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<int>();
+        var other = new List<int>();
+        var iterator = new Iterator<int>(source);
+
+        // When
+        bool result = iterator.Eq(other);
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_PartiallyConsumedIterator_When_Eq_Then_ComparesOriginalSource()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3 };
+        var other = new List<int> { 1, 2, 3 };
+        var iterator = new Iterator<int>(source);
+
+        // Consume one item
+        iterator.Next();
+
+        // When
+        bool result = iterator.Eq(other);
+
+        // Then
+        // Should still compare the original source, not just remaining items
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_TwoIdenticalIterators_When_EqWithIterator_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3 };
+        var otherSource = new List<int> { 1, 2, 3 };
+        var iterator = new Iterator<int>(source);
+        var otherIterator = new Iterator<int>(otherSource);
+
+        // When
+        bool result = iterator.Eq(otherIterator);
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_TwoDifferentIterators_When_EqWithIterator_Then_ReturnsFalse()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3 };
+        var otherSource = new List<int> { 1, 2, 4 };
+        var iterator = new Iterator<int>(source);
+        var otherIterator = new Iterator<int>(otherSource);
+
+        // When
+        bool result = iterator.Eq(otherIterator);
+
+        // Then
+        result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Given_IteratorsWithDifferentLengths_When_EqWithIterator_Then_ReturnsFalse()
+    {
+        // Given
+        var source = new List<string> { "a", "b", "c" };
+        var otherSource = new List<string> { "a", "b" };
+        var iterator = new Iterator<string>(source);
+        var otherIterator = new Iterator<string>(otherSource);
+
+        // When
+        bool result = iterator.Eq(otherIterator);
+
+        // Then
+        result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Given_EmptyIterators_When_EqWithIterator_Then_ReturnsTrue()
+    {
+        // Given
+        var source = new List<int>();
+        var otherSource = new List<int>();
+        var iterator = new Iterator<int>(source);
+        var otherIterator = new Iterator<int>(otherSource);
+
+        // When
+        bool result = iterator.Eq(otherIterator);
+
+        // Then
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_PartiallyConsumedIterators_When_EqWithIterator_Then_ComparesOriginalSources()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3 };
+        var otherSource = new List<int> { 1, 2, 3 };
+        var iterator = new Iterator<int>(source);
+        var otherIterator = new Iterator<int>(otherSource);
+
+        // Consume one item from first iterator
+        iterator.Next();
+
+        // Consume two items from second iterator
+        otherIterator.Next();
+        otherIterator.Next();
+
+        // When
+        bool result = iterator.Eq(otherIterator);
+
+        // Then
+        // Should compare the original sources, not just remaining items
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_DisposedIterator_When_EqWithIterator_Then_StillComparesOriginalSources()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3 };
+        var otherSource = new List<int> { 1, 2, 3 };
+        var iterator = new Iterator<int>(source);
+        var otherIterator = new Iterator<int>(otherSource);
+
+        // Dispose the first iterator
+        iterator.Dispose();
+
+        // When
+        bool result = iterator.Eq(otherIterator);
+
+        // Then
+        // Should still compare the original sources
+        result.ShouldBeTrue();
+    }
 }
