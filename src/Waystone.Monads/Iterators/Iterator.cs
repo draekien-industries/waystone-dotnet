@@ -81,15 +81,7 @@ public class Iterator<TItem>
     /// <inheritdoc />
     public void Dispose()
     {
-        if (SourceEnumerator.IsValueCreated)
-        {
-            SourceEnumerator.Value.Dispose();
-        }
-
-        Disposed = true;
-        NextCounter = 0;
-        Current = Option.None<TItem>();
-
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
@@ -117,6 +109,35 @@ public class Iterator<TItem>
 
     /// <inheritdoc />
     object? IEnumerator.Current => Current;
+
+    /// <summary>
+    /// Releases the unmanaged resources used by the
+    /// <see cref="Iterator{TItem}" /> and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">
+    /// <see langword="true" /> to release both managed and
+    /// unmanaged resources; <see langword="false" /> to release only unmanaged
+    /// resources.
+    /// </param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (Disposed || !disposing) return;
+
+        if (SourceEnumerator.IsValueCreated)
+        {
+            SourceEnumerator.Value.Dispose();
+        }
+
+        Disposed = true;
+        NextCounter = 0;
+        Current = Option.None<TItem>();
+    }
+
+    /// <summary>Garbage collector</summary>
+    ~Iterator()
+    {
+        Dispose(false);
+    }
 
     /// <summary>
     /// Retrieves the next <see cref="Option{T}" /> containing an item from
