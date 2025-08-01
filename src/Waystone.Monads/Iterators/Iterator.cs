@@ -332,6 +332,31 @@ public class Iterator<TItem>
         new(this, mapper);
 
     /// <summary>
+    /// Finds the first element in the iterator for which the specified
+    /// predicate returns <see langword="true" />.
+    /// </summary>
+    /// <param name="predicate">
+    /// A function to test each element for a condition. It
+    /// must return <see langword="true" /> for the matched element.
+    /// </param>
+    /// <returns>
+    /// An <see cref="Option{T}" /> containing the first element that
+    /// satisfies the condition specified by the <paramref name="predicate" />, or
+    /// <see cref="Option.None{T}" /> if no such element is found.
+    /// </returns>
+    public Option<TItem> Find(Func<TItem, bool> predicate)
+    {
+        if (Disposed || SizeHint().Lower == 0) return Option.None<TItem>();
+
+        for (Option<TItem> next = Next(); next.IsSome; next = Next())
+        {
+            if (next.Filter(predicate).IsSome) return next;
+        }
+
+        return Option.None<TItem>();
+    }
+
+    /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
     /// applies a transformation function to each element of the source sequence.
     /// </summary>
