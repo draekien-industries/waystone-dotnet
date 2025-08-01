@@ -394,7 +394,8 @@ public sealed class IteratorTests
     }
 
     [Fact]
-    public void Given_PartiallyConsumedIterator_When_Eq_Then_ComparesOriginalSource()
+    public void
+        Given_PartiallyConsumedIterator_When_Eq_Then_ComparesOriginalSource()
     {
         // Given
         var source = new List<int> { 1, 2, 3 };
@@ -413,7 +414,8 @@ public sealed class IteratorTests
     }
 
     [Fact]
-    public void Given_TwoIdenticalIterators_When_EqWithIterator_Then_ReturnsTrue()
+    public void
+        Given_TwoIdenticalIterators_When_EqWithIterator_Then_ReturnsTrue()
     {
         // Given
         var source = new List<int> { 1, 2, 3 };
@@ -429,7 +431,8 @@ public sealed class IteratorTests
     }
 
     [Fact]
-    public void Given_TwoDifferentIterators_When_EqWithIterator_Then_ReturnsFalse()
+    public void
+        Given_TwoDifferentIterators_When_EqWithIterator_Then_ReturnsFalse()
     {
         // Given
         var source = new List<int> { 1, 2, 3 };
@@ -445,7 +448,8 @@ public sealed class IteratorTests
     }
 
     [Fact]
-    public void Given_IteratorsWithDifferentLengths_When_EqWithIterator_Then_ReturnsFalse()
+    public void
+        Given_IteratorsWithDifferentLengths_When_EqWithIterator_Then_ReturnsFalse()
     {
         // Given
         var source = new List<string> { "a", "b", "c" };
@@ -477,7 +481,8 @@ public sealed class IteratorTests
     }
 
     [Fact]
-    public void Given_PartiallyConsumedIterators_When_EqWithIterator_Then_ComparesOriginalSources()
+    public void
+        Given_PartiallyConsumedIterators_When_EqWithIterator_Then_ComparesOriginalSources()
     {
         // Given
         var source = new List<int> { 1, 2, 3 };
@@ -501,7 +506,8 @@ public sealed class IteratorTests
     }
 
     [Fact]
-    public void Given_DisposedIterator_When_EqWithIterator_Then_StillComparesOriginalSources()
+    public void
+        Given_DisposedIterator_When_EqWithIterator_Then_StillComparesOriginalSources()
     {
         // Given
         var source = new List<int> { 1, 2, 3 };
@@ -518,5 +524,34 @@ public sealed class IteratorTests
         // Then
         // Should still compare the original sources
         result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Given_Predicate_When_Find_Then_ReturnsCorrectItem()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3, 4, 5 };
+        var iterator = new Iterator<int>(source);
+
+        // When
+        Option<int> result = iterator.Find(x => x == 3);
+
+        // Then
+        result.IsSome.ShouldBeTrue();
+        result.Unwrap().ShouldBe(3);
+    }
+
+    [Fact]
+    public void Given_Predicate_When_Find_Then_ReturnsNoneWhenNoMatch()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3, 4, 5 };
+        var iterator = new Iterator<int>(source);
+
+        // When
+        Option<int> result = iterator.Find(x => x == 6);
+
+        // Then
+        result.IsNone.ShouldBeTrue();
     }
 }
