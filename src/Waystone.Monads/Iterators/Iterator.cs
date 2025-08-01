@@ -293,20 +293,43 @@ public class Iterator<TItem>
     public bool Eq(Iterator<TItem> other) => Eq(other.Source);
 
     /// <summary>
-    /// Creates a new <see cref="FilterIterator{TItem}" /> that yields only elements
-    /// matching the specified <paramref name="predicate" /> from the current iterator.
+    /// Creates a new <see cref="FilterIterator{TItem}" /> that yields only
+    /// elements matching the specified <paramref name="predicate" /> from the current
+    /// iterator.
     /// </summary>
     /// <param name="predicate">
-    /// A function to test each element for a condition. The function should returnW
-    /// <see langword="true" /> for elements that should be included and <see langword="false" />
-    /// for elements to be excluded.
+    /// A function to test each element for a condition. The
+    /// function should returnW <see langword="true" /> for elements that should be
+    /// included and <see langword="false" /> for elements to be excluded.
     /// </param>
     /// <returns>
-    /// A new <see cref="FilterIterator{TItem}" /> containing elements that satisfy the
-    /// <paramref name="predicate" />.
+    /// A new <see cref="FilterIterator{TItem}" /> containing elements that
+    /// satisfy the <paramref name="predicate" />.
     /// </returns>
     public FilterIterator<TItem> Filter(Func<TItem, bool> predicate) =>
         new(this, predicate);
+
+    /// <summary>
+    /// Applies a given mapping function to transform elements of the source
+    /// iterator, filtering out those elements for which the mapping function returns
+    /// <see cref="Option{T}" /> in the <see langword="None" /> state.
+    /// </summary>
+    /// <typeparam name="TOut">
+    /// The type of the elements after mapping. Must be a
+    /// non-nullable type.
+    /// </typeparam>
+    /// <param name="mapper">
+    /// A function that maps each element of type
+    /// <typeparamref name="TItem" /> to <see cref="Option{T}" /> of type
+    /// <typeparamref name="TOut" />.
+    /// </param>
+    /// <returns>
+    /// A <see cref="FilterMapIterator{TItem, TOut}" /> that contains elements
+    /// from the source after applying the mapping and filtering.
+    /// </returns>
+    public FilterMapIterator<TItem, TOut> FilterMap<TOut>(
+        Func<TItem, Option<TOut>> mapper) where TOut : notnull =>
+        new(this, mapper);
 
     /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
