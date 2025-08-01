@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Iterators.Extensions;
 
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Provides extension methods for <see cref="Iterator{TItem}" /> to
@@ -68,4 +69,23 @@ public static class IteratorExtensions
     public static CycleIterator<TItem> Cycle<TItem>(
         this Iterator<TItem> source) where TItem : class, ICloneable =>
         new(source);
+
+    /// <summary>
+    /// Creates an <see cref="Iterator{TItem}" /> that flattens nested
+    /// structures. This is useful when you have an iterator of iterators or an
+    /// iterator of things that can be turned into iterators and you want to remove one
+    /// level of indirection.
+    /// </summary>
+    /// <param name="source">The nested iterator structure.</param>
+    /// <typeparam name="TItem">
+    /// The type of the value contained inside the nested
+    /// <see cref="IEnumerable{T}" />
+    /// </typeparam>
+    /// <returns>
+    /// A <see cref="FlattenIterator{TItem}" /> that removes one level of
+    /// nesting.
+    /// </returns>
+    public static FlattenIterator<TItem> Flatten<TItem>(
+        this Iterator<IEnumerable<TItem>> source)
+        where TItem : notnull => new(source);
 }

@@ -386,6 +386,29 @@ public class Iterator<TItem>
     }
 
     /// <summary>
+    /// Creates a new instance of <see cref="FlatMapIterator{TItem,TOut}" />
+    /// that applies a transformation function that returns an
+    /// <see cref="IEnumerable{T}" /> to each element of the source sequence, then
+    /// flattens the result.
+    /// </summary>
+    /// <param name="mapper">
+    /// A transformation function to apply to each element of type
+    /// <typeparamref name="TItem" />
+    /// </param>
+    /// <typeparam name="TOut">
+    /// The type of the output values, which must be
+    /// non-nullable.
+    /// </typeparam>
+    /// <returns>
+    /// A new <see cref="FlatMapIterator{TItem,TOut}" /> instance that
+    /// provides elements of type <typeparamref name="TOut" /> transformed using the
+    /// specified <paramref name="mapper" />.
+    /// </returns>
+    public FlatMapIterator<TItem, TOut> FlatMap<TOut>(
+        Func<TItem, IEnumerable<TOut>> mapper) where TOut : notnull =>
+        new(this, mapper);
+
+    /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
     /// applies a transformation function to each element of the source sequence.
     /// </summary>
