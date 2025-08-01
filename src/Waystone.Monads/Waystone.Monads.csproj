@@ -26,4 +26,8 @@
         <PackageReference Include="System.Threading.Tasks.Extensions"/>
         <PackageReference Include="System.ValueTuple"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Iterators\Abstractions\"/>
+    </ItemGroup>
 </Project>
