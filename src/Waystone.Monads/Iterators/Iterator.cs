@@ -357,6 +357,35 @@ public class Iterator<TItem>
     }
 
     /// <summary>
+    /// Applies the <paramref name="mapper" /> to each element of the
+    /// <see cref="Iterator{TItem}" /> and returns the first non-none result.
+    /// </summary>
+    /// <param name="mapper">
+    /// A function that takes an iterator element and maps the
+    /// element into an <see cref="Option{T}" /> of type <typeparamref name="TOut" />.
+    /// </param>
+    /// <typeparam name="TOut">The output option value's type.</typeparam>
+    /// <returns>
+    /// An <see cref="Option{T}" /> containing the first mapped element that
+    /// returns a <see cref="Some{T}" />, or <see cref="None{T}" /> if no such element
+    /// is found.
+    /// </returns>
+    public Option<TOut> FindMap<TOut>(Func<TItem, Option<TOut>> mapper)
+        where TOut : notnull
+    {
+        if (Disposed || SizeHint().Lower == 0) return Option.None<TOut>();
+
+        for (Option<TItem> next = Next(); next.IsSome; next = Next())
+        {
+            Option<TOut> result = next.FlatMap(mapper);
+
+            if (result.IsSome) return result;
+        }
+
+        return Option.None<TOut>();
+    }
+
+    /// <summary>
     /// Creates a new instance of <see cref="MapIterator{TItem,TOut}" /> that
     /// applies a transformation function to each element of the source sequence.
     /// </summary>

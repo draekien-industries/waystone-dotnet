@@ -554,4 +554,39 @@ public sealed class IteratorTests
         // Then
         result.IsNone.ShouldBeTrue();
     }
+
+    [Fact]
+    public void Given_Mapper_When_FindMap_Then_ReturnsCorrectItem()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3, 4, 5 };
+        var iterator = new Iterator<int>(source);
+
+        // When
+        Option<string> result =
+            iterator.FindMap(x => x == 3
+                                 ? Option.Some(x.ToString())
+                                 : Option.None<string>());
+
+        // Then
+        result.IsSome.ShouldBeTrue();
+        result.Unwrap().ShouldBe("3");
+    }
+
+    [Fact]
+    public void Given_Mapper_When_FindMap_Then_ReturnsNoneWhenNoMatch()
+    {
+        // Given
+        var source = new List<int> { 1, 2, 3, 4, 5 };
+        var iterator = new Iterator<int>(source);
+
+        // When
+        Option<string> result =
+            iterator.FindMap(x => x == 6
+                                 ? Option.Some(x.ToString())
+                                 : Option.None<string>());
+
+        // Then
+        result.IsNone.ShouldBeTrue();
+    }
 }
