@@ -94,4 +94,24 @@ public static class IterExtensions
     /// </returns>
     public static List<T> Collect<T>(this Iter<T> iter) where T : notnull =>
         iter.Where(x => x.IsSome).Select(x => x.Unwrap()).ToList();
+
+    /// <summary>
+    /// Creates a <see cref="Adapters.Cycle{T}" /> iterator that cycles
+    /// through the elements of the provided <see cref="Iter{T}" />. When the end of
+    /// the sequence is reached, it starts over from the beginning.
+    /// </summary>
+    /// <param name="iter">
+    /// The <see cref="Iter{T}" /> to cycle through. The elements
+    /// must implement <see cref="ICloneable" /> to allow cloning.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of elements in the sequence. Must implement
+    /// <see cref="ICloneable" />.
+    /// </typeparam>
+    /// <returns>
+    /// A <see cref="Adapters.Cycle{T}" /> iterator that cycles through the
+    /// elements of the provided <see cref="Iter{T}" />.
+    /// </returns>
+    public static Cycle<T> Cycle<T>(this Iter<T> iter) where T : ICloneable =>
+        new(iter);
 }
