@@ -18,6 +18,8 @@ using Options;
 /// </typeparam>
 public class Iter<T> : IEnumerable<Option<T>> where T : notnull
 {
+    private readonly Lazy<int> _count;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Iter{T}" /> class with
     /// the specified elements.
@@ -26,18 +28,20 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
     public Iter(IEnumerable<T> elements)
     {
         Elements = elements;
+        _count = new Lazy<int>(() => Elements.Count());
     }
 
     internal Iter(Iter<T> iter)
     {
         Elements = iter.Elements;
+        _count = iter._count;
     }
 
     /// <summary>Represents a sequence of elements of type <typeparamref name="T" />.</summary>
     protected internal IEnumerable<T> Elements { get; }
 
     /// <summary>Gets the number of elements in the sequence.</summary>
-    public Lazy<int> Count => new(() => Elements.Count());
+    public int Count => _count.Value;
 
     /// <summary>The current element in the sequence.</summary>
     protected internal Option<T> Current { get; private set; } =
@@ -71,7 +75,7 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
     /// </returns>
     public virtual Option<T> Next()
     {
-        if (Index >= Count.Value)
+        if (Index >= Count)
         {
             return Option.None<T>();
         }
@@ -96,14 +100,12 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
     /// </returns>
     public virtual (int Lower, Option<int> Upper) SizeHint()
     {
-        int count = Count.Value;
-
-        return count switch
+        return Count switch
         {
             0 => (0, Option.None<int>()),
-            var _ when Index == -1 => (count, Option.Some(count)),
-            var _ when Index >= count => (0, Option.None<int>()),
-            var _ => (count - Index, Option.Some(count - Index)),
+            var _ when Index == -1 => (Count, Option.Some(Count)),
+            var _ when Index >= Count => (0, Option.None<int>()),
+            var _ => (Count - Index, Option.Some(Count - Index)),
         };
     }
 

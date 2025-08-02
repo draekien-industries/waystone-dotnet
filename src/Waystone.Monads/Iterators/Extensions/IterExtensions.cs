@@ -1,9 +1,7 @@
 ﻿namespace Waystone.Monads.Iterators.Extensions;
 
 using System;
-using System.Collections.Generic;
 using Adapters;
-using Options;
 
 /// <summary>Extension methods for <see cref="Iter{T}" />.</summary>
 public static class IterExtensions
@@ -50,27 +48,6 @@ public static class IterExtensions
     /// ordering of the two sequences.
     /// </returns>
     public static Ordering Compare<T>(this Iter<T> left, Iter<T> right)
-        where T : IComparable<T>
-    {
-        using IEnumerator<Option<T>> leftEnumerator = left.GetEnumerator();
-        using IEnumerator<Option<T>> rightEnumerator = right.GetEnumerator();
-
-        while (leftEnumerator.MoveNext() && rightEnumerator.MoveNext())
-        {
-            Option<T> leftElement = leftEnumerator.Current;
-            Option<T> rightElement = rightEnumerator.Current;
-        }
-
-        if (leftEnumerator.MoveNext())
-        {
-            return Ordering.Greater;
-        }
-
-        if (rightEnumerator.MoveNext())
-        {
-            return Ordering.Less;
-        }
-
-        return Ordering.Equal;
-    }
+        where T : IComparable<T> =>
+        (Ordering)new IterComparer<T>().Compare(left, right);
 }
