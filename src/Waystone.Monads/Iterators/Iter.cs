@@ -1,7 +1,9 @@
 ﻿namespace Waystone.Monads.Iterators;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Adapters;
 using Extensions;
 using Options;
@@ -34,23 +36,76 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
     /// <summary>Represents a sequence of elements of type <typeparamref name="T" />.</summary>
     protected internal IEnumerable<T> Elements { get; }
 
+    /// <summary>Gets the number of elements in the sequence.</summary>
+    public Lazy<int> Count => new(() => Elements.Count());
+
+    /// <summary>The current element in the sequence.</summary>
+    protected internal Option<T> Current { get; private set; } =
+        Option.None<T>();
+
+    /// <summary>The index of the current element in the sequence.</summary>
+    private int Index { get; set; } = -1;
+
     /// <inheritdoc />
     public IEnumerator<Option<T>> GetEnumerator()
     {
-        foreach (T item in Elements)
+        for (Option<T> item = Next(); item.IsSome; item = Next())
         {
-            if (item.Equals(default(T)))
-            {
-                yield return Option.None<T>();
-                continue;
-            }
-
-            yield return Option.Some(item);
+            yield return item;
         }
     }
 
     /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <summary>
+    /// Advances the <see cref="Iter{T}" /> and returns the next value in the
+    /// sequence.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="Option{T}" /> containing the next element in the
+    /// sequence, or <see cref="Option.None{T}" /> when iteration is finished.
+    /// Individual iterator implementations may choose to resume iteration, and so
+    /// calling <see cref="Next" /> again may or may not eventually start returning
+    /// <see cref="Some{T}" /> again at some point.
+    /// </returns>
+    public virtual Option<T> Next()
+    {
+        if (Index >= Count.Value)
+        {
+            return Option.None<T>();
+        }
+
+        Index++;
+        T? element = Elements.ElementAtOrDefault(Index);
+        return Current = element is null
+            ? Option.None<T>()
+            : Option.Some(element);
+    }
+
+    /// <summary>
+    /// Returns the bounds on the remaining length of the
+    /// <see cref="Iter{T}" />.
+    /// </summary>
+    /// <returns>
+    /// A tuple where the first element is the lower bound, and the second
+    /// element is the upper bound. <br /> The second half of the tuple is returned as
+    /// an <see cref="Option{T}" />. A <see cref="None{T}" /> here means that either
+    /// there is no known upper bound, or the upper bound is larger than
+    /// <see cref="int" />.
+    /// </returns>
+    public virtual (int Lower, Option<int> Upper) SizeHint()
+    {
+        int count = Count.Value;
+
+        return count switch
+        {
+            0 => (0, Option.None<int>()),
+            var _ when Index == -1 => (count, Option.Some(count)),
+            var _ when Index >= count => (0, Option.None<int>()),
+            var _ => (count - Index, Option.Some(count - Index)),
+        };
+    }
 
     /// <summary>Takes two iterators and creates a new iterator over both sequences.</summary>
     /// <remarks>
