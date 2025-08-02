@@ -17,21 +17,21 @@ namespace Waystone.Monads.Iterators
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class IterFeature : object, Xunit.IClassFixture<IterFeature.FixtureData>, Xunit.IAsyncLifetime
+    public partial class Iter_ChainFeature : object, Xunit.IClassFixture<Iter_ChainFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Iterators", "Iter", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Iterators", "Iter.Chain", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "Iter.feature"
+#line 1 "Chain.feature"
 #line hidden
         
-        public IterFeature(IterFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public Iter_ChainFeature(Iter_ChainFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -127,14 +127,14 @@ namespace Waystone.Monads.Iterators
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Converting an enumerable to an iterator")]
-        [Xunit.TraitAttribute("FeatureTitle", "Iter")]
-        [Xunit.TraitAttribute("Description", "Converting an enumerable to an iterator")]
-        public async global::System.Threading.Tasks.Task ConvertingAnEnumerableToAnIterator()
+        [Xunit.SkippableFactAttribute(DisplayName="Chaining two iterators")]
+        [Xunit.TraitAttribute("FeatureTitle", "Iter.Chain")]
+        [Xunit.TraitAttribute("Description", "Chaining two iterators")]
+        public async global::System.Threading.Tasks.Task ChainingTwoIterators()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Converting an enumerable to an iterator", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Chaining two iterators", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 3
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -146,25 +146,26 @@ namespace Waystone.Monads.Iterators
             {
                 await this.ScenarioStartAsync();
 #line 4
-        await testRunner.GivenAsync("an \"enumerable\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.GivenAsync("an \"enumerable-a\" of integers from 1 to 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 5
-        await testRunner.WhenAsync("converting \"enumerable\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.AndAsync("an \"enumerable-b\" of integers from 3 to 4", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-                global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
-                            "Value"});
-                table6.AddRow(new string[] {
-                            "1"});
-                table6.AddRow(new string[] {
-                            "2"});
-                table6.AddRow(new string[] {
-                            "3"});
-                table6.AddRow(new string[] {
-                            "4"});
-                table6.AddRow(new string[] {
-                            "5"});
 #line 6
-        await testRunner.ThenAsync("the \"enumerable\" iterator of integers should yield", ((string)(null)), table6, "Then ");
+        await testRunner.WhenAsync("chaining \"enumerable-a\" and \"enumerable-b\" of integers into \"enumerable\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+                global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
+                            "Value"});
+                table1.AddRow(new string[] {
+                            "1"});
+                table1.AddRow(new string[] {
+                            "2"});
+                table1.AddRow(new string[] {
+                            "3"});
+                table1.AddRow(new string[] {
+                            "4"});
+#line 7
+        await testRunner.ThenAsync("the \"enumerable\" iterator of integers should yield", ((string)(null)), table1, "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -177,12 +178,12 @@ namespace Waystone.Monads.Iterators
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await IterFeature.FeatureSetupAsync();
+                await Iter_ChainFeature.FeatureSetupAsync();
             }
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
             {
-                await IterFeature.FeatureTearDownAsync();
+                await Iter_ChainFeature.FeatureTearDownAsync();
             }
         }
     }

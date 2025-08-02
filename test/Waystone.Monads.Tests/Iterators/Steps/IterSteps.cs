@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Extensions;
 using Reqnroll;
+using Results;
+using Results.Errors;
 using Shouldly;
 
 [Binding]
@@ -45,5 +47,19 @@ public sealed class IterSteps(ScenarioContext context)
     {
         IEnumerable<int> enumerable = [];
         context.Set(enumerable, key);
+    }
+
+    [Given("an {string} of integer results")]
+    public void GivenAnOfIntegerResults(string enumerable, Table table)
+    {
+        List<Result<int, Error>> results = [];
+        results.AddRange(
+            table.Rows.Select(row => row["Type"] == "Ok"
+                                  ? Result.Ok<int, Error>(
+                                      int.Parse(row["Value"]))
+                                  : Result.Err<int, Error>(
+                                      new Error("testing", row["Value"]))));
+
+        context.Set(results, enumerable);
     }
 }

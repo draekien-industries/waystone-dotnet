@@ -82,7 +82,7 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
 
         Index++;
         T? element = Elements.ElementAtOrDefault(Index);
-        return Current = element is null
+        return Current = element is null || element.Equals(default(T))
             ? Option.None<T>()
             : Option.Some(element);
     }

@@ -1,7 +1,11 @@
 ﻿namespace Waystone.Monads.Iterators.Extensions;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Adapters;
+using Results;
+using Results.Errors;
 
 /// <summary>Extension methods for <see cref="Iter{T}" />.</summary>
 public static class IterExtensions
@@ -50,4 +54,44 @@ public static class IterExtensions
     public static Ordering Compare<T>(this Iter<T> left, Iter<T> right)
         where T : IComparable<T> =>
         (Ordering)new IterComparer<T>().Compare(left, right);
+
+    /// <summary>
+    /// Collects all elements of an <see cref="Iter{T}" /> that contains
+    /// <see cref="Result{TOk,TErr}" /> elements into a <see cref="Result{TOk,TErr}" />
+    /// containing a <see cref="List{T}" /> of type <typeparamref name="T" />.
+    /// </summary>
+    /// <param name="iter">
+    /// The <see cref="Iter{T}" /> to collect results from. The
+    /// elements must be of type <see cref="Result{T, Error}" />.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of elements in the sequence. Must be a
+    /// non-nullable type.
+    /// </typeparam>
+    /// <returns>
+    /// A <see cref="Result{T, Error}" /> containing a <see cref="List{T}" />
+    /// of type <typeparamref name="T" /> if all elements are successful, or the first
+    /// error encountered if any element is an error.
+    /// </returns>
+    public static Result<List<T>, Error> Collect<T>(
+        this Iter<Result<T, Error>> iter) where T : notnull
+    {
+        List<Result<T, Error>> collected =
+            iter.Where(x => x.IsSome).Select(x => x.Unwrap()).ToList();
+        Result<T, Error>? firstError = collected.FirstOrDefault(x => x.IsErr);
+
+        if (firstError is not null) return firstError.UnwrapErr();
+
+        return collected.Select(x => x.Unwrap()).ToList();
+    }
+
+    /// <summary>Transforms an iterator into a collection.</summary>
+    /// <param name="iter">The <see cref="Iter{T}" /> to transform into a collection.</param>
+    /// <typeparam name="T">The type of elements in the <see cref="Iter{T}" />.</typeparam>
+    /// <returns>
+    /// An <see cref="List{T}" /> that contains all the elements produced by
+    /// the <see cref="Iter{T}" />.
+    /// </returns>
+    public static List<T> Collect<T>(this Iter<T> iter) where T : notnull =>
+        iter.Where(x => x.IsSome).Select(x => x.Unwrap()).ToList();
 }
