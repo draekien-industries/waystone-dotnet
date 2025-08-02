@@ -166,6 +166,91 @@ namespace Waystone.Monads.Iterators
 #line 6
         await testRunner.ThenAsync("the \"enumerable\" iterator of integers should yield", ((string)(null)), table6, "Then ");
 #line hidden
+#line 13
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 14
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have an upper bound of 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Size hint of an iterator")]
+        [Xunit.TraitAttribute("FeatureTitle", "Iter")]
+        [Xunit.TraitAttribute("Description", "Size hint of an iterator")]
+        public async global::System.Threading.Tasks.Task SizeHintOfAnIterator()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Size hint of an iterator", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 16
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 17
+        await testRunner.GivenAsync("an \"enumerable\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 18
+        await testRunner.WhenAsync("converting \"enumerable\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 19
+        await testRunner.ThenAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 20
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have an upper bound of 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 22
+        await testRunner.WhenAsync("invoking Next on \"enumerable\" iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 23
+        await testRunner.ThenAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 4", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 24
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have an upper bound of 4", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 26
+        await testRunner.WhenAsync("invoking Next on \"enumerable\" iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 27
+        await testRunner.ThenAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 28
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have an upper bound of 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 30
+        await testRunner.WhenAsync("invoking Next on \"enumerable\" iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 31
+        await testRunner.ThenAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 32
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have an upper bound of 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 34
+        await testRunner.WhenAsync("invoking Next on \"enumerable\" iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 35
+        await testRunner.ThenAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 36
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have an upper bound of 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 38
+        await testRunner.WhenAsync("invoking Next on \"enumerable\" iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 39
+        await testRunner.ThenAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 0", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 40
+        await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have an upper bound of None", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
             }
             await this.ScenarioCleanupAsync();
         }

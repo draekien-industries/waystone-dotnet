@@ -22,4 +22,11 @@ public sealed class Cloned<T> : Iter<T> where T : ICloneable
     /// <inheritdoc />
     internal Cloned(Iter<T> iter) : this(iter.Elements)
     { }
+
+    /// <summary>
+    /// Creates a new instance of the <see cref="Cloned{T}" /> iterator that
+    /// is a clone of the current instance.
+    /// </summary>
+    /// <returns>A new <see cref="Cloned{T}" /> instance that is a</returns>
+    public Cloned<T> Clone() => new(this);
 }

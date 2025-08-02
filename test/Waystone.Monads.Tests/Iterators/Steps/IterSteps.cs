@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Extensions;
+using Options;
 using Reqnroll;
 using Results;
 using Results.Errors;
@@ -61,5 +62,47 @@ public sealed class IterSteps(ScenarioContext context)
                                       new Error("testing", row["Value"]))));
 
         context.Set(results, enumerable);
+    }
+
+    [Then(
+        "the size hint of the {string} iterator should have a lower bound of {int}")]
+    public void ThenTheSizeHintOfTheIteratorShouldHaveALowerBoundOf(
+        string enumerable,
+        int p1)
+    {
+        var iter = context.Get<Iter<int>>(enumerable);
+        (int Lower, Option<int> Upper) sizeHint = iter.SizeHint();
+        sizeHint.Lower.ShouldBe(p1);
+    }
+
+    [Then(
+        "the size hint of the {string} iterator should have an upper bound of {int}")]
+    public void ThenTheSizeHintOfTheIteratorShouldHaveAnUpperBoundOf(
+        string enumerable,
+        int p1)
+    {
+        var iter = context.Get<Iter<int>>(enumerable);
+        (int Lower, Option<int> Upper) sizeHint = iter.SizeHint();
+        sizeHint.Upper.IsSome.ShouldBeTrue();
+        sizeHint.Upper.Unwrap().ShouldBe(p1);
+    }
+
+    [When("invoking Next on {string} iterator")]
+    public void WhenInvokingNextOnIterator(string enumerable)
+    {
+        var iter = context.Get<Iter<int>>(enumerable);
+        Option<int> next = iter.Next();
+        context.Set(iter, enumerable);
+        context.Set(next, $"{enumerable}.Next");
+    }
+
+    [Then(
+        "the size hint of the {string} iterator should have an upper bound of None")]
+    public void ThenTheSizeHintOfTheIteratorShouldHaveAnUpperBoundOfNone(
+        string enumerable)
+    {
+        var iter = context.Get<Iter<int>>(enumerable);
+        (int Lower, Option<int> Upper) sizeHint = iter.SizeHint();
+        sizeHint.Upper.IsNone.ShouldBeTrue();
     }
 }

@@ -104,8 +104,8 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
         {
             0 => (0, Option.None<int>()),
             var _ when Index == -1 => (Count, Option.Some(Count)),
-            var _ when Index >= Count => (0, Option.None<int>()),
-            var _ => (Count - Index, Option.Some(Count - Index)),
+            var _ when Index >= Count - 1 => (0, Option.None<int>()),
+            var _ => (Count - Index - 1, Option.Some(Count - Index - 1)),
         };
     }
 
