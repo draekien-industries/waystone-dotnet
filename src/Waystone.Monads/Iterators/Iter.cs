@@ -16,7 +16,11 @@ using Options;
 /// The type of elements in the sequence. Must be a
 /// non-nullable type.
 /// </typeparam>
-public class Iter<T> : IEnumerable<Option<T>> where T : notnull
+public class Iter<T>
+    : IEnumerable<Option<T>>,
+      IEquatable<Iter<T>>,
+      IEquatable<IEnumerable<T>>
+    where T : notnull
 {
     private readonly Lazy<int> _count;
 
@@ -61,6 +65,19 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
 
     /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc />
+    public virtual bool Equals(IEnumerable<T>? other) =>
+        Equals(other?.IntoIter());
+
+
+    /// <inheritdoc />
+    public virtual bool Equals(Iter<T>? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return this.SequenceEqual(other);
+    }
 
     /// <summary>
     /// Advances the <see cref="Iter{T}" /> and returns the next value in the
@@ -124,4 +141,25 @@ public class Iter<T> : IEnumerable<Option<T>> where T : notnull
 
     /// <inheritdoc cref="Chain(System.Collections.Generic.IEnumerable{T})" />
     public Chain<T> Chain(Iter<T> other) => new(this, other);
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj switch
+    {
+        IEnumerable<T> other => Equals(other),
+        Iter<T> otherIter => Equals(otherIter),
+        var _ => false,
+    };
+
+    /// <inheritdoc />
+    public override int GetHashCode() => this
+       .Aggregate(
+            0,
+            (current, item) =>
+            {
+#if NET6_0_OR_GREATER
+                return HashCode.Combine(current, item.GetHashCode());
+#else
+                return (current * 21 ) ^ item.GetHashCode();
+#endif
+            });
 }

@@ -38,3 +38,15 @@
         When invoking Next on "enumerable" iterator
         Then the size hint of the "enumerable" iterator should have a lower bound of 0
         And the size hint of the "enumerable" iterator should have an upper bound of None
+
+    Scenario: Equality of iterators
+        Given an "enumerable-a" of integers from 1 to 5
+        And an "enumerable-b" of integers from 1 to 5
+        When converting "enumerable-a" of integers to an iterator
+        And converting "enumerable-b" of integers to an iterator
+        Then the "enumerable-a" iterator of integers should be equal to "enumerable-b" iterator of integers
+
+    Scenario: Equality of enumerables
+        Given an "enumerable-a" of integers from 1 to 5
+        And an "enumerable-b" of integers from 1 to 5
+        Then the "enumerable-a" enumerable of integers should be equal to "enumerable-b" enumerable of integers

@@ -105,4 +105,22 @@ public sealed class IterSteps(ScenarioContext context)
         (int Lower, Option<int> Upper) sizeHint = iter.SizeHint();
         sizeHint.Upper.IsNone.ShouldBeTrue();
     }
+
+    [Then(
+        "the {string} iterator of integers should be equal to {string} iterator of integers")]
+    public void ThenTheIteratorShouldBeEqualToIterator(string p0, string p1)
+    {
+        var left = context.Get<Iter<int>>(p0);
+        var right = context.Get<Iter<int>>(p1);
+        left.Equals(right).ShouldBeTrue();
+    }
+
+    [Then(
+        "the {string} enumerable of integers should be equal to {string} enumerable of integers")]
+    public void ThenTheEnumerableShouldBeEqualToEnumerable(string p0, string p1)
+    {
+        var left = context.Get<IEnumerable<int>>(p0);
+        var right = context.Get<IEnumerable<int>>(p1);
+        left.IntoIter().Equals(right.IntoIter()).ShouldBeTrue();
+    }
 }

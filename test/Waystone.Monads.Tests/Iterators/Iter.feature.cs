@@ -255,6 +255,76 @@ namespace Waystone.Monads.Iterators
             await this.ScenarioCleanupAsync();
         }
         
+        [Xunit.SkippableFactAttribute(DisplayName="Equality of iterators")]
+        [Xunit.TraitAttribute("FeatureTitle", "Iter")]
+        [Xunit.TraitAttribute("Description", "Equality of iterators")]
+        public async global::System.Threading.Tasks.Task EqualityOfIterators()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Equality of iterators", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 42
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 43
+        await testRunner.GivenAsync("an \"enumerable-a\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 44
+        await testRunner.AndAsync("an \"enumerable-b\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 45
+        await testRunner.WhenAsync("converting \"enumerable-a\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 46
+        await testRunner.AndAsync("converting \"enumerable-b\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 47
+        await testRunner.ThenAsync("the \"enumerable-a\" iterator of integers should be equal to \"enumerable-b\" iterato" +
+                        "r of integers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Equality of enumerables")]
+        [Xunit.TraitAttribute("FeatureTitle", "Iter")]
+        [Xunit.TraitAttribute("Description", "Equality of enumerables")]
+        public async global::System.Threading.Tasks.Task EqualityOfEnumerables()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Equality of enumerables", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 49
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 50
+        await testRunner.GivenAsync("an \"enumerable-a\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 51
+        await testRunner.AndAsync("an \"enumerable-b\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 52
+        await testRunner.ThenAsync("the \"enumerable-a\" enumerable of integers should be equal to \"enumerable-b\" enume" +
+                        "rable of integers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
         [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime
