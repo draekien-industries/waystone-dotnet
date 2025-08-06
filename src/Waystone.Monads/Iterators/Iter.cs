@@ -168,6 +168,30 @@ public class Iter<T>
     public Filter<T> Filter(Func<T, bool> predicate) => new(this, predicate);
 
     /// <summary>
+    /// Creates a <see cref="FilterMap{T, TOut}" /> <see cref="Iter{T}" />
+    /// that applies a mapping function to each element in the sequence, filtering out
+    /// elements that do not produce a value.
+    /// </summary>
+    /// <param name="filterMap">
+    /// The mapping function to apply to each element in the
+    /// sequence. It should return a <see cref="Some{T}" /> if the element should be
+    /// included in the resulting sequence, or a <see cref="None{T}" /> if the element
+    /// should be filtered out.
+    /// </param>
+    /// <typeparam name="TOut">
+    /// The type of elements in the resulting sequence. Must be
+    /// a non-nullable type.
+    /// </typeparam>
+    /// <returns>
+    /// A new <see cref="FilterMap{T, TOut}" /> instance that contains the
+    /// elements of this <see cref="Iter{T}" /> transformed by the mapping function and
+    /// filtered based on the result of the mapping function.
+    /// </returns>
+    public FilterMap<T, TOut> FilterMap<TOut>(
+        Func<T, Option<TOut>> filterMap) where TOut : notnull =>
+        new(this, filterMap);
+
+    /// <summary>
     /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
     /// applies a mapping function to each element in the sequence.
     /// </summary>

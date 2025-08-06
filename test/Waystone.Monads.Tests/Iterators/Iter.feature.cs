@@ -151,20 +151,20 @@ namespace Waystone.Monads.Iterators
 #line 5
         await testRunner.WhenAsync("converting \"enumerable\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-                global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table9 = new global::Reqnroll.Table(new string[] {
                             "Value"});
-                table8.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "1"});
-                table8.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "2"});
-                table8.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "3"});
-                table8.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "4"});
-                table8.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "5"});
 #line 6
-        await testRunner.ThenAsync("the \"enumerable\" iterator of integers should yield", ((string)(null)), table8, "Then ");
+        await testRunner.ThenAsync("the \"enumerable\" iterator of integers should yield", ((string)(null)), table9, "Then ");
 #line hidden
 #line 13
         await testRunner.AndAsync("the size hint of the \"enumerable\" iterator should have a lower bound of 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
