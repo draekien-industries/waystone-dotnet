@@ -18,8 +18,8 @@ public class EnumerateSteps(ScenarioContext context)
         context.Set(enumerate, enumerable);
     }
 
-    [Then("the {string} Enumerable should return")]
-    public void ThenTheEnumerableShouldReturn(string enumerable, Table table)
+    [Then("the {string} Enumerate should return")]
+    public void ThenTheEnumerateShouldReturn(string enumerable, Table table)
     {
         var enumerate = context.Get<Enumerate<int>>(enumerable);
         List<(int Index, int Item)> expected = table.Rows

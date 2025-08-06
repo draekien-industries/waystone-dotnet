@@ -4,7 +4,7 @@
         Given an "enumerable" of integers from 1 to 5
         When converting "enumerable" of integers to an iterator
         And invoking enumerate on the "enumerable" iterator of integers
-        Then the "enumerable" Enumerable should return
+        Then the "enumerable" Enumerate should return
           | Index | Value |
           | 0     | 1     |
           | 1     | 2     |

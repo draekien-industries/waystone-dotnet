@@ -35,10 +35,6 @@ public class Iter<T>
         _count = new Lazy<int>(() => Elements.Count());
     }
 
-    internal Iter(IEnumerable<Option<T>> elements) : this(
-        elements.Where(item => item.IsSome).Select(item => item.Unwrap()))
-    { }
-
     internal Iter(Iter<T> iter)
     {
         Elements = iter.Where(item => item.IsSome)
@@ -157,6 +153,17 @@ public class Iter<T>
     /// enumerate over the elements of this <see cref="Iter{T}" />.
     /// </returns>
     public Enumerate<T> Enumerate() => new(this);
+
+    /// <summary>
+    /// Creates a <see cref="Filter{T}" /> <see cref="Iter{T}" /> which uses a
+    /// predicate to determine if an element should be yielded.
+    /// </summary>
+    /// <param name="predicate">The predicate to apply to each element in the sequence.</param>
+    /// <returns>
+    /// A new <see cref="Filter{T}" /> instance that yields only the elements
+    /// for which the predicate returns <see langword="true" />.
+    /// </returns>
+    public Filter<T> Filter(Func<T, bool> predicate) => new(this, predicate);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj switch
