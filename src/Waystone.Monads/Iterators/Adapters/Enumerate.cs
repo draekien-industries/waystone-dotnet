@@ -15,7 +15,7 @@ public sealed class Enumerate<T> : Iter<(int Index, T Item)>
     where T : notnull
 {
     /// <inheritdoc />
-    public Enumerate(IEnumerable<T> elements) : base(
+    internal Enumerate(IEnumerable<T> elements) : base(
         elements.Select((x, i) => (i, x)))
     { }
 

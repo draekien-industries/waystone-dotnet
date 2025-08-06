@@ -15,7 +15,7 @@ using System.Linq;
 public sealed class Filter<T> : Iter<T> where T : notnull
 {
     /// <inheritdoc />
-    public Filter(IEnumerable<T> elements, Func<T, bool> predicate) : base(
+    internal Filter(IEnumerable<T> elements, Func<T, bool> predicate) : base(
         elements.Where(predicate))
     { }
 

@@ -167,6 +167,25 @@ public class Iter<T>
     /// </returns>
     public Filter<T> Filter(Func<T, bool> predicate) => new(this, predicate);
 
+    /// <summary>
+    /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
+    /// applies a mapping function to each element in the sequence.
+    /// </summary>
+    /// <param name="map">
+    /// The mapping function to apply to each element in the
+    /// sequence.
+    /// </param>
+    /// <typeparam name="TOut">
+    /// The type of elements in the resulting sequence. Must be
+    /// a non-nullable type.
+    /// </typeparam>
+    /// <returns>
+    /// A new <see cref="Map{TIn, TOut}" /> instance that contains the
+    /// elements of this <see cref="Iter{T}" /> transformed by the mapping function.
+    /// </returns>
+    public Map<T, TOut> Map<TOut>(Func<T, TOut> map) where TOut : notnull =>
+        new(this, map);
+
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj switch
     {

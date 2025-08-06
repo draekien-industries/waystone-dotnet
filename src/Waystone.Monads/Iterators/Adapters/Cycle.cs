@@ -23,7 +23,7 @@ public sealed class Cycle<T> : Iter<T>
     private Iter<T> _current;
 
     /// <inheritdoc />
-    public Cycle(IEnumerable<T> elements) : this(elements.IntoIter())
+    internal Cycle(IEnumerable<T> elements) : this(elements.IntoIter())
     { }
 
     /// <inheritdoc />
