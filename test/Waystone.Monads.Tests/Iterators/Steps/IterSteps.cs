@@ -123,4 +123,43 @@ public sealed class IterSteps(ScenarioContext context)
         var right = context.Get<IEnumerable<int>>(p1);
         left.IntoIter().Equals(right.IntoIter()).ShouldBeTrue();
     }
+
+    [Then(
+        "the {string} iterator of integers should not be equal to {string} iterator of integers")]
+    public void ThenTheIteratorOfIntegersShouldNotBeEqualToIteratorOfIntegers(
+        string p0,
+        string p1)
+    {
+        var left = context.Get<Iter<int>>(p0);
+        var right = context.Get<Iter<int>>(p1);
+        left.Equals(right).ShouldBeFalse();
+    }
+
+    [Given("an {string} of chars from {string} to {string}")]
+    public void GivenAnOfCharsFromTo(string p0, char a, char e)
+    {
+        IEnumerable<char> enumerable = Enumerable.Range(a, e - a + 1)
+                                                 .Select(i => (char)i);
+        context.Set(enumerable, p0);
+    }
+
+    [When("converting {string} of chars to an iterator")]
+    public void WhenConvertingOfCharsToAnIterator(string p0)
+    {
+        var enumerable = context.Get<IEnumerable<char>>(p0);
+        Iter<char> iter = enumerable.IntoIter();
+        context.Set(iter, p0);
+    }
+
+    [Then(
+        "the {string} iterator of chars should not be equal to {string} iterator of integers")]
+    public void ThenTheIteratorOfCharsShouldNotBeEqualToIteratorOfIntegers(
+        string p0,
+        string p1)
+    {
+        var left = context.Get<Iter<char>>(p0);
+        var right = context.Get<Iter<int>>(p1);
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        left.Equals(right).ShouldBeFalse();
+    }
 }

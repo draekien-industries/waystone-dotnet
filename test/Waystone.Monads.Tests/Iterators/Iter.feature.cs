@@ -325,6 +325,60 @@ namespace Waystone.Monads.Iterators
             await this.ScenarioCleanupAsync();
         }
         
+        [Xunit.SkippableFactAttribute(DisplayName="Inequality of iterators")]
+        [Xunit.TraitAttribute("FeatureTitle", "Iter")]
+        [Xunit.TraitAttribute("Description", "Inequality of iterators")]
+        public async global::System.Threading.Tasks.Task InequalityOfIterators()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Inequality of iterators", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 54
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 55
+        await testRunner.GivenAsync("an \"enumerable-a\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 56
+        await testRunner.AndAsync("an \"enumerable-b\" of integers from 6 to 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 57
+        await testRunner.WhenAsync("converting \"enumerable-a\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 58
+        await testRunner.AndAsync("converting \"enumerable-b\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 59
+        await testRunner.ThenAsync("the \"enumerable-a\" iterator of integers should not be equal to \"enumerable-b\" ite" +
+                        "rator of integers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 61
+        await testRunner.GivenAsync("an \"enumerable-a\" of chars from \"a\" to \"e\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 62
+        await testRunner.AndAsync("an \"enumerable-b\" of integers from 1 to 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 63
+        await testRunner.WhenAsync("converting \"enumerable-a\" of chars to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 64
+        await testRunner.AndAsync("converting \"enumerable-b\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 65
+        await testRunner.ThenAsync("the \"enumerable-a\" iterator of chars should not be equal to \"enumerable-b\" iterat" +
+                        "or of integers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
         [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime
