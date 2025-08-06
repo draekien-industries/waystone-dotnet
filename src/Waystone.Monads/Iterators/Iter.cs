@@ -35,9 +35,14 @@ public class Iter<T>
         _count = new Lazy<int>(() => Elements.Count());
     }
 
+    internal Iter(IEnumerable<Option<T>> elements) : this(
+        elements.Where(item => item.IsSome).Select(item => item.Unwrap()))
+    { }
+
     internal Iter(Iter<T> iter)
     {
-        Elements = iter.Elements;
+        Elements = iter.Where(item => item.IsSome)
+                       .Select(item => item.Unwrap());
         _count = iter._count;
     }
 
@@ -141,6 +146,17 @@ public class Iter<T>
 
     /// <inheritdoc cref="Chain(System.Collections.Generic.IEnumerable{T})" />
     public Chain<T> Chain(Iter<T> other) => new(this, other);
+
+    /// <summary>
+    /// Creates a new <see cref="Enumerate{T}" /> <see cref="Iter{T}" /> that
+    /// allows enumerating over the elements of this <see cref="Iter{T}" /> to get the
+    /// index and value of each element.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="Enumerate{T}" /> instance that can be used to
+    /// enumerate over the elements of this <see cref="Iter{T}" />.
+    /// </returns>
+    public Enumerate<T> Enumerate() => new(this);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj switch

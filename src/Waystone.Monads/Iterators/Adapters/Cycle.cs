@@ -34,15 +34,17 @@ public sealed class Cycle<T> : Iter<T>
     }
 
     /// <inheritdoc />
-    public override Option<T> Next() =>
-        _current.Next()
-                .Match(
-                     Option.Some,
-                     () =>
-                     {
-                         _current = _original.Clone();
-                         return _current.Next();
-                     });
+    public override Option<T> Next()
+    {
+        Option<T> next = _current.Next();
+
+        if (next.IsSome) return next;
+
+        _current = _original.Clone();
+        next = _current.Next();
+
+        return next;
+    }
 
     /// <inheritdoc />
     public override (int Lower, Option<int> Upper) SizeHint() =>

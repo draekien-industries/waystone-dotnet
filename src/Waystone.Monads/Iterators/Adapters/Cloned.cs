@@ -16,7 +16,7 @@ public sealed class Cloned<T> : Iter<T> where T : ICloneable
 {
     /// <inheritdoc />
     internal Cloned(IEnumerable<T> items) : base(
-        items.Select(x => x.Clone()).Cast<T>())
+        items.Select(x => (T)x.Clone()))
     { }
 
     /// <inheritdoc />
