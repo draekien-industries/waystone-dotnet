@@ -35,12 +35,14 @@ public class Iter<T>
         _count = new Lazy<int>(() => Elements.Count());
     }
 
-    internal Iter(Iter<T> iter)
-    {
-        Elements = iter.Where(item => item.IsSome)
-                       .Select(item => item.Unwrap());
-        _count = iter._count;
-    }
+    internal Iter(Iter<T> iter) : this(iter.Elements)
+    { }
+
+    internal Iter(IEnumerable<Option<T>> elements)
+        : this(
+            elements.Where(item => item.IsSome)
+                    .Select(item => item.Unwrap()))
+    { }
 
     /// <summary>Represents a sequence of elements of type <typeparamref name="T" />.</summary>
     protected internal IEnumerable<T> Elements { get; }

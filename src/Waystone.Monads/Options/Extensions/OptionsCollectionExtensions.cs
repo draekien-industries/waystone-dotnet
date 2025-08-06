@@ -3,33 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Iterators.Extensions;
 
 /// <summary>Extensions for <see cref="Option{T}" /> collections.</summary>
 public static class OptionsCollectionExtensions
 {
-    /// <summary>
-    /// Filters a sequence of options based on a predicate, converting options
-    /// that fail to match the criteria into <see cref="None{T}" />.
-    /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
-    /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
-    /// </param>
-    /// <typeparam name="T">The option value's type</typeparam>
-    /// <returns>
-    /// An <see cref="IEnumerable{T}" /> of <see cref="Option{T}" /> that
-    /// contain elements that are <see cref="Some{T}" /> when they match the predicate
-    /// and  are <see cref="None{T}" /> when they failed to match the predicate
-    /// </returns>
-    public static IEnumerable<Option<T>> Filter<T>(
-        this IEnumerable<Option<T>> options,
-        Func<T, bool> predicate) where T : notnull =>
-        options.Select(o => o.Filter(predicate));
-
     /// <summary>
     /// Applies a map function onto a sequence of options, transforming the
     /// values of the <see cref="Some{T}" /> options
@@ -73,7 +51,7 @@ public static class OptionsCollectionExtensions
     public static Option<T> FirstOrNone<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate) where T : notnull =>
-        options.Filter(predicate).FirstOrDefault(o => o.IsSome)
+        options.IntoIter().Filter(predicate).FirstOrDefault(o => o.IsSome)
      ?? Option.None<T>();
 
     /// <summary>
@@ -144,7 +122,7 @@ public static class OptionsCollectionExtensions
     public static Option<T> LastOrNone<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate) where T : notnull =>
-        options.Filter(predicate).LastOrDefault(x => x.IsSome)
+        options.IntoIter().Filter(predicate).LastOrDefault(x => x.IsSome)
      ?? Option.None<T>();
 
     /// <summary>
