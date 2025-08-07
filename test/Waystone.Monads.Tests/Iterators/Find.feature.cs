@@ -152,11 +152,17 @@ namespace Waystone.Monads.Iterators
         await testRunner.WhenAsync("converting \"enumerable\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 6
-        await testRunner.AndAsync("finding the first element of \"enumerable\" integer iterator that is greater than 3" +
-                        "", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("finding the \"first\" element of \"enumerable\" integer iterator that is greater than" +
+                        " 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 7
-        await testRunner.ThenAsync("the result of the \"enumerable\" integer find should be 4", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the result of the \"first\" integer find should be 4", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 9
+        await testRunner.WhenAsync("getting the \"next\" element of the \"enumerable\" integer iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 10
+        await testRunner.ThenAsync("the result of the \"next\" integer find should be 5", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

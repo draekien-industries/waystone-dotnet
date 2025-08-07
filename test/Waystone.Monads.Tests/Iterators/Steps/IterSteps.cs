@@ -162,4 +162,14 @@ public sealed class IterSteps(ScenarioContext context)
         // ReSharper disable once SuspiciousTypeConversion.Global
         left.Equals(right).ShouldBeFalse();
     }
+
+    [When("getting the {string} element of the {string} integer iterator")]
+    public void WhenGettingTheNextElementOfTheIntegerIterator(
+        string nextKey,
+        string enumerable)
+    {
+        var iter = context.Get<Iter<int>>(enumerable);
+        Option<int> next = iter.Next();
+        context.Set(next, nextKey);
+    }
 }

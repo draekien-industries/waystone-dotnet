@@ -207,10 +207,15 @@ public class Iter<T>
     /// </returns>
     public Option<T> Find(Func<T, bool> predicate)
     {
-        T? match = Elements.FirstOrDefault(predicate);
-        return match is null || match.Equals(default(T))
-            ? Option.None<T>()
-            : Option.Some(match);
+        for (Option<T> item = Next(); item.IsSome; item = Next())
+        {
+            if (item.IsSomeAnd(predicate))
+            {
+                return item;
+            }
+        }
+
+        return Option.None<T>();
     }
 
     /// <summary>
