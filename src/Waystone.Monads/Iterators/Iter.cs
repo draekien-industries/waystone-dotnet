@@ -254,6 +254,29 @@ public class Iter<T>
     }
 
     /// <summary>
+    /// Creates a <see cref="FlatMap{T, TOut}" /> <see cref="Iter{T}" /> that
+    /// applies a mapping function to each element in the sequence and flattens the
+    /// resulting nested structure into a single sequence of elements.
+    /// </summary>
+    /// <param name="map">
+    /// The mapping function to apply to each element in the
+    /// sequence. It should return an <see cref="IEnumerable{TOut}" /> where each
+    /// element is a non-nullable type <typeparamref name="TOut" />.
+    /// </param>
+    /// <typeparam name="TOut">
+    /// The type of elements in the resulting sequence. Must be
+    /// a non-nullable type.
+    /// </typeparam>
+    /// <returns>
+    /// A new <see cref="FlatMap{T, TOut}" /> instance that contains the
+    /// elements of this <see cref="Iter{T}" /> transformed by the mapping function and
+    /// flattened into a single sequence.
+    /// </returns>
+    public FlatMap<T, TOut> FlatMap<TOut>(Func<T, IEnumerable<TOut>> map)
+        where TOut : notnull =>
+        new(this, map);
+
+    /// <summary>
     /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
     /// applies a mapping function to each element in the sequence.
     /// </summary>
