@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators.Steps;
 
 using System.Collections.Generic;
-using System.Linq;
 using Adapters;
 using Extensions;
 using Fixtures;
@@ -25,7 +24,14 @@ public class CycleSteps(ScenarioContext context)
     {
         var cycle = context.Get<Cycle<TestCloneable>>(enumerable);
 
-        List<Option<TestCloneable>> elements = cycle.Take(10).ToList();
+        List<Option<TestCloneable>> elements = [];
+
+        for (var i = 0; i < 10; i++)
+        {
+            Option<TestCloneable> element = cycle.Next();
+            elements.Add(element);
+        }
+
         elements.Count.ShouldBe(10);
 
         Option<TestCloneable> first = elements[0];

@@ -51,7 +51,7 @@ public static class OptionsCollectionExtensions
     public static Option<T> FirstOrNone<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate) where T : notnull =>
-        options.IntoIter().Filter(predicate).FirstOrDefault(o => o.IsSome)
+        options.IntoIter().Filter(predicate).Collect().FirstOrDefault()
      ?? Option.None<T>();
 
     /// <summary>
@@ -122,7 +122,7 @@ public static class OptionsCollectionExtensions
     public static Option<T> LastOrNone<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate) where T : notnull =>
-        options.IntoIter().Filter(predicate).LastOrDefault(x => x.IsSome)
+        options.IntoIter().Filter(predicate).Collect().LastOrDefault()
      ?? Option.None<T>();
 
     /// <summary>

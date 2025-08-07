@@ -21,12 +21,10 @@ public sealed class OptionsCollectionExtensionsTests
     public void
         GivenCollectionOfOptions_WhenInvokingFilter_ThenApplyFilter()
     {
-        List<Option<int>> result =
-            Values.IntoIter().Filter(x => x > 10).ToList();
+        List<int> result =
+            Values.IntoIter().Filter(x => x > 10).Collect();
 
         result.Count.ShouldBe(2);
-        result.Count(x => x.IsSome).ShouldBe(2);
-        result.Count(x => x.IsNone).ShouldBe(0);
     }
 
     [Fact]

@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Iterators;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Adapters;
@@ -17,8 +16,7 @@ using Options;
 /// non-nullable type.
 /// </typeparam>
 public class Iter<T>
-    : IEnumerable<Option<T>>,
-      IEquatable<Iter<T>>,
+    : IEquatable<Iter<T>>,
       IEquatable<IEnumerable<T>>
     where T : notnull
 {
@@ -58,18 +56,6 @@ public class Iter<T>
     private int Index { get; set; } = -1;
 
     /// <inheritdoc />
-    public IEnumerator<Option<T>> GetEnumerator()
-    {
-        for (Option<T> item = Next(); item.IsSome; item = Next())
-        {
-            yield return item;
-        }
-    }
-
-    /// <inheritdoc />
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    /// <inheritdoc />
     public virtual bool Equals(IEnumerable<T>? other) =>
         Equals(other?.IntoIter());
 
@@ -79,7 +65,7 @@ public class Iter<T>
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
-        return this.SequenceEqual(other);
+        return Elements.SequenceEqual(other.Elements);
     }
 
     /// <summary>
@@ -315,7 +301,7 @@ public class Iter<T>
     };
 
     /// <inheritdoc />
-    public override int GetHashCode() => this
+    public override int GetHashCode() => Elements
        .Aggregate(
             0,
             (current, item) =>
