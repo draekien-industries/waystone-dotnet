@@ -17,21 +17,21 @@ namespace Waystone.Monads.Iterators
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class IterMapFeature : object, Xunit.IClassFixture<IterMapFeature.FixtureData>, Xunit.IAsyncLifetime
+    public partial class Iter_TakeFeature : object, Xunit.IClassFixture<Iter_TakeFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Iterators", "Iter Map", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Iterators", "Iter.Take", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "Map.feature"
+#line 1 "Take.feature"
 #line hidden
         
-        public IterMapFeature(IterMapFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public Iter_TakeFeature(Iter_TakeFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -127,14 +127,14 @@ namespace Waystone.Monads.Iterators
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Map over a list of integers")]
-        [Xunit.TraitAttribute("FeatureTitle", "Iter Map")]
-        [Xunit.TraitAttribute("Description", "Map over a list of integers")]
-        public async global::System.Threading.Tasks.Task MapOverAListOfIntegers()
+        [Xunit.SkippableFactAttribute(DisplayName="Take a number of elements from an iterator")]
+        [Xunit.TraitAttribute("FeatureTitle", "Iter.Take")]
+        [Xunit.TraitAttribute("Description", "Take a number of elements from an iterator")]
+        public async global::System.Threading.Tasks.Task TakeANumberOfElementsFromAnIterator()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map over a list of integers", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Take a number of elements from an iterator", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 3
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -152,22 +152,24 @@ namespace Waystone.Monads.Iterators
         await testRunner.WhenAsync("converting \"enumerable\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 6
-        await testRunner.AndAsync("mapping \"enumerable\" of integers into strings", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("taking the first 3 elements from the \"enumerable\" integer iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-                global::Reqnroll.Table table12 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table13 = new global::Reqnroll.Table(new string[] {
                             "Value"});
-                table12.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "1"});
-                table12.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "2"});
-                table12.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "3"});
-                table12.AddRow(new string[] {
-                            "4"});
-                table12.AddRow(new string[] {
-                            "5"});
 #line 7
-        await testRunner.ThenAsync("the elements of \"enumerable\" Map should be the string values", ((string)(null)), table12, "Then ");
+        await testRunner.ThenAsync("the \"enumerable\" integer Take should return", ((string)(null)), table13, "Then ");
+#line hidden
+#line 13
+        await testRunner.WhenAsync("getting the \"next\" element of the \"enumerable\" integer Take", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 14
+        await testRunner.ThenAsync("the result of the \"next\" integer find should be None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -180,12 +182,12 @@ namespace Waystone.Monads.Iterators
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await IterMapFeature.FeatureSetupAsync();
+                await Iter_TakeFeature.FeatureSetupAsync();
             }
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
             {
-                await IterMapFeature.FeatureTearDownAsync();
+                await Iter_TakeFeature.FeatureTearDownAsync();
             }
         }
     }

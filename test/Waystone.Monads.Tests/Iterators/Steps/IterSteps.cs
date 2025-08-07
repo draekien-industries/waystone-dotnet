@@ -172,4 +172,19 @@ public sealed class IterSteps(ScenarioContext context)
         Option<int> next = iter.Next();
         context.Set(next, nextKey);
     }
+
+    [Given("an {string} of words")]
+    public void GivenAnOfWords(string enumerable, Table table)
+    {
+        List<string> words = table.Rows.Select(row => row["Value"]).ToList();
+        context.Set(words, enumerable);
+    }
+
+    [When("converting {string} of words to an iterator")]
+    public void WhenConvertingOfWordsToAnIterator(string enumerable)
+    {
+        var words = context.Get<IEnumerable<string>>(enumerable);
+        Iter<string> iter = words.IntoIter();
+        context.Set(iter, enumerable);
+    }
 }

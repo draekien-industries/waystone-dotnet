@@ -76,8 +76,7 @@ public static class IterExtensions
     public static Result<List<T>, Error> Collect<T>(
         this Iter<Result<T, Error>> iter) where T : notnull
     {
-        List<Result<T, Error>> collected =
-            iter.Where(x => x.IsSome).Select(x => x.Unwrap()).ToList();
+        List<Result<T, Error>> collected = iter.Elements.ToList();
         Result<T, Error>? firstError = collected.FirstOrDefault(x => x.IsErr);
 
         if (firstError is not null) return firstError.UnwrapErr();
@@ -93,7 +92,7 @@ public static class IterExtensions
     /// the <see cref="Iter{T}" />.
     /// </returns>
     public static List<T> Collect<T>(this Iter<T> iter) where T : notnull =>
-        iter.Where(x => x.IsSome).Select(x => x.Unwrap()).ToList();
+        iter.Elements.ToList();
 
     /// <summary>
     /// Creates a <see cref="Adapters.Cycle{T}" /> iterator that cycles

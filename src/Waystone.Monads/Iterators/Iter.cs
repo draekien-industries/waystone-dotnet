@@ -295,6 +295,17 @@ public class Iter<T>
     public Map<T, TOut> Map<TOut>(Func<T, TOut> map) where TOut : notnull =>
         new(this, map);
 
+    /// <summary>
+    /// Creates an iterator that yields the first <paramref name="count" />
+    /// elements, or fewer if the underlying iterator ends sooner.
+    /// </summary>
+    /// <param name="count">The number of elements to take from the sequence.</param>
+    /// <returns>
+    /// A new <see cref="Take{T}" /> instance that contains the first
+    /// <paramref name="count" /> elements from this <see cref="Iter{T}" />.
+    /// </returns>
+    public Take<T> Take(int count) => new(this, count);
+
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj switch
     {
