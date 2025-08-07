@@ -219,6 +219,41 @@ public class Iter<T>
     }
 
     /// <summary>
+    /// Applies the mapping function to the elements of the iterator and
+    /// returns the first non-none result.
+    /// </summary>
+    /// <param name="map">
+    /// The mapping function to apply to each element in the
+    /// sequence. It should return an <see cref="Option{TOut}" /> where
+    /// <see cref="Some{TOut}" /> indicates a successful mapping and
+    /// <see cref="None{TOut}" /> indicates that the element should be skipped.
+    /// </param>
+    /// <remarks>
+    /// This method is the equivalent of calling
+    /// <c>iter.FilterMap(map).Next();</c>
+    /// </remarks>
+    /// <typeparam name="TOut">
+    /// The type of elements in the resulting sequence. Must be
+    /// a non-nullable type.
+    /// </typeparam>
+    /// <returns>
+    /// An <see cref="Some{TOut}" /> containing the first successfully mapped
+    /// element, or <see cref="None{TOut}" /> if no such element exists in the
+    /// sequence.
+    /// </returns>
+    public Option<TOut> FindMap<TOut>(Func<T, Option<TOut>> map)
+        where TOut : notnull
+    {
+        for (Option<T> item = Next(); item.IsSome; item = Next())
+        {
+            Option<TOut> mapped = item.FlatMap(map);
+            if (mapped.IsSome) return mapped;
+        }
+
+        return Option.None<TOut>();
+    }
+
+    /// <summary>
     /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
     /// applies a mapping function to each element in the sequence.
     /// </summary>
