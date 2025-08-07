@@ -192,6 +192,28 @@ public class Iter<T>
         new(this, filterMap);
 
     /// <summary>
+    /// Finds the first element in the sequence that matches the specified
+    /// predicate.
+    /// </summary>
+    /// <param name="predicate">
+    /// The predicate to apply to each element in the sequence.
+    /// The predicate should return <see langword="true" /> for the element that you
+    /// want to find.
+    /// </param>
+    /// <returns>
+    /// An <see cref="Some{T}" /> containing the first element that matches
+    /// the predicate, or <see cref="Option.None{T}" /> if no such element exists in
+    /// the sequence.
+    /// </returns>
+    public Option<T> Find(Func<T, bool> predicate)
+    {
+        T? match = Elements.FirstOrDefault(predicate);
+        return match is null || match.Equals(default(T))
+            ? Option.None<T>()
+            : Option.Some(match);
+    }
+
+    /// <summary>
     /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
     /// applies a mapping function to each element in the sequence.
     /// </summary>
