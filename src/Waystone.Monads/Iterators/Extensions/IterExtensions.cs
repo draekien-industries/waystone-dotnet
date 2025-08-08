@@ -113,4 +113,31 @@ public static class IterExtensions
     /// </returns>
     public static Cycle<T> Cycle<T>(this Iter<T> iter) where T : ICloneable =>
         new(iter);
+
+    /// <summary>
+    /// Creates an <see cref="Iter{T}" /> that flattens a sequence of nested
+    /// sequences into a single sequence of items.
+    /// </summary>
+    /// <param name="iter">
+    /// The <see cref="Iter{TNested}" /> to flatten. The elements
+    /// must be of type <see cref="IEnumerable{TItem}" />.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of items in the nested sequences. Must be a
+    /// non-nullable type.
+    /// </typeparam>
+    /// <typeparam name="TEnumerable">
+    /// The type of the nested sequences. Must be an
+    /// <see cref="IEnumerable{T}" /> where <typeparamref name="T" /> is the type of
+    /// items in the nested sequences.
+    /// </typeparam>
+    /// <returns>
+    /// A <see cref="Flatten{TItem}" /> iterator that flattens the sequence of
+    /// nested sequences into a single sequence of items.
+    /// </returns>
+    public static Flatten<T> Flatten<TEnumerable, T>(
+        this Iter<TEnumerable> iter)
+        where TEnumerable : IEnumerable<T>
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
 }
