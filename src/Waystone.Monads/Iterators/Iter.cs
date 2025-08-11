@@ -302,6 +302,16 @@ public class Iter<T>
         where TOut : notnull =>
         Elements.Aggregate(init, fold);
 
+    /// <summary>Calls the specified action for each element in the sequence,</summary>
+    /// <param name="action">The action to perform on each element in the sequence.</param>
+    public void ForEach(Action<T> action)
+    {
+        for (Option<T> item = Next(); item.IsSome; item = Next())
+        {
+            item.Inspect(action);
+        }
+    }
+
     /// <summary>
     /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
     /// applies a mapping function to each element in the sequence.
