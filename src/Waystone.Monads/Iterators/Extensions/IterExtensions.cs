@@ -114,6 +114,8 @@ public static class IterExtensions
     public static Cycle<T> Cycle<T>(this Iter<T> iter) where T : ICloneable =>
         new(iter);
 
+#region flatten
+
     /// <summary>
     /// Creates an <see cref="Iter{T}" /> that flattens a sequence of nested
     /// sequences into a single sequence of items.
@@ -126,18 +128,56 @@ public static class IterExtensions
     /// The type of items in the nested sequences. Must be a
     /// non-nullable type.
     /// </typeparam>
-    /// <typeparam name="TEnumerable">
-    /// The type of the nested sequences. Must be an
-    /// <see cref="IEnumerable{T}" /> where <typeparamref name="T" /> is the type of
-    /// items in the nested sequences.
-    /// </typeparam>
     /// <returns>
-    /// A <see cref="Flatten{TItem}" /> iterator that flattens the sequence of
-    /// nested sequences into a single sequence of items.
+    /// An iterator that flattens the sequence of nested sequences into a
+    /// single sequence of items.
     /// </returns>
-    public static Flatten<T> Flatten<TEnumerable, T>(
-        this Iter<TEnumerable> iter)
-        where TEnumerable : IEnumerable<T>
+    public static Flatten<T> Flatten<T>(
+        this Iter<T[]> iter)
         where T : notnull =>
         new(iter.Map(x => x.IntoIter()));
+
+    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
+    public static Flatten<T> Flatten<T>(
+        this Iter<IEnumerable<T>> iter)
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
+
+    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
+    public static Flatten<T> Flatten<T>(
+        this Iter<List<T>> iter)
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
+
+    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
+    public static Flatten<T> Flatten<T>(
+        this Iter<HashSet<T>> iter)
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
+
+    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
+    public static Flatten<T> Flatten<T>(
+        this Iter<LinkedList<T>> iter)
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
+
+    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
+    public static Flatten<T> Flatten<T>(
+        this Iter<Queue<T>> iter)
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
+
+    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
+    public static Flatten<T> Flatten<T>(
+        this Iter<SortedSet<T>> iter)
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
+
+    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
+    public static Flatten<T> Flatten<T>(
+        this Iter<Stack<T>> iter)
+        where T : notnull =>
+        new(iter.Map(x => x.IntoIter()));
+
+#endregion
 }

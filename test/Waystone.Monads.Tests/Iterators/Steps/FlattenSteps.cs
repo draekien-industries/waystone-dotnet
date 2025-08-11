@@ -27,7 +27,7 @@ public class FlattenSteps(ScenarioContext context)
     public void WhenTheDIteratorIsFlattened(string p0, string p1)
     {
         var iter = context.Get<Iter<int[]>>(p0);
-        Iter<int> flattened = iter.Flatten<int[], int>();
+        Iter<int> flattened = iter.Flatten();
         context.Set(flattened, p1);
     }
 
