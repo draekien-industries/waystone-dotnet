@@ -277,6 +277,32 @@ public class Iter<T>
         new(this, map);
 
     /// <summary>
+    /// Folds every element into an accumulator by applying an operation,
+    /// returning the final result.
+    /// </summary>
+    /// <param name="init">
+    /// The initial value the accumulator will have on the first
+    /// call.
+    /// </param>
+    /// <param name="fold">
+    /// The operation to apply to the accumulator and the current
+    /// item.
+    /// </param>
+    /// <typeparam name="TOut">
+    /// The type of the accumulator and the final result. Must
+    /// be a non-nullable type.
+    /// </typeparam>
+    /// <returns>
+    /// The final result of folding the sequence, which is of type
+    /// <typeparamref name="TOut" />. This is the result of applying the
+    /// <paramref name="fold" /> function to each element in the sequence, starting
+    /// with the initial value <paramref name="init" />.
+    /// </returns>
+    public TOut Fold<TOut>(TOut init, Func<TOut, T, TOut> fold)
+        where TOut : notnull =>
+        Elements.Aggregate(init, fold);
+
+    /// <summary>
     /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
     /// applies a mapping function to each element in the sequence.
     /// </summary>
