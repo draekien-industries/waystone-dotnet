@@ -313,6 +313,13 @@ public class Iter<T>
     }
 
     /// <summary>
+    /// Creates a <see cref="Fuse{T}" /> <see cref="Iter{T}" /> which ends
+    /// after the first <see cref="None{T}" />.
+    /// </summary>
+    /// <returns>A new <see cref="Fuse{T}" /> instance.</returns>
+    public Fuse<T> Fuse() => new(this);
+
+    /// <summary>
     /// Creates a <see cref="Map{TIn, TOut}" /> <see cref="Iter{T}" /> that
     /// applies a mapping function to each element in the sequence.
     /// </summary>
