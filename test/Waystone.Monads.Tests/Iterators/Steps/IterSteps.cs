@@ -187,4 +187,12 @@ public sealed class IterSteps(ScenarioContext context)
         Iter<string> iter = words.IntoIter();
         context.Set(iter, enumerable);
     }
+
+    [Given("an iterator of numbers from {int} to {int}")]
+    public void GivenAnIteratorOfNumbersFromTo(int p0, int p1)
+    {
+        IEnumerable<int> enumerable = Enumerable.Range(p0, p1 - p0 + 1);
+        Iter<int> iter = enumerable.IntoIter();
+        context.Set(iter, "Numbers");
+    }
 }
