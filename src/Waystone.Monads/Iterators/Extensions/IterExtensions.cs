@@ -8,7 +8,7 @@ using Results;
 using Results.Errors;
 
 /// <summary>Extension methods for <see cref="Iter{T}" />.</summary>
-public static class IterExtensions
+public static partial class IterExtensions
 {
     /// <summary>Creates an <see cref="Iter{T}" /> that clones all of its elements.</summary>
     /// <param name="iter"></param>
@@ -114,70 +114,82 @@ public static class IterExtensions
     public static Cycle<T> Cycle<T>(this Iter<T> iter) where T : ICloneable =>
         new(iter);
 
-#region flatten
-
     /// <summary>
-    /// Creates an <see cref="Iter{T}" /> that flattens a sequence of nested
-    /// sequences into a single sequence of items.
+    /// Determines if the elements in this <see cref="Iter{T}" /> are
+    /// lexicographically greater than or equal to the elements in the provided
+    /// <see cref="Iter{T}" />.
     /// </summary>
-    /// <param name="iter">
-    /// The <see cref="Iter{TNested}" /> to flatten. The elements
-    /// must be of type <see cref="IEnumerable{TItem}" />.
-    /// </param>
+    /// <param name="left">The first <see cref="Iter{T}" /> to compare.</param>
+    /// <param name="right">The second <see cref="Iter{T}" /> to compare.</param>
     /// <typeparam name="T">
-    /// The type of items in the nested sequences. Must be a
-    /// non-nullable type.
+    /// The type of elements in the sequence. Must implement
+    /// <see cref="IComparable{T}" />.
     /// </typeparam>
     /// <returns>
-    /// An iterator that flattens the sequence of nested sequences into a
-    /// single sequence of items.
+    /// <c>true</c> if the elements in the first <see cref="Iter{T}" /> are
+    /// lexicographically greater than or equal to the elements in the second
+    /// <see cref="Iter{T}" />; otherwise, <c>false</c>.
     /// </returns>
-    public static Flatten<T> Flatten<T>(
-        this Iter<T[]> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
+    public static bool Ge<T>(this Iter<T> left, Iter<T> right)
+        where T : IComparable<T> =>
+        left.Compare(right) is Ordering.Greater or Ordering.Equal;
 
-    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
-    public static Flatten<T> Flatten<T>(
-        this Iter<IEnumerable<T>> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
+    /// <summary>
+    /// Determines if the elements in this <see cref="Iter{T}" /> are
+    /// lexicographically greater than the elements in the provided
+    /// <see cref="Iter{T}" />.
+    /// </summary>
+    /// <param name="left">The first <see cref="Iter{T}" /> to compare.</param>
+    /// <param name="right">The second <see cref="Iter{T}" /> to compare.</param>
+    /// <typeparam name="T">
+    /// The type of elements in the sequence. Must implement
+    /// <see cref="IComparable{T}" />.
+    /// </typeparam>
+    /// <returns>
+    /// <c>true</c> if the elements in the first <see cref="Iter{T}" /> are
+    /// lexicographically greater than the elements in the second
+    /// <see cref="Iter{T}" />; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool Gt<T>(this Iter<T> left, Iter<T> right)
+        where T : IComparable<T> =>
+        left.Compare(right) is Ordering.Greater;
 
-    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
-    public static Flatten<T> Flatten<T>(
-        this Iter<List<T>> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
+    /// <summary>
+    /// Determine if the elements in this <see cref="Iter{T}" /> are
+    /// lexicographically less than or equal to the elements in the provided
+    /// <see cref="Iter{T}" />.
+    /// </summary>
+    /// <param name="left">The first <see cref="Iter{T}" /> to compare.</param>
+    /// <param name="right">The second <see cref="Iter{T}" /> to compare.</param>
+    /// <typeparam name="T">
+    /// The type of elements in the sequence. Must implement
+    /// <see cref="IComparable{T}" />.
+    /// </typeparam>
+    /// <returns>
+    /// <c>true</c> if the elements in the first <see cref="Iter{T}" /> are
+    /// lexicographically less than or equal to the elements in the second
+    /// <see cref="Iter{T}" />; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool Le<T>(this Iter<T> left, Iter<T> right)
+        where T : IComparable<T> =>
+        left.Compare(right) is Ordering.Less or Ordering.Equal;
 
-    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
-    public static Flatten<T> Flatten<T>(
-        this Iter<HashSet<T>> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
-
-    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
-    public static Flatten<T> Flatten<T>(
-        this Iter<LinkedList<T>> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
-
-    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
-    public static Flatten<T> Flatten<T>(
-        this Iter<Queue<T>> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
-
-    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
-    public static Flatten<T> Flatten<T>(
-        this Iter<SortedSet<T>> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
-
-    /// <inheritdoc cref="Flatten{T}(Waystone.Monads.Iterators.Iter{T[]})" />
-    public static Flatten<T> Flatten<T>(
-        this Iter<Stack<T>> iter)
-        where T : notnull =>
-        new(iter.Map(x => x.IntoIter()));
-
-#endregion
+    /// <summary>
+    /// Determines if the elements in this <see cref="Iter{T}" /> are
+    /// lexicographically less than the elements in the provided <see cref="Iter{T}" />
+    /// .
+    /// </summary>
+    /// <param name="left">The first <see cref="Iter{T}" /> to compare.</param>
+    /// <param name="right">The second <see cref="Iter{T}" /> to compare.</param>
+    /// <typeparam name="T">
+    /// The type of elements in the sequence. Must implement
+    /// <see cref="IComparable{T}" />.
+    /// </typeparam>
+    /// <returns>
+    /// <c>true</c> if the elements in the first <see cref="Iter{T}" /> are
+    /// lexicographically less than the elements in the second <see cref="Iter{T}" />;
+    /// otherwise, <c>false</c>.
+    /// </returns>
+    public static bool Lt<T>(this Iter<T> left, Iter<T> right)
+        where T : IComparable<T> => left.Compare(right) is Ordering.Less;
 }
