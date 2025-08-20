@@ -31,4 +31,27 @@ public class CompareSteps(ScenarioContext context)
 
         result.ShouldBe(expected);
     }
+
+    [When("comparing {string} and {string} of integers with Ge")]
+    public void WhenComparingAndOfIntegersWithGe(string p0, string p1)
+    {
+        Iter<int> left = context.Get<IEnumerable<int>>(p0).IntoIter();
+        Iter<int> right = context.Get<IEnumerable<int>>(p1).IntoIter();
+
+        bool result = left.Ge(right);
+
+        context.Set(result);
+    }
+
+    [Then("the result should be {string}")]
+    public void ThenTheResultShouldBeTrue(string p0)
+    {
+        if (!bool.TryParse(p0, out bool expected))
+        {
+            throw new ArgumentException($"Unknown boolean: {p0}");
+        }
+
+        var result = context.Get<bool>();
+        result.ShouldBe(expected);
+    }
 }
