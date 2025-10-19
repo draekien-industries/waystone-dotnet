@@ -154,20 +154,20 @@ namespace Waystone.Monads.Iterators
 #line 6
         await testRunner.AndAsync("mapping \"enumerable\" of integers into strings", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-                global::Reqnroll.Table table12 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table14 = new global::Reqnroll.Table(new string[] {
                             "Value"});
-                table12.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "1"});
-                table12.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "2"});
-                table12.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "3"});
-                table12.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "4"});
-                table12.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "5"});
 #line 7
-        await testRunner.ThenAsync("the elements of \"enumerable\" Map should be the string values", ((string)(null)), table12, "Then ");
+        await testRunner.ThenAsync("the elements of \"enumerable\" Map should be the string values", ((string)(null)), table14, "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

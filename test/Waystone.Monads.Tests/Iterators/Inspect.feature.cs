@@ -17,21 +17,21 @@ namespace Waystone.Monads.Iterators
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class Iter_TakeFeature : object, Xunit.IClassFixture<Iter_TakeFeature.FixtureData>, Xunit.IAsyncLifetime
+    public partial class InspectIterFeature : object, Xunit.IClassFixture<InspectIterFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Iterators", "Iter.Take", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Iterators", "Inspect Iter", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "Take.feature"
+#line 1 "Inspect.feature"
 #line hidden
         
-        public Iter_TakeFeature(Iter_TakeFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public InspectIterFeature(InspectIterFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -127,14 +127,14 @@ namespace Waystone.Monads.Iterators
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Take a number of elements from an iterator")]
-        [Xunit.TraitAttribute("FeatureTitle", "Iter.Take")]
-        [Xunit.TraitAttribute("Description", "Take a number of elements from an iterator")]
-        public async global::System.Threading.Tasks.Task TakeANumberOfElementsFromAnIterator()
+        [Xunit.SkippableFactAttribute(DisplayName="Inspecting elements of an iterator")]
+        [Xunit.TraitAttribute("FeatureTitle", "Inspect Iter")]
+        [Xunit.TraitAttribute("Description", "Inspecting elements of an iterator")]
+        public async global::System.Threading.Tasks.Task InspectingElementsOfAnIterator()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Take a number of elements from an iterator", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Inspecting elements of an iterator", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 3
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -152,24 +152,38 @@ namespace Waystone.Monads.Iterators
         await testRunner.WhenAsync("converting \"enumerable\" of integers to an iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 6
-        await testRunner.AndAsync("taking the first 3 elements from the \"enumerable\" integer iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("inspecting each element of \"enumerable\" iterator of integers to log \"Inspected: {" +
+                        "0}\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-                global::Reqnroll.Table table15 = new global::Reqnroll.Table(new string[] {
-                            "Value"});
-                table15.AddRow(new string[] {
-                            "1"});
-                table15.AddRow(new string[] {
-                            "2"});
-                table15.AddRow(new string[] {
-                            "3"});
+                global::Reqnroll.Table table11 = new global::Reqnroll.Table(new string[] {
+                            "Message"});
+                table11.AddRow(new string[] {
+                            "Inspected: 1"});
+                table11.AddRow(new string[] {
+                            "Inspected: 2"});
+                table11.AddRow(new string[] {
+                            "Inspected: 3"});
+                table11.AddRow(new string[] {
+                            "Inspected: 4"});
+                table11.AddRow(new string[] {
+                            "Inspected: 5"});
 #line 7
-        await testRunner.ThenAsync("the \"enumerable\" integer Take should return", ((string)(null)), table15, "Then ");
+        await testRunner.ThenAsync("the log should contain", ((string)(null)), table11, "Then ");
 #line hidden
-#line 13
-        await testRunner.WhenAsync("getting the \"next\" element of the \"enumerable\" integer Take", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
+                global::Reqnroll.Table table12 = new global::Reqnroll.Table(new string[] {
+                            "Value"});
+                table12.AddRow(new string[] {
+                            "1"});
+                table12.AddRow(new string[] {
+                            "2"});
+                table12.AddRow(new string[] {
+                            "3"});
+                table12.AddRow(new string[] {
+                            "4"});
+                table12.AddRow(new string[] {
+                            "5"});
 #line 14
-        await testRunner.ThenAsync("the result of the \"next\" integer find should be None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.AndAsync("the \"enumerable\" iterator of integers should yield", ((string)(null)), table12, "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -182,12 +196,12 @@ namespace Waystone.Monads.Iterators
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await Iter_TakeFeature.FeatureSetupAsync();
+                await InspectIterFeature.FeatureSetupAsync();
             }
             
             async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
             {
-                await Iter_TakeFeature.FeatureTearDownAsync();
+                await InspectIterFeature.FeatureTearDownAsync();
             }
         }
     }

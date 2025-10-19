@@ -349,6 +349,21 @@ public class Iter<T>
     /// </returns>
     public Take<T> Take(int count) => new(this, count);
 
+    /// <summary>
+    /// Creates an <see cref="Inspect{T}" /> adapter over the current
+    /// iteration sequence that invokes the specified <paramref name="inspect" />
+    /// action on each element.
+    /// </summary>
+    /// <param name="inspect">
+    /// The action to apply to each element in the iteration
+    /// sequence.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="Inspect{T}" /> adapter that applies the specified
+    /// action to each element.
+    /// </returns>
+    public Inspect<T> Inspect(Action<T> inspect) => new(this, inspect);
+
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj switch
     {
@@ -366,7 +381,7 @@ public class Iter<T>
 #if NET6_0_OR_GREATER
                 return HashCode.Combine(current, item.GetHashCode());
 #else
-                return (current * 21 ) ^ item.GetHashCode();
+                return (current * 21) ^ item.GetHashCode();
 #endif
             });
 }
