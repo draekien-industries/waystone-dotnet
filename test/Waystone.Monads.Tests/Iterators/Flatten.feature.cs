@@ -127,14 +127,14 @@ namespace Waystone.Monads.Iterators
             await this.TestTearDownAsync();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Flattening a 2D array of integers")]
+        [Xunit.SkippableFactAttribute(DisplayName="Flattening a 2D iter of integers")]
         [Xunit.TraitAttribute("FeatureTitle", "Iter.Flatten")]
-        [Xunit.TraitAttribute("Description", "Flattening a 2D array of integers")]
-        public async global::System.Threading.Tasks.Task FlatteningA2DArrayOfIntegers()
+        [Xunit.TraitAttribute("Description", "Flattening a 2D iter of integers")]
+        public async global::System.Threading.Tasks.Task FlatteningA2DIterOfIntegers()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Flattening a 2D array of integers", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Flattening a 2D iter of integers", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 3
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -146,16 +146,13 @@ namespace Waystone.Monads.Iterators
             {
                 await this.ScenarioStartAsync();
 #line 4
-        await testRunner.GivenAsync("a 2D array of integers \"2d-array\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.GivenAsync("a 2D iterator of integers \"2d-iter\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 5
-        await testRunner.AndAsync("the \"2d-array\" 2D array is converted into a 2D iterator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.WhenAsync("the \"2d-iter\" 2D iterator is flattened into \"1d-iter\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 6
-        await testRunner.WhenAsync("the \"2d-array\" 2D iterator is flattened into \"1d-array\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 7
-        await testRunner.ThenAsync("the \"1d-array\" result should be a 1D iterator containing the integers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the \"1d-iter\" result should be a 1D iterator containing the integers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

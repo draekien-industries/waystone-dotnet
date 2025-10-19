@@ -8,7 +8,7 @@ using Results;
 using Results.Errors;
 
 /// <summary>Extension methods for <see cref="Iter{T}" />.</summary>
-public static partial class IterExtensions
+public static class IterExtensions
 {
     /// <summary>Creates an <see cref="Iter{T}" /> that clones all of its elements.</summary>
     /// <param name="iter"></param>
@@ -192,4 +192,17 @@ public static partial class IterExtensions
     /// </returns>
     public static bool Lt<T>(this Iter<T> left, Iter<T> right)
         where T : IComparable<T> => left.Compare(right) is Ordering.Less;
+
+    /// <summary>
+    /// Flattens a two-dimensional <see cref="Iter{T}" />, producing a
+    /// single-dimensional <see cref="Iter{T}" />.
+    /// </summary>
+    /// <param name="iter">The two-dimensional iterator to flatten.</param>
+    /// <typeparam name="T">The type of the elements in the iterators.</typeparam>
+    /// <returns>
+    /// A flattened <see cref="Iter{T}" /> containing all elements from the
+    /// nested iterators.
+    /// </returns>
+    public static Flatten<T> Flatten<T>(this Iter<Iter<T>> iter)
+        where T : notnull => new(iter);
 }
