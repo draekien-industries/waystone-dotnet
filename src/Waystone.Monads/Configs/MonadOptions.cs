@@ -1,12 +1,10 @@
 namespace Waystone.Monads.Configs;
 
-#if !DEBUG
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Options;
 using Results.Errors;
-#endif
 
 /// <summary>Global configuration options for the Waystone.Monads library.</summary>
 [ExcludeFromCodeCoverage]

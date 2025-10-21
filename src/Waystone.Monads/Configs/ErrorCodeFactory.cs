@@ -1,9 +1,9 @@
 namespace Waystone.Monads.Configs;
 
-#if !DEBUG
 using System;
-using System.Diagnostics;
 using Results.Errors;
+#if !DEBUG
+using System.Diagnostics;
 #endif
 
 /// <summary>

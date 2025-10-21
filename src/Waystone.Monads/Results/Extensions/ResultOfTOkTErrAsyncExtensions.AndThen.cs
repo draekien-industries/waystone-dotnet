@@ -1,10 +1,10 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
-#if !DEBUG
 using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+#if !DEBUG
+using System.Diagnostics;
 #endif
 
 [ExcludeFromCodeCoverage]

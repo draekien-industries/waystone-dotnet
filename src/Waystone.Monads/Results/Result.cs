@@ -1,11 +1,11 @@
 ﻿namespace Waystone.Monads.Results;
 
-#if !DEBUG
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
+#if !DEBUG
+using System.Diagnostics;
 #endif
 
 /// <summary>Static methods for <see cref="Result{TOk,TErr}" /></summary>

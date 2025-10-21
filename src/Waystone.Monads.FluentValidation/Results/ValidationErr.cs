@@ -2,14 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Configs;
 using global::FluentValidation.Results;
 using Monads.Results.Errors;
 using Options;
-#if !DEBUG
-using System.Diagnostics;
-#endif
 
 /// <summary>The errors that were encountered while running a validator</summary>
 public sealed class ValidationErr

@@ -1,10 +1,10 @@
 ﻿namespace Waystone.Monads.Results;
 
-#if !DEBUG
 using System;
-using System.Diagnostics;
 using Exceptions;
 using Options;
+#if !DEBUG
+using System.Diagnostics;
 #endif
 
 /// <summary>An ok result type</summary>
