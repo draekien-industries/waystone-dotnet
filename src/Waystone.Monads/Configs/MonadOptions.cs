@@ -1,10 +1,12 @@
 namespace Waystone.Monads.Configs;
 
+#if !DEBUG
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Options;
 using Results.Errors;
+#endif
 
 /// <summary>Global configuration options for the Waystone.Monads library.</summary>
 [ExcludeFromCodeCoverage]
@@ -16,8 +18,6 @@ public sealed class MonadOptions
     private static readonly Lazy<MonadOptions> Singleton =
         new(() => new MonadOptions());
 
-    internal static MonadOptions Global => Singleton.Value;
-
     private MonadOptions()
     {
         ExceptionLogger = Option.None<Action<Exception, CallerInfo>>();
@@ -25,6 +25,8 @@ public sealed class MonadOptions
         FallbackErrorCode = "Unspecified";
         FallbackErrorMessage = "An unexpected error occurred.";
     }
+
+    internal static MonadOptions Global => Singleton.Value;
 
     internal Option<Action<Exception, CallerInfo>> ExceptionLogger { get; set; }
     internal ErrorCodeFactory ErrorCodeFactory { get; set; }

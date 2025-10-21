@@ -1,7 +1,10 @@
 namespace Waystone.Monads.Configs;
 
+#if !DEBUG
 using System;
+using System.Diagnostics;
 using Results.Errors;
+#endif
 
 /// <summary>
 /// A factory for creating <see cref="ErrorCode" /> instances from enums

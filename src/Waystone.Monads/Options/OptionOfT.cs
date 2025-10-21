@@ -4,6 +4,9 @@ using System;
 using Exceptions;
 using Extensions;
 using Results;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>
 /// A type which can be in two states, a <see cref="Some{T}" /> or a

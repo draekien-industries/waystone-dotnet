@@ -1,8 +1,11 @@
 ﻿namespace Waystone.Monads.Results;
 
+#if !DEBUG
 using System;
+using System.Diagnostics;
 using Exceptions;
 using Options;
+#endif
 
 /// <summary>An ok result type</summary>
 /// <typeparam name="TOk">The ok result value's type</typeparam>

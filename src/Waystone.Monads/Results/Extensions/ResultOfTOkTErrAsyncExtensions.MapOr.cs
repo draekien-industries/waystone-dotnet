@@ -26,7 +26,7 @@ public static partial class ResultOfTOkTErrAsyncExtensions
     /// <typeparam name="TErr">The type of the Err value.</typeparam>
     /// <typeparam name="TOut">The type of the resulting output value.</typeparam>
     /// <returns>
-    /// A <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />
+    /// A <see cref="Task" /> or <see cref="ValueTask{TResult}" />
     /// containing the transformed value if the <see cref="Result{TOk, TErr}" /> is Ok,
     /// or the default value if it is Err.
     /// </returns>

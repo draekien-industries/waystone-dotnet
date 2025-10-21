@@ -4,10 +4,13 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>Static functions for <see cref="Option{T}" /></summary>
 #if !DEBUG
-    [DebuggerStepThrough]
+[DebuggerStepThrough]
 #endif
 public static class Option
 {

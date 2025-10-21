@@ -1,8 +1,11 @@
 ﻿namespace Waystone.Monads.Results;
 
+#if !DEBUG
 using System;
+using System.Diagnostics;
 using Exceptions;
 using Options;
+#endif
 
 /// <summary>
 /// A type that represents either a success (<see cref="Ok{TOk,TErr}" />)

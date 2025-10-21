@@ -1,12 +1,15 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
+#if !DEBUG
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+#endif
 
 [ExcludeFromCodeCoverage]
 #if !DEBUG
-    [DebuggerStepThrough]
+[DebuggerStepThrough]
 #endif
 public static partial class ResultOfTOkTErrAsyncExtensions
 {

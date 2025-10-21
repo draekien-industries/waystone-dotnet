@@ -2,6 +2,9 @@
 
 using System;
 using Results;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>Some value of type <typeparamref name="T" /></summary>
 /// <typeparam name="T">
