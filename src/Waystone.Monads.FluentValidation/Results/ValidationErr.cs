@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Configs;
 using global::FluentValidation.Results;
+using Monads.Results.Errors;
 using Options;
-using Waystone.Monads.FluentValidation.Configs;
-using Waystone.Monads.Results.Errors;
 
 /// <summary>The errors that were encountered while running a validator</summary>
 public sealed class ValidationErr
@@ -51,20 +51,22 @@ public sealed class ValidationErr
     public IDictionary<string, string[]> ToDictionary() =>
         _validationResult.ToDictionary();
 
-    /// <summary>
-    /// Converts the <see cref="ValidationErr" /> to an <see cref="Error" />.
-    /// </summary>
+    /// <summary>Converts the <see cref="ValidationErr" /> to an <see cref="Error" />.</summary>
     /// <remarks>
-    /// Uses the options configured in <see cref="MonadValidationOptions"/> to determine
-    /// the error code and the fallback error message (for when there are no errors in the validation result).
+    /// Uses the options configured in <see cref="MonadValidationOptions" />
+    /// to determine the error code and the fallback error message (for when there are
+    /// no errors in the validation result).
     /// </remarks>
-    /// <returns>The created <see cref="Error"/></returns>
+    /// <returns>The created <see cref="Error" /></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public Error ToError()
     {
-        Debug.Assert(_validationResult.IsValid is false, "Validation Result should never be valid here.");
+        Debug.Assert(
+            _validationResult.IsValid is false,
+            "Validation Result should never be valid here.");
 
-        ErrorCode errorCode = new(MonadValidationOptions.Global.ValidationErrorCode);
+        ErrorCode errorCode =
+            new(MonadValidationOptions.Global.ValidationErrorCode);
 
         string errorMessage = Errors.Count > 0
             ? string.Join("; ", Errors.Select(e => e.ErrorMessage.TrimEnd('.')))

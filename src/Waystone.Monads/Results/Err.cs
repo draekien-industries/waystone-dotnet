@@ -3,10 +3,16 @@
 using System;
 using Exceptions;
 using Options;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>An error result</summary>
 /// <typeparam name="TOk">The ok result value's type</typeparam>
 /// <typeparam name="TErr">The error result value's type</typeparam>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     where TOk : notnull
     where TErr : notnull

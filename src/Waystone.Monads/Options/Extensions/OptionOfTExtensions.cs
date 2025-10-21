@@ -1,9 +1,15 @@
 ﻿namespace Waystone.Monads.Options.Extensions;
 
+#if !DEBUG
+using System.Diagnostics;
+#endif
 using Results;
 using static Option;
 
 /// <summary>Extensions for <see cref="Option{T}" /></summary>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public static class OptionOfTExtensions
 {
     /// <summary>Unzips an option containing a tuple value into two options.</summary>

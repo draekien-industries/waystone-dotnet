@@ -4,8 +4,14 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>Static methods for <see cref="Result{TOk,TErr}" /></summary>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public static class Result
 {
     /// <summary>

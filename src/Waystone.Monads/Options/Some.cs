@@ -1,13 +1,19 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
-using Waystone.Monads.Results;
+using Results;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>Some value of type <typeparamref name="T" /></summary>
 /// <typeparam name="T">
 /// The type belonging to the value inside the
 /// <see cref="Some{T}" />
 /// </typeparam>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public sealed record Some<T> : Option<T>
     where T : notnull
 {
@@ -115,12 +121,17 @@ public sealed record Some<T> : Option<T>
         return Option.None<(T, T2)>();
     }
 
-    /// <inheritdoc/>
-    public override Option<TOut> ZipWith<TOther, TOut>(Option<TOther> other, Func<T, TOther, TOut> zip) => other.Map(otherValue => zip(Value, otherValue));
+    /// <inheritdoc />
+    public override Option<TOut> ZipWith<TOther, TOut>(
+        Option<TOther> other,
+        Func<T, TOther, TOut> zip) =>
+        other.Map(otherValue => zip(Value, otherValue));
 
-    /// <inheritdoc/>
-    public override Result<T, TErr> OkOr<TErr>(TErr error) => Result.Ok<T, TErr>(Value);
+    /// <inheritdoc />
+    public override Result<T, TErr> OkOr<TErr>(TErr error) =>
+        Result.Ok<T, TErr>(Value);
 
-    /// <inheritdoc/>
-    public override Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory) => Result.Ok<T, TErr>(Value);
+    /// <inheritdoc />
+    public override Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory) =>
+        Result.Ok<T, TErr>(Value);
 }

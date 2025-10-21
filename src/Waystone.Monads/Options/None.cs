@@ -2,10 +2,16 @@
 
 using System;
 using Exceptions;
-using Waystone.Monads.Results;
+using Results;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>No value of type <typeparamref name="T" />.</summary>
 /// <typeparam name="T">The option value's type.</typeparam>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public sealed record None<T> : Option<T>
     where T : notnull
 {
@@ -91,13 +97,17 @@ public sealed record None<T> : Option<T>
     public override Option<(T, T2)> Zip<T2>(Option<T2> other) =>
         Option.None<(T, T2)>();
 
-    /// <inheritdoc/>
-    public override Option<TOut> ZipWith<TOther, TOut>(Option<TOther> other, Func<T, TOther, TOut> zip) =>
+    /// <inheritdoc />
+    public override Option<TOut> ZipWith<TOther, TOut>(
+        Option<TOther> other,
+        Func<T, TOther, TOut> zip) =>
         Option.None<TOut>();
 
-    /// <inheritdoc/>
-    public override Result<T, TErr> OkOr<TErr>(TErr error) => Result.Err<T, TErr>(error);
+    /// <inheritdoc />
+    public override Result<T, TErr> OkOr<TErr>(TErr error) =>
+        Result.Err<T, TErr>(error);
 
-    /// <inheritdoc/>
-    public override Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory) => Result.Err<T, TErr>(errorFactory());
+    /// <inheritdoc />
+    public override Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory) =>
+        Result.Err<T, TErr>(errorFactory());
 }

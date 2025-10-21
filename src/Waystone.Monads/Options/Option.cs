@@ -4,8 +4,14 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>Static functions for <see cref="Option{T}" /></summary>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public static class Option
 {
     /// <summary>
@@ -105,14 +111,15 @@ public static class Option
     /// <returns>An <see cref="Option{T}" />.</returns>
     public static Option<T> None<T>() where T : notnull => new None<T>();
 
-    /// <summary>
-    /// Creates an <see cref="Option{T}"/> from a nullable value type.
-    /// </summary>
+    /// <summary>Creates an <see cref="Option{T}" /> from a nullable value type.</summary>
     /// <typeparam name="T">The non-nullable value's type</typeparam>
-    /// <param name="value">The nullable value to convert into an <see cref="Option{T}"/></param>
+    /// <param name="value">
+    /// The nullable value to convert into an
+    /// <see cref="Option{T}" />
+    /// </param>
     /// <returns>
-    /// Returns a <see cref="Some{T}"/> if the value is not null and not equal to the default value,
-    /// otherwise it will return a <see cref="None{T}"/>.
+    /// Returns a <see cref="Some{T}" /> if the value is not null and not
+    /// equal to the default value, otherwise it will return a <see cref="None{T}" />.
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : struct =>
@@ -120,14 +127,15 @@ public static class Option
             ? new Some<T>(value.Value)
             : new None<T>();
 
-    /// <summary>
-    /// Creates an <see cref="Option{T}"/> from a nullable reference type.
-    /// </summary>
+    /// <summary>Creates an <see cref="Option{T}" /> from a nullable reference type.</summary>
     /// <typeparam name="T">The non-nullable value's type</typeparam>
-    /// <param name="value">The nullable value to convert into an <see cref="Option{T}"/></param>
+    /// <param name="value">
+    /// The nullable value to convert into an
+    /// <see cref="Option{T}" />
+    /// </param>
     /// <returns>
-    /// Returns a <see cref="Some{T}"/> if the value is not null,
-    /// otherwise returns a <see cref="None{T}"/>.
+    /// Returns a <see cref="Some{T}" /> if the value is not null, otherwise
+    /// returns a <see cref="None{T}" />.
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : class =>

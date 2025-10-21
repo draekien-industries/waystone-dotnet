@@ -3,6 +3,9 @@
 using System;
 using Exceptions;
 using Options;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 
 /// <summary>
 /// A type that represents either a success (<see cref="Ok{TOk,TErr}" />)
@@ -10,6 +13,9 @@ using Options;
 /// </summary>
 /// <typeparam name="TOk">The type of the <see cref="Ok{TOk,TErr}" /> value.</typeparam>
 /// <typeparam name="TErr">The type of the <see cref="Err{TOk,TErr}" /> value.</typeparam>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public abstract record Result<TOk, TErr>
     where TOk : notnull where TErr : notnull
 {

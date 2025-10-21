@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Exceptions;
 using Extensions;
 using JetBrains.Annotations;
+using Monads.Extensions;
 using NSubstitute;
+using Results;
 using Shouldly;
-using Waystone.Monads.Extensions;
-using Waystone.Monads.Results;
 using Xunit;
 
 [TestSubject(typeof(None<>))]
@@ -27,7 +27,7 @@ public class NoneTest
 
         Should.Throw<UnwrapException>(() => none.Unwrap());
         Should.Throw<UnmetExpectationException>(() => none.Expect(
-                                                    "value is 1"));
+            "value is 1"));
     }
 
     [Fact]
@@ -330,7 +330,7 @@ public class NoneTest
 
         Option<int> result =
             await none.OrElseAsync(() => new ValueTask<Option<int>>(
-                                       Option.Some(1)));
+                Option.Some(1)));
 
         result.ShouldBe(Option.Some(1));
     }
@@ -363,7 +363,7 @@ public class NoneTest
 
         Option<int> result =
             await none.FlatMapAsync(x => new ValueTask<Option<int>>(
-                                        Option.Some(x + 1)));
+                Option.Some(x + 1)));
 
         result.ShouldBe(none);
     }
@@ -405,7 +405,8 @@ public class NoneTest
     public async Task GivenOptionTask_WhenOkOrElseAsync_ThenReturnErr()
     {
         Task<Option<int>> none = Task.FromResult(Option.None<int>());
-        Result<int, string> result = await none.OkOrElseAsync(() => Task.FromResult("Error"));
+        Result<int, string> result =
+            await none.OkOrElseAsync(() => Task.FromResult("Error"));
         result.ShouldBeErrValue("Error");
     }
 
@@ -413,15 +414,18 @@ public class NoneTest
     public async Task GivenOption_WhenOkOrElseAsync_ThenReturnErr()
     {
         Option<int> none = Option.None<int>();
-        Result<int, string> result = await none.OkOrElseAsync(() => Task.FromResult("Error"));
+        Result<int, string> result =
+            await none.OkOrElseAsync(() => Task.FromResult("Error"));
         result.ShouldBeErrValue("Error");
     }
 
     [Fact]
-    public async Task GivenOptionValueTask_WhenOkOrElseAsyncWithValueTask_ThenReturnErr()
+    public async Task
+        GivenOptionValueTask_WhenOkOrElseAsyncWithValueTask_ThenReturnErr()
     {
         ValueTask<Option<int>> none = new(Option.None<int>());
-        Result<int, string> result = await none.OkOrElseAsync(() => new ValueTask<string>("Error"));
+        Result<int, string> result =
+            await none.OkOrElseAsync(() => new ValueTask<string>("Error"));
         result.ShouldBeErrValue("Error");
     }
 
@@ -429,7 +433,8 @@ public class NoneTest
     public async Task GivenOption_WhenOkOrElseAsyncWithValueTask_ThenReturnErr()
     {
         Option<int> none = Option.None<int>();
-        Result<int, string> result = await none.OkOrElseAsync(() => new ValueTask<string>("Error"));
+        Result<int, string> result =
+            await none.OkOrElseAsync(() => new ValueTask<string>("Error"));
         result.ShouldBeErrValue("Error");
     }
 
@@ -438,7 +443,7 @@ public class NoneTest
     {
         Option<int> self = Option.None<int>();
         Option<int> other = Option.Some(2);
-        var result = self.ZipWith(other, (x, y) => x + y);
+        Option<int> result = self.ZipWith(other, (x, y) => x + y);
         result.ShouldBeNone();
     }
 
@@ -447,7 +452,7 @@ public class NoneTest
     {
         Option<int> self = Option.None<int>();
         Option<int> other = Option.None<int>();
-        var result = self.ZipWith(other, (x, y) => x + y);
+        Option<int> result = self.ZipWith(other, (x, y) => x + y);
         result.ShouldBeNone();
     }
 
@@ -456,16 +461,21 @@ public class NoneTest
     {
         Option<int> self = Option.None<int>();
         Option<int> other = Option.Some(2);
-        var result = await self.ZipWithAsync(other, (x, y) => Task.FromResult(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => Task.FromResult(x + y));
         result.ShouldBeNone();
     }
 
     [Fact]
-    public async Task GivenOtherIsSome_AndSelfIsTask_WhenZipWithAsync_ThenReturnNone()
+    public async Task
+        GivenOtherIsSome_AndSelfIsTask_WhenZipWithAsync_ThenReturnNone()
     {
         Task<Option<int>> self = Task.FromResult(Option.None<int>());
         Option<int> other = Option.Some(2);
-        var result = await self.ZipWithAsync(other, (x, y) => Task.FromResult(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => Task.FromResult(x + y));
         result.ShouldBeNone();
     }
 
@@ -474,52 +484,69 @@ public class NoneTest
     {
         Option<int> self = Option.None<int>();
         Option<int> other = Option.None<int>();
-        var result = await self.ZipWithAsync(other, (x, y) => Task.FromResult(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => Task.FromResult(x + y));
         result.ShouldBeNone();
     }
 
     [Fact]
-    public async Task GivenOtherIsNone_AndSelfIsTask_WhenZipWithAsync_ThenReturnNone()
+    public async Task
+        GivenOtherIsNone_AndSelfIsTask_WhenZipWithAsync_ThenReturnNone()
     {
         Task<Option<int>> self = Task.FromResult(Option.None<int>());
         Option<int> other = Option.None<int>();
-        var result = await self.ZipWithAsync(other, (x, y) => Task.FromResult(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => Task.FromResult(x + y));
         result.ShouldBeNone();
     }
 
     [Fact]
-    public async Task GivenOtherIsSome_AndSelfIsValueTask_WhenZipWithAsync_ThenReturnNone()
+    public async Task
+        GivenOtherIsSome_AndSelfIsValueTask_WhenZipWithAsync_ThenReturnNone()
     {
         ValueTask<Option<int>> self = new(Option.None<int>());
         Option<int> other = Option.Some(2);
-        var result = await self.ZipWithAsync(other, (x, y) => new ValueTask<int>(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => new ValueTask<int>(x + y));
         result.ShouldBeNone();
     }
 
     [Fact]
-    public async Task GivenOtherIsNone_AndSelfIsValueTask_WhenZipWithAsync_ThenReturnNone()
+    public async Task
+        GivenOtherIsNone_AndSelfIsValueTask_WhenZipWithAsync_ThenReturnNone()
     {
         ValueTask<Option<int>> self = new(Option.None<int>());
         Option<int> other = Option.None<int>();
-        var result = await self.ZipWithAsync(other, (x, y) => new ValueTask<int>(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => new ValueTask<int>(x + y));
         result.ShouldBeNone();
     }
 
     [Fact]
-    public async Task GivenOtherIsSome_WhenZipWithAsyncWithValueTask_ThenReturnNone()
+    public async Task
+        GivenOtherIsSome_WhenZipWithAsyncWithValueTask_ThenReturnNone()
     {
         Option<int> self = Option.None<int>();
         Option<int> other = Option.Some(2);
-        var result = await self.ZipWithAsync(other, (x, y) => new ValueTask<int>(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => new ValueTask<int>(x + y));
         result.ShouldBeNone();
     }
 
     [Fact]
-    public async Task GivenOtherIsNone_WhenZipWithAsyncWithValueTask_ThenReturnNone()
+    public async Task
+        GivenOtherIsNone_WhenZipWithAsyncWithValueTask_ThenReturnNone()
     {
         Option<int> self = Option.None<int>();
         Option<int> other = Option.None<int>();
-        var result = await self.ZipWithAsync(other, (x, y) => new ValueTask<int>(x + y));
+        Option<int> result = await self.ZipWithAsync(
+            other,
+            (x, y) => new ValueTask<int>(x + y));
         result.ShouldBeNone();
     }
 }
