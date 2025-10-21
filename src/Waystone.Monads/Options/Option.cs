@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Configs;
 
 /// <summary>Static functions for <see cref="Option{T}" /></summary>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
 public static class Option
 {
     /// <summary>
@@ -27,13 +30,6 @@ public static class Option
     /// A <see cref="Some{T}" /> if the factory executes successfully,
     /// otherwise a <see cref="None{T}" />
     /// </returns>
-#if !DEBUG
-#if !DEBUG
-    [DebuggerStepThrough]
-    [StackTraceHidden]
-#endif
-    [StackTraceHidden]
-#endif
     public static Option<T> Try<T>(
         Func<T> factory,
         [CallerMemberName] string callerMemberName = "",
@@ -77,10 +73,6 @@ public static class Option
     /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
     /// <see cref="None{T}" />
     /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-    [StackTraceHidden]
-#endif
     public static async Task<Option<T>> Try<T>(
         Func<Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
@@ -108,20 +100,12 @@ public static class Option
     /// <param name="value">The value of the <see cref="Some{T}" /></param>
     /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>An <see cref="Option{T}" />.</returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-    [StackTraceHidden]
-#endif
     public static Option<T> Some<T>(T value) where T : notnull =>
         new Some<T>(value);
 
     /// <summary>Creates a <see cref="None{T}" /></summary>
     /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>An <see cref="Option{T}" />.</returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-    [StackTraceHidden]
-#endif
     public static Option<T> None<T>() where T : notnull => new None<T>();
 
     /// <summary>Creates an <see cref="Option{T}" /> from a nullable value type.</summary>
@@ -134,10 +118,6 @@ public static class Option
     /// Returns a <see cref="Some{T}" /> if the value is not null and not
     /// equal to the default value, otherwise it will return a <see cref="None{T}" />.
     /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-    [StackTraceHidden]
-#endif
     public static Option<T> FromNullable<T>(T? value)
         where T : struct =>
         value.HasValue && !value.Value.Equals(default(T))
@@ -154,10 +134,6 @@ public static class Option
     /// Returns a <see cref="Some{T}" /> if the value is not null, otherwise
     /// returns a <see cref="None{T}" />.
     /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-    [StackTraceHidden]
-#endif
     public static Option<T> FromNullable<T>(T? value)
         where T : class =>
         value is null ? new None<T>() : new Some<T>(value);

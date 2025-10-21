@@ -7,6 +7,9 @@ using Options;
 /// <summary>An ok result type</summary>
 /// <typeparam name="TOk">The ok result value's type</typeparam>
 /// <typeparam name="TErr">The error result value's type</typeparam>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     where TOk : notnull where TErr : notnull
 {

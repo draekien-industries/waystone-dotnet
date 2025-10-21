@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Configs;
 
 /// <summary>Static methods for <see cref="Result{TOk,TErr}" /></summary>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public static class Result
 {
     /// <summary>

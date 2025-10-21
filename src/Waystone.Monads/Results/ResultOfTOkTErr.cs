@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
-using System.Diagnostics;
 using Exceptions;
 using Options;
 
@@ -13,7 +12,6 @@ using Options;
 /// <typeparam name="TErr">The type of the <see cref="Err{TOk,TErr}" /> value.</typeparam>
 #if !DEBUG
 [DebuggerStepThrough]
-[StackTraceHidden]
 #endif
 public abstract record Result<TOk, TErr>
     where TOk : notnull where TErr : notnull

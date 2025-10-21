@@ -10,6 +10,9 @@ using Results;
 /// <see cref="None{T}" />.
 /// </summary>
 /// <typeparam name="T">The option value's type.</typeparam>
+#if !DEBUG
+[DebuggerStepThrough]
+#endif
 public abstract record Option<T> where T : notnull
 {
     /// <summary>
@@ -139,7 +142,6 @@ public abstract record Option<T> where T : notnull
     /// </returns>
 #if !DEBUG
     [DebuggerStepThrough]
-    [StackTraceHidden]
 #endif
     public Option<T2> FlatMap<T2>(Func<T, Option<T2>> map) where T2 : notnull =>
         Map(map).Flatten();
@@ -305,7 +307,6 @@ public abstract record Option<T> where T : notnull
     /// </returns>
 #if !DEBUG
     [DebuggerStepThrough]
-    [StackTraceHidden]
 #endif
     public static implicit operator Option<T>(T value) =>
         Equals(value, default(T)) ? new None<T>() : new Some<T>(value);

@@ -1,13 +1,11 @@
 ﻿namespace Waystone.Monads.Options.Extensions;
 
-using System.Diagnostics;
 using Results;
 using static Option;
 
 /// <summary>Extensions for <see cref="Option{T}" /></summary>
 #if !DEBUG
-[DebuggerStepThrough]
-[StackTraceHidden]
+    [DebuggerStepThrough]
 #endif
 public static class OptionOfTExtensions
 {
