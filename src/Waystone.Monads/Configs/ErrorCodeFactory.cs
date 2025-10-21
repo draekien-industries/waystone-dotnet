@@ -31,7 +31,7 @@ public class ErrorCodeFactory
     /// <returns>The created <see cref="ErrorCode" />.</returns>
     public virtual ErrorCode FromException(Exception exception)
     {
-        Type? exceptionType = exception.GetType();
+        Type exceptionType = exception.GetType();
         string exceptionName = exceptionType.Name;
 
         return exceptionName switch

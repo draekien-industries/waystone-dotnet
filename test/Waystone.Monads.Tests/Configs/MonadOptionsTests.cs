@@ -1,6 +1,5 @@
 namespace Waystone.Monads.Configs;
 
-using System;
 using JetBrains.Annotations;
 using Shouldly;
 using Xunit;

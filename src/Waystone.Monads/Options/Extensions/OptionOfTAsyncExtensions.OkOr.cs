@@ -1,7 +1,7 @@
 namespace Waystone.Monads.Options.Extensions;
 
 using System.Threading.Tasks;
-using Waystone.Monads.Results;
+using Results;
 
 public static partial class OptionOfTAsyncExtensions
 {
