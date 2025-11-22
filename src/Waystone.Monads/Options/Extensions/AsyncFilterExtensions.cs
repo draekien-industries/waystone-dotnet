@@ -65,6 +65,36 @@ public static class AsyncFilterExtensions
                 ? option
                 : Option.None<T>();
         }
+
+        /// <summary>
+        /// Filters the current <see cref="Option{T}" /> instance based on the
+        /// provided predicate.
+        /// </summary>
+        /// <param name="predicate">
+        /// A function that determines whether the value contained in the
+        /// <see cref="Option{T}" />
+        /// satisfies the condition.
+        /// </param>
+        /// <returns>
+        /// An asynchronous <see cref="Task{TResult}" /> containing an
+        /// <see cref="Option{T}" /> of
+        /// type <typeparamref name="T" /> that contains the initial value if it satisfies
+        /// the
+        /// predicate, or an empty <see cref="Option{T}" /> if it does not.
+        /// </returns>
+        public async Task<Option<T>>
+            Filter(Func<T, bool> predicate)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            if (option.IsNone) return option;
+
+            T some = option.Expect("Expected Some but found None.");
+
+            return predicate.Invoke(some)
+                ? option
+                : Option.None<T>();
+        }
     }
 
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
@@ -94,6 +124,34 @@ public static class AsyncFilterExtensions
             T some = option.Expect("Expected Some but found None.");
 
             return await predicate.Invoke(some).ConfigureAwait(false)
+                ? option
+                : Option.None<T>();
+        }
+
+        /// <summary>
+        /// Filters the result of the asynchronous <see cref="Option{T}" /> operation
+        /// using the provided synchronous predicate.
+        /// </summary>
+        /// <param name="predicate">
+        /// A function that determines whether the value contained in the
+        /// <see cref="Option{T}" />
+        /// satisfies the condition.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> containing an <see cref="Option{T}" /> of type
+        /// <typeparamref name="T" /> that contains the initial value if it satisfies
+        /// the predicate, or an empty <see cref="Option{T}" /> if it does not.
+        /// </returns>
+        public async Task<Option<T>>
+            Filter(Func<T, bool> predicate)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            if (option.IsNone) return option;
+
+            T some = option.Expect("Expected Some but found None.");
+
+            return predicate.Invoke(some)
                 ? option
                 : Option.None<T>();
         }
