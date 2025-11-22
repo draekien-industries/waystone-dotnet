@@ -1,7 +1,6 @@
 ﻿namespace Waystone.Monads.Options.Extensions;
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -26,7 +25,6 @@ public static class AsyncControlFlowExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        [DebuggerStepThrough]
         public async ValueTask<bool> IsSomeAnd(Func<T, Task<bool>> predicate)
         {
             if (option.IsNone) return false;
@@ -51,7 +49,6 @@ public static class AsyncControlFlowExtensions
         /// or the predicate evaluates to <see langword="true" /> for the contained value
         /// if it is in a "Some" state; otherwise, <see langword="false" />.
         /// </returns>
-        [DebuggerStepThrough]
         public async ValueTask<bool> IsNoneOr(Func<T, Task<bool>> predicate)
         {
             if (option.IsNone) return true;
@@ -78,7 +75,6 @@ public static class AsyncControlFlowExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        [DebuggerStepThrough]
         public async Task<bool> IsSomeAnd(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -100,7 +96,6 @@ public static class AsyncControlFlowExtensions
         /// <see langword="true" /> for the contained value; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        [DebuggerStepThrough]
         public async Task<bool> IsNoneOr(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -126,7 +121,6 @@ public static class AsyncControlFlowExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        [DebuggerStepThrough]
         public async Task<bool> IsSomeAnd(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionValueTask.ConfigureAwait(false);
@@ -148,7 +142,6 @@ public static class AsyncControlFlowExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        [DebuggerStepThrough]
         public async Task<bool> IsNoneOr(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionValueTask.ConfigureAwait(false);
