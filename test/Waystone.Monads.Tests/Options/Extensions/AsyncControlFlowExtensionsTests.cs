@@ -70,7 +70,7 @@ public sealed class AsyncControlFlowExtensionsTests
     }
 
     [Fact]
-    public async Task GivenSome_WhenIsNoneOrWithFalsePredicate_ThenReturnFalse()
+    public async Task GivenNone_WhenIsNoneOrWithFalsePredicate_ThenReturnTrue()
     {
         Option<int> none = Option.None<int>();
 
@@ -81,7 +81,7 @@ public sealed class AsyncControlFlowExtensionsTests
             return value < 5;
         });
 
-        result.ShouldBeFalse();
+        result.ShouldBeTrue();
     }
 
     [Fact]

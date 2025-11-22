@@ -10,11 +10,10 @@ using System.Threading.Tasks;
 /// </summary>
 public static class AsyncControlFlowExtensions
 {
-    /// <param name="option">The <see cref="Option{T}" /> instance to evaluate.</param>
-    /// <typeparam name="T">
-    /// The type of the value contained within the
-    /// <see cref="Option{T}" />.
-    /// </typeparam>
+    /// <summary>
+    /// Provides extension methods for handling asynchronous control flow with
+    /// instances of <see cref="Option{T}" />.
+    /// </summary>
     extension<T>(Option<T> option) where T : notnull
     {
         /// <summary>
