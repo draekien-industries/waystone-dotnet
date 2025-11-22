@@ -21,8 +21,6 @@ public static partial class OptionOfTAsyncExtensions
     /// contains a boolean: - true if the option contains a value and the value
     /// satisfies the predicate. - false otherwise.
     /// </returns>
-    [Obsolete(
-        "Use `IsSomeAnd` overload that returns ValueTask<bool> for better performance.")]
     public static Task<bool> IsSomeAndAsync<T>(
         this Option<T> option,
         Func<T, Task<bool>> predicate) where T : notnull =>

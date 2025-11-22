@@ -75,6 +75,7 @@ public static partial class OptionOfTAsyncExtensions
         where T : notnull
     {
         Option<T> option = await optionTask.ConfigureAwait(false);
+
         return await option.FilterAsync(predicate).ConfigureAwait(false);
     }
 
@@ -95,6 +96,7 @@ public static partial class OptionOfTAsyncExtensions
         where T : notnull
     {
         Option<T> option = await optionTask.ConfigureAwait(false);
+
         return await option.FilterAsync(predicate).ConfigureAwait(false);
     }
 }
