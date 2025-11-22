@@ -36,7 +36,7 @@ public static class AsyncMatchExtensions
             Func<T, Task<TOut>> onSome,
             Func<Task<TOut>> onNone)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return await option.Match(onSome, onNone);
         }
@@ -72,7 +72,7 @@ public static class AsyncMatchExtensions
             Func<T, Task<TOut>> onSome,
             Func<Task<TOut>> onNone)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return await option.Match(onSome, onNone);
         }
