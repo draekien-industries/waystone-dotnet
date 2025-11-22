@@ -83,6 +83,28 @@ public static class AsyncControlFlowExtensions
         }
 
         /// <summary>
+        /// Evaluates whether the current <see cref="Option{T}" /> instance, awaited from
+        /// the <see cref="Task{TResult}" />, is in a "Some" state and satisfies the
+        /// provided predicate.
+        /// </summary>
+        /// <param name="predicate">
+        /// A function to test the value contained in the <see cref="Option{T}" /> if it is
+        /// in a "Some" state.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// <see cref="Option{T}" /> is in a "Some" state and the predicate evaluates to
+        /// <see langword="true" /> for the contained value; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        public async Task<bool> IsSomeAnd(Func<T, bool> predicate)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            return option.IsSomeAnd(predicate);
+        }
+
+        /// <summary>
         /// Evaluates whether the current <see cref="Option{T}" /> instance is in a "None"
         /// state or satisfies the provided asynchronous predicate.
         /// </summary>
@@ -101,6 +123,28 @@ public static class AsyncControlFlowExtensions
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             return await option.IsNoneOr(predicate).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Evaluates whether the current <see cref="Option{T}" /> instance is in a "None"
+        /// state or does not satisfy the provided predicate when in a "Some" state.
+        /// </summary>
+        /// <param name="predicate">
+        /// A function to test the value contained in the <see cref="Option{T}" />
+        /// if it is in a "Some" state.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// <see cref="Option{T}" /> is in a "None" state or if in a "Some" state
+        /// and the predicate evaluates to <see langword="false" /> for the contained
+        /// value;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        public async Task<bool> IsNoneOr(Func<T, bool> predicate)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            return option.IsNoneOr(predicate);
         }
     }
 
@@ -129,6 +173,28 @@ public static class AsyncControlFlowExtensions
         }
 
         /// <summary>
+        /// Evaluates whether the current <see cref="Option{T}" /> instance, obtained
+        /// from the asynchronous <see cref="ValueTask{T}" />, is in a "Some" state
+        /// and satisfies the provided predicate.
+        /// </summary>
+        /// <param name="predicate">
+        /// A function to test the value contained in the <see cref="Option{T}" />
+        /// if it is in a "Some" state.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// <see cref="Option{T}" /> is in a "Some" state and the predicate evaluates
+        /// to <see langword="true" /> for the contained value; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        public async Task<bool> IsSomeAnd(Func<T, bool> predicate)
+        {
+            Option<T> option = await optionValueTask.ConfigureAwait(false);
+
+            return option.IsSomeAnd(predicate);
+        }
+
+        /// <summary>
         /// Evaluates whether the current <see cref="Option{T}" /> instance is in a "None"
         /// state or satisfies the provided asynchronous predicate when in a "Some" state.
         /// </summary>
@@ -147,6 +213,27 @@ public static class AsyncControlFlowExtensions
             Option<T> option = await optionValueTask.ConfigureAwait(false);
 
             return await option.IsNoneOr(predicate).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Evaluates whether the current <see cref="Option{T}" /> instance is in a "None"
+        /// state or satisfies the provided predicate.
+        /// </summary>
+        /// <param name="predicate">
+        /// A function to test the value contained in the <see cref="Option{T}" />
+        /// if it is in a "Some" state.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// <see cref="Option{T}" /> is in a "None" state or the predicate evaluates to
+        /// <see langword="true" /> for the contained value; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        public async Task<bool> IsNoneOr(Func<T, bool> predicate)
+        {
+            Option<T> option = await optionValueTask.ConfigureAwait(false);
+
+            return option.IsNoneOr(predicate);
         }
     }
 }
