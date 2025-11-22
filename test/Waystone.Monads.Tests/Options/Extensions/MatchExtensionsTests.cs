@@ -7,8 +7,8 @@ using NSubstitute;
 using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(AsyncMatchExtensions))]
-public sealed class AsyncMatchExtensionsTests
+[TestSubject(typeof(MatchExtensions))]
+public sealed class MatchExtensionsTests
 {
     [Fact]
     public async Task GivenSome_WhenMatch_ThenInvokeSomeFunc()

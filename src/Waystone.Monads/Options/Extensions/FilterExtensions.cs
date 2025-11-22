@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 /// Provides a set of extension methods for filtering and processing asynchronous
 /// operations.
 /// </summary>
-public static class AsyncFilterExtensions
+public static class FilterExtensions
 {
     extension<T>(Option<T> option) where T : notnull
     {

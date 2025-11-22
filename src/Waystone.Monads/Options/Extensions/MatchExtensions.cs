@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// Provides extension methods for asynchronous pattern matching on monadic types.
 /// </summary>
-public static class AsyncMatchExtensions
+public static class MatchExtensions
 {
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {

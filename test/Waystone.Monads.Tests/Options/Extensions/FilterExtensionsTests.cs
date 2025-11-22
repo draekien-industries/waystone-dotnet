@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(AsyncFilterExtensions))]
-public sealed class AsyncFilterExtensionsTests
+[TestSubject(typeof(FilterExtensions))]
+public sealed class FilterExtensionsTests
 {
     [Fact]
     public async Task GivenSome_WhenFilterWithTruePredicate_ThenReturnSome()

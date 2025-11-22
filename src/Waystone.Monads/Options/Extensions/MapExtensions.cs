@@ -3,7 +3,7 @@
 using System;
 using System.Threading.Tasks;
 
-public static class AsyncMapExtensions
+public static class MapExtensions
 {
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
