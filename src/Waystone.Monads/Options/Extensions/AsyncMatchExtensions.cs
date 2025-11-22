@@ -12,7 +12,7 @@ public static class AsyncMatchExtensions
     /// Provides extension methods for asynchronous pattern matching on instances of
     /// <see cref="Option{T}" />.
     /// </summary>
-    extension<T>(Option<T> option) where T : notnull
+    extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
         /// Asynchronously performs a pattern match on the given <see cref="Option{T}" />
@@ -38,42 +38,11 @@ public static class AsyncMatchExtensions
         /// </returns>
         public async Task<TOut> Match<TOut>(
             Func<T, Task<TOut>> onSome,
-            Func<Task<TOut>> onNone) =>
-            option.IsSome
-                ? await onSome
-                   .Invoke(option.Expect("Expected Some but found None."))
-                   .ConfigureAwait(false)
-                : await onNone.Invoke().ConfigureAwait(false);
-
-        /// <summary>
-        /// Asynchronously performs a pattern match on the given <see cref="Option{T}" />
-        /// instance and executes the appropriate function based on whether the option
-        /// contains
-        /// a value or is empty.
-        /// </summary>
-        /// <param name="onSome">
-        /// A function to execute if the <see cref="Option{T}" /> instance contains a
-        /// value.
-        /// The function receives the contained value as a parameter and returns a task.
-        /// </param>
-        /// <param name="onNone">
-        /// A function to execute if the <see cref="Option{T}" /> instance is empty.
-        /// The function returns a task.
-        /// </param>
-        public async Task Match(
-            Func<T, Task> onSome,
-            Func<Task> onNone)
+            Func<Task<TOut>> onNone)
         {
-            if (option.IsSome)
-            {
-                await onSome
-                   .Invoke(option.Expect("Expected Some but found None."))
-                   .ConfigureAwait(false);
-            }
-            else
-            {
-                await onNone.Invoke().ConfigureAwait(false);
-            }
+            Option<T>? option = await optionTask.ConfigureAwait(false);
+
+            return await option.Match(onSome, onNone);
         }
     }
 }
