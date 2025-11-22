@@ -40,6 +40,38 @@ public static class AsyncMatchExtensions
 
             return await option.Match(onSome, onNone);
         }
+
+        /// <summary>
+        /// Asynchronously performs a pattern match on the provided
+        /// <see cref="Option{T}" />
+        /// instance contained within a <see cref="Task{TResult}" /> and produces a result
+        /// based on whether the option contains a value or is empty.
+        /// </summary>
+        /// <typeparam name="TOut">
+        /// The type of the result produced by the match expressions.
+        /// </typeparam>
+        /// <param name="onSome">
+        /// A function to execute if the <see cref="Option{T}" /> instance contains a
+        /// value.
+        /// The function receives the contained value as a parameter.
+        /// </param>
+        /// <param name="onNone">
+        /// A function to execute if the <see cref="Option{T}" /> instance is empty.
+        /// </param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. When completed, the task
+        /// contains
+        /// the result of either the <paramref name="onSome" /> or
+        /// <paramref name="onNone" /> function.
+        /// </returns>
+        public async Task<TOut> Match<TOut>(
+            Func<T, TOut> onSome,
+            Func<TOut> onNone)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            return option.Match(onSome, onNone);
+        }
     }
 
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
@@ -75,6 +107,38 @@ public static class AsyncMatchExtensions
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             return await option.Match(onSome, onNone);
+        }
+
+        /// <summary>
+        /// Asynchronously performs a pattern match on the result of a
+        /// <see cref="ValueTask{T}" /> containing an <see cref="Option{T}" /> instance.
+        /// Produces a result based on whether the option contains a value or is empty.
+        /// </summary>
+        /// <typeparam name="TOut">
+        /// The type of the result produced by the match expressions.
+        /// </typeparam>
+        /// <param name="onSome">
+        /// A function to execute if the <see cref="Option{T}" /> instance contains a
+        /// value.
+        /// The function receives the contained value as a parameter and returns a task
+        /// containing the result.
+        /// </param>
+        /// <param name="onNone">
+        /// A function to execute if the <see cref="Option{T}" /> instance is empty.
+        /// The function returns a task containing the result.
+        /// </param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. When completed, the task
+        /// contains the result of either the <paramref name="onSome" /> or
+        /// <paramref name="onNone" /> function.
+        /// </returns>
+        public async Task<TOut> Match<TOut>(
+            Func<T, TOut> onSome,
+            Func<TOut> onNone)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            return option.Match(onSome, onNone);
         }
     }
 }
