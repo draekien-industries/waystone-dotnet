@@ -104,4 +104,39 @@ public sealed class AsyncFilterExtensionsTests
 
         result.IsNone.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task
+        GivenValueTaskAsyncSome_WhenFilterWithTruePredicate_ThenReturnSome()
+    {
+        Option<int> some = Option.Some(10);
+
+        Option<int> result = await new ValueTask<Option<int>>(some)
+           .Filter(async value =>
+            {
+                await Task.Yield();
+
+                return value > 5;
+            });
+
+        result.IsSome.ShouldBeTrue();
+        result.Unwrap().ShouldBe(10);
+    }
+
+    [Fact]
+    public async Task
+        GivenValueTaskAsyncSome_WhenFilterWithFalsePredicate_ThenReturnNone()
+    {
+        Option<int> some = Option.Some(10);
+
+        Option<int> result = await new ValueTask<Option<int>>(some)
+           .Filter(async value =>
+            {
+                await Task.Yield();
+
+                return value < 5;
+            });
+
+        result.IsNone.ShouldBeTrue();
+    }
 }
