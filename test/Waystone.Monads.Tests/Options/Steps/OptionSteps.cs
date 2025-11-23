@@ -2,6 +2,7 @@
 
 using System.Threading.Tasks;
 using Reqnroll;
+using Shouldly;
 
 [Binding]
 public sealed class OptionSteps(ScenarioContext context)
@@ -36,5 +37,20 @@ public sealed class OptionSteps(ScenarioContext context)
         var option = context.Get<Option<int>>();
         var taskOption = new ValueTask<Option<int>>(option);
         context.Set(taskOption);
+    }
+
+    [Then("the result Option should be Some with value {int}")]
+    public void ThenTheResultOptionShouldBeSomeWithValueInt(int p0)
+    {
+        var result = context.Get<Option<int>>(Constants.ResultKey);
+        result.IsSome.ShouldBeTrue();
+        result.Unwrap().ShouldBe(p0);
+    }
+
+    [Then("the result Option should be None")]
+    public void ThenTheResultOptionShouldBeNone()
+    {
+        var result = context.Get<Option<int>>(Constants.ResultKey);
+        result.IsNone.ShouldBeTrue();
     }
 }

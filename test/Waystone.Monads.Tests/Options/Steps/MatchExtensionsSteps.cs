@@ -61,7 +61,7 @@ public class MatchExtensionsSteps(ScenarioContext context)
     [Then("the result should be {string}")]
     public void ThenTheResultShouldBeString(string p0)
     {
-        var result = context.Get<string>();
+        var result = context.Get<string>(Constants.ResultKey);
         result.ShouldBe(p0);
     }
 
@@ -76,7 +76,7 @@ public class MatchExtensionsSteps(ScenarioContext context)
 
         string result = await option.Match(onSomeFunc, onNoneFunc);
 
-        context.Set(result);
+        context.Set(result, Constants.ResultKey);
     }
 
     [When(
@@ -93,6 +93,6 @@ public class MatchExtensionsSteps(ScenarioContext context)
            .GetAwaiter()
            .GetResult();
 
-        context.Set(result);
+        context.Set(result, Constants.ResultKey);
     }
 }
