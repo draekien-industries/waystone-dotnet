@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Options.Steps;
 
+using System;
 using System.Threading.Tasks;
 using Reqnroll;
 using Shouldly;
@@ -52,5 +53,38 @@ public sealed class OptionSteps(ScenarioContext context)
     {
         var result = context.Get<Option<int>>(Constants.ResultKey);
         result.IsNone.ShouldBeTrue();
+    }
+
+    [Then("the result Option should be Some with value {string}")]
+    public void ThenTheResultOptionShouldBeSomeWithValueString(string p0)
+    {
+        var result = context.Get<Option<string>>(Constants.ResultKey);
+        result.IsSome.ShouldBeTrue();
+        result.Unwrap().ShouldBe(p0);
+    }
+
+    [Then("the result Option should be None of {string}")]
+    public void ThenTheResultOptionShouldBeNoneOfString(string type)
+    {
+        switch (type)
+        {
+            case "string":
+            {
+                var result = context.Get<Option<string>>(Constants.ResultKey);
+                result.IsNone.ShouldBeTrue();
+
+                break;
+            }
+            case "int":
+            {
+                var result = context.Get<Option<int>>(Constants.ResultKey);
+                result.IsNone.ShouldBeTrue();
+
+                break;
+            }
+            default:
+                throw new NotImplementedException(
+                    "Type not implemented: " + type);
+        }
     }
 }

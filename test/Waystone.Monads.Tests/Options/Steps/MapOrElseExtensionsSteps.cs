@@ -9,9 +9,6 @@ using Reqnroll;
 [Binding, TestSubject(typeof(MapOrElseExtensions))]
 public class MapOrElseExtensionsSteps(ScenarioContext context)
 {
-    private const string ElseKey = "Else";
-    private const string MapKey = "Map";
-
     [Given("async Else returns {string}")]
     public void GivenAsyncElseReturnsString(string fallback)
     {
@@ -22,7 +19,7 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
 
                 return fallback;
             },
-            ElseKey);
+            Constants.ElseKey);
     }
 
     [Given("async Map returns {string} + value")]
@@ -35,7 +32,7 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
 
                 return mapped + value;
             },
-            MapKey);
+            Constants.MapKey);
     }
 
     [When("MapOrElse Task is invoked with {string} Else and {string} Map")]
@@ -48,8 +45,12 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("async", "async"):
             {
                 var optionTask = context.Get<Task<Option<int>>>();
-                var elseFunc = context.Get<Func<Task<string>>>(ElseKey);
-                var mapFunc = context.Get<Func<int, Task<string>>>(MapKey);
+
+                var elseFunc =
+                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+
+                var mapFunc =
+                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
 
@@ -60,8 +61,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("sync", "sync"):
             {
                 var optionTask = context.Get<Task<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(ElseKey);
-                var mapFunc = context.Get<Func<int, string>>(MapKey);
+                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
+                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
 
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
 
@@ -72,8 +73,11 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("async", "sync"):
             {
                 var optionTask = context.Get<Task<Option<int>>>();
-                var elseFunc = context.Get<Func<Task<string>>>(ElseKey);
-                var mapFunc = context.Get<Func<int, string>>(MapKey);
+
+                var elseFunc =
+                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+
+                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
                 context.Set(result, Constants.ResultKey);
 
@@ -82,8 +86,10 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("sync", "async"):
             {
                 var optionTask = context.Get<Task<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(ElseKey);
-                var mapFunc = context.Get<Func<int, Task<string>>>(MapKey);
+                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
+
+                var mapFunc =
+                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
 
@@ -100,7 +106,7 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     [Given("sync Else returns {string}")]
     public void GivenSyncElseReturns(string syncFallback)
     {
-        context.Set<Func<string>>(() => syncFallback, ElseKey);
+        context.Set<Func<string>>(() => syncFallback, Constants.ElseKey);
     }
 
     [Given("sync Map returns {string} + value")]
@@ -108,7 +114,7 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     {
         context.Set<Func<int, string>>(
             value => syncMapped + value,
-            MapKey);
+            Constants.MapKey);
     }
 
     [When("MapOrElse ValueTask is invoked with {string} Else and {string} Map")]
@@ -121,8 +127,12 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("async", "async"):
             {
                 var optionTask = context.Get<ValueTask<Option<int>>>();
-                var elseFunc = context.Get<Func<Task<string>>>(ElseKey);
-                var mapFunc = context.Get<Func<int, Task<string>>>(MapKey);
+
+                var elseFunc =
+                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+
+                var mapFunc =
+                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
 
@@ -133,8 +143,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("sync", "sync"):
             {
                 var optionTask = context.Get<ValueTask<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(ElseKey);
-                var mapFunc = context.Get<Func<int, string>>(MapKey);
+                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
+                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
 
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
 
@@ -145,8 +155,11 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("async", "sync"):
             {
                 var optionTask = context.Get<ValueTask<Option<int>>>();
-                var elseFunc = context.Get<Func<Task<string>>>(ElseKey);
-                var mapFunc = context.Get<Func<int, string>>(MapKey);
+
+                var elseFunc =
+                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+
+                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
                 context.Set(result, Constants.ResultKey);
 
@@ -155,8 +168,10 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
             case ("sync", "async"):
             {
                 var optionTask = context.Get<ValueTask<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(ElseKey);
-                var mapFunc = context.Get<Func<int, Task<string>>>(MapKey);
+                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
+
+                var mapFunc =
+                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
                 string result = await optionTask.MapOrElse(elseFunc, mapFunc);
 
