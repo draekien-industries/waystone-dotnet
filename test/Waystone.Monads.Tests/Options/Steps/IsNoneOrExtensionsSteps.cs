@@ -3,9 +3,10 @@
 using System;
 using System.Threading.Tasks;
 using Extensions;
+using JetBrains.Annotations;
 using Reqnroll;
 
-[Binding]
+[Binding, TestSubject(typeof(IsNoneOrExtensions))]
 public class IsNoneOrExtensionsSteps(ScenarioContext context)
 {
     [When(

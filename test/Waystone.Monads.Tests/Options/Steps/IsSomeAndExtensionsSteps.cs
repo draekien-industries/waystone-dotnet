@@ -3,9 +3,10 @@
 using System;
 using System.Threading.Tasks;
 using Extensions;
+using JetBrains.Annotations;
 using Reqnroll;
 
-[Binding]
+[Binding, TestSubject(typeof(IsSomeAndExtensions))]
 public class IsSomeAndExtensionsSteps(ScenarioContext context)
 {
     [When("invoking IsSomeAnd on Option Task with the async predicate")]

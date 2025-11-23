@@ -3,9 +3,10 @@
 using System;
 using System.Threading.Tasks;
 using Extensions;
+using JetBrains.Annotations;
 using Reqnroll;
 
-[Binding]
+[Binding, TestSubject(typeof(FilterExtensions))]
 public class FilterExtensionsSteps(ScenarioContext context)
 {
     [Given("an async predicate that returns {string} for int value")]

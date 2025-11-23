@@ -3,11 +3,12 @@
 using System;
 using System.Threading.Tasks;
 using Extensions;
+using JetBrains.Annotations;
 using NSubstitute;
 using Reqnroll;
 using Shouldly;
 
-[Binding]
+[Binding, TestSubject(typeof(MatchExtensions))]
 public class MatchExtensionsSteps(ScenarioContext context)
 {
     [Given("Option is wrapped in a Task {string}")]

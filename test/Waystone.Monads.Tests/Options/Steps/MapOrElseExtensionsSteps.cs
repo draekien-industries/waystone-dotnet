@@ -3,9 +3,10 @@
 using System;
 using System.Threading.Tasks;
 using Extensions;
+using JetBrains.Annotations;
 using Reqnroll;
 
-[Binding]
+[Binding, TestSubject(typeof(MapOrElseExtensions))]
 public class MapOrElseExtensionsSteps(ScenarioContext context)
 {
     private const string ElseKey = "Else";
