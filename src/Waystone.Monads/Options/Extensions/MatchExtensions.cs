@@ -41,6 +41,32 @@ public static class MatchExtensions
             return await option.Match(onSome, onNone);
         }
 
+        public async Task<TOut> Match<TOut>(
+            Func<T, TOut> onSome,
+            Func<Task<TOut>> onNone)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            if (option.IsNone) return await onNone().ConfigureAwait(false);
+
+            T some = option.Expect("Expected Some but found None.");
+
+            return onSome(some);
+        }
+
+        public async Task<TOut> Match<TOut>(
+            Func<T, Task<TOut>> onSome,
+            Func<TOut> onNone)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            if (option.IsNone) return onNone();
+
+            T some = option.Expect("Expected Some but found None.");
+
+            return await onSome(some).ConfigureAwait(false);
+        }
+
         /// <summary>
         /// Asynchronously performs a pattern match on the provided
         /// <see cref="Option{T}" />
@@ -107,6 +133,32 @@ public static class MatchExtensions
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             return await option.Match(onSome, onNone);
+        }
+
+        public async Task<TOut> Match<TOut>(
+            Func<T, TOut> onSome,
+            Func<Task<TOut>> onNone)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            if (option.IsNone) return await onNone().ConfigureAwait(false);
+
+            T some = option.Expect("Expected Some but found None.");
+
+            return onSome(some);
+        }
+
+        public async Task<TOut> Match<TOut>(
+            Func<T, Task<TOut>> onSome,
+            Func<TOut> onNone)
+        {
+            Option<T> option = await optionTask.ConfigureAwait(false);
+
+            if (option.IsNone) return onNone();
+
+            T some = option.Expect("Expected Some but found None.");
+
+            return await onSome(some).ConfigureAwait(false);
         }
 
         /// <summary>
