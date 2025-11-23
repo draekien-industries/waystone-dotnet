@@ -161,9 +161,12 @@ namespace Waystone.Monads.Options.Features
         await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 6
-        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate that returns \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 7
+        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 8
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -181,7 +184,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsNoneOr when None with async predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 9
+#line 10
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -191,16 +194,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 10
+#line 11
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 11
+#line 12
         await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 12
-        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate that returns \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 13
+        await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 14
+        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 15
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -218,7 +224,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsNoneOr when None with async predicate that returns \"false\"", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 15
+#line 17
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -228,16 +234,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 16
+#line 18
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 17
+#line 19
         await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 18
-        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate that returns \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 20
+        await testRunner.AndAsync("an async predicate that returns \"false\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 19
+#line 21
+        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 22
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -255,7 +264,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("ValueTask Option IsNoneOr when Some with async predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 21
+#line 24
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -265,16 +274,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 22
+#line 25
         await testRunner.GivenAsync("Option is Some with value 75", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 23
+#line 26
         await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 24
-        await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate that returns \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 27
+        await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 25
+#line 28
+        await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 29
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -292,7 +304,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("ValueTask Option IsNoneOr when None with async predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 27
+#line 31
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -302,16 +314,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 28
+#line 32
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 29
+#line 33
         await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 30
-        await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate that returns \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 34
+        await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 31
+#line 35
+        await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 36
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -329,7 +344,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("ValueTask Option IsNoneOr when None with async predicate that returns \"false\"", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 33
+#line 38
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -339,16 +354,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 34
+#line 39
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 35
+#line 40
         await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 36
-        await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate that returns \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 41
+        await testRunner.AndAsync("an async predicate that returns \"false\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 37
+#line 42
+        await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 43
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -366,7 +384,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsNoneOr when Some with sync predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 39
+#line 45
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -376,16 +394,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 40
+#line 46
         await testRunner.GivenAsync("Option is Some with value 85", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 41
+#line 47
         await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 42
-        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate that returns \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 48
+        await testRunner.AndAsync("a sync predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 43
+#line 49
+        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 50
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -403,7 +424,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsNoneOr when None with sync predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 45
+#line 52
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -413,16 +434,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 46
+#line 53
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 47
+#line 54
         await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 48
-        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate that returns \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 55
+        await testRunner.AndAsync("a sync predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 49
+#line 56
+        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 57
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -440,7 +464,7 @@ namespace Waystone.Monads.Options.Features
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsNoneOr when None with sync predicate that returns \"false\"", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 51
+#line 59
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -450,16 +474,19 @@ namespace Waystone.Monads.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 52
+#line 60
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 53
+#line 61
         await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 54
-        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate that returns \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 62
+        await testRunner.AndAsync("a sync predicate that returns \"false\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 55
+#line 63
+        await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 64
         await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
