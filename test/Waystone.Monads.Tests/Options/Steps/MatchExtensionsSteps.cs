@@ -61,8 +61,25 @@ public class MatchExtensionsSteps(ScenarioContext context)
     [Then("the result should be {string}")]
     public void ThenTheResultShouldBeString(string p0)
     {
-        var result = context.Get<string>(Constants.ResultKey);
-        result.ShouldBe(p0);
+        switch (p0)
+        {
+            case "true":
+            case "false":
+            {
+                var result = context.Get<bool>(Constants.ResultKey);
+                result.ShouldBe(bool.Parse(p0));
+
+                break;
+            }
+
+            default:
+            {
+                var result = context.Get<string>(Constants.ResultKey);
+                result.ShouldBe(p0);
+
+                break;
+            }
+        }
     }
 
     [When("invoking Match on Option Task with {string} and {string} handlers")]
