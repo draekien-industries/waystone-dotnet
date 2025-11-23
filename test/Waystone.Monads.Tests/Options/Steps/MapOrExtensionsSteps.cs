@@ -39,7 +39,7 @@ public class MapOrExtensionsSteps(ScenarioContext context)
                 var mapFunc =
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
-                string result = await option.MapOr(defaultValue, mapFunc);
+                string result = await option.MapOrAsync(defaultValue, mapFunc);
                 context.Set(result, Constants.ResultKey);
 
                 break;
@@ -47,7 +47,7 @@ public class MapOrExtensionsSteps(ScenarioContext context)
             case "sync":
             {
                 var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
-                string result = await option.MapOr(defaultValue, mapFunc);
+                string result = await option.MapOrAsync(defaultValue, mapFunc);
                 context.Set(result, Constants.ResultKey);
 
                 break;
@@ -75,7 +75,7 @@ public class MapOrExtensionsSteps(ScenarioContext context)
                 var mapFunc =
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
-                string result = await option.MapOr(defaultValue, mapFunc);
+                string result = await option.MapOrAsync(defaultValue, mapFunc);
                 context.Set(result, Constants.ResultKey);
 
                 break;
@@ -83,7 +83,7 @@ public class MapOrExtensionsSteps(ScenarioContext context)
             case "sync":
             {
                 var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
-                string result = await option.MapOr(defaultValue, mapFunc);
+                string result = await option.MapOrAsync(defaultValue, mapFunc);
                 context.Set(result, Constants.ResultKey);
 
                 break;

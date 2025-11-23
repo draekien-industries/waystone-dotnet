@@ -17,7 +17,7 @@ public class IsNoneOrExtensionsSteps(ScenarioContext context)
     {
         var optionTask = context.Get<Task<Option<int>>>();
 
-        bool result = await optionTask.IsNoneOr(_ =>
+        bool result = await optionTask.IsNoneOrAsync(_ =>
             bool.Parse(predicateResult));
 
         context.Set(result, Constants.ResultKey);
@@ -29,7 +29,7 @@ public class IsNoneOrExtensionsSteps(ScenarioContext context)
         var optionTask = context.Get<Task<Option<int>>>();
         var predicate = context.Get<Func<int, Task<bool>>>();
 
-        bool result = await optionTask.IsNoneOr(predicate);
+        bool result = await optionTask.IsNoneOrAsync(predicate);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -40,7 +40,7 @@ public class IsNoneOrExtensionsSteps(ScenarioContext context)
         var optionTask = context.Get<ValueTask<Option<int>>>();
         var predicate = context.Get<Func<int, Task<bool>>>();
 
-        bool result = await optionTask.IsNoneOr(predicate);
+        bool result = await optionTask.IsNoneOrAsync(predicate);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -51,7 +51,7 @@ public class IsNoneOrExtensionsSteps(ScenarioContext context)
         var optionTask = context.Get<Task<Option<int>>>();
         var predicate = context.Get<Func<int, bool>>();
 
-        bool result = await optionTask.IsNoneOr(predicate);
+        bool result = await optionTask.IsNoneOrAsync(predicate);
 
         context.Set(result, Constants.ResultKey);
     }

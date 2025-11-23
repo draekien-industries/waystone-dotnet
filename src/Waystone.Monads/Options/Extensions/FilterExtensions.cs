@@ -25,7 +25,7 @@ public static class FilterExtensions
         /// the predicate, or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
         public async ValueTask<Option<T>>
-            Filter(Func<T, Task<bool>> predicate)
+            FilterAsync(Func<T, Task<bool>> predicate)
         {
             if (option.IsNone) return option;
 
@@ -53,7 +53,7 @@ public static class FilterExtensions
         /// predicate, or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
         public async Task<Option<T>>
-            Filter(Func<T, Task<bool>> predicate)
+            FilterAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -83,7 +83,7 @@ public static class FilterExtensions
         /// predicate, or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
         public async Task<Option<T>>
-            Filter(Func<T, bool> predicate)
+            FilterAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -115,7 +115,7 @@ public static class FilterExtensions
         /// or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
         public async Task<Option<T>>
-            Filter(Func<T, Task<bool>> predicate)
+            FilterAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -143,7 +143,7 @@ public static class FilterExtensions
         /// the predicate, or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
         public async Task<Option<T>>
-            Filter(Func<T, bool> predicate)
+            FilterAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

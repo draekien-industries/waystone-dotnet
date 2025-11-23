@@ -92,7 +92,7 @@ public class MatchExtensionsSteps(ScenarioContext context)
         var onNoneFunc = context.Get<Func<Task<string>>>(onNone);
         var option = context.Get<Task<Option<int>>>();
 
-        string result = await option.Match(onSomeFunc, onNoneFunc);
+        string result = await option.MatchAsync(onSomeFunc, onNoneFunc);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -107,7 +107,7 @@ public class MatchExtensionsSteps(ScenarioContext context)
         var onNoneFunc = context.Get<Func<Task<string>>>(onNone);
         var option = context.Get<ValueTask<Option<int>>>();
 
-        string result = option.Match(onSomeFunc, onNoneFunc)
+        string result = option.MatchAsync(onSomeFunc, onNoneFunc)
            .GetAwaiter()
            .GetResult();
 

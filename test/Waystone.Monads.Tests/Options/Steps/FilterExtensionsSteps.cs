@@ -28,7 +28,7 @@ public class FilterExtensionsSteps(ScenarioContext context)
         var predicate = context.Get<Func<int, Task<bool>>>();
         var optionTask = context.Get<Task<Option<int>>>();
 
-        Option<int> resultTask = await optionTask.Filter(predicate);
+        Option<int> resultTask = await optionTask.FilterAsync(predicate);
 
         context.Set(resultTask, Constants.ResultKey);
     }
@@ -39,7 +39,8 @@ public class FilterExtensionsSteps(ScenarioContext context)
         var predicate = context.Get<Func<int, Task<bool>>>();
         var optionValueTask = context.Get<ValueTask<Option<int>>>();
 
-        Option<int> resultValueTask = await optionValueTask.Filter(predicate);
+        Option<int> resultValueTask =
+            await optionValueTask.FilterAsync(predicate);
 
         context.Set(resultValueTask, Constants.ResultKey);
     }
@@ -58,7 +59,7 @@ public class FilterExtensionsSteps(ScenarioContext context)
         var predicate = context.Get<Func<int, bool>>();
         var optionValueTask = context.Get<ValueTask<Option<int>>>();
 
-        Option<int> result = await optionValueTask.Filter(predicate);
+        Option<int> result = await optionValueTask.FilterAsync(predicate);
         context.Set(result, Constants.ResultKey);
     }
 
@@ -68,7 +69,7 @@ public class FilterExtensionsSteps(ScenarioContext context)
         var predicate = context.Get<Func<int, bool>>();
         var optionTask = context.Get<Task<Option<int>>>();
 
-        Option<int> result = await optionTask.Filter(predicate);
+        Option<int> result = await optionTask.FilterAsync(predicate);
         context.Set(result, Constants.ResultKey);
     }
 }

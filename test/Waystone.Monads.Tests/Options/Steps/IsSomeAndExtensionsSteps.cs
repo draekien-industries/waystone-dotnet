@@ -15,7 +15,7 @@ public class IsSomeAndExtensionsSteps(ScenarioContext context)
         var optionTask = context.Get<Task<Option<int>>>();
         var predicate = context.Get<Func<int, Task<bool>>>();
 
-        bool result = await optionTask.IsSomeAnd(predicate);
+        bool result = await optionTask.IsSomeAndAsync(predicate);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -27,7 +27,7 @@ public class IsSomeAndExtensionsSteps(ScenarioContext context)
         var optionTask = context.Get<ValueTask<Option<int>>>();
         var predicate = context.Get<Func<int, Task<bool>>>();
 
-        bool result = await optionTask.IsSomeAnd(predicate);
+        bool result = await optionTask.IsSomeAndAsync(predicate);
 
         context.Set(result, Constants.ResultKey);
     }

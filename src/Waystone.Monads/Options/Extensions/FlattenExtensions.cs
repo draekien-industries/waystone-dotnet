@@ -19,7 +19,7 @@ public static class FlattenExtensions
         /// <see cref="Option{T}" /> to a single-level
         /// <see cref="Option{T}" />.
         /// </returns>
-        public async Task<Option<T>> Flatten()
+        public async Task<Option<T>> FlattenAsync()
         {
             Option<Option<T>> nestedOption =
                 await nestedOptionTask.ConfigureAwait(false);
@@ -43,7 +43,7 @@ public static class FlattenExtensions
         /// the
         /// nested <see cref="Option{T}" /> into a single-level <see cref="Option{T}" />.
         /// </returns>
-        public async Task<Option<T>> Flatten()
+        public async Task<Option<T>> FlattenAsync()
         {
             Option<Option<T>> nestedOption =
                 await nestedOptionTask.ConfigureAwait(false);

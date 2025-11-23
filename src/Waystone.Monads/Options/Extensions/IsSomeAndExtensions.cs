@@ -25,7 +25,8 @@ public static class IsSomeAndExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async ValueTask<bool> IsSomeAnd(Func<T, Task<bool>> predicate)
+        public async ValueTask<bool> IsSomeAndAsync(
+            Func<T, Task<bool>> predicate)
         {
             if (option.IsNone) return false;
 
@@ -51,11 +52,11 @@ public static class IsSomeAndExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAnd(Func<T, Task<bool>> predicate)
+        public async Task<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
-            return await option.IsSomeAnd(predicate).ConfigureAwait(false);
+            return await option.IsSomeAndAsync(predicate).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ public static class IsSomeAndExtensions
         /// <see langword="true" /> for the contained value; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAnd(Func<T, bool> predicate)
+        public async Task<bool> IsSomeAndAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -98,11 +99,11 @@ public static class IsSomeAndExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAnd(Func<T, Task<bool>> predicate)
+        public async Task<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionValueTask.ConfigureAwait(false);
 
-            return await option.IsSomeAnd(predicate).ConfigureAwait(false);
+            return await option.IsSomeAndAsync(predicate).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -120,7 +121,7 @@ public static class IsSomeAndExtensions
         /// to <see langword="true" /> for the contained value; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAnd(Func<T, bool> predicate)
+        public async Task<bool> IsSomeAndAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionValueTask.ConfigureAwait(false);
 

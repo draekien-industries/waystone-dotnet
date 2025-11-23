@@ -22,7 +22,8 @@ public static class IsNoneOrExtensions
         /// or the predicate evaluates to <see langword="true" /> for the contained value
         /// if it is in a "Some" state; otherwise, <see langword="false" />.
         /// </returns>
-        public async ValueTask<bool> IsNoneOr(Func<T, Task<bool>> predicate)
+        public async ValueTask<bool> IsNoneOrAsync(
+            Func<T, Task<bool>> predicate)
         {
             if (option.IsNone) return true;
 
@@ -49,7 +50,7 @@ public static class IsNoneOrExtensions
         /// value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsNoneOr(Func<T, bool> predicate)
+        public async Task<bool> IsNoneOrAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -70,11 +71,11 @@ public static class IsNoneOrExtensions
         /// <see langword="true" /> for the contained value; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsNoneOr(Func<T, Task<bool>> predicate)
+        public async Task<bool> IsNoneOrAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
-            return await option.IsNoneOr(predicate).ConfigureAwait(false);
+            return await option.IsNoneOrAsync(predicate).ConfigureAwait(false);
         }
     }
 
@@ -94,11 +95,11 @@ public static class IsNoneOrExtensions
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsNoneOr(Func<T, Task<bool>> predicate)
+        public async Task<bool> IsNoneOrAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
-            return await option.IsNoneOr(predicate).ConfigureAwait(false);
+            return await option.IsNoneOrAsync(predicate).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -115,7 +116,7 @@ public static class IsNoneOrExtensions
         /// <see langword="true" /> for the contained value; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsNoneOr(Func<T, bool> predicate)
+        public async Task<bool> IsNoneOrAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

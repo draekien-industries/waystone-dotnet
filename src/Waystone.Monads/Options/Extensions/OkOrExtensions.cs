@@ -7,7 +7,7 @@ public static class OkOrExtensions
 {
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
-        public async Task<Result<T, TErr>> OkOr<TErr>(TErr err)
+        public async Task<Result<T, TErr>> OkOrAsync<TErr>(TErr err)
             where TErr : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -18,7 +18,7 @@ public static class OkOrExtensions
 
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
-        public async Task<Result<T, TErr>> OkOr<TErr>(TErr err)
+        public async Task<Result<T, TErr>> OkOrAsync<TErr>(TErr err)
             where TErr : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);

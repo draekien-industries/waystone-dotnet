@@ -22,7 +22,7 @@ public static class FlatMapExtensions
         /// value if the original <see cref="Option{T}" /> was <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async ValueTask<Option<TOut>> FlatMap<TOut>(
+        public async ValueTask<Option<TOut>> FlatMapAsync<TOut>(
             Func<T, Task<Option<TOut>>> map)
             where TOut : notnull
         {
@@ -55,7 +55,7 @@ public static class FlatMapExtensions
         /// <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> FlatMap<TOut>(
+        public async Task<Option<TOut>> FlatMapAsync<TOut>(
             Func<T, Task<Option<TOut>>> map)
             where TOut : notnull
         {
@@ -87,7 +87,8 @@ public static class FlatMapExtensions
         /// value if the original <see cref="Option{T}" /> was <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> FlatMap<TOut>(Func<T, Option<TOut>> map)
+        public async Task<Option<TOut>> FlatMapAsync<TOut>(
+            Func<T, Option<TOut>> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -119,7 +120,7 @@ public static class FlatMapExtensions
         /// <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> FlatMap<TOut>(
+        public async Task<Option<TOut>> FlatMapAsync<TOut>(
             Func<T, Task<Option<TOut>>> map)
             where TOut : notnull
         {
@@ -149,7 +150,8 @@ public static class FlatMapExtensions
         /// <see cref="Some{T}" />,
         /// or <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> FlatMap<TOut>(Func<T, Option<TOut>> map)
+        public async Task<Option<TOut>> FlatMapAsync<TOut>(
+            Func<T, Option<TOut>> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);

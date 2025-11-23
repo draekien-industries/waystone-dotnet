@@ -22,7 +22,7 @@ public class MapExtensionsSteps(ScenarioContext context)
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
                 Option<string> result =
-                    await option.Map(map).ConfigureAwait(false);
+                    await option.MapAsync(map).ConfigureAwait(false);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -33,7 +33,7 @@ public class MapExtensionsSteps(ScenarioContext context)
                 var map = context.Get<Func<int, string>>(Constants.MapKey);
 
                 Option<string> result =
-                    await option.Map(map).ConfigureAwait(false);
+                    await option.MapAsync(map).ConfigureAwait(false);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -60,7 +60,7 @@ public class MapExtensionsSteps(ScenarioContext context)
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
                 Option<string> result =
-                    await option.Map(map).ConfigureAwait(false);
+                    await option.MapAsync(map).ConfigureAwait(false);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -71,7 +71,7 @@ public class MapExtensionsSteps(ScenarioContext context)
                 var map = context.Get<Func<int, string>>(Constants.MapKey);
 
                 Option<string> result =
-                    await option.Map(map).ConfigureAwait(false);
+                    await option.MapAsync(map).ConfigureAwait(false);
 
                 context.Set(result, Constants.ResultKey);
 

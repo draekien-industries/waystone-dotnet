@@ -32,7 +32,7 @@ public static class MatchExtensions
         /// contains the result of
         /// either the <paramref name="onSome" /> or <paramref name="onNone" /> function.
         /// </returns>
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<Task<TOut>> onNone)
         {
@@ -41,7 +41,7 @@ public static class MatchExtensions
             return await option.Match(onSome, onNone);
         }
 
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<Task<TOut>> onNone)
         {
@@ -54,7 +54,7 @@ public static class MatchExtensions
             return onSome(some);
         }
 
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<TOut> onNone)
         {
@@ -90,7 +90,7 @@ public static class MatchExtensions
         /// the result of either the <paramref name="onSome" /> or
         /// <paramref name="onNone" /> function.
         /// </returns>
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<TOut> onNone)
         {
@@ -126,7 +126,7 @@ public static class MatchExtensions
         /// the result of either the <paramref name="onSome" /> or
         /// <paramref name="onNone" /> function.
         /// </returns>
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<Task<TOut>> onNone)
         {
@@ -135,7 +135,7 @@ public static class MatchExtensions
             return await option.Match(onSome, onNone);
         }
 
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<Task<TOut>> onNone)
         {
@@ -148,7 +148,7 @@ public static class MatchExtensions
             return onSome(some);
         }
 
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<TOut> onNone)
         {
@@ -184,7 +184,7 @@ public static class MatchExtensions
         /// contains the result of either the <paramref name="onSome" /> or
         /// <paramref name="onNone" /> function.
         /// </returns>
-        public async Task<TOut> Match<TOut>(
+        public async Task<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<TOut> onNone)
         {

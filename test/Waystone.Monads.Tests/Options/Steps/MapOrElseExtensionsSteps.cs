@@ -52,7 +52,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                 var mapFunc =
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -64,7 +65,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                 var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
                 var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
 
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -78,7 +80,10 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                     context.Get<Func<Task<string>>>(Constants.ElseKey);
 
                 var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
+
                 context.Set(result, Constants.ResultKey);
 
                 break;
@@ -91,7 +96,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                 var mapFunc =
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -134,7 +140,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                 var mapFunc =
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -146,7 +153,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                 var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
                 var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
 
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
                 context.Set(result, Constants.ResultKey);
 
@@ -160,7 +168,10 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                     context.Get<Func<Task<string>>>(Constants.ElseKey);
 
                 var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
+
                 context.Set(result, Constants.ResultKey);
 
                 break;
@@ -173,7 +184,8 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
                 var mapFunc =
                     context.Get<Func<int, Task<string>>>(Constants.MapKey);
 
-                string result = await optionTask.MapOrElse(elseFunc, mapFunc);
+                string result =
+                    await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
                 context.Set(result, Constants.ResultKey);
 

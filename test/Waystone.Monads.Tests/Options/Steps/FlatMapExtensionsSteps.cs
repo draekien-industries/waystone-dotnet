@@ -31,7 +31,7 @@ public class FlatMapExtensionsSteps(ScenarioContext context)
         var map = context.Get<Func<int, Task<Option<int>>>>(Constants.MapKey);
 
         Option<int> result =
-            await option.FlatMap(map).ConfigureAwait(false);
+            await option.FlatMapAsync(map).ConfigureAwait(false);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -43,7 +43,7 @@ public class FlatMapExtensionsSteps(ScenarioContext context)
         var map = context.Get<Func<int, Task<Option<int>>>>(Constants.MapKey);
 
         Option<int> result =
-            await option.FlatMap(map).ConfigureAwait(false);
+            await option.FlatMapAsync(map).ConfigureAwait(false);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -86,7 +86,7 @@ public class FlatMapExtensionsSteps(ScenarioContext context)
         var map = context.Get<Func<int, Task<Option<int>>>>(Constants.MapKey);
 
         Option<int> result =
-            await option.FlatMap(map).ConfigureAwait(false);
+            await option.FlatMapAsync(map).ConfigureAwait(false);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -98,7 +98,7 @@ public class FlatMapExtensionsSteps(ScenarioContext context)
         var map = context.Get<Func<int, Option<int>>>(Constants.MapKey);
 
         Option<int> result =
-            await option.FlatMap(map).ConfigureAwait(false);
+            await option.FlatMapAsync(map).ConfigureAwait(false);
 
         context.Set(result, Constants.ResultKey);
     }
@@ -110,7 +110,7 @@ public class FlatMapExtensionsSteps(ScenarioContext context)
         var map = context.Get<Func<int, Option<int>>>(Constants.MapKey);
 
         Option<int> result =
-            await option.FlatMap(map).ConfigureAwait(false);
+            await option.FlatMapAsync(map).ConfigureAwait(false);
 
         context.Set(result, Constants.ResultKey);
     }

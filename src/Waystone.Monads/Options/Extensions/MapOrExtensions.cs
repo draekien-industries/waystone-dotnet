@@ -5,6 +5,20 @@ using System.Threading.Tasks;
 
 public static class MapOrExtensions
 {
+    extension<T>(Option<T> option) where T : notnull
+    {
+        public async ValueTask<TOut> MapOrAsync<TOut>(
+            TOut defaultValue,
+            Func<T, Task<TOut>> map)
+        {
+            if (option.IsNone) return defaultValue;
+
+            T some = option.Expect("Expected Some but found None.");
+
+            return await map.Invoke(some).ConfigureAwait(false);
+        }
+    }
+
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
@@ -30,7 +44,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />
         /// </returns>
-        public async Task<TOut> MapOr<TOut>(
+        public async Task<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, TOut> map)
         {
@@ -66,7 +80,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />
         /// </returns>
-        public async Task<TOut> MapOr<TOut>(
+        public async Task<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, Task<TOut>> map)
         {
@@ -105,7 +119,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />.
         /// </returns>
-        public async Task<TOut> MapOr<TOut>(
+        public async Task<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, TOut> map)
         {
@@ -141,7 +155,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />
         /// </returns>
-        public async Task<TOut> MapOr<TOut>(
+        public async Task<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, Task<TOut>> map)
         {

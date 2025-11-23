@@ -7,7 +7,7 @@ public static class InspectExtensions
 {
     extension<T>(Option<T> option) where T : notnull
     {
-        public async ValueTask<Option<T>> Inspect(Func<T, Task> action)
+        public async ValueTask<Option<T>> InspectAsync(Func<T, Task> action)
         {
             if (option.IsNone) return option;
 
@@ -20,7 +20,7 @@ public static class InspectExtensions
 
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
-        public async Task<Option<T>> Inspect(Func<T, Task> action)
+        public async Task<Option<T>> InspectAsync(Func<T, Task> action)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -32,7 +32,7 @@ public static class InspectExtensions
             return option;
         }
 
-        public async Task<Option<T>> Inspect(Action<T> action)
+        public async Task<Option<T>> InspectAsync(Action<T> action)
         {
             Option<T>? option = await optionTask.ConfigureAwait(false);
 
@@ -47,7 +47,7 @@ public static class InspectExtensions
 
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
-        public async Task<Option<T>> Inspect(Func<T, Task> action)
+        public async Task<Option<T>> InspectAsync(Func<T, Task> action)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -59,7 +59,7 @@ public static class InspectExtensions
             return option;
         }
 
-        public async Task<Option<T>> Inspect(Action<T> action)
+        public async Task<Option<T>> InspectAsync(Action<T> action)
         {
             Option<T>? option = await optionTask.ConfigureAwait(false);
 
