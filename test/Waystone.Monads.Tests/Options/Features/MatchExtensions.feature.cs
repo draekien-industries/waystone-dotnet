@@ -158,7 +158,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.GivenAsync("Option is Some with value 42", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 5
-        await testRunner.AndAsync("Option is wrapped in a Task \"OptionTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 6
         await testRunner.AndAsync("an async \"OnSome\" function that returns \"Value is 42\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
@@ -167,7 +167,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.AndAsync("an async \"OnNone\" function that returns \"No Value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 8
-        await testRunner.WhenAsync("invoking Match on \"OptionTask\" with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking Match on Option Task with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 9
         await testRunner.ThenAsync("the result should be \"Value is 42\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -201,7 +201,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 13
-        await testRunner.AndAsync("Option is wrapped in a Task \"OptionTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 14
         await testRunner.AndAsync("an async \"OnSome\" function that returns \"Value is 42\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
@@ -210,7 +210,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.AndAsync("an async \"OnNone\" function that returns \"No Value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 16
-        await testRunner.WhenAsync("invoking Match on \"OptionTask\" with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking Match on Option Task with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 17
         await testRunner.ThenAsync("the result should be \"No Value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -244,7 +244,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.GivenAsync("Option is Some with value 100", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 21
-        await testRunner.AndAsync("Option is wrapped in a ValueTask \"OptionValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 22
         await testRunner.AndAsync("an async \"OnSome\" function that returns \"Value is 100\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
@@ -253,7 +253,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.AndAsync("an async \"OnNone\" function that returns \"No Value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 24
-        await testRunner.WhenAsync("invoking Match on \"OptionValueTask\" with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking Match on Option ValueTask with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 25
         await testRunner.ThenAsync("the result should be \"Value is 100\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -287,7 +287,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 29
-        await testRunner.AndAsync("Option is wrapped in a ValueTask \"OptionValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 30
         await testRunner.AndAsync("an async \"OnSome\" function that returns \"Value is 100\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
@@ -296,7 +296,7 @@ namespace Waystone.Monads.Options.Features
         await testRunner.AndAsync("an async \"OnNone\" function that returns \"No Value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 32
-        await testRunner.WhenAsync("invoking Match on \"OptionValueTask\" with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking Match on Option ValueTask with \"OnSome\" and \"OnNone\" handlers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 33
         await testRunner.ThenAsync("the result should be \"No Value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");

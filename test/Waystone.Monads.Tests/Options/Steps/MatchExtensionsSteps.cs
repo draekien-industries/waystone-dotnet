@@ -58,25 +58,41 @@ public class MatchExtensionsSteps(ScenarioContext context)
         }
     }
 
-    [When("invoking Match on {string} with {string} and {string} handlers")]
-    public async Task WhenInvokingMatchOnStringWithStringAndStringHandlers(
-        string optionTask,
+    [Then("the result should be {string}")]
+    public void ThenTheResultShouldBeString(string p0)
+    {
+        var result = context.Get<string>();
+        result.ShouldBe(p0);
+    }
+
+    [When("invoking Match on Option Task with {string} and {string} handlers")]
+    public async Task WhenInvokingMatchOnOptionTaskWithAndHandlers(
         string onSome,
         string onNone)
     {
         var onSomeFunc = context.Get<Func<int, Task<string>>>(onSome);
         var onNoneFunc = context.Get<Func<Task<string>>>(onNone);
-        var option = context.Get<Task<Option<int>>>(optionTask);
+        var option = context.Get<Task<Option<int>>>();
 
         string result = await option.Match(onSomeFunc, onNoneFunc);
 
         context.Set(result);
     }
 
-    [Then("the result should be {string}")]
-    public void ThenTheResultShouldBeString(string p0)
+    [When(
+        "invoking Match on Option ValueTask with {string} and {string} handlers")]
+    public void WhenInvokingMatchOnOptionValueTaskWithAndHandlers(
+        string onSome,
+        string onNone)
     {
-        var result = context.Get<string>();
-        result.ShouldBe(p0);
+        var onSomeFunc = context.Get<Func<int, Task<string>>>(onSome);
+        var onNoneFunc = context.Get<Func<Task<string>>>(onNone);
+        var option = context.Get<ValueTask<Option<int>>>();
+
+        string result = option.Match(onSomeFunc, onNoneFunc)
+           .GetAwaiter()
+           .GetResult();
+
+        context.Set(result);
     }
 }

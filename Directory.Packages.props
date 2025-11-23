@@ -11,6 +11,7 @@
         <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1"/>
         <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3"/>
         <PackageVersion Include="System.ValueTuple" Version="4.6.1"/>
+        <PackageVersion Include="xunit.v3" Version="3.2.0"/>
     </ItemGroup>
     <ItemGroup Label="Analysers">
         <PackageVersion Include="JetBrains.Annotations" Version="2024.3.0"/>
@@ -22,7 +23,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageVersion>
-        <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2">
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageVersion>
