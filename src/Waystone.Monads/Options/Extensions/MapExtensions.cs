@@ -5,6 +5,21 @@ using System.Threading.Tasks;
 
 public static class MapExtensions
 {
+    extension<T>(Option<T> option) where T : notnull
+    {
+        public async ValueTask<Option<TOut>> Map<TOut>(Func<T, Task<TOut>> map)
+            where TOut : notnull
+        {
+            if (option.IsNone) return Option.None<TOut>();
+
+            T some = option.Expect("Expected Some but found None.");
+
+            TOut mapped = await map.Invoke(some).ConfigureAwait(false);
+
+            return Option.Some(mapped);
+        }
+    }
+
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>

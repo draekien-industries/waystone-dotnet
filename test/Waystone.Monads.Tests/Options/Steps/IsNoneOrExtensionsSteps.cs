@@ -17,7 +17,7 @@ public class IsNoneOrExtensionsSteps(ScenarioContext context)
     {
         var optionTask = context.Get<Task<Option<int>>>();
 
-        bool result = await optionTask.IsNoneOr(value =>
+        bool result = await optionTask.IsNoneOr(_ =>
             bool.Parse(predicateResult));
 
         context.Set(result, Constants.ResultKey);
