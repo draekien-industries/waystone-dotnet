@@ -36,7 +36,7 @@ public sealed class OptionTests
     {
         Task<Option<int>> optionTask = Option.Try<int>(async () =>
         {
-            await Task.Delay(10);
+            await Task.Delay(10, TestContext.Current.CancellationToken);
 
             throw new Exception();
         });
