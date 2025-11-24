@@ -87,4 +87,34 @@ public sealed class OptionSteps(ScenarioContext context)
                     "Type not implemented: " + type);
         }
     }
+
+    [Given("the Option is wrapped in an Option")]
+    public void GivenTheOptionIsWrappedInAnOption()
+    {
+        var option = context.Get<Option<int>>();
+        Option<Option<int>> nestedOption = Option.Some(option);
+        context.Set(nestedOption);
+    }
+
+    [Given("the Option of Option is wrapped in a Task")]
+    public void GivenTheOptionOfOptionIsWrappedInATask()
+    {
+        var nestedOption = context.Get<Option<Option<int>>>();
+
+        Task<Option<Option<int>>> taskNestedOption =
+            Task.FromResult(nestedOption);
+
+        context.Set(taskNestedOption);
+    }
+
+    [Given("the Option of Option is wrapped in a ValueTask")]
+    public void GivenTheOptionOfOptionIsWrappedInAValueTask()
+    {
+        var nestedOption = context.Get<Option<Option<int>>>();
+
+        var taskNestedOption =
+            new ValueTask<Option<Option<int>>>(nestedOption);
+
+        context.Set(taskNestedOption);
+    }
 }

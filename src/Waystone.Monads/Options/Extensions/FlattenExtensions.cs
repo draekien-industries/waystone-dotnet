@@ -10,10 +10,6 @@ public static class FlattenExtensions
         /// Flattens a nested <see cref="Option{T}" /> instance wrapped in a
         /// <see cref="Task{TResult}" /> into a single-level <see cref="Option{T}" />.
         /// </summary>
-        /// <typeparam name="T">
-        /// The type of the value contained in the
-        /// <see cref="Option{T}" />.
-        /// </typeparam>
         /// <returns>
         /// A task that represents the result of flattening the nested
         /// <see cref="Option{T}" /> to a single-level
@@ -35,9 +31,6 @@ public static class FlattenExtensions
         /// Flattens an asynchronous nested <see cref="Option{T}" /> instance wrapped in a
         /// <see cref="ValueTask{TResult}" /> into a single-level <see cref="Option{T}" />.
         /// </summary>
-        /// <typeparam name="T">
-        /// The type of the value contained in the <see cref="Option{T}" />.
-        /// </typeparam>
         /// <returns>
         /// A <see cref="ValueTask{TResult}" /> that represents the result of flattening
         /// the
