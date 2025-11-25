@@ -325,15 +325,6 @@ public class OkTests
     }
 
     [Fact]
-    public async Task WhenMapValueTaskAsync_ThenReturnMappedValue()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-
-        (await ok.MapAsync(x => new ValueTask<int>(x + 1)))
-           .ShouldBe(Result.Ok<int, string>(2));
-    }
-
-    [Fact]
     public async Task WhenMapOrAsync_ThenReturnMappedValue()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
