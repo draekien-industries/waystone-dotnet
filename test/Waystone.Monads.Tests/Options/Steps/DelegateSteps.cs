@@ -49,4 +49,20 @@ public class DelegateSteps(ScenarioContext context)
         var syncDelegate = context.Get<Action<int>>();
         syncDelegate.DidNotReceive().Invoke(Arg.Any<int>());
     }
+
+    [Given("an async Error delegate that returns {string}")]
+    public void GivenAnAsyncErrorDelegateThatReturns(string p0)
+    {
+        var asyncErrDelegate = Substitute.For<Func<Task<string>>>();
+        asyncErrDelegate.Invoke().Returns(Task.FromResult(p0));
+        context.Set(asyncErrDelegate, Constants.AsyncErrorDelegate);
+    }
+
+    [Given("a synchronous Error delegate that returns {string}")]
+    public void GivenASynchronousErrorDelegateThatReturns(string p0)
+    {
+        var syncErrDelegate = Substitute.For<Func<string>>();
+        syncErrDelegate.Invoke().Returns(p0);
+        context.Set(syncErrDelegate, Constants.SyncErrorDelegate);
+    }
 }
