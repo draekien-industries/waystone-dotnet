@@ -358,17 +358,6 @@ public class ErrTests
     }
 
     [Fact]
-    public async Task WhenInspectErrValueTaskAsync_ThenInvokeInspect()
-    {
-        Result<int, string> err = Result.Err<int, string>("error");
-
-        var inspect = Substitute.For<Func<string, ValueTask>>();
-
-        (await err.InspectErrAsync(inspect)).ShouldBe(err);
-        await inspect.Received(1).Invoke("error");
-    }
-
-    [Fact]
     public async Task WhenMapAsync_ThenReturnError()
     {
         Result<int, string> err = Result.Err<int, string>("error");

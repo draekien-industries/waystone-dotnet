@@ -339,16 +339,6 @@ public class OkTests
     }
 
     [Fact]
-    public async Task WhenInspectErrValueTaskAsync_ThenDoNothing()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-
-        var inspect = Substitute.For<Func<string, ValueTask>>();
-
-        (await ok.InspectErrAsync(inspect)).ShouldBe(ok);
-    }
-
-    [Fact]
     public async Task WhenMapAsync_ThenReturnMappedValue()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
