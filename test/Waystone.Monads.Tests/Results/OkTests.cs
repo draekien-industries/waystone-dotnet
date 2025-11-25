@@ -88,8 +88,10 @@ public class OkTests
     public void WhenAndThen_ThenReturnOther()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
+
         Result<string, string> result =
             ok.AndThen(x => Result.Ok<string, string>(x.ToString()));
+
         result.ShouldBe(Result.Ok<string, string>("1"));
     }
 
@@ -101,7 +103,7 @@ public class OkTests
         ok.Or(Result.Ok<int, bool>(2)).ShouldBe(Result.Ok<int, bool>(1));
 
         ok.Or(Result.Err<int, bool>(false))
-          .ShouldBe(Result.Ok<int, bool>(1));
+           .ShouldBe(Result.Ok<int, bool>(1));
     }
 
     [Fact]
@@ -110,9 +112,10 @@ public class OkTests
         Result<int, string> ok = Result.Ok<int, string>(1);
 
         ok.OrElse(_ => Result.Ok<int, bool>(2))
-          .ShouldBe(Result.Ok<int, bool>(1));
+           .ShouldBe(Result.Ok<int, bool>(1));
+
         ok.OrElse(_ => Result.Err<int, bool>(false))
-          .ShouldBe(Result.Ok<int, bool>(1));
+           .ShouldBe(Result.Ok<int, bool>(1));
     }
 
     [Fact]
@@ -121,9 +124,10 @@ public class OkTests
         Result<int, string> ok = Result.Ok<int, string>(1);
 
         ok.Expect("value is 1").ShouldBe(1);
+
         Should.Throw<UnmetExpectationException>(() => ok.ExpectErr(
-                                                    "Value should not be 1"))
-              .Message.ShouldBe("Value should not be 1: 1");
+                "Value should not be 1"))
+           .Message.ShouldBe("Value should not be 1: 1");
     }
 
     [Fact]
@@ -135,8 +139,9 @@ public class OkTests
         ok.UnwrapOr(10).ShouldBe(1);
         ok.UnwrapOrDefault().ShouldBe(1);
         ok.UnwrapOrElse(_ => 10).ShouldBe(1);
+
         Should.Throw<UnwrapException>(() => Result.Err<int, string>("test")
-                                                  .Unwrap());
+           .Unwrap());
     }
 
     [Fact]
@@ -209,6 +214,7 @@ public class OkTests
 
         (await ok.IsOkAndAsync(_ => new ValueTask<bool>(false)))
            .ShouldBeFalse();
+
         (await ok.IsOkAndAsync(_ => new ValueTask<bool>(true))).ShouldBeTrue();
     }
 
@@ -228,6 +234,7 @@ public class OkTests
 
         (await ok.IsErrAndAsync(_ => new ValueTask<bool>(true)))
            .ShouldBeFalse();
+
         (await ok.IsErrAndAsync(_ => new ValueTask<bool>(false)))
            .ShouldBeFalse();
     }
@@ -272,19 +279,11 @@ public class OkTests
     public async Task WhenAndThenAsync_ThenReturnOther()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
+
         Result<string, string> result =
             await ok.AndThenAsync(x => Task.FromResult(
-                                      Result.Ok<string, string>(x.ToString())));
-        result.ShouldBe(Result.Ok<string, string>("1"));
-    }
+                Result.Ok<string, string>(x.ToString())));
 
-    [Fact]
-    public async Task WhenAndThenValueTaskAsync_ThenReturnOther()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-        Result<string, string> result =
-            await ok.AndThenAsync(x => new ValueTask<Result<string, string>>(
-                                      Result.Ok<string, string>(x.ToString())));
         result.ShouldBe(Result.Ok<string, string>("1"));
     }
 
@@ -298,7 +297,7 @@ public class OkTests
 
         (
                 await ok.OrElseAsync(_ => Task.FromResult(
-                                         Result.Err<int, bool>(false))))
+                    Result.Err<int, bool>(false))))
            .ShouldBe(Result.Ok<int, bool>(1));
     }
 
@@ -307,15 +306,14 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-
         (
                 await ok.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
-                                         Result.Ok<int, bool>(2))))
+                    Result.Ok<int, bool>(2))))
            .ShouldBe(Result.Ok<int, bool>(1));
 
         (
                 await ok.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
-                                         Result.Err<int, bool>(false))))
+                    Result.Err<int, bool>(false))))
            .ShouldBe(Result.Ok<int, bool>(1));
     }
 
@@ -325,16 +323,6 @@ public class OkTests
         Result<int, string> ok = Result.Ok<int, string>(1);
 
         var inspect = Substitute.For<Func<int, Task>>();
-
-        (await ok.InspectAsync(inspect)).ShouldBe(ok);
-    }
-
-    [Fact]
-    public async Task WhenInspectValueTaskAsync_ThenInvokeInspect()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-
-        var inspect = Substitute.For<Func<int, ValueTask>>();
 
         (await ok.InspectAsync(inspect)).ShouldBe(ok);
     }
@@ -374,7 +362,6 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-
         (await ok.MapAsync(x => new ValueTask<int>(x + 1)))
            .ShouldBe(Result.Ok<int, string>(2));
     }
@@ -400,7 +387,6 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-
         (await ok.MapOrElseAsync(
             _ => Task.FromResult(10),
             x => Task.FromResult(x + 1))).ShouldBe(2);
@@ -410,7 +396,6 @@ public class OkTests
     public async Task WhenMapOrElseValueTaskAsync_ThenReturnMappedValue()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
-
 
         (await ok.MapOrElseAsync(
             _ => new ValueTask<int>(10),
@@ -439,8 +424,10 @@ public class OkTests
     public async Task WhenMapErrAsync_ThenDoNothing()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
+
         Result<int, int> result =
             await ok.MapErrAsync(_ => Task.FromResult(10));
+
         result.ShouldBe(Result.Ok<int, int>(1));
     }
 
@@ -448,8 +435,10 @@ public class OkTests
     public async Task WhenMapErrValueTaskAsync_ThenDoNothing()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
+
         Result<int, int> result =
             await ok.MapErrAsync(_ => new ValueTask<int>(10));
+
         result.ShouldBe(Result.Ok<int, int>(1));
     }
 }
