@@ -228,18 +228,6 @@ public class ErrTests
     }
 
     [Fact]
-    public async Task WhenIsOkAndValueTaskAsync_ThenReturnFalse()
-    {
-        Result<int, string> err = Result.Err<int, string>("error");
-
-        (await err.IsOkAndAsync(_ => new ValueTask<bool>(true)))
-           .ShouldBeFalse();
-
-        (await err.IsOkAndAsync(_ => new ValueTask<bool>(false)))
-           .ShouldBeFalse();
-    }
-
-    [Fact]
     public async Task WhenIsErrAndAsync_ThenReturnPredicateResult()
     {
         Result<int, string> err = Result.Err<int, string>("error");

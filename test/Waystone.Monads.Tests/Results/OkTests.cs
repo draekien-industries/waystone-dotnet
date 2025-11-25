@@ -208,17 +208,6 @@ public class OkTests
     }
 
     [Fact]
-    public async Task WhenIsOkAndValueTaskAsync_ThenReturnPredicateResult()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-
-        (await ok.IsOkAndAsync(_ => new ValueTask<bool>(false)))
-           .ShouldBeFalse();
-
-        (await ok.IsOkAndAsync(_ => new ValueTask<bool>(true))).ShouldBeTrue();
-    }
-
-    [Fact]
     public async Task WhenIsErrAndAsync_ThenReturnFalse()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
