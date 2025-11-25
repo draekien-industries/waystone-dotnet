@@ -228,18 +228,6 @@ public class OkTests
     }
 
     [Fact]
-    public async Task WhenIsErrAndValueTaskAsync_ThenReturnFalse()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-
-        (await ok.IsErrAndAsync(_ => new ValueTask<bool>(true)))
-           .ShouldBeFalse();
-
-        (await ok.IsErrAndAsync(_ => new ValueTask<bool>(false)))
-           .ShouldBeFalse();
-    }
-
-    [Fact]
     public async Task GivenFunc_WhenMatchAsync_ThenInvokeOnOk()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);

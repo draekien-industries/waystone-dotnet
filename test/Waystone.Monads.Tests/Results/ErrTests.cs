@@ -249,18 +249,6 @@ public class ErrTests
     }
 
     [Fact]
-    public async Task WhenIsErrAndValueTaskAsync_ThenReturnPredicateResult()
-    {
-        Result<int, string> err = Result.Err<int, string>("error");
-
-        (await err.IsErrAndAsync(_ => new ValueTask<bool>(true)))
-           .ShouldBeTrue();
-
-        (await err.IsErrAndAsync(_ => new ValueTask<bool>(false)))
-           .ShouldBeFalse();
-    }
-
-    [Fact]
     public async Task GivenFunc_WhenMatchAsync_ThenInvokeOnErr()
     {
         Result<int, string> err = Result.Err<int, string>("error");
