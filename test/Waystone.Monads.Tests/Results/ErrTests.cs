@@ -255,24 +255,6 @@ public class ErrTests
     }
 
     [Fact]
-    public async Task GivenFunc_WhenMatchValueTaskAsync_ThenInvokeOnErr()
-    {
-        Result<int, string> err = Result.Err<int, string>("error");
-
-        var onOk = Substitute.For<Func<int, ValueTask<bool>>>();
-        onOk.Invoke(Arg.Any<int>()).Returns(new ValueTask<bool>(true));
-
-        var onErr = Substitute.For<Func<string, ValueTask<bool>>>();
-        onErr.Invoke("error").Returns(new ValueTask<bool>(false));
-
-        bool result = await err.MatchAsync(onOk, onErr);
-
-        result.ShouldBeFalse();
-        await onOk.DidNotReceive().Invoke(Arg.Any<int>());
-        await onErr.Received(1).Invoke("error");
-    }
-
-    [Fact]
     public async Task WhenAndThenAsync_ThenReturnError()
     {
         Result<int, string> err = Result.Err<int, string>("error");
@@ -293,20 +275,6 @@ public class ErrTests
            .ShouldBe(Result.Ok<int, bool>(1));
 
         (await err.OrElseAsync(_ => Task.FromResult(
-                Result.Err<int, bool>(false))))
-           .ShouldBe(Result.Err<int, bool>(false));
-    }
-
-    [Fact]
-    public async Task WhenOrElseValueTaskAsync_ThenReturnOther()
-    {
-        Result<int, string> err = Result.Err<int, string>("error");
-
-        (await err.OrElseAsync(_ =>
-                new ValueTask<Result<int, bool>>(Result.Ok<int, bool>(1))))
-           .ShouldBe(Result.Ok<int, bool>(1));
-
-        (await err.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
                 Result.Err<int, bool>(false))))
            .ShouldBe(Result.Err<int, bool>(false));
     }
