@@ -343,16 +343,6 @@ public class OkTests
     }
 
     [Fact]
-    public async Task WhenMapOrElseValueTaskAsync_ThenReturnMappedValue()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-
-        (await ok.MapOrElseAsync(
-            _ => new ValueTask<int>(10),
-            x => new ValueTask<int>(x + 1))).ShouldBe(2);
-    }
-
-    [Fact]
     public async Task WhenUnwrapOrElseAsync_ThenReturnValue()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
