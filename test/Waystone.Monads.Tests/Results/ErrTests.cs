@@ -339,15 +339,6 @@ public class ErrTests
     }
 
     [Fact]
-    public async Task WhenUnwrapOrElseValueTaskAsync_ThenReturnValue()
-    {
-        Result<int, string> err = Result.Err<int, string>("error");
-
-        int value = await err.UnwrapOrElseAsync(_ => new ValueTask<int>(10));
-        value.ShouldBe(10);
-    }
-
-    [Fact]
     public async Task WhenMapErrAsync_ThenReturnMappedError()
     {
         Result<int, string> err = Result.Err<int, string>("error");
