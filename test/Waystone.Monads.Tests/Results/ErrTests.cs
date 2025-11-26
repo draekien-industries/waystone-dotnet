@@ -408,15 +408,4 @@ public class ErrTests
 
         result.ShouldBe(Result.Err<int, int>(10));
     }
-
-    [Fact]
-    public async Task WhenMapErrValueTaskAsync_ThenReturnMappedError()
-    {
-        Result<int, string> err = Result.Err<int, string>("error");
-
-        Result<int, int> result =
-            await err.MapErrAsync(_ => new ValueTask<int>(10));
-
-        result.ShouldBe(Result.Err<int, int>(10));
-    }
 }

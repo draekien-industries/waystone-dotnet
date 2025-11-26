@@ -388,15 +388,4 @@ public class OkTests
 
         result.ShouldBe(Result.Ok<int, int>(1));
     }
-
-    [Fact]
-    public async Task WhenMapErrValueTaskAsync_ThenDoNothing()
-    {
-        Result<int, string> ok = Result.Ok<int, string>(1);
-
-        Result<int, int> result =
-            await ok.MapErrAsync(_ => new ValueTask<int>(10));
-
-        result.ShouldBe(Result.Ok<int, int>(1));
-    }
 }
