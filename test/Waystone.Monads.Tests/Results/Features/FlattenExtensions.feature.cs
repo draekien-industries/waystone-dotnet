@@ -105,7 +105,7 @@ namespace Waystone.Monads.Results.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Results/Features/FlattenExtensions.feature.ndjson", 6);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Results/Features/FlattenExtensions.feature.ndjson", 10);
         }
         
         async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
@@ -276,6 +276,166 @@ namespace Waystone.Monads.Results.Features
 #line hidden
 #line 25
         await testRunner.ThenAsync("the output should be an Error result with message \"Error2\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="async flatten Ok of Ok result Task")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Flatten Extensions on Async Result")]
+        [global::Xunit.TraitAttribute("Description", "async flatten Ok of Ok result Task")]
+        public async global::System.Threading.Tasks.Task AsyncFlattenOkOfOkResultTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "4";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("async flatten Ok of Ok result Task", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 27
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 28
+        await testRunner.GivenAsync("an OK result with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 29
+        await testRunner.AndAsync("it is nested in an OK result", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 30
+        await testRunner.AndAsync("the outer result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 31
+        await testRunner.WhenAsync("invoking flatten on the async Task result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 32
+        await testRunner.ThenAsync("the output should be an OK result with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="async flatten Ok of Error result Task")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Flatten Extensions on Async Result")]
+        [global::Xunit.TraitAttribute("Description", "async flatten Ok of Error result Task")]
+        public async global::System.Threading.Tasks.Task AsyncFlattenOkOfErrorResultTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "5";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("async flatten Ok of Error result Task", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 34
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 35
+        await testRunner.GivenAsync("an OK result with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 36
+        await testRunner.AndAsync("it is nested in an Error result with value \"Async Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 37
+        await testRunner.AndAsync("the outer result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 38
+        await testRunner.WhenAsync("invoking flatten on the async Task result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 39
+        await testRunner.ThenAsync("the output should be an Error result with message \"Async Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="async flatten Error of Ok result Task")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Flatten Extensions on Async Result")]
+        [global::Xunit.TraitAttribute("Description", "async flatten Error of Ok result Task")]
+        public async global::System.Threading.Tasks.Task AsyncFlattenErrorOfOkResultTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "6";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("async flatten Error of Ok result Task", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 41
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 42
+        await testRunner.GivenAsync("an Error result with value \"Async Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 43
+        await testRunner.AndAsync("it is nested in an OK result", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 44
+        await testRunner.AndAsync("the outer result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 45
+        await testRunner.WhenAsync("invoking flatten on the async Task result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 46
+        await testRunner.ThenAsync("the output should be an Error result with message \"Async Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="async flatten Error of Error result Task")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Flatten Extensions on Async Result")]
+        [global::Xunit.TraitAttribute("Description", "async flatten Error of Error result Task")]
+        public async global::System.Threading.Tasks.Task AsyncFlattenErrorOfErrorResultTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "7";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("async flatten Error of Error result Task", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 48
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 49
+        await testRunner.GivenAsync("an Error result with value \"Async Error1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 50
+        await testRunner.AndAsync("it is nested in an Error result with value \"Async Error2\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 51
+        await testRunner.AndAsync("the outer result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 52
+        await testRunner.WhenAsync("invoking flatten on the async Task result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 53
+        await testRunner.ThenAsync("the output should be an Error result with message \"Async Error2\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

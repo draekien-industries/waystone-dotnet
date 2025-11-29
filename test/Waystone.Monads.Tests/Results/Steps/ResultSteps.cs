@@ -88,4 +88,11 @@ public class ResultSteps(ScenarioContext context)
         Result<int, string> result = Result.Err<int, string>(error);
         context.Set(result);
     }
+
+    [Given("the outer result is wrapped in a Task")]
+    public void GivenTheOuterResultIsWrappedInATask()
+    {
+        var result = context.Get<Result<Result<int, string>, string>>();
+        context.Set(Task.FromResult(result));
+    }
 }
