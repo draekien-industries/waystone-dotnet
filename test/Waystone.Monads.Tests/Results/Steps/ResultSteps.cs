@@ -52,4 +52,11 @@ public class ResultSteps(ScenarioContext context)
         result.IsErr.ShouldBe(true);
         result.ExpectErr("Expected an Err Result.").ShouldBe(p0);
     }
+
+    [Given("the result is wrapped in a ValueTask")]
+    public void GivenTheResultIsWrappedInAValueTask()
+    {
+        var result = context.Get<Result<int, string>>();
+        context.Set(new ValueTask<Result<int, string>>(result));
+    }
 }
