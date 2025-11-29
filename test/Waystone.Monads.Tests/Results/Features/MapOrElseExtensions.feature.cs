@@ -105,7 +105,7 @@ namespace Waystone.Monads.Results.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Results/Features/MapOrElseExtensions.feature.ndjson", 7);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Results/Features/MapOrElseExtensions.feature.ndjson", 20);
         }
         
         async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
@@ -340,6 +340,562 @@ namespace Waystone.Monads.Results.Features
 #line hidden
 #line 40
         await testRunner.ThenAsync("the output should be the value \"10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on sync Error Result with async factory and async map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on sync Error Result with async factory and async map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnSyncErrorResultWithAsyncFactoryAndAsyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "5";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on sync Error Result with async factory and async map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 42
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 43
+        await testRunner.GivenAsync("an Error result with value \"Error occurred\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 44
+        await testRunner.AndAsync("an async factory that returns \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 45
+        await testRunner.AndAsync("an async map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 46
+        await testRunner.WhenAsync("invoking MapOrElse with the async factory and async map on the sync Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 47
+        await testRunner.ThenAsync("the output should be the value \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on async Error Result with async factory and async map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on async Error Result with async factory and async map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnAsyncErrorResultWithAsyncFactoryAndAsyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "6";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on async Error Result with async factory and async map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 49
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 50
+        await testRunner.GivenAsync("an Error result with value \"Error occurred\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 51
+        await testRunner.AndAsync("the result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 52
+        await testRunner.AndAsync("an async factory that returns \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 53
+        await testRunner.AndAsync("an async map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 54
+        await testRunner.WhenAsync("invoking MapOrElse with the async factory and async map on the async Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 55
+        await testRunner.ThenAsync("the output should be the value \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on async Error Result with sync factory and async map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on async Error Result with sync factory and async map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnAsyncErrorResultWithSyncFactoryAndAsyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "7";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on async Error Result with sync factory and async map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 57
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 58
+        await testRunner.GivenAsync("an Error result with value \"Error occurred\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 59
+        await testRunner.AndAsync("the result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 60
+        await testRunner.AndAsync("a sync factory that returns \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 61
+        await testRunner.AndAsync("an async map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 62
+        await testRunner.WhenAsync("invoking MapOrElse with the sync factory and async map on the async Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 63
+        await testRunner.ThenAsync("the output should be the value \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on async Error Result with async factory and sync map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on async Error Result with async factory and sync map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnAsyncErrorResultWithAsyncFactoryAndSyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "8";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on async Error Result with async factory and sync map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 65
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 66
+        await testRunner.GivenAsync("an Error result with value \"Error occurred\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 67
+        await testRunner.AndAsync("the result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 68
+        await testRunner.AndAsync("an async factory that returns \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 69
+        await testRunner.AndAsync("a sync map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 70
+        await testRunner.WhenAsync("invoking MapOrElse with the async factory and sync map on the async Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 71
+        await testRunner.ThenAsync("the output should be the value \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on async Error Result with sync factory and sync map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on async Error Result with sync factory and sync map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnAsyncErrorResultWithSyncFactoryAndSyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "9";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on async Error Result with sync factory and sync map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 73
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 74
+        await testRunner.GivenAsync("an Error result with value \"Error occurred\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 75
+        await testRunner.AndAsync("the result is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 76
+        await testRunner.AndAsync("a sync factory that returns \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 77
+        await testRunner.AndAsync("a sync map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 78
+        await testRunner.WhenAsync("invoking MapOrElse with the sync factory and sync map on the async Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 79
+        await testRunner.ThenAsync("the output should be the value \"Error handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask OK Result with async factory and async map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask OK Result with async factory and async map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskOKResultWithAsyncFactoryAndAsyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "10";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask OK Result with async factory and async map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 81
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 82
+        await testRunner.GivenAsync("an OK result with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 83
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 84
+        await testRunner.AndAsync("an async factory that returns \"Not Available\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 85
+        await testRunner.AndAsync("an async map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 86
+        await testRunner.WhenAsync("invoking MapOrElse with the async factory and async map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 87
+        await testRunner.ThenAsync("the output should be the value \"20\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask Error Result with async factory and async map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask Error Result with async factory and async map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskErrorResultWithAsyncFactoryAndAsyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "11";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask Error Result with async factory and async map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 89
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 90
+        await testRunner.GivenAsync("an Error result with value \"Critical Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 91
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 92
+        await testRunner.AndAsync("an async factory that returns \"Recovered\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 93
+        await testRunner.AndAsync("an async map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 94
+        await testRunner.WhenAsync("invoking MapOrElse with the async factory and async map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 95
+        await testRunner.ThenAsync("the output should be the value \"Recovered\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask OK Result with sync factory and sync map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask OK Result with sync factory and sync map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskOKResultWithSyncFactoryAndSyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "12";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask OK Result with sync factory and sync map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 97
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 98
+        await testRunner.GivenAsync("an OK result with value 30", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 99
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 100
+        await testRunner.AndAsync("a sync factory that returns \"Unavailable\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 101
+        await testRunner.AndAsync("a sync map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 102
+        await testRunner.WhenAsync("invoking MapOrElse with the sync factory and sync map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 103
+        await testRunner.ThenAsync("the output should be the value \"30\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask Error Result with sync factory and sync map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask Error Result with sync factory and sync map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskErrorResultWithSyncFactoryAndSyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "13";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask Error Result with sync factory and sync map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 105
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 106
+        await testRunner.GivenAsync("an Error result with value \"Fatal Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 107
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 108
+        await testRunner.AndAsync("a sync factory that returns \"Resolved\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 109
+        await testRunner.AndAsync("a sync map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 110
+        await testRunner.WhenAsync("invoking MapOrElse with the sync factory and sync map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 111
+        await testRunner.ThenAsync("the output should be the value \"Resolved\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask OK Result with async factory and sync map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask OK Result with async factory and sync map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskOKResultWithAsyncFactoryAndSyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "14";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask OK Result with async factory and sync map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 113
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 114
+        await testRunner.GivenAsync("an OK result with value 40", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 115
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 116
+        await testRunner.AndAsync("an async factory that returns \"Not Present\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 117
+        await testRunner.AndAsync("a sync map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 118
+        await testRunner.WhenAsync("invoking MapOrElse with the async factory and sync map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 119
+        await testRunner.ThenAsync("the output should be the value \"40\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask Error Result with async factory and sync map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask Error Result with async factory and sync map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskErrorResultWithAsyncFactoryAndSyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "15";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask Error Result with async factory and sync map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 121
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 122
+        await testRunner.GivenAsync("an Error result with value \"Severe Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 123
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 124
+        await testRunner.AndAsync("an async factory that returns \"Fixed\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 125
+        await testRunner.AndAsync("a sync map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 126
+        await testRunner.WhenAsync("invoking MapOrElse with the async factory and sync map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 127
+        await testRunner.ThenAsync("the output should be the value \"Fixed\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask OK Result with sync factory and async map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask OK Result with sync factory and async map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskOKResultWithSyncFactoryAndAsyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "16";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask OK Result with sync factory and async map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 129
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 130
+        await testRunner.GivenAsync("an OK result with value 50", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 131
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 132
+        await testRunner.AndAsync("a sync factory that returns \"Not Here\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 133
+        await testRunner.AndAsync("an async map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 134
+        await testRunner.WhenAsync("invoking MapOrElse with the sync factory and async map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 135
+        await testRunner.ThenAsync("the output should be the value \"50\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="MapOrElse on ValueTask Error Result with sync factory and async map")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "MapOrElse Extensions for Result")]
+        [global::Xunit.TraitAttribute("Description", "MapOrElse on ValueTask Error Result with sync factory and async map")]
+        public async global::System.Threading.Tasks.Task MapOrElseOnValueTaskErrorResultWithSyncFactoryAndAsyncMap()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "17";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("MapOrElse on ValueTask Error Result with sync factory and async map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 137
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 138
+        await testRunner.GivenAsync("an Error result with value \"Major Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 139
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 140
+        await testRunner.AndAsync("a sync factory that returns \"Handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 141
+        await testRunner.AndAsync("an async map that converts the value into a string", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 142
+        await testRunner.WhenAsync("invoking MapOrElse with the sync factory and async map on the ValueTask Result", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 143
+        await testRunner.ThenAsync("the output should be the value \"Handled\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
