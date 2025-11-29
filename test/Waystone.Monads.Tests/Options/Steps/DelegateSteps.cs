@@ -165,4 +165,30 @@ public class DelegateSteps(ScenarioContext context)
 
         context.Set(asyncMap, Constants.AsyncOkDelegate);
     }
+
+    [Given("a sync factory that returns {string}")]
+    public void GivenASyncFactoryThatReturns(string p0)
+    {
+        var syncFactory = Substitute.For<Func<string, string>>();
+
+        syncFactory.Invoke(Arg.Any<string>()).Returns(p0);
+
+        context.Set(syncFactory, Constants.SyncErrorDelegate);
+    }
+
+    [Given("a sync map that converts the value into a string")]
+    public void GivenASyncMapThatConvertsTheValueIntoAString()
+    {
+        var syncMap = Substitute.For<Func<int, string>>();
+
+        syncMap.Invoke(Arg.Any<int>())
+           .Returns(callInfo =>
+            {
+                var value = callInfo.Arg<int>();
+
+                return value.ToString();
+            });
+
+        context.Set(syncMap, Constants.SyncOkDelegate);
+    }
 }
