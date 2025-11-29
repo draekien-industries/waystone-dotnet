@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using NSubstitute;
 using Reqnroll;
+using Results;
 
 [Binding]
 public class DelegateSteps(ScenarioContext context)
@@ -64,5 +65,16 @@ public class DelegateSteps(ScenarioContext context)
         var syncErrDelegate = Substitute.For<Func<string>>();
         syncErrDelegate.Invoke().Returns(p0);
         context.Set(syncErrDelegate, Constants.SyncErrorDelegate);
+    }
+
+    [Given("an async delegate that returns an OK result with value {int}")]
+    public void GivenAnAsyncDelegateThatReturnsAnOkResultWithValue(int p0)
+    {
+        var func = Substitute.For<Func<int, Task<Result<int, string>>>>();
+
+        func.Invoke(Arg.Any<int>())
+           .Returns(Task.FromResult(Result.Ok<int, string>(p0)));
+
+        context.Set(func, Constants.AsyncOkDelegate);
     }
 }

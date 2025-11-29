@@ -43,4 +43,8 @@
         <PackageReference Include="xunit.v3"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Steps\"/>
+    </ItemGroup>
+
 </Project>

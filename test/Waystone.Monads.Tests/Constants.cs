@@ -8,4 +8,6 @@ internal static class Constants
     internal const string FlatMapKey = "FlatMap";
     internal const string AsyncErrorDelegate = "AsyncErrorDelegate";
     internal const string SyncErrorDelegate = "SyncErrorDelegate";
+    internal const string AsyncOkDelegate = "AsyncOkDelegate";
+    internal const string SyncOkDelegate = "SyncOkDelegate";
 }
