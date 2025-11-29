@@ -113,4 +113,29 @@ public class DelegateSteps(ScenarioContext context)
 
         context.Set(func, Constants.SyncErrorDelegate);
     }
+
+    [Then("the async delegate should not have been invoked")]
+    public void ThenTheAsyncDelegateShouldNotHaveBeenInvoked()
+    {
+        var func = context.Get<Func<string, Task>>();
+
+        func.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Then(
+        "the async delegate should have been invoked once with message {string}")]
+    public void ThenTheAsyncDelegateShouldHaveBeenInvokedOnceWithMessage(
+        string error)
+    {
+        var func = context.Get<Func<string, Task>>();
+
+        func.Received(1).Invoke(Arg.Any<string>());
+    }
+
+    [Given("an async delegate for string returning Task")]
+    public void GivenAnAsyncDelegateForStringReturningTask()
+    {
+        var asyncDelegate = Substitute.For<Func<string, Task>>();
+        context.Set(asyncDelegate);
+    }
 }
