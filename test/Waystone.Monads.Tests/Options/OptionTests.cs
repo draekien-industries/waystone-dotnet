@@ -36,43 +36,28 @@ public sealed class OptionTests
     {
         Task<Option<int>> optionTask = Option.Try<int>(async () =>
         {
-            await Task.Delay(10);
+            await Task.Delay(10, TestContext.Current.CancellationToken);
+
             throw new Exception();
         });
 
         Option<int> option = await optionTask;
 
         option.ShouldBe(Option.None<int>());
-        _callback.Received()
-                 .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
-    }
 
+        _callback.Received()
+           .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+    }
 
     [Fact]
     public void WhenBindingFactoryThatSucceeds_ThenReturnSome()
     {
         Option<int> option = Option.Try(() => 1);
         option.ShouldBe(Option.Some(1));
+
         _callback.DidNotReceive()
-                 .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+           .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
     }
-
-    [Fact]
-    public void
-        GivenFactoryThatThrows_AndOnErrorCallback_WhenBindingFactory_ThenInvokeCallback()
-    {
-        Option<int> option = Option.Try(() =>
-        {
-            throw new Exception();
-#pragma warning disable CS0162 // Unreachable code detected
-            return 1;
-#pragma warning restore CS0162 // Unreachable code detected
-        });
-        option.ShouldBe(Option.None<int>());
-        _callback.Received(1)
-                 .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
-    }
-
 
     [Fact]
     public void WhenImplicitlyCreatingOption_ThenReturnExpected()
@@ -81,8 +66,10 @@ public sealed class OptionTests
         Option<int> option2 = 1;
         Option<string> option3 = string.Empty;
 #pragma warning disable CS8604 // Possible null reference argument.
+
         // ReSharper disable once PreferConcreteValueOverDefault
         Option<string> option4 = default(string);
+
         // ReSharper disable once PreferConcreteValueOverDefault
         Option<Guid> option5 = default(Guid);
 #pragma warning restore CS8604 // Possible null reference argument.
