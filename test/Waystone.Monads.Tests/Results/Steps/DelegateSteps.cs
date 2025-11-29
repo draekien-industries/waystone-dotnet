@@ -66,31 +66,12 @@ public sealed class DelegateSteps(ScenarioContext context)
 
                 break;
             }
-            case "async" when ok == "Error":
-            {
-                var asyncErrHandler =
-                    context.Get<Func<string, Task>>(
-                        Constants.AsyncErrorDelegate);
-
-                asyncErrHandler.Received(1).Invoke("Error");
-
-                break;
-            }
             case "sync" when ok == "Ok":
             {
                 var syncOkHandler =
                     context.Get<Action<int>>(Constants.SyncOkDelegate);
 
                 syncOkHandler.Received(1).Invoke(p2);
-
-                break;
-            }
-            case "sync" when ok == "Error":
-            {
-                var syncErrHandler =
-                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
-
-                syncErrHandler.Received(1).Invoke("Error");
 
                 break;
             }
@@ -104,15 +85,6 @@ public sealed class DelegateSteps(ScenarioContext context)
     {
         switch (async)
         {
-            case "async" when error == "Ok":
-            {
-                var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
-
-                asyncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
-
-                break;
-            }
             case "async" when error == "Error":
             {
                 var asyncErrHandler =
@@ -123,12 +95,34 @@ public sealed class DelegateSteps(ScenarioContext context)
 
                 break;
             }
-            case "sync" when error == "Ok":
+            case "sync" when error == "Error":
             {
-                var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+                var syncErrHandler =
+                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
 
-                syncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
+                syncErrHandler.DidNotReceive().Invoke(Arg.Any<string>());
+
+                break;
+            }
+        }
+    }
+
+    [Then(
+        "the {string} {string} handler should have been called with value {string}")]
+    public void ThenTheHandlerShouldHaveBeenCalledWithValue(
+        string async,
+        string error,
+        string error2)
+    {
+        switch (async)
+        {
+            case "async" when error == "Error":
+            {
+                var asyncErrHandler =
+                    context.Get<Func<string, Task>>(
+                        Constants.AsyncErrorDelegate);
+
+                asyncErrHandler.Received(1).Invoke(error2);
 
                 break;
             }
@@ -137,7 +131,33 @@ public sealed class DelegateSteps(ScenarioContext context)
                 var syncErrHandler =
                     context.Get<Action<string>>(Constants.SyncErrorDelegate);
 
-                syncErrHandler.DidNotReceive().Invoke(Arg.Any<string>());
+                syncErrHandler.Received(1).Invoke(error2);
+
+                break;
+            }
+        }
+    }
+
+    [Then("the {string} {string} handler should have not been called")]
+    public void ThenTheHandlerShouldHaveNotBeenCalled(string async, string ok)
+    {
+        switch (async)
+        {
+            case "async" when ok == "Ok":
+            {
+                var asyncOkHandler =
+                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+
+                asyncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
+
+                break;
+            }
+            case "sync" when ok == "Ok":
+            {
+                var syncOkHandler =
+                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+
+                syncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
 
                 break;
             }
