@@ -24,4 +24,14 @@ public class FlattenExtensionsSteps(ScenarioContext context)
         Result<int, string> flattened = await resultTask.FlattenAsync();
         context.Set(flattened, Constants.ResultKey);
     }
+
+    [When("invoking flatten on the async ValueTask result")]
+    public async Task WhenInvokingFlattenOnTheAsyncValueTaskResult()
+    {
+        var resultTask =
+            context.Get<ValueTask<Result<Result<int, string>, string>>>();
+
+        Result<int, string> flattened = await resultTask.FlattenAsync();
+        context.Set(flattened, Constants.ResultKey);
+    }
 }
