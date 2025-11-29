@@ -117,6 +117,26 @@ public static class MatchExtensions
 
             return await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
+
+        public async Task MatchAsync(
+            Action<TOk> onOk,
+            Action<TErr> onErr)
+        {
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
+
+            if (result.IsOk)
+            {
+                TOk ok = result.Expect("Expected Ok but found Err.");
+
+                onOk.Invoke(ok);
+
+                return;
+            }
+
+            TErr err = result.ExpectErr("Expected Err but found Ok.");
+
+            onErr.Invoke(err);
+        }
     }
 
     extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
@@ -156,6 +176,26 @@ public static class MatchExtensions
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
+        }
+
+        public async Task MatchAsync(
+            Action<TOk> onOk,
+            Action<TErr> onErr)
+        {
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
+
+            if (result.IsOk)
+            {
+                TOk ok = result.Expect("Expected Ok but found Err.");
+
+                onOk.Invoke(ok);
+
+                return;
+            }
+
+            TErr err = result.ExpectErr("Expected Err but found Ok.");
+
+            onErr.Invoke(err);
         }
     }
 }
