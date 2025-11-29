@@ -102,4 +102,11 @@ public class ResultSteps(ScenarioContext context)
         var result = context.Get<Result<Result<int, string>, string>>();
         context.Set(new ValueTask<Result<Result<int, string>, string>>(result));
     }
+
+    [Then("the output should be the value {string}")]
+    public void ThenTheOutputShouldBeTheValue(string p0)
+    {
+        var output = context.Get<string>(Constants.ResultKey);
+        output.ShouldBe(p0);
+    }
 }

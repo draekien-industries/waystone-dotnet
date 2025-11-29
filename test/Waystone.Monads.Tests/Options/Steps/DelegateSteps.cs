@@ -138,4 +138,31 @@ public class DelegateSteps(ScenarioContext context)
         var asyncDelegate = Substitute.For<Func<string, Task>>();
         context.Set(asyncDelegate);
     }
+
+    [Given("an async factory that returns {string}")]
+    public void GivenAnAsyncFactoryThatReturns(string missing)
+    {
+        var asyncFactory = Substitute.For<Func<string, Task<string>>>();
+
+        asyncFactory.Invoke(Arg.Any<string>())
+           .Returns(Task.FromResult(missing));
+
+        context.Set(asyncFactory, Constants.AsyncErrorDelegate);
+    }
+
+    [Given("an async map that converts the value into a string")]
+    public void GivenAnAsyncMapThatConvertsTheValueIntoAString()
+    {
+        var asyncMap = Substitute.For<Func<int, Task<string>>>();
+
+        asyncMap.Invoke(Arg.Any<int>())
+           .Returns(callInfo =>
+            {
+                var value = callInfo.Arg<int>();
+
+                return Task.FromResult(value.ToString());
+            });
+
+        context.Set(asyncMap, Constants.AsyncOkDelegate);
+    }
 }
