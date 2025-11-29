@@ -77,4 +77,40 @@ public class DelegateSteps(ScenarioContext context)
 
         context.Set(func, Constants.AsyncOkDelegate);
     }
+
+    [Given(
+        "an async delegate that returns an Error result with message {string}")]
+    public void GivenAnAsyncDelegateThatReturnsAnErrorResultWithMessage(
+        string p0)
+    {
+        var func = Substitute.For<Func<int, Task<Result<int, string>>>>();
+
+        func.Invoke(Arg.Any<int>())
+           .Returns(Task.FromResult(Result.Err<int, string>(p0)));
+
+        context.Set(func, Constants.AsyncErrorDelegate);
+    }
+
+    [Given("a sync delegate that returns an OK result with value {int}")]
+    public void GivenASyncDelegateThatReturnsAnOkResultWithValue(int p0)
+    {
+        var func = Substitute.For<Func<int, Result<int, string>>>();
+
+        func.Invoke(Arg.Any<int>())
+           .Returns(Result.Ok<int, string>(p0));
+
+        context.Set(func, Constants.SyncOkDelegate);
+    }
+
+    [Given(
+        "a sync delegate that returns an Error result with message {string}")]
+    public void GivenASyncDelegateThatReturnsAnErrorResultWithMessage(string p0)
+    {
+        var func = Substitute.For<Func<int, Result<int, string>>>();
+
+        func.Invoke(Arg.Any<int>())
+           .Returns(Result.Err<int, string>(p0));
+
+        context.Set(func, Constants.SyncErrorDelegate);
+    }
 }

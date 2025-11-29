@@ -44,4 +44,12 @@ public class ResultSteps(ScenarioContext context)
         result.IsOk.ShouldBe(true);
         result.Expect("Expected an Ok Result.").ShouldBe(p0);
     }
+
+    [Then("the output should be an Error result with message {string}")]
+    public void ThenTheOutputShouldBeAnErrorResultWithMessage(string p0)
+    {
+        var result = context.Get<Result<int, string>>(Constants.ResultKey);
+        result.IsErr.ShouldBe(true);
+        result.ExpectErr("Expected an Err Result.").ShouldBe(p0);
+    }
 }
