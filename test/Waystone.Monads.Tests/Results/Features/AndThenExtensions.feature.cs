@@ -105,7 +105,7 @@ namespace Waystone.Monads.Results.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Results/Features/AndThenExtensions.feature.ndjson", 6);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Results/Features/AndThenExtensions.feature.ndjson", 10);
         }
         
         async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
@@ -288,6 +288,168 @@ namespace Waystone.Monads.Results.Features
 #line hidden
 #line 29
         await testRunner.ThenAsync("the output should be an Error result with message \"Sync error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Async delegate returns OK result for ValueTask")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Async delegate returns OK result for ValueTask")]
+        public async global::System.Threading.Tasks.Task AsyncDelegateReturnsOKResultForValueTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "4";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async delegate returns OK result for ValueTask", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 31
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 32
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 33
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 34
+        await testRunner.AndAsync("an async delegate that returns an OK result with value 40", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 35
+        await testRunner.WhenAsync("invoking AndThenAsync on the ValueTask with the async delegate that returns \"OK\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 36
+        await testRunner.ThenAsync("the output should be an OK result with value 40", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Async delegate returns Error result for ValueTask")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Async delegate returns Error result for ValueTask")]
+        public async global::System.Threading.Tasks.Task AsyncDelegateReturnsErrorResultForValueTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "5";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async delegate returns Error result for ValueTask", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 38
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 39
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 40
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 41
+        await testRunner.AndAsync("an async delegate that returns an Error result with message \"ValueTask error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 42
+        await testRunner.WhenAsync("invoking AndThenAsync on the ValueTask with the async delegate that returns \"Erro" +
+                        "r\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 43
+        await testRunner.ThenAsync("the output should be an Error result with message \"ValueTask error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Sync delegate returns OK result for ValueTask")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Sync delegate returns OK result for ValueTask")]
+        public async global::System.Threading.Tasks.Task SyncDelegateReturnsOKResultForValueTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "6";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync delegate returns OK result for ValueTask", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 45
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 46
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 47
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 48
+        await testRunner.AndAsync("a sync delegate that returns an OK result with value 50", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 49
+        await testRunner.WhenAsync("invoking AndThenAsync on the ValueTask with the sync delegate that returns \"OK\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 50
+        await testRunner.ThenAsync("the output should be an OK result with value 50", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Sync delegate returns Error result for ValueTask")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Sync delegate returns Error result for ValueTask")]
+        public async global::System.Threading.Tasks.Task SyncDelegateReturnsErrorResultForValueTask()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "7";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync delegate returns Error result for ValueTask", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 52
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 53
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 54
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 55
+        await testRunner.AndAsync("a sync delegate that returns an Error result with message \"Sync ValueTask error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 56
+        await testRunner.WhenAsync("invoking AndThenAsync on the ValueTask with the sync delegate that returns \"Error" +
+                        "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 57
+        await testRunner.ThenAsync("the output should be an Error result with message \"Sync ValueTask error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

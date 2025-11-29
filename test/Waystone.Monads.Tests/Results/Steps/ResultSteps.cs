@@ -59,4 +59,33 @@ public class ResultSteps(ScenarioContext context)
         var result = context.Get<Result<int, string>>();
         context.Set(new ValueTask<Result<int, string>>(result));
     }
+
+    [Given("it is nested in an OK result")]
+    public void GivenItIsNestedInAnOkResult()
+    {
+        var result = context.Get<Result<int, string>>();
+
+        Result<Result<int, string>, string> nested =
+            Result.Ok<Result<int, string>, string>(result);
+
+        context.Set(nested);
+    }
+
+    [Given("it is nested in an Error result with value {string}")]
+    public void GivenItIsNestedInAnErrorResultWithValue(string error)
+    {
+        var result = context.Get<Result<int, string>>();
+
+        Result<Result<int, string>, string> nested =
+            Result.Err<Result<int, string>, string>(error);
+
+        context.Set(nested);
+    }
+
+    [Given("an Error result with value {string}")]
+    public void GivenAnErrorResultWithValue(string error)
+    {
+        Result<int, string> result = Result.Err<int, string>(error);
+        context.Set(result);
+    }
 }
