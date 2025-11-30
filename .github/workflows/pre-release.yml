@@ -11,6 +11,8 @@ on:
 jobs:
   calculate-version:
     name: Calculate Version
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
