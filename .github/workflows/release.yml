@@ -16,6 +16,8 @@ jobs:
   calculate-version:
     name: Calculate Version
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
       assemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
