@@ -65,6 +65,8 @@ jobs:
   
   build-and-test:
     name: Build and run tests
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
