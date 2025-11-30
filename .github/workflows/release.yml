@@ -103,6 +103,8 @@ jobs:
     needs:
       - calculate-version
       - build-and-test
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
