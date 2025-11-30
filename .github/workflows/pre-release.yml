@@ -125,6 +125,8 @@ jobs:
   
   create-release:
     name: Create GitHub Release
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     needs:
       - calculate-version
