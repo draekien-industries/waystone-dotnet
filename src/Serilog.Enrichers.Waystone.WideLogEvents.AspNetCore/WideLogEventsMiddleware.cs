@@ -16,7 +16,11 @@ public class WideLogEventsMiddleware(
         ILogger<WideLogEventsMiddleware> logger)
     {
         using WideLogEventScope scope = WideLogEventContext.BeginScope();
-        var operationName = $"{context.Request.Method} {context.Request.Path}";
+
+        string operationName =
+            $"{context.Request.Method} {context.Request.Path}"
+               .Replace("/r", string.Empty, StringComparison.Ordinal)
+               .Replace("/n", string.Empty, StringComparison.Ordinal);
 
         long startTime = Stopwatch.GetTimestamp();
 
