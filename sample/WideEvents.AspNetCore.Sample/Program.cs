@@ -2,6 +2,7 @@ using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Enrichers.Waystone.WideLogEvents;
 using Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
+using Waystone.WideLogEvents;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,8 @@ app.MapGet(
                         Random.Shared.Next(-20, 55),
                         summaries[Random.Shared.Next(summaries.Length)]))
                .ToArray();
+
+            WideLogEventContext.PushProperty("Forecasts", forecast);
 
             return forecast;
         })
