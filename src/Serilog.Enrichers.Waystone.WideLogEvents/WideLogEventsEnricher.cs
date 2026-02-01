@@ -21,7 +21,7 @@ public class WideLogEventsEnricher : ILogEventEnricher
         }
 
         foreach (KeyValuePair<string, object?> property in WideLogEventContext
-                    .GetProperties())
+                    .GetScopedProperties())
         {
             LogEventProperty logEventProperty = propertyFactory.CreateProperty(
                 property.Key,

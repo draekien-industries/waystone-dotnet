@@ -1,7 +1,6 @@
 ﻿namespace Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using global::Waystone.WideLogEvents;
 using Microsoft.AspNetCore.Http;
@@ -9,59 +8,38 @@ using Microsoft.Extensions.Logging;
 
 public class WideLogEventsMiddleware(
     RequestDelegate next,
-    ILogger<WideLogEventsMiddleware> logger)
+    WideLogEventsMiddlewareOptions options)
 {
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(
+        HttpContext context,
+        ILogger<WideLogEventsMiddleware> logger)
     {
         using WideLogEventScope scope = WideLogEventContext.BeginScope();
 
-        long startedAt = Stopwatch.GetTimestamp();
-
         try
         {
-            scope.PushProperty(
-                ReservedPropertyNames.HttpRequest,
-                new
-                {
-                    context.Request.Method,
-                    context.Request.Path,
-                    context.Request.PathBase,
-                    context.Request.Scheme,
-                    context.Request.Host,
-                    context.Request.ContentType,
-                    context.Request.ContentLength,
-                    context.Request.Protocol,
-                    context.Request.Query,
-                });
+            options.OnBeforeInvokeNext?.Invoke(scope, context);
 
             await next(context);
-            scope.SetOutcome(WideLogEventOutcome.Success());
+
+            options.OnSuccess?.Invoke(scope, context);
         }
         catch (Exception ex)
         {
-            scope.SetOutcome(WideLogEventOutcome.Failure(ex));
+            options.OnException?.Invoke(scope, context, ex);
 
             throw;
         }
         finally
         {
-            long completedAt = Stopwatch.GetTimestamp();
-            long durationMs = completedAt - startedAt;
+            options.OnPostInvokeNext?.Invoke(scope, context);
 
-            LogLevel logLevel = scope.Outcome switch
-            {
-                SuccessWideLogEventOutcome => LogLevel.Information,
-                FailureWideLogEventOutcome => LogLevel.Error,
-                IndeterminateWideLogEventOutcome => LogLevel.Warning,
-                var _ => LogLevel.None,
-            };
+            LogLevel logLevel = options.Sampler.GetLogLevel(scope);
 
-            if (logger.IsEnabled(logLevel))
+            if (logger.IsEnabled(logLevel)
+             && options.Sampler.ShouldSample(scope))
             {
-                logger.Log(
-                    logLevel,
-                    "Request completed in {DurationMs} ms.",
-                    durationMs);
+                logger.Log(logLevel, "Request completed");
             }
         }
     }

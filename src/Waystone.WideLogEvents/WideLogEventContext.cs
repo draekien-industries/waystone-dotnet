@@ -10,13 +10,8 @@ public sealed class WideLogEventContext
         AsyncLocal<Option<WideLogEventProperties>> ScopedProperties =
             new();
 
-    public static WideLogEventScope CurrentScope =>
-        WideLogEventScope.Resume(ScopedProperties.Value);
-
     public static WideLogEventScope BeginScope() => new();
 
-    public static IReadOnlyDictionary<string, object?> GetProperties()
-    {
-        return ScopedProperties.Value.Match(some => some, () => []);
-    }
+    public static IReadOnlyDictionary<string, object?> GetScopedProperties() =>
+        ScopedProperties.Value.Match(some => some, () => []);
 }
