@@ -1,6 +1,7 @@
 ﻿namespace Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using global::Waystone.WideLogEvents;
 using Microsoft.AspNetCore.Http;
@@ -12,12 +13,12 @@ public class WideLogEventsMiddleware(
 {
     public async Task InvokeAsync(
         HttpContext context,
-        ILoggerFactory loggerFactory)
+        ILogger<WideLogEventsMiddleware> logger)
     {
         using WideLogEventScope scope = WideLogEventContext.BeginScope();
+        var operationName = $"{context.Request.Method} {context.Request.Path}";
 
-        ILogger logger = loggerFactory.CreateLogger(
-            $"{context.Request.Method} {context.Request.Path}");
+        long startTime = Stopwatch.GetTimestamp();
 
         try
         {
@@ -35,14 +36,23 @@ public class WideLogEventsMiddleware(
         }
         finally
         {
-            options.OnPostInvokeNext?.Invoke(scope, context);
+            options.OnFinally?.Invoke(scope, context);
+
+            TimeSpan elapsed = Stopwatch.GetElapsedTime(startTime);
+
+            scope.PushProperty(
+                ReservedPropertyNames.ElapsedMs,
+                elapsed.TotalMilliseconds);
 
             LogLevel logLevel = options.Sampler.GetLogLevel(scope);
 
             if (logger.IsEnabled(logLevel)
              && options.Sampler.ShouldSample(scope))
             {
-                logger.Log(logLevel, "Request completed");
+                logger.Log(
+                    logLevel,
+                    "Request completed for {OperationName}",
+                    operationName);
             }
         }
     }

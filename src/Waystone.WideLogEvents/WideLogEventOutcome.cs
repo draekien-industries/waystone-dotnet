@@ -7,7 +7,7 @@ public abstract record WideLogEventOutcome(WideLogEventOutcomeType Type)
     public static readonly WideLogEventOutcome Indeterminate =
         new IndeterminateWideLogEventOutcome();
 
-    public static WideLogEventOutcome Success() =>
+    public static readonly WideLogEventOutcome Success =
         new SuccessWideLogEventOutcome();
 
     public static WideLogEventOutcome Failure(Exception exception) =>
