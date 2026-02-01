@@ -12,9 +12,12 @@ public class WideLogEventsMiddleware(
 {
     public async Task InvokeAsync(
         HttpContext context,
-        ILogger<WideLogEventsMiddleware> logger)
+        ILoggerFactory loggerFactory)
     {
         using WideLogEventScope scope = WideLogEventContext.BeginScope();
+
+        ILogger logger = loggerFactory.CreateLogger(
+            $"{context.Request.Method} {context.Request.Path}");
 
         try
         {

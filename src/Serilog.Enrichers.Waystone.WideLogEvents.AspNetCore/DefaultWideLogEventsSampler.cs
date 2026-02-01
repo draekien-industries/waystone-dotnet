@@ -1,6 +1,5 @@
 ﻿namespace Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
 
-using System;
 using global::Waystone.WideLogEvents;
 using Microsoft.Extensions.Logging;
 
@@ -27,8 +26,12 @@ internal sealed class DefaultWideLogEventsSampler : IWideLogEventsSampler
         };
 
     /// <inheritdoc />
-    public bool ShouldSample(WideLogEventScope scope) =>
-        scope.Outcome.Type switch
+    public bool ShouldSample(WideLogEventScope scope)
+    {
+#if DEBUG
+        return true;
+#else
+        return scope.Outcome.Type switch
         {
             WideLogEventOutcomeType.Failure => Random.Shared.NextDouble()
              <= FailureSampleRate,
@@ -38,4 +41,6 @@ internal sealed class DefaultWideLogEventsSampler : IWideLogEventsSampler
              <= IndeterminateSampleRate,
             var _ => false,
         };
+#endif
+    }
 }

@@ -15,10 +15,10 @@ public sealed class WideLogEventsMiddlewareOptions
         new
         {
             context.Request.Method,
-            context.Request.Path,
-            context.Request.PathBase,
+            Path = context.Request.Path.ToString(),
+            PathBase = context.Request.PathBase.ToString(),
             context.Request.Scheme,
-            context.Request.Host,
+            Host = context.Request.Host.ToString(),
             context.Request.ContentType,
             context.Request.ContentLength,
             context.Request.Protocol,
