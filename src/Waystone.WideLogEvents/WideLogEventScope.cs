@@ -17,12 +17,6 @@ public readonly struct WideLogEventScope : IDisposable
             new WideLogEventProperties();
     }
 
-    private WideLogEventScope(WideLogEventProperties properties)
-    {
-        _previous = TrackedProperties;
-        WideLogEventContext.ScopedProperties.Value = properties;
-    }
-
     public void Dispose()
     {
         WideLogEventContext.ScopedProperties.Value = _previous;
