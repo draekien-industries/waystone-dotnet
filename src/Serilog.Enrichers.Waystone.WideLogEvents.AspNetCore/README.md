@@ -67,13 +67,14 @@ app.MapGet("/weatherforecast", () =>
 
 ## Configuration Options
 
-You can customize the behavior of the middleware:
+You can customize the behavior of the middleware. You can either replace the
+default delegates or append to them using the `+=` operator:
 
 ```csharp
 app.UseWideLogEvents(options =>
 {
-    // Custom logic before the next middleware
-    options.OnBeforeInvokeNext = (scope, context) =>
+    // Append custom logic to the default request property capture
+    options.OnBeforeInvokeNext += (scope, context) =>
     {
         scope.PushProperty("TraceId", context.TraceIdentifier);
     };
