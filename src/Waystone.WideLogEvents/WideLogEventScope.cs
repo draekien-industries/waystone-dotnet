@@ -1,32 +1,27 @@
 ﻿namespace Waystone.WideLogEvents;
 
 using System;
-using Monads.Options;
 
 public readonly struct WideLogEventScope : IDisposable
 {
-    private readonly Option<WideLogEventProperties> _previous;
+    private readonly WideLogEventProperties? _previous;
 
-    private static Option<WideLogEventProperties> TrackedProperties =>
-        WideLogEventContext.ScopedProperties.Value;
+    private static WideLogEventProperties TrackedProperties =>
+        WideLogEventContext.ScopedProperties.Value ?? [];
 
     public WideLogEventScope()
     {
         _previous = TrackedProperties;
 
         WideLogEventContext.ScopedProperties.Value =
-            Option.Some(new WideLogEventProperties());
+            new WideLogEventProperties();
     }
 
-    private WideLogEventScope(Option<WideLogEventProperties> properties)
+    private WideLogEventScope(WideLogEventProperties properties)
     {
         _previous = TrackedProperties;
         WideLogEventContext.ScopedProperties.Value = properties;
     }
-
-    public static WideLogEventScope Resume(
-        Option<WideLogEventProperties> properties) =>
-        new(properties);
 
     public void Dispose()
     {
@@ -35,7 +30,7 @@ public readonly struct WideLogEventScope : IDisposable
 
     public WideLogEventScope PushProperty(string name, object? value)
     {
-        TrackedProperties.Inspect(scope => scope.PushProperty(name, value));
+        TrackedProperties.PushProperty(name, value);
 
         return this;
     }
@@ -43,8 +38,5 @@ public readonly struct WideLogEventScope : IDisposable
     public WideLogEventScope SetOutcome(WideLogEventOutcome outcome) =>
         PushProperty(ReservedPropertyNames.Outcome, outcome);
 
-    public WideLogEventOutcome Outcome =>
-        TrackedProperties.MapOr(
-            WideLogEventOutcome.Indeterminate,
-            scope => scope.Outcome);
+    public WideLogEventOutcome Outcome => TrackedProperties.Outcome;
 }
