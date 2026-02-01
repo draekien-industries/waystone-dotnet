@@ -40,19 +40,19 @@ public class WideLogEventsMiddleware(
 
             TimeSpan elapsed = Stopwatch.GetElapsedTime(startTime);
 
-            scope.PushProperty(
-                ReservedPropertyNames.ElapsedMs,
-                elapsed.TotalMilliseconds);
-
             LogLevel logLevel = options.Sampler.GetLogLevel(scope);
 
-            if (logger.IsEnabled(logLevel)
-             && options.Sampler.ShouldSample(scope))
+            bool shouldLog = logger.IsEnabled(logLevel)
+             && options.Sampler.ShouldSample(scope);
+
+            if (shouldLog)
             {
                 logger.Log(
                     logLevel,
-                    "Request completed for {OperationName}",
-                    operationName);
+                    "{OperationName} completed in {ElapsedMs}ms with status code {StatusCode}",
+                    operationName,
+                    elapsed.TotalMilliseconds,
+                    context.Response.StatusCode);
             }
         }
     }
