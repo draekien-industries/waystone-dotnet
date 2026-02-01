@@ -5,6 +5,7 @@
         <LangVersion>latestMajor</LangVersion>
         <NoWarn>CS0618;CS1591</NoWarn>
         <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
     <PropertyGroup>
