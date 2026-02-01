@@ -1,19 +1,22 @@
 ﻿namespace Waystone.WideLogEvents;
 
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
+using Monads.Options;
 
-public sealed class WideLogEventContext :
-    AsyncLocalScoped<ConcurrentDictionary<string, object?>>
+public sealed class WideLogEventContext
 {
-    public static IDisposable BeginScope() =>
-        BeginScope(new ConcurrentDictionary<string, object?>());
+    internal static readonly
+        AsyncLocal<Option<WideLogEventProperties>> ScopedProperties =
+            new();
 
-    public static void PushProperty(string name, object? value) =>
-        ScopedValue.Inspect(scope =>
-            scope.AddOrUpdate(name, value, (_, _) => value));
+    public static WideLogEventScope CurrentScope =>
+        WideLogEventScope.Resume(ScopedProperties.Value);
 
-    public static IReadOnlyDictionary<string, object?> GetProperties() =>
-        ScopedValue.Match(some => some, () => []);
+    public static WideLogEventScope BeginScope() => new();
+
+    public static IReadOnlyDictionary<string, object?> GetProperties()
+    {
+        return ScopedProperties.Value.Match(some => some, () => []);
+    }
 }

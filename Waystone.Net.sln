@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.WideLogEvents", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Enrichers.Waystone.WideLogEvents", "src\Serilog.Enrichers.Waystone.WideLogEvents\Serilog.Enrichers.Waystone.WideLogEvents.csproj", "{56758034-C280-4626-A417-FF48A8402338}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore", "src\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.csproj", "{0359A9B0-B9D3-4248-BE4D-197B02565A95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,7 @@ Global
 		{DA22C20E-2D43-4090-AA65-C20591F78A0E} = {5FB28234-858F-4E64-920E-245F92529D8F}
 		{79F6CBD4-DFA3-4B4D-9CD9-D710CBB75EC5} = {5FB28234-858F-4E64-920E-245F92529D8F}
 		{56758034-C280-4626-A417-FF48A8402338} = {5FB28234-858F-4E64-920E-245F92529D8F}
+		{0359A9B0-B9D3-4248-BE4D-197B02565A95} = {5FB28234-858F-4E64-920E-245F92529D8F}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -59,5 +62,9 @@ Global
 		{56758034-C280-4626-A417-FF48A8402338}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56758034-C280-4626-A417-FF48A8402338}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56758034-C280-4626-A417-FF48A8402338}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0359A9B0-B9D3-4248-BE4D-197B02565A95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0359A9B0-B9D3-4248-BE4D-197B02565A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0359A9B0-B9D3-4248-BE4D-197B02565A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0359A9B0-B9D3-4248-BE4D-197B02565A95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

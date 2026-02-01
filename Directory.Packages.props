@@ -4,7 +4,9 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="FluentValidation" Version="11.11.0"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2"/>
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2"/>
         <PackageVersion Include="PolySharp" Version="1.15.0"/>
         <PackageVersion Include="Reqnroll.xunit.v3" Version="3.2.1"/>
         <PackageVersion Include="Serilog" Version="4.3.0"/>
