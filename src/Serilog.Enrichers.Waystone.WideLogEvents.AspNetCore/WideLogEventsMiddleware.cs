@@ -20,7 +20,7 @@ public class WideLogEventsMiddleware(
         try
         {
             scope.PushProperty(
-                ReservedPropertyNames.Request,
+                ReservedPropertyNames.HttpRequest,
                 new
                 {
                     context.Request.Method,

@@ -2,7 +2,6 @@
 
 public static class ReservedPropertyNames
 {
-    public const string Outcome = "outcome";
-    public const string DurationMs = "duration_ms";
-    public const string Request = "request";
+    public const string Outcome = nameof(Outcome);
+    public const string HttpRequest = nameof(HttpRequest);
 }
