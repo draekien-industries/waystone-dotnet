@@ -33,11 +33,11 @@ internal sealed class DefaultWideLogEventsSampler : IWideLogEventsSampler
 #else
         return scope.Outcome switch
         {
-            WideLogEventOutcomeType.Failure => Random.Shared.NextDouble()
+            WideLogEventOutcome.Failure => Random.Shared.NextDouble()
              <= FailureSampleRate,
-            WideLogEventOutcomeType.Success => Random.Shared.NextDouble()
+            WideLogEventOutcome.Success => Random.Shared.NextDouble()
              <= SuccessSampleRate,
-            WideLogEventOutcomeType.Indeterminate => Random.Shared.NextDouble()
+            WideLogEventOutcome.Indeterminate => Random.Shared.NextDouble()
              <= IndeterminateSampleRate,
             var _ => false,
         };
