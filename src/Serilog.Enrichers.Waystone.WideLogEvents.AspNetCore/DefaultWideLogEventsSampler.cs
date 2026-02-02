@@ -19,9 +19,9 @@ internal sealed class DefaultWideLogEventsSampler : IWideLogEventsSampler
     public LogLevel GetLogLevel(WideLogEventScope scope) =>
         scope.Outcome switch
         {
-            SuccessWideLogEventOutcome => LogLevel.Information,
-            FailureWideLogEventOutcome => LogLevel.Error,
-            IndeterminateWideLogEventOutcome => LogLevel.Warning,
+            WideLogEventOutcome.Success => LogLevel.Information,
+            WideLogEventOutcome.Failure => LogLevel.Error,
+            WideLogEventOutcome.Indeterminate => LogLevel.Warning,
             var _ => LogLevel.None,
         };
 
@@ -31,7 +31,7 @@ internal sealed class DefaultWideLogEventsSampler : IWideLogEventsSampler
 #if DEBUG
         return true;
 #else
-        return scope.Outcome.Type switch
+        return scope.Outcome switch
         {
             WideLogEventOutcomeType.Failure => Random.Shared.NextDouble()
              <= FailureSampleRate,

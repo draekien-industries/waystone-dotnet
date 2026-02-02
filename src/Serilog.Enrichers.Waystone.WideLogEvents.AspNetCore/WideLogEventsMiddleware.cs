@@ -1,8 +1,6 @@
 ﻿namespace Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
 
-using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using global::Waystone.WideLogEvents;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -53,6 +51,7 @@ public class WideLogEventsMiddleware(
             {
                 logger.Log(
                     logLevel,
+                    scope.Exception,
                     "{OperationName} completed in {ElapsedMs}ms with status code {StatusCode}",
                     operationName,
                     elapsed.TotalMilliseconds,

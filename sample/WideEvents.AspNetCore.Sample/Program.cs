@@ -123,7 +123,7 @@ internal sealed class MyCustomSampler : IWideLogEventsSampler
     public LogLevel GetLogLevel(WideLogEventScope scope)
     {
         // Always log failures as Errors
-        if (scope.Outcome.Type == WideLogEventOutcomeType.Failure)
+        if (scope.Outcome == WideLogEventOutcome.Failure)
         {
             return LogLevel.Error;
         }

@@ -1,6 +1,5 @@
 ﻿namespace Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
 
-using System;
 using global::Waystone.WideLogEvents;
 using Microsoft.AspNetCore.Http;
 
@@ -15,7 +14,7 @@ public sealed class WideLogEventsMiddlewareOptions
             scope.SetOutcome(WideLogEventOutcome.Success);
 
         OnException = (scope, _, ex) =>
-            scope.SetOutcome(WideLogEventOutcome.Failure(ex));
+            scope.SetOutcome(WideLogEventOutcome.Failure, ex);
 
         OnFinally = (scope, context) =>
             scope.SetHttpResponseProperties(context.Response);
