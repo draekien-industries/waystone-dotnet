@@ -28,7 +28,7 @@ public class WideLogEventsMiddleware(
 
             await next(context);
 
-            options.OnSuccess?.Invoke(scope, context);
+            options.OnAfterInvokeNext?.Invoke(scope, context);
         }
         catch (Exception ex)
         {

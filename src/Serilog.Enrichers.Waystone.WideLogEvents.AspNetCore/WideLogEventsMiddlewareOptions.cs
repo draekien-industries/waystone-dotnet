@@ -10,8 +10,14 @@ public sealed class WideLogEventsMiddlewareOptions
         OnBeforeInvokeNext = (scope, context) =>
             scope.SetHttpRequestProperties(context.Request);
 
-        OnSuccess = (scope, _) =>
-            scope.SetOutcome(WideLogEventOutcome.Success);
+        OnAfterInvokeNext = (scope, context) =>
+        {
+            scope.SetOutcome(
+                context.Response.StatusCode
+             >= StatusCodes.Status500InternalServerError
+                    ? WideLogEventOutcome.Failure
+                    : WideLogEventOutcome.Success);
+        };
 
         OnException = (scope, _, ex) =>
             scope.SetOutcome(WideLogEventOutcome.Failure, ex);
@@ -28,7 +34,11 @@ public sealed class WideLogEventsMiddlewareOptions
         set;
     }
 
-    public Action<WideLogEventScope, HttpContext>? OnSuccess { get; set; }
+    public Action<WideLogEventScope, HttpContext>? OnAfterInvokeNext
+    {
+        get;
+        set;
+    }
 
     public Action<WideLogEventScope, HttpContext, Exception>? OnException
     {
