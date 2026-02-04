@@ -8,12 +8,19 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, config) => config.Enrich
-   .FromWideLogEventsContext()
-   .WriteTo.Console()
-   .ReadFrom.Configuration(context.Configuration));
+builder.Host.UseSerilog((context, config) =>
+    config
+       .ReadFrom.Configuration(context.Configuration)
+       .Enrich.FromWideLogEventsContext()
+       .Filter.WithWideLogEventsSampling(options =>
+        {
+            options.RandomDoubleProvider = new MyRandomProvider();
+            options.VerboseSampleRate = 1.0;
+        })
+       .WriteTo.Console());
 
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
 
 WebApplication app = builder.Build();
 
@@ -47,6 +54,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 var summaries = new[]
 {
@@ -151,4 +160,10 @@ internal record WeatherForecast(
     string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+
+internal sealed class MyRandomProvider : IRandomDoubleProvider
+{
+    /// <inheritdoc />
+    public double NextDouble() => Random.Shared.NextDouble();
 }
