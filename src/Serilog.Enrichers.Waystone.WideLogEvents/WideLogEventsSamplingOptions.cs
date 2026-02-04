@@ -1,6 +1,5 @@
 ﻿namespace Serilog.Enrichers.Waystone.WideLogEvents;
 
-using System.Diagnostics;
 using Events;
 
 /// <summary>
@@ -13,19 +12,9 @@ public sealed class WideLogEventsSamplingOptions
 {
     internal WideLogEventsSamplingOptions()
     {
-        if (Debugger.IsAttached)
-        {
-            VerboseSampleRate = 1.0;
-            DebugSampleRate = 1.0;
-            InformationSampleRate = 1.0;
-        }
-        else
-        {
-            VerboseSampleRate = 0.01;
-            DebugSampleRate = 0.01;
-            InformationSampleRate = 0.05;
-        }
-
+        VerboseSampleRate = 0.01;
+        DebugSampleRate = 0.01;
+        InformationSampleRate = 0.05;
         WarningSampleRate = 0.1;
         ErrorSampleRate = 1.0;
         FatalSampleRate = 1.0;

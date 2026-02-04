@@ -15,36 +15,19 @@ builder.Host.UseSerilog((context, config) =>
        .Filter.WithWideLogEventsSampling(options =>
         {
             options.RandomDoubleProvider = new MyRandomProvider();
+
+            if (!builder.Environment.IsDevelopment()) return;
+
             options.VerboseSampleRate = 1.0;
-        })
-       .WriteTo.Console());
+            options.DebugSampleRate = 1.0;
+            options.InformationSampleRate = 1.0;
+            options.WarningSampleRate = 1.0;
+        }));
 
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 
 WebApplication app = builder.Build();
-
-// Configure the Wide Log Events middleware
-app.UseWideLogEvents(options =>
-{
-    // You can append custom properties to every request
-    options.OnBeforeInvokeNext += (scope, context) =>
-    {
-        scope.PushProperty("CorrelationId", context.TraceIdentifier);
-    };
-
-    // You can also add custom logic to the end of every request
-    options.OnFinally += (scope, context) =>
-    {
-        if (context.Response.StatusCode >= 400)
-        {
-            scope.PushProperty("IsError", true);
-        }
-    };
-
-    // You can even customize the sampling logic and log levels
-    options.Sampler = new MyCustomSampler();
-});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -54,6 +37,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// place the middleware at the boundary where you want the log scope to be
+// initialized
+app.UseWideLogEventsContext();
+app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
@@ -122,37 +110,6 @@ app.MapGet(
     () => { throw new InvalidOperationException("Something went wrong!"); });
 
 app.Run();
-
-/// <summary>
-/// A custom sampler that demonstrates how to control when logs are emitted and at
-/// what level.
-/// </summary>
-internal sealed class MyCustomSampler : IWideLogEventsSampler
-{
-    public LogLevel GetLogLevel(WideLogEventScope scope)
-    {
-        // Always log failures as Errors
-        if (scope.Outcome == WideLogEventOutcome.Failure)
-        {
-            return LogLevel.Error;
-        }
-
-        // Log manual scopes as Debug
-        if (WideLogEventContext.GetScopedProperties()
-           .ContainsKey("ManualProperty"))
-        {
-            return LogLevel.Debug;
-        }
-
-        return LogLevel.Information;
-    }
-
-    public bool ShouldSample(WideLogEventScope scope) =>
-
-        // In a real app, you might only log 10% of successful requests
-        // For this sample, we log everything
-        true;
-}
 
 internal record WeatherForecast(
     DateOnly Date,

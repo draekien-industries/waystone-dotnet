@@ -27,12 +27,12 @@ internal sealed class WideLogEventsSamplingFilter(
 
         return logEvent.Level switch
         {
-            Debug => options.DebugSampleRate <= randomDouble,
-            Information => options.InformationSampleRate <= randomDouble,
-            Warning => options.WarningSampleRate <= randomDouble,
-            Error => options.ErrorSampleRate <= randomDouble,
-            Fatal => options.FatalSampleRate <= randomDouble,
-            Verbose => options.VerboseSampleRate <= randomDouble,
+            Debug => options.DebugSampleRate >= randomDouble,
+            Information => options.InformationSampleRate >= randomDouble,
+            Warning => options.WarningSampleRate >= randomDouble,
+            Error => options.ErrorSampleRate >= randomDouble,
+            Fatal => options.FatalSampleRate >= randomDouble,
+            Verbose => options.VerboseSampleRate >= randomDouble,
             var _ => true,
         };
     }

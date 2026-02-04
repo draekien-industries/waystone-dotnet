@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="Scalar.AspNetCore.Microsoft"/>
+        <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Extensions.Hosting"/>
         <PackageReference Include="Serilog.Settings.Configuration"/>
         <PackageReference Include="Serilog.Sinks.Console"/>

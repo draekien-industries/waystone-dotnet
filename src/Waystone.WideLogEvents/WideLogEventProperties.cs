@@ -27,13 +27,6 @@ public sealed class
                 nameof(name));
         }
 
-        if (ReservedPropertyNames.IsReserved(name))
-        {
-            throw new ArgumentException(
-                $"Value {name} is reserved.",
-                nameof(name));
-        }
-
         this[name] = value;
 
         return this;
