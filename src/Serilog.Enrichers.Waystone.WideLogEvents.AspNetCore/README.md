@@ -104,8 +104,6 @@ public class MyRandomProvider : IRandomDoubleProvider
 - **Automatic Request Capture**: Captures Method, Path, Scheme, Host,
   ContentType, etc.
 - **Automatic Response Capture**: Captures StatusCode, ContentType, etc.
-- **Outcome Tracking**: Automatically sets the outcome to `Success` or
-  `Failure` (including the Exception).
 - **Duration Tracking**: Logs the total time taken for the request to be
   processed.
 - **Sampling**: Built-in support for sampling logs based on log level.

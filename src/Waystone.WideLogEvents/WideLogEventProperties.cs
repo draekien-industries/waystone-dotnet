@@ -6,18 +6,6 @@ using System.Collections.Concurrent;
 public sealed class
     WideLogEventProperties : ConcurrentDictionary<string, object?>
 {
-    public WideLogEventProperties() => Outcome = WideLogEventOutcome.Success;
-
-    public WideLogEventOutcome Outcome
-    {
-        get =>
-            (WideLogEventOutcome)(this[ReservedPropertyNames.Outcome]
-             ?? WideLogEventOutcome.Indeterminate);
-        set => this[ReservedPropertyNames.Outcome] = value;
-    }
-
-    public Exception? Exception { get; set; }
-
     public WideLogEventProperties PushProperty(string name, object? value)
     {
         if (string.IsNullOrWhiteSpace(name))

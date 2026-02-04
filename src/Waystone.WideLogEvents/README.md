@@ -49,16 +49,6 @@ WideLogEventContext.PushProperty("CustomerId", 12345);
 WideLogEventContext.PushProperty("OrderDetails", new { Total = 100.00, ItemCount = 3 });
 ```
 
-### 3. Set Outcome
-
-You can track the outcome of the operation:
-
-```csharp
-scope.SetOutcome(WideLogEventOutcome.Success);
-// Or on failure
-scope.SetOutcome(WideLogEventOutcome.Failure(exception));
-```
-
 ## Integration
 
 This package is intended to be used with an enrichment library like

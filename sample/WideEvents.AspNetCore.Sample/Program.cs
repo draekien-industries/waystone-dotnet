@@ -97,8 +97,6 @@ app.MapGet(
         // Logic inside manual scope
         var result = new { Message = "Inside manual scope" };
 
-        scope.SetOutcome(WideLogEventOutcome.Success);
-
         logger.LogInformation("Log with Manual Scope");
 
         return result;

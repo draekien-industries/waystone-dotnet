@@ -95,7 +95,7 @@ using a JSON formatter for the console), you will find:
 - `HttpRequest`: Method, Path, Query, etc.
 - `HttpResponse`: StatusCode, ContentType.
 - `Forecasts`: The full array of weather forecasts.
-- `Outcome`: Success.
+- `Duration`: The time taken to process the request.
 
 ## Implementation Details
 

@@ -28,17 +28,4 @@ public readonly struct WideLogEventScope : IDisposable
 
         return this;
     }
-
-    public WideLogEventScope SetOutcome(
-        WideLogEventOutcome outcome,
-        Exception? exception = null)
-    {
-        TrackedProperties.Outcome = outcome;
-        TrackedProperties.Exception = exception;
-
-        return this;
-    }
-
-    public WideLogEventOutcome Outcome => TrackedProperties.Outcome;
-    public Exception? Exception => TrackedProperties.Exception;
 }
