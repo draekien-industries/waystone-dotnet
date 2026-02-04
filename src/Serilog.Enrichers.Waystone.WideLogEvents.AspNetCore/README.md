@@ -19,20 +19,22 @@ This package transitively includes `Waystone.WideLogEvents` and
 
 ### 1. Configure Serilog
 
-In your `Program.cs`, configure Serilog to use the Wide Log Events enricher:
+In your `Program.cs`, configure Serilog to use the Wide Log Events enricher and
+the sampling filter:
 
 ```csharp
 using Serilog;
 using Serilog.Enrichers.Waystone.WideLogEvents;
 
-builder.Host.UseSerilog((context, config) => config.Enrich
-   .FromWideLogEventsContext()
+builder.Host.UseSerilog((context, config) => config
+   .Enrich.FromWideLogEventsContext()
+   .Filter.WithWideLogEventsSampling()
    .ReadFrom.Configuration(context.Configuration));
 ```
 
 ### 2. Register Middleware
 
-Add the `UseWideLogEvents` middleware to your application pipeline. This
+Add the `UseWideLogEventsContext` middleware to your application pipeline. This
 middleware should typically be placed early in the pipeline to capture as much
 information as possible.
 
@@ -41,7 +43,7 @@ using Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
 
 var app = builder.Build();
 
-app.UseWideLogEvents();
+app.UseWideLogEventsContext();
 
 // ... other middleware
 ```
@@ -67,21 +69,34 @@ app.MapGet("/weatherforecast", () =>
 
 ## Configuration Options
 
-You can customize the behavior of the middleware. You can either replace the
-default delegates or append to them using the `+=` operator:
+You can customize the sampling behavior of the log events by configuring the
+sampling filter in Serilog:
 
 ```csharp
-app.UseWideLogEvents(options =>
-{
-    // Append custom logic to the default request property capture
-    options.OnBeforeInvokeNext += (scope, context) =>
-    {
-        scope.PushProperty("TraceId", context.TraceIdentifier);
-    };
+builder.Host.UseSerilog((context, config) => config
+   .Enrich.FromWideLogEventsContext()
+   .Filter.WithWideLogEventsSampling(options =>
+   {
+       options.InformationSampleRate = 0.5; // Log 50% of information logs
+       options.ErrorSampleRate = 1.0;       // Log 100% of error logs
 
-    // Custom sampler logic (defaults to logging everything)
-    options.Sampler = new MyCustomSampler();
-});
+       // Custom random provider for sampling decisions
+       options.RandomDoubleProvider = new MyRandomProvider();
+   })
+   .ReadFrom.Configuration(context.Configuration));
+```
+
+### Custom Random Provider
+
+By default, the sampling filter uses an internal implementation that creates a
+new `Random` instance. If you want to use a specific random number generator
+(like `Random.Shared` in .NET 6+), you can implement `IRandomDoubleProvider`:
+
+```csharp
+public class MyRandomProvider : IRandomDoubleProvider
+{
+    public double NextDouble() => Random.Shared.NextDouble();
+}
 ```
 
 ## Features
@@ -93,5 +108,4 @@ app.UseWideLogEvents(options =>
   `Failure` (including the Exception).
 - **Duration Tracking**: Logs the total time taken for the request to be
   processed.
-- **Sampling**: Built-in support for sampling logs based on outcome or other
-  properties.
+- **Sampling**: Built-in support for sampling logs based on log level.

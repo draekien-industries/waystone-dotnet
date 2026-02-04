@@ -14,16 +14,16 @@ easier to correlate data and understand the full context of an operation.
 
 1. **Serilog Enrichment**: How to configure Serilog to automatically include
    properties from the `WideLogEventContext`.
-2. **Middleware Integration**: How to use `UseWideLogEvents` to automatically
-   capture request/response details and manage the event scope.
-3. **Custom Configuration**: Using the `+=` operator to append custom logic to
-   the default middleware behavior.
-4. **Manual Property Pushing**: Using `WideLogEventContext.PushProperty` to add
+2. **Middleware Integration**: How to use `UseWideLogEventsContext` to
+   automatically capture request/reponse details and manage the event scope.
+3. **Log Sampling**: Using `.Filter.WithWideLogEventsSampling()` to control
+   which log events are emitted based on their level.
+4. **Custom Random Provider**: Implementing `IRandomDoubleProvider` to use
+   `Random.Shared` for sampling decisions.
+5. **Manual Property Pushing**: Using `WideLogEventContext.PushProperty` to add
    business-specific data to the wide log from anywhere in your code.
-5. **Manual Scoping**: Using `WideLogEventContext.BeginScope()` for tracking
+6. **Manual Scoping**: Using `WideLogEventContext.BeginScope()` for tracking
    operations outside of the standard HTTP request lifecycle.
-6. **Custom Sampling**: Implementing `IWideLogEventsSampler` to control log
-   levels and decide which events should be logged.
 
 ## Project Structure
 
@@ -35,31 +35,29 @@ easier to correlate data and understand the full context of an operation.
 ### 1. Configuration
 
 In `Program.cs`, Serilog is configured to use the `FromWideLogEventsContext`
-enricher:
+enricher and the `WithWideLogEventsSampling` filter. Note that we provide a
+custom `IRandomDoubleProvider` that uses `Random.Shared` for better performance
+and thread safety:
 
 ```csharp
-builder.Host.UseSerilog((context, config) => config.Enrich
-   .FromWideLogEventsContext()
-   .WriteTo.Console()
-   .ReadFrom.Configuration(context.Configuration));
+builder.Host.UseSerilog((context, config) =>
+    config
+       .ReadFrom.Configuration(context.Configuration)
+       .Enrich.FromWideLogEventsContext()
+       .Filter.WithWideLogEventsSampling(options =>
+        {
+            options.RandomDoubleProvider = new MyRandomProvider();
+
+            // ... sample rate configuration
+        }));
 ```
 
 ### 2. Middleware Registration
 
-The middleware is registered with custom options:
+The middleware is registered:
 
 ```csharp
-app.UseWideLogEvents(options =>
-{
-    // Append a CorrelationId to every log
-    options.OnBeforeInvokeNext += (scope, context) =>
-    {
-        scope.PushProperty("CorrelationId", context.TraceIdentifier);
-    };
-
-    // Use a custom sampler for advanced log control
-    options.Sampler = new MyCustomSampler();
-});
+app.UseWideLogEventsContext();
 ```
 
 ### 3. Adding Properties in Endpoints
@@ -97,5 +95,16 @@ using a JSON formatter for the console), you will find:
 - `HttpRequest`: Method, Path, Query, etc.
 - `HttpResponse`: StatusCode, ContentType.
 - `Forecasts`: The full array of weather forecasts.
-- `CorrelationId`: The request's trace identifier.
 - `Outcome`: Success.
+
+## Implementation Details
+
+### Use of `Random.Shared`
+
+This sample uses `Random.Shared` (available in .NET 6+) in two places:
+
+1. **In the Endpoint**: To generate mock weather data.
+2. **In the Sampler**: Via `MyRandomProvider`, which implements
+   `IRandomDoubleProvider`. This ensures that the sampling logic uses the
+   thread-safe `Random.Shared` instance rather than creating new `Random`
+   objects.
