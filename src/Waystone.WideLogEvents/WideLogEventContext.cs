@@ -11,6 +11,9 @@ public sealed class WideLogEventContext
         AsyncLocal<ConcurrentDictionary<string, object?>?> ScopedProperties =
             new();
 
+    internal static readonly AsyncLocal<ConcurrentQueue<FormattableString>>
+        ScopedEvents = new();
+
     public static WideLogEventScope BeginScope() => new();
 
     public static IReadOnlyDictionary<string, object?> GetScopedProperties() =>

@@ -3,7 +3,6 @@
 using System.Threading.Tasks;
 using global::Waystone.WideLogEvents;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using Xunit;
 
@@ -17,9 +16,7 @@ public class WideLogEventsMiddlewareTests
 
         var middleware = new WideLogEventsMiddleware(Next);
 
-        await middleware.InvokeAsync(
-            context,
-            NullLogger<WideLogEventsMiddleware>.Instance);
+        await middleware.InvokeAsync(context);
 
         nextExecuted.ShouldBeTrue();
 

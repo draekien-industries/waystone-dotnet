@@ -2,13 +2,10 @@
 
 using global::Waystone.WideLogEvents;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 public class WideLogEventsMiddleware(RequestDelegate next)
 {
-    public async Task InvokeAsync(
-        HttpContext context,
-        ILogger<WideLogEventsMiddleware> logger)
+    public async Task InvokeAsync(HttpContext context)
     {
         using WideLogEventScope scope = WideLogEventContext.BeginScope();
 
