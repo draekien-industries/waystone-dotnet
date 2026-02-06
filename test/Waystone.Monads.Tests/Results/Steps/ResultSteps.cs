@@ -74,8 +74,6 @@ public class ResultSteps(ScenarioContext context)
     [Given("it is nested in an Error result with value {string}")]
     public void GivenItIsNestedInAnErrorResultWithValue(string error)
     {
-        var result = context.Get<Result<int, string>>();
-
         Result<Result<int, string>, string> nested =
             Result.Err<Result<int, string>, string>(error);
 
