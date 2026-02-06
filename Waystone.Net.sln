@@ -34,6 +34,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WideEvents.AspNetCore.Sampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.WideLogEvents.Tests", "test\Waystone.WideLogEvents.Tests\Waystone.WideLogEvents.Tests.csproj", "{90A65901-A673-4EE2-A78C-7F41EF6CE4E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests", "test\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests.csproj", "{269EFA64-0F0F-4846-8FFA-9C229DA76F0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Enrichers.Waystone.WideLogEvents.Tests", "test\Serilog.Enrichers.Waystone.WideLogEvents.Tests\Serilog.Enrichers.Waystone.WideLogEvents.Tests.csproj", "{ACE3C7D3-96F4-4977-B504-4A5DD394F664}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +52,8 @@ Global
 		{0359A9B0-B9D3-4248-BE4D-197B02565A95} = {5FB28234-858F-4E64-920E-245F92529D8F}
 		{197A617E-9741-42C9-889C-FDD2C9C70DAD} = {F0B7769E-388B-4FA6-B0F4-1599CE75C5D6}
 		{90A65901-A673-4EE2-A78C-7F41EF6CE4E5} = {67A04439-B9B7-4420-A229-6353EAD7E265}
+		{269EFA64-0F0F-4846-8FFA-9C229DA76F0D} = {67A04439-B9B7-4420-A229-6353EAD7E265}
+		{ACE3C7D3-96F4-4977-B504-4A5DD394F664} = {67A04439-B9B7-4420-A229-6353EAD7E265}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C2B72A21-FC0C-469B-98FD-96E2A9CCAA40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -82,5 +88,13 @@ Global
 		{90A65901-A673-4EE2-A78C-7F41EF6CE4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90A65901-A673-4EE2-A78C-7F41EF6CE4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90A65901-A673-4EE2-A78C-7F41EF6CE4E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{269EFA64-0F0F-4846-8FFA-9C229DA76F0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{269EFA64-0F0F-4846-8FFA-9C229DA76F0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{269EFA64-0F0F-4846-8FFA-9C229DA76F0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{269EFA64-0F0F-4846-8FFA-9C229DA76F0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACE3C7D3-96F4-4977-B504-4A5DD394F664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACE3C7D3-96F4-4977-B504-4A5DD394F664}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACE3C7D3-96F4-4977-B504-4A5DD394F664}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACE3C7D3-96F4-4977-B504-4A5DD394F664}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
