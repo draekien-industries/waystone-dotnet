@@ -14,8 +14,7 @@ public sealed class WideLogEventContext
     public static WideLogEventScope BeginScope() => new();
 
     public static IReadOnlyDictionary<string, object?> GetScopedProperties() =>
-        ScopedProperties.Value
-     ?? (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>();
+        ScopedProperties.Value ?? [];
 
     public static void PushProperty(string name, object? value)
     {
