@@ -12,6 +12,7 @@
         <PackageReference Include="xunit.runner.visualstudio"/>
         <PackageReference Include="Shouldly"/>
         <PackageReference Include="Serilog"/>
+        <PackageReference Include="NSubstitute"/>
     </ItemGroup>
 
     <ItemGroup>
