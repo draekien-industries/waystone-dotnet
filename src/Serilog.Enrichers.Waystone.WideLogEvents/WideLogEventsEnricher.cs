@@ -6,7 +6,7 @@ using Core;
 using Events;
 using global::Waystone.WideLogEvents;
 
-public class WideLogEventsEnricher : ILogEventEnricher
+internal sealed class WideLogEventsEnricher : ILogEventEnricher
 {
     /// <inheritdoc />
     public void Enrich(

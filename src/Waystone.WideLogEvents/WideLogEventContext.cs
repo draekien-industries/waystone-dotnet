@@ -24,7 +24,4 @@ public sealed class WideLogEventContext
 
         ScopedProperties.Value.PushProperty(name, value);
     }
-
-    public static void AppendEvent()
-    { }
 }

@@ -25,6 +25,8 @@ internal sealed class WideLogEventsSamplingFilter(
     {
         double randomDouble = options.RandomDoubleProvider.NextDouble();
 
+        if (logEvent.Exception is not null) return true;
+
         return logEvent.Level switch
         {
             Debug => options.DebugSampleRate >= randomDouble,
