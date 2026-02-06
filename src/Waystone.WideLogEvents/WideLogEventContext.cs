@@ -1,18 +1,21 @@
 ﻿namespace Waystone.WideLogEvents;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
 public sealed class WideLogEventContext
 {
     internal static readonly
-        AsyncLocal<WideLogEventProperties?> ScopedProperties = new();
+        AsyncLocal<ConcurrentDictionary<string, object?>?> ScopedProperties =
+            new();
 
     public static WideLogEventScope BeginScope() => new();
 
     public static IReadOnlyDictionary<string, object?> GetScopedProperties() =>
-        ScopedProperties.Value ?? [];
+        ScopedProperties.Value
+     ?? (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>();
 
     public static void PushProperty(string name, object? value)
     {
@@ -22,6 +25,13 @@ public sealed class WideLogEventContext
                 "'WideLogEventContext' has not been initialized. Invoke 'WideLogEventContext.BeginScope()' before beginning to push properties");
         }
 
-        ScopedProperties.Value.PushProperty(name, value);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException(
+                "Value cannot be null or whitespace.",
+                nameof(name));
+        }
+
+        ScopedProperties.Value[name] = value;
     }
 }

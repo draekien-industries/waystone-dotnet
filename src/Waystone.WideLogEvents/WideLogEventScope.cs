@@ -1,20 +1,18 @@
 ﻿namespace Waystone.WideLogEvents;
 
 using System;
+using System.Collections.Concurrent;
 
 public readonly struct WideLogEventScope : IDisposable
 {
-    private readonly WideLogEventProperties? _previous;
-
-    private static WideLogEventProperties TrackedProperties =>
-        WideLogEventContext.ScopedProperties.Value ?? [];
+    private readonly ConcurrentDictionary<string, object?>? _previous;
 
     public WideLogEventScope()
     {
-        _previous = TrackedProperties;
+        _previous = WideLogEventContext.ScopedProperties.Value;
 
         WideLogEventContext.ScopedProperties.Value =
-            new WideLogEventProperties();
+            new ConcurrentDictionary<string, object?>();
     }
 
     public void Dispose()
@@ -24,7 +22,7 @@ public readonly struct WideLogEventScope : IDisposable
 
     public WideLogEventScope PushProperty(string name, object? value)
     {
-        TrackedProperties.PushProperty(name, value);
+        WideLogEventContext.PushProperty(name, value);
 
         return this;
     }
