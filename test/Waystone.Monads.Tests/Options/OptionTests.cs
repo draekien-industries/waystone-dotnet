@@ -23,7 +23,20 @@ public sealed class OptionTests
     public async Task GivenAsyncFactory_WhenBinding_ReturnSome()
     {
         Task<Option<int>> optionTask =
+            Option.TryAsync(() => Task.FromResult(42));
+
+        Option<int> option = await optionTask;
+
+        option.ShouldBe(Option.Some(42));
+    }
+
+    [Fact]
+    public async Task GivenObsoleteAsyncTry_WhenBinding_ThenReturnSome()
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        Task<Option<int>> optionTask =
             Option.Try(() => Task.FromResult(42));
+#pragma warning restore CS0618 // Type or member is obsolete
 
         Option<int> option = await optionTask;
 
@@ -34,7 +47,7 @@ public sealed class OptionTests
     public async Task
         GivenAsyncFactoryThrows_WhenBinding_ThenReturnNone()
     {
-        Task<Option<int>> optionTask = Option.Try<int>(async () =>
+        Task<Option<int>> optionTask = Option.TryAsync<int>(async () =>
         {
             await Task.Delay(10, TestContext.Current.CancellationToken);
 

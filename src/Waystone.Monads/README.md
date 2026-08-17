@@ -36,6 +36,74 @@ representing an error and containing an error value.
 > Each concrete result type requires the other's generic type parameters in
 > order to correlate correctly with each other.
 
+### Creating Results
+
+Supply both type parameters when you provide your own error type:
+
+```csharp
+Result<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> error = Result.Err<int, string>("something went wrong");
+```
+
+If you are happy with the built in `Error` type, use the single type parameter
+overloads instead. These default `TErr` to `Error`:
+
+```csharp
+Result<int, Error> result = Result.Ok<int>(1);
+Result<int, Error> error = Result.Err<int>(new Error("MyCode", "something went wrong"));
+```
+
+An `Error` code can be derived from an enum value, which keeps the code stable
+across occurrences of the same error type:
+
+```csharp
+enum UserErrors
+{
+    NotFound,
+}
+
+// code becomes "UserErrors.NotFound"
+Result<User, Error> error = Result.Err<User>(UserErrors.NotFound, "the user was not found");
+
+// or, when you need the error on its own
+Error err = Error.FromEnum(UserErrors.NotFound, "the user was not found");
+```
+
+Use `Try` to capture the value of a factory that may throw. The single type
+parameter overload converts the exception using `Error.FromException`:
+
+```csharp
+Result<int, string> custom = Result.Try(() => int.Parse(input), ex => ex.Message);
+Result<int, Error> parsed = Result.Try<int>(() => int.Parse(input));
+```
+
+## Async
+
+Both monads provide `TryAsync` for factories that return a `Task`:
+
+```csharp
+Result<User, Error> result = await Result.TryAsync<User>(() => FetchUserAsync(id));
+Option<User> option = await Option.TryAsync(() => FetchUserAsync(id));
+```
+
+> [!NOTE]
+> The `Try` overloads that accept an async factory are obsolete and will be
+> removed in v6. Call `TryAsync` instead.
+
+The terminal operations are also available on `Task` and `ValueTask` receivers,
+so you do not have to await the monad before unwrapping it:
+
+```csharp
+User user = await FetchUserAsync(id).UnwrapAsync();
+User userOrGuest = await FetchUserAsync(id).UnwrapOrAsync(Guest);
+User expected = await FetchUserAsync(id).ExpectAsync("the user must exist");
+Error error = await FetchUserAsync(id).UnwrapErrAsync();
+```
+
+`Result` provides `UnwrapAsync`, `UnwrapErrAsync`, `UnwrapOrAsync`,
+`UnwrapOrDefaultAsync`, `ExpectAsync` and `ExpectErrAsync`. `Option` provides
+`UnwrapAsync`, `UnwrapOrAsync`, `UnwrapOrDefaultAsync` and `ExpectAsync`.
+
 ## Configuration
 
 You can configure an action to be invoked when an exception is caught and

@@ -74,9 +74,9 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
         WhenTryingAFactoryThatThrowsAnInvalidOperationExceptionWithMessage(
             string message)
     {
-        Func<int> factory = () => throw new InvalidOperationException(message);
-
-        Result<int, Error> result = Result.Try(factory);
+        Result<int, Error> result =
+            Result.Try<int>(
+                () => throw new InvalidOperationException(message));
 
         context.Set(result, Constants.ResultKey);
     }
@@ -85,7 +85,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
     public async Task WhenTryingAnAsyncFactoryThatReturns(int value)
     {
         Result<int, Error> result =
-            await Result.Try<int>(() => Task.FromResult(value))
+            await Result.TryAsync<int>(() => Task.FromResult(value))
                .ConfigureAwait(false);
 
         context.Set(result, Constants.ResultKey);
@@ -98,7 +98,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
             string message)
     {
         Result<int, Error> result = await Result
-           .Try<int>(
+           .TryAsync<int>(
                 () => Task.FromException<int>(
                     new InvalidOperationException(message)))
            .ConfigureAwait(false);
