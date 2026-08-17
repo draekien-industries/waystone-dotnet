@@ -1,8 +1,8 @@
 namespace Waystone.Monads.Results.Steps;
 
-using System;
 using System.Threading.Tasks;
 using Exceptions;
+using Monads.Extensions;
 using Extensions;
 using Reqnroll;
 using Shouldly;
@@ -10,15 +10,13 @@ using Shouldly;
 [Binding]
 public sealed class ExpectExtensionsSteps(ScenarioContext context)
 {
-    private const string ExceptionKey = "exception";
-
     [When("expecting an Ok from the Task Result with message {string}")]
     public async Task WhenExpectingAnOkFromTheTaskResultWithMessage(
         string message)
     {
         var resultTask = context.Get<Task<Result<int, string>>>();
 
-        await CaptureAsync(() => resultTask.ExpectAsync(message));
+        await context.CaptureAsync(() => resultTask.ExpectAsync(message));
     }
 
     [When("expecting an Ok from the ValueTask Result with message {string}")]
@@ -27,7 +25,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     {
         var resultTask = context.Get<ValueTask<Result<int, string>>>();
 
-        await CaptureAsync(() => resultTask.ExpectAsync(message));
+        await context.CaptureAsync(() => resultTask.ExpectAsync(message));
     }
 
     [When("expecting an Err from the Task Result with message {string}")]
@@ -36,7 +34,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     {
         var resultTask = context.Get<Task<Result<int, string>>>();
 
-        await CaptureErrAsync(() => resultTask.ExpectErrAsync(message));
+        await context.CaptureAsync(() => resultTask.ExpectErrAsync(message));
     }
 
     [When("expecting an Err from the ValueTask Result with message {string}")]
@@ -45,7 +43,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     {
         var resultTask = context.Get<ValueTask<Result<int, string>>>();
 
-        await CaptureErrAsync(() => resultTask.ExpectErrAsync(message));
+        await context.CaptureAsync(() => resultTask.ExpectErrAsync(message));
     }
 
     [Then("the expected value should be {int}")]
@@ -64,36 +62,8 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     public void ThenAnUnmetExpectationExceptionShouldBeThrownContaining(
         string message)
     {
-        var exception = context.Get<Exception>(ExceptionKey);
+        var exception = context.GetCapturedException();
         exception.ShouldBeOfType<UnmetExpectationException>();
         exception.Message.ShouldContain(message);
-    }
-
-    private async Task CaptureAsync(Func<Task<int>> expect)
-    {
-        try
-        {
-            context.Set(
-                await expect().ConfigureAwait(false),
-                Constants.ResultKey);
-        }
-        catch (Exception ex)
-        {
-            context.Set(ex, ExceptionKey);
-        }
-    }
-
-    private async Task CaptureErrAsync(Func<Task<string>> expect)
-    {
-        try
-        {
-            context.Set(
-                await expect().ConfigureAwait(false),
-                Constants.ResultKey);
-        }
-        catch (Exception ex)
-        {
-            context.Set(ex, ExceptionKey);
-        }
     }
 }

@@ -1,8 +1,8 @@
 namespace Waystone.Monads.Results.Steps;
 
-using System;
 using System.Threading.Tasks;
 using Exceptions;
+using Monads.Extensions;
 using Extensions;
 using Reqnroll;
 using Shouldly;
@@ -10,14 +10,12 @@ using Shouldly;
 [Binding]
 public sealed class UnwrapExtensionsSteps(ScenarioContext context)
 {
-    private const string ExceptionKey = "exception";
-
     [When("unwrapping the Task Result")]
     public async Task WhenUnwrappingTheTaskResult()
     {
         var resultTask = context.Get<Task<Result<int, string>>>();
 
-        await CaptureAsync(() => resultTask.UnwrapAsync());
+        await context.CaptureAsync(() => resultTask.UnwrapAsync());
     }
 
     [When("unwrapping the ValueTask Result")]
@@ -25,7 +23,7 @@ public sealed class UnwrapExtensionsSteps(ScenarioContext context)
     {
         var resultTask = context.Get<ValueTask<Result<int, string>>>();
 
-        await CaptureAsync(() => resultTask.UnwrapAsync());
+        await context.CaptureAsync(() => resultTask.UnwrapAsync());
     }
 
     [When("unwrapping the error of the Task Result")]
@@ -33,7 +31,7 @@ public sealed class UnwrapExtensionsSteps(ScenarioContext context)
     {
         var resultTask = context.Get<Task<Result<int, string>>>();
 
-        await CaptureErrAsync(() => resultTask.UnwrapErrAsync());
+        await context.CaptureAsync(() => resultTask.UnwrapErrAsync());
     }
 
     [When("unwrapping the error of the ValueTask Result")]
@@ -41,7 +39,7 @@ public sealed class UnwrapExtensionsSteps(ScenarioContext context)
     {
         var resultTask = context.Get<ValueTask<Result<int, string>>>();
 
-        await CaptureErrAsync(() => resultTask.UnwrapErrAsync());
+        await context.CaptureAsync(() => resultTask.UnwrapErrAsync());
     }
 
     [When("unwrapping the Task Result with a default of {int}")]
@@ -104,30 +102,6 @@ public sealed class UnwrapExtensionsSteps(ScenarioContext context)
     [Then("an UnwrapException should be thrown")]
     public void ThenAnUnwrapExceptionShouldBeThrown()
     {
-        context.Get<Exception>(ExceptionKey).ShouldBeAssignableTo<UnwrapException>();
-    }
-
-    private async Task CaptureAsync(Func<Task<int>> unwrap)
-    {
-        try
-        {
-            context.Set(await unwrap().ConfigureAwait(false), Constants.ResultKey);
-        }
-        catch (Exception ex)
-        {
-            context.Set(ex, ExceptionKey);
-        }
-    }
-
-    private async Task CaptureErrAsync(Func<Task<string>> unwrap)
-    {
-        try
-        {
-            context.Set(await unwrap().ConfigureAwait(false), Constants.ResultKey);
-        }
-        catch (Exception ex)
-        {
-            context.Set(ex, ExceptionKey);
-        }
+        context.GetCapturedException().ShouldBeAssignableTo<UnwrapException>();
     }
 }

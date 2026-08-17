@@ -1,8 +1,8 @@
 namespace Waystone.Monads.Options.Steps;
 
-using System;
 using System.Threading.Tasks;
 using Exceptions;
+using Monads.Extensions;
 using Extensions;
 using Reqnroll;
 using Shouldly;
@@ -10,14 +10,12 @@ using Shouldly;
 [Binding]
 public sealed class UnwrapExtensionsSteps(ScenarioContext context)
 {
-    private const string ExceptionKey = "exception";
-
     [When("unwrapping the Task Option")]
     public async Task WhenUnwrappingTheTaskOption()
     {
         var optionTask = context.Get<Task<Option<int>>>();
 
-        await CaptureAsync(() => optionTask.UnwrapAsync());
+        await context.CaptureAsync(() => optionTask.UnwrapAsync());
     }
 
     [When("unwrapping the ValueTask Option")]
@@ -25,7 +23,7 @@ public sealed class UnwrapExtensionsSteps(ScenarioContext context)
     {
         var optionTask = context.Get<ValueTask<Option<int>>>();
 
-        await CaptureAsync(() => optionTask.UnwrapAsync());
+        await context.CaptureAsync(() => optionTask.UnwrapAsync());
     }
 
     [When("unwrapping the Task Option with a default of {int}")]
@@ -82,21 +80,6 @@ public sealed class UnwrapExtensionsSteps(ScenarioContext context)
     [Then("an Option UnwrapException should be thrown")]
     public void ThenAnOptionUnwrapExceptionShouldBeThrown()
     {
-        context.Get<Exception>(ExceptionKey)
-           .ShouldBeAssignableTo<UnwrapException>();
-    }
-
-    private async Task CaptureAsync(Func<Task<int>> unwrap)
-    {
-        try
-        {
-            context.Set(
-                await unwrap().ConfigureAwait(false),
-                Constants.ResultKey);
-        }
-        catch (Exception ex)
-        {
-            context.Set(ex, ExceptionKey);
-        }
+        context.GetCapturedException().ShouldBeAssignableTo<UnwrapException>();
     }
 }
