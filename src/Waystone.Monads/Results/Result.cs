@@ -4,6 +4,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
+using Errors;
 #if !DEBUG
 using System.Diagnostics;
 #endif
@@ -132,4 +133,112 @@ public static class Result
         where TOk : notnull
         where TErr : notnull =>
         new Err<TOk, TErr>(value);
+
+    /// <summary>
+    /// Tries to store the result of a <paramref name="factory" /> into a
+    /// <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
+    /// type, converting any thrown exception using
+    /// <see cref="Error.FromException" />.
+    /// </summary>
+    /// <param name="factory">
+    /// A method which when executed will return the value
+    /// contained in the <see cref="Result{TOk,TErr}" />
+    /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
+    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
+    /// otherwise a <see cref="Err{TOk,TErr}" />
+    /// </returns>
+    public static Result<TOk, Error> Try<TOk>(
+        Func<TOk> factory,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(factory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull =>
+        Try(
+            factory,
+            Error.FromException,
+            callerMemberName,
+            callerLineNumber,
+            callerArgumentExpression);
+
+    /// <summary>
+    /// Tries to store the result of an <paramref name="asyncFactory" /> into
+    /// a <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
+    /// type, converting any thrown exception using
+    /// <see cref="Error.FromException" />.
+    /// </summary>
+    /// <param name="asyncFactory">
+    /// An asynchronous method which when executed will
+    /// produce the value of the <see cref="Result{TOk,TErr}" />
+    /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
+    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
+    /// otherwise a <see cref="Err{TOk,TErr}" />
+    /// </returns>
+    public static Task<Result<TOk, Error>> Try<TOk>(
+        Func<Task<TOk>> asyncFactory,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(asyncFactory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull =>
+        Try(
+            asyncFactory,
+            Error.FromException,
+            callerMemberName,
+            callerLineNumber,
+            callerArgumentExpression);
+
+    /// <summary>
+    /// Creates an <see cref="Ok{TOk,TErr}" /> result containing the provided
+    /// value, using <see cref="Error" /> as the error type.
+    /// </summary>
+    /// <param name="value">The value of the result type.</param>
+    /// <typeparam name="TOk">The ok result value's type</typeparam>
+    public static Result<TOk, Error> Ok<TOk>(TOk value)
+        where TOk : notnull =>
+        new Ok<TOk, Error>(value);
+
+    /// <summary>
+    /// Creates an <see cref="Err{TOk,TErr}" /> result containing the provided
+    /// <see cref="Error" />.
+    /// </summary>
+    /// <param name="error">The error contained in the result.</param>
+    /// <typeparam name="TOk">The ok result value's type</typeparam>
+    public static Result<TOk, Error> Err<TOk>(Error error)
+        where TOk : notnull =>
+        new Err<TOk, Error>(error);
+
+    /// <summary>
+    /// Creates an <see cref="Err{TOk,TErr}" /> result containing an
+    /// <see cref="Error" /> whose code is derived from the provided enum value.
+    /// </summary>
+    /// <remarks>
+    /// Uses the <see cref="ErrorCodeFactory" /> configured in
+    /// <see cref="MonadOptions" /> to create the error code.
+    /// </remarks>
+    /// <param name="code">The enum value to create the error code from.</param>
+    /// <param name="message">
+    /// A descriptive error message providing more context
+    /// about the error.
+    /// </param>
+    /// <typeparam name="TOk">The ok result value's type</typeparam>
+    public static Result<TOk, Error> Err<TOk>(Enum code, string message)
+        where TOk : notnull =>
+        new Err<TOk, Error>(Error.FromEnum(code, message));
 }

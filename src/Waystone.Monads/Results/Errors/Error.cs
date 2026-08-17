@@ -44,6 +44,21 @@ public record Error
     /// <summary>A descriptive error message providing more context about the error.</summary>
     public string Message { get; }
 
+    /// <summary>Creates a new instance of <see cref="Error" /> from an enum value.</summary>
+    /// <remarks>
+    /// Uses the <see cref="ErrorCodeFactory" /> configured in
+    /// <see cref="MonadOptions" /> to create the error code.
+    /// </remarks>
+    /// <param name="value">The enum value to create the error code from.</param>
+    /// <param name="message">
+    /// A descriptive error message providing more context
+    /// about the error.
+    /// </param>
+    /// <returns>The created <see cref="Error" /></returns>
+    public static Error FromEnum(Enum value, string message) => new(
+        ErrorCode.FromEnum(value),
+        message);
+
     /// <summary>Creates a new instance of <see cref="Error" /> from an exception.</summary>
     /// <remarks>
     /// Uses the <see cref="ErrorCodeFactory" /> configured in
