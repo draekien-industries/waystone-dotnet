@@ -16,9 +16,36 @@ title becomes the version-determining subject — a `!` in a PR title ships a
 major release. Use `!` only when something is actually being removed.
 
 **Deprecate; never remove.** Public API is obsoleted with a message naming both
-its replacement and the version that removes it, recorded in
-`BREAKING_CHANGES.md`, and removed only in the next major. Deleting public API
-outright is not an option, however small the change looks.
+its replacement and the version that removes it, and removed only in the next
+major. Deleting public API outright is not an option, however small the change
+looks.
+
+**Deprecations are tracked in GitBook, not here.** The published documentation
+carries the Deprecations page, and it is the source of truth for what is going
+away and when. Do not reintroduce a `BREAKING_CHANGES.md` — a second list drifts
+from the first. The documentation source lives in the
+[draekien-industries/docs](https://github.com/draekien-industries/docs)
+repository.
+
+**A public API change needs a paired documentation PR.** Open a PR in
+[draekien-industries/docs](https://github.com/draekien-industries/docs) covering
+the change, and link the two PRs to each other so a reviewer can see both at once.
+This applies when you add, change, obsolete or remove a public type or member, and
+when you change the behaviour or the default of one that is already documented.
+
+**Merge this repository's PR first, then the documentation PR.** Merging here
+publishes to NuGet; merging there syncs GitBook. In that order the documentation
+describes a version that consumers can already install. Reverse the order and the
+published documentation describes API that does not exist yet.
+
+If a code PR is closed without merging, close its documentation PR too. A docs PR
+left open against abandoned API is worse than no docs PR — someone will eventually
+merge it.
+
+Changes that leave the public surface untouched need no documentation PR: internal
+refactors, tests, CI, and build configuration. Write the documentation the way that
+repository asks — read its `AGENTS.md` first, since new pages there need a
+`SUMMARY.md` entry in the same commit or GitBook never shows them.
 
 **Comment only public API surface.** XML doc comments on public members; no
 explanatory comments inside method bodies. `CS1591` is suppressed, so the build
