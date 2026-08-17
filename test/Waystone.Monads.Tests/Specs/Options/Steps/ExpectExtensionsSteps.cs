@@ -8,13 +8,13 @@ using Waystone.Monads.Options.Extensions;
 using Waystone.Monads.Options;
 
 [Binding]
-public sealed class ExpectExtensionsSteps(ScenarioContext context)
+public sealed class ExpectExtensionsSteps(SpecContext context)
 {
     [When("expecting a Some from the Task Option with message {string}")]
     public async Task WhenExpectingASomeFromTheTaskOptionWithMessage(
         string message)
     {
-        var optionTask = context.Get<Task<Option<int>>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
 
         await context.CaptureAsync(() => optionTask.ExpectAsync(message));
     }
@@ -23,7 +23,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     public async Task WhenExpectingASomeFromTheValueTaskOptionWithMessage(
         string message)
     {
-        var optionTask = context.Get<ValueTask<Option<int>>>();
+        var optionTask = context.Subject<ValueTask<Option<int>>>();
 
         await context.CaptureAsync(() => optionTask.ExpectAsync(message));
     }
@@ -31,7 +31,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     [Then("the expected Option value should be {int}")]
     public void ThenTheExpectedOptionValueShouldBe(int expected)
     {
-        context.Get<int>(Constants.ResultKey).ShouldBe(expected);
+        context.Outcome<int>().ShouldBe(expected);
     }
 
     [Then(
@@ -39,7 +39,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     public void ThenAnOptionUnmetExpectationExceptionShouldBeThrownContaining(
         string message)
     {
-        var exception = context.GetCapturedException();
+        var exception = context.CapturedException;
         exception.ShouldBeOfType<UnmetExpectationException>();
         exception.Message.ShouldContain(message);
     }

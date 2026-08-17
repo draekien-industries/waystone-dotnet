@@ -9,35 +9,35 @@ using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 
 [Binding]
-public class OkOrElseSteps(ScenarioContext context)
+public class OkOrElseSteps(SpecContext context)
 {
     [When("invoking OkOrElse on the Option with the async Error delegate")]
     public async Task WhenInvokingOkOrElseOnTheOptionWithTheAsyncErrorDelegate()
     {
-        var option = context.Get<Option<int>>();
+        var option = context.Subject<Option<int>>();
 
         var asyncErrDelegate =
-            context.Get<Func<Task<string>>>(Constants.AsyncErrorDelegate);
+            context.Slot<Func<Task<string>>>(SpecContext.AsyncErrorSlot);
 
         Result<int, string> result =
             await option.OkOrElseAsync(asyncErrDelegate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("invoking OkOrElse on the Option Task with the async Error delegate")]
     public async Task
         WhenInvokingOkOrElseOnTheOptionTaskWithTheAsyncErrorDelegate()
     {
-        var optionTask = context.Get<Task<Option<int>>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
 
         var asyncErrDelegate =
-            context.Get<Func<Task<string>>>(Constants.AsyncErrorDelegate);
+            context.Slot<Func<Task<string>>>(SpecContext.AsyncErrorSlot);
 
         Result<int, string> result =
             await optionTask.OkOrElseAsync(asyncErrDelegate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -45,15 +45,15 @@ public class OkOrElseSteps(ScenarioContext context)
     public async Task
         WhenInvokingOkOrElseOnTheOptionValueTaskWithTheAsyncErrorDelegate()
     {
-        var optionTask = context.Get<ValueTask<Option<int>>>();
+        var optionTask = context.Subject<ValueTask<Option<int>>>();
 
         var asyncErrDelegate =
-            context.Get<Func<Task<string>>>(Constants.AsyncErrorDelegate);
+            context.Slot<Func<Task<string>>>(SpecContext.AsyncErrorSlot);
 
         Result<int, string> result =
             await optionTask.OkOrElseAsync(asyncErrDelegate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -61,15 +61,15 @@ public class OkOrElseSteps(ScenarioContext context)
     public async Task
         WhenInvokingOkOrElseOnTheOptionWithTheSynchronousErrorDelegate()
     {
-        var option = context.Get<Task<Option<int>>>();
+        var option = context.Subject<Task<Option<int>>>();
 
         var syncErrDelegate =
-            context.Get<Func<string>>(Constants.SyncErrorDelegate);
+            context.Slot<Func<string>>(SpecContext.SyncErrorSlot);
 
         Result<int, string> result =
             await option.OkOrElseAsync(syncErrDelegate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -77,14 +77,14 @@ public class OkOrElseSteps(ScenarioContext context)
     public async Task
         WhenInvokingOkOrElseOnTheValueTaskOptionWithTheSynchronousErrorDelegate()
     {
-        var option = context.Get<ValueTask<Option<int>>>();
+        var option = context.Subject<ValueTask<Option<int>>>();
 
         var syncErrDelegate =
-            context.Get<Func<string>>(Constants.SyncErrorDelegate);
+            context.Slot<Func<string>>(SpecContext.SyncErrorSlot);
 
         Result<int, string> result =
             await option.OkOrElseAsync(syncErrDelegate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 }

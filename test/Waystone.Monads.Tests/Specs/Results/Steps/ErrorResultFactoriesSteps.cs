@@ -11,7 +11,7 @@ using Waystone.Monads.Results.Extensions;
 using Waystone.Monads.Results;
 
 [Binding]
-public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
+public sealed class ErrorResultFactoriesSteps(SpecContext context)
 {
     private enum TestErrorCodes
     {
@@ -21,7 +21,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
     [Given("an Error with code {string} and message {string}")]
     public void GivenAnErrorWithCodeAndMessage(string code, string message)
     {
-        context.Set(new Error(code, message), Constants.ErrorKey);
+        context.Error = new Error(code, message);
     }
 
     [When("creating an Ok result with the value {int}")]
@@ -29,17 +29,17 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
     {
         Result<int, Error> result = Result.Ok<int>(value);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("creating an Err result from the Error")]
     public void WhenCreatingAnErrResultFromTheError()
     {
-        var error = context.Get<Error>(Constants.ErrorKey);
+        var error = context.Error;
 
         Result<int, Error> result = Result.Err<int>(error);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -50,16 +50,14 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
         Result<int, Error> result =
             Result.Err<int>(TestErrorCodes.NotFound, message);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("creating an Error from the NotFound enum value and message {string}")]
     public void WhenCreatingAnErrorFromTheNotFoundEnumValueAndMessage(
         string message)
     {
-        context.Set(
-            Error.FromEnum(TestErrorCodes.NotFound, message),
-            Constants.ErrorKey);
+        context.Error = Error.FromEnum(TestErrorCodes.NotFound, message);
     }
 
     [When("trying a factory that returns {int}")]
@@ -67,7 +65,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
     {
         Result<int, Error> result = Result.Try<int>(() => value);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -80,7 +78,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
             Result.Try<int>(
                 () => throw new InvalidOperationException(message));
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("trying an async factory that returns {int}")]
@@ -90,7 +88,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
             await Result.TryAsync<int>(() => Task.FromResult(value))
                .ConfigureAwait(false);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -105,13 +103,13 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
                     new InvalidOperationException(message)))
            .ConfigureAwait(false);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [Then("the error typed result should be Ok with the value {int}")]
     public void ThenTheErrorTypedResultShouldBeOkWithTheValue(int expected)
     {
-        var result = context.Get<Result<int, Error>>(Constants.ResultKey);
+        var result = context.Outcome<Result<int, Error>>();
 
         result.IsOk.ShouldBeTrue();
         result.Unwrap().ShouldBe(expected);
@@ -123,7 +121,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
         string code,
         string message)
     {
-        var result = context.Get<Result<int, Error>>(Constants.ResultKey);
+        var result = context.Outcome<Result<int, Error>>();
 
         result.IsErr.ShouldBeTrue();
 
@@ -137,7 +135,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
         string code,
         string message)
     {
-        var error = context.Get<Error>(Constants.ErrorKey);
+        var error = context.Error;
 
         error.Code.Value.ShouldBe(code);
         error.Message.ShouldBe(message);

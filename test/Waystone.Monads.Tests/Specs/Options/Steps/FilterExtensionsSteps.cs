@@ -9,7 +9,7 @@ using Waystone.Monads.Options.Extensions;
 using Waystone.Monads.Options;
 
 [Binding, TestSubject(typeof(FilterExtensions))]
-public class FilterExtensionsSteps(ScenarioContext context)
+public class FilterExtensionsSteps(SpecContext context)
 {
     [Given("an async predicate that returns {string} for int value")]
     public void GivenAnAsyncPredicateThatReturnsBoolForIntValue(bool result)
@@ -21,30 +21,30 @@ public class FilterExtensionsSteps(ScenarioContext context)
             return result;
         });
 
-        context.Set(predicate);
+        context.SetSubject(predicate);
     }
 
     [When("invoking Filter on Option Task with the async predicate")]
     public async Task WhenInvokingFilterOnOptionTaskWithThePredicate()
     {
-        var predicate = context.Get<Func<int, Task<bool>>>();
-        var optionTask = context.Get<Task<Option<int>>>();
+        var predicate = context.Subject<Func<int, Task<bool>>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
 
         Option<int> resultTask = await optionTask.FilterAsync(predicate);
 
-        context.Set(resultTask, Constants.ResultKey);
+        context.SetOutcome(resultTask);
     }
 
     [When("invoking Filter on Option ValueTask with the async predicate")]
     public async Task WhenInvokingFilterOnOptionValueTaskWithThePredicate()
     {
-        var predicate = context.Get<Func<int, Task<bool>>>();
-        var optionValueTask = context.Get<ValueTask<Option<int>>>();
+        var predicate = context.Subject<Func<int, Task<bool>>>();
+        var optionValueTask = context.Subject<ValueTask<Option<int>>>();
 
         Option<int> resultValueTask =
             await optionValueTask.FilterAsync(predicate);
 
-        context.Set(resultValueTask, Constants.ResultKey);
+        context.SetOutcome(resultValueTask);
     }
 
     [Given("a sync predicate that returns {string} for int value")]
@@ -52,26 +52,26 @@ public class FilterExtensionsSteps(ScenarioContext context)
     {
         var predicate = new Func<int, bool>(_ => result);
 
-        context.Set(predicate);
+        context.SetSubject(predicate);
     }
 
     [When("invoking Filter on Option ValueTask with the sync predicate")]
     public async Task WhenInvokingFilterOnOptionValueTaskWithTheSyncPredicate()
     {
-        var predicate = context.Get<Func<int, bool>>();
-        var optionValueTask = context.Get<ValueTask<Option<int>>>();
+        var predicate = context.Subject<Func<int, bool>>();
+        var optionValueTask = context.Subject<ValueTask<Option<int>>>();
 
         Option<int> result = await optionValueTask.FilterAsync(predicate);
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("invoking Filter on Option Task with the sync predicate")]
     public async Task WhenInvokingFilterOnOptionTaskWithTheSyncPredicate()
     {
-        var predicate = context.Get<Func<int, bool>>();
-        var optionTask = context.Get<Task<Option<int>>>();
+        var predicate = context.Subject<Func<int, bool>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
 
         Option<int> result = await optionTask.FilterAsync(predicate);
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 }

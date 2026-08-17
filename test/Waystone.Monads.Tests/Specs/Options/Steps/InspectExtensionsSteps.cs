@@ -8,17 +8,17 @@ using Waystone.Monads.Options.Extensions;
 using Waystone.Monads.Options;
 
 [Binding]
-public class InspectExtensionsSteps(ScenarioContext context)
+public class InspectExtensionsSteps(SpecContext context)
 {
     [When("invoking InspectAsync on the Option Task with the async delegate")]
     public async Task
         WhenInvokingInspectAsyncOnTheOptionTaskWithTheAsyncDelegate()
     {
-        var optionTask = context.Get<Task<Option<int>>>();
-        var asyncDelegate = context.Get<Func<int, Task>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
+        var asyncDelegate = context.Subject<Func<int, Task>>();
 
         Option<int> result = await optionTask.InspectAsync(asyncDelegate);
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -26,11 +26,11 @@ public class InspectExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingInspectAsyncOnTheOptionTaskWithTheSynchronousDelegate()
     {
-        var optionTask = context.Get<Task<Option<int>>>();
-        var syncDelegate = context.Get<Action<int>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
+        var syncDelegate = context.Subject<Action<int>>();
 
         Option<int> result = await optionTask.InspectAsync(syncDelegate);
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -38,11 +38,11 @@ public class InspectExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingInspectAsyncOnTheOptionValueTaskWithTheAsyncDelegate()
     {
-        var optionTask = context.Get<ValueTask<Option<int>>>();
-        var asyncDelegate = context.Get<Func<int, Task>>();
+        var optionTask = context.Subject<ValueTask<Option<int>>>();
+        var asyncDelegate = context.Subject<Func<int, Task>>();
 
         Option<int> result = await optionTask.InspectAsync(asyncDelegate);
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When(
@@ -50,10 +50,10 @@ public class InspectExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingInspectAsyncOnTheOptionValueTaskWithTheSynchronousDelegate()
     {
-        var optionTask = context.Get<ValueTask<Option<int>>>();
-        var syncDelegate = context.Get<Action<int>>();
+        var optionTask = context.Subject<ValueTask<Option<int>>>();
+        var syncDelegate = context.Subject<Action<int>>();
 
         Option<int> result = await optionTask.InspectAsync(syncDelegate);
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 }

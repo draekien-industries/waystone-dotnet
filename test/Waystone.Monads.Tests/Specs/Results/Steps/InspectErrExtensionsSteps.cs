@@ -9,31 +9,31 @@ using Waystone.Monads.Results.Extensions;
 using Waystone.Monads.Results;
 
 [Binding]
-public class InspectErrExtensionsSteps(ScenarioContext context)
+public class InspectErrExtensionsSteps(SpecContext context)
 {
     [When("invoking InspectErrAsync on result with async delegate")]
     public async Task WhenInvokingInspectErrAsyncOnResultWithAsyncDelegate()
     {
-        var result = context.Get<Result<int, string>>();
-        var asyncDelegate = context.Get<Func<string, Task>>();
+        var result = context.Subject<Result<int, string>>();
+        var asyncDelegate = context.Subject<Func<string, Task>>();
 
         Result<int, string> output =
             await result.InspectErrAsync(asyncDelegate);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When("invoking InspectErrAsync on async Task result with async delegate")]
     public async Task
         WhenInvokingInspectErrAsyncOnAsyncTaskResultWithAsyncDelegate()
     {
-        var resultTask = context.Get<Task<Result<int, string>>>();
-        var asyncDelegate = context.Get<Func<string, Task>>();
+        var resultTask = context.Subject<Task<Result<int, string>>>();
+        var asyncDelegate = context.Subject<Func<string, Task>>();
 
         Result<int, string> output =
             await resultTask.InspectErrAsync(asyncDelegate);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -41,12 +41,12 @@ public class InspectErrExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingInspectErrAsyncOnAsyncValueTaskResultWithAsyncDelegate()
     {
-        var resultTask = context.Get<ValueTask<Result<int, string>>>();
-        var asyncDelegate = context.Get<Func<string, Task>>();
+        var resultTask = context.Subject<ValueTask<Result<int, string>>>();
+        var asyncDelegate = context.Subject<Func<string, Task>>();
 
         Result<int, string> output =
             await resultTask.InspectErrAsync(asyncDelegate);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 }

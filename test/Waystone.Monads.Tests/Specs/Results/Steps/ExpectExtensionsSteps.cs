@@ -9,13 +9,13 @@ using Waystone.Monads.Results.Extensions;
 using Waystone.Monads.Results;
 
 [Binding]
-public sealed class ExpectExtensionsSteps(ScenarioContext context)
+public sealed class ExpectExtensionsSteps(SpecContext context)
 {
     [When("expecting an Ok from the Task Result with message {string}")]
     public async Task WhenExpectingAnOkFromTheTaskResultWithMessage(
         string message)
     {
-        var resultTask = context.Get<Task<Result<int, string>>>();
+        var resultTask = context.Subject<Task<Result<int, string>>>();
 
         await context.CaptureAsync(() => resultTask.ExpectAsync(message));
     }
@@ -24,7 +24,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     public async Task WhenExpectingAnOkFromTheValueTaskResultWithMessage(
         string message)
     {
-        var resultTask = context.Get<ValueTask<Result<int, string>>>();
+        var resultTask = context.Subject<ValueTask<Result<int, string>>>();
 
         await context.CaptureAsync(() => resultTask.ExpectAsync(message));
     }
@@ -33,7 +33,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     public async Task WhenExpectingAnErrFromTheTaskResultWithMessage(
         string message)
     {
-        var resultTask = context.Get<Task<Result<int, string>>>();
+        var resultTask = context.Subject<Task<Result<int, string>>>();
 
         await context.CaptureAsync(() => resultTask.ExpectErrAsync(message));
     }
@@ -42,7 +42,7 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     public async Task WhenExpectingAnErrFromTheValueTaskResultWithMessage(
         string message)
     {
-        var resultTask = context.Get<ValueTask<Result<int, string>>>();
+        var resultTask = context.Subject<ValueTask<Result<int, string>>>();
 
         await context.CaptureAsync(() => resultTask.ExpectErrAsync(message));
     }
@@ -50,20 +50,20 @@ public sealed class ExpectExtensionsSteps(ScenarioContext context)
     [Then("the expected value should be {int}")]
     public void ThenTheExpectedValueShouldBe(int expected)
     {
-        context.Get<int>(Constants.ResultKey).ShouldBe(expected);
+        context.Outcome<int>().ShouldBe(expected);
     }
 
     [Then("the expected error should be {string}")]
     public void ThenTheExpectedErrorShouldBe(string expected)
     {
-        context.Get<string>(Constants.ResultKey).ShouldBe(expected);
+        context.Outcome<string>().ShouldBe(expected);
     }
 
     [Then("an UnmetExpectationException should be thrown containing {string}")]
     public void ThenAnUnmetExpectationExceptionShouldBeThrownContaining(
         string message)
     {
-        var exception = context.GetCapturedException();
+        var exception = context.CapturedException;
         exception.ShouldBeOfType<UnmetExpectationException>();
         exception.Message.ShouldContain(message);
     }

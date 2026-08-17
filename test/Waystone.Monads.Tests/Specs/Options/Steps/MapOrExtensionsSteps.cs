@@ -9,22 +9,18 @@ using Waystone.Monads.Options.Extensions;
 using Waystone.Monads.Options;
 
 [Binding, TestSubject(typeof(MapOrExtensions))]
-public class MapOrExtensionsSteps(ScenarioContext context)
+public class MapOrExtensionsSteps(SpecContext context)
 {
     [Given("async MapOr returns {string} + value")]
     public void GivenAsyncMapOrReturnsValue(string mapped)
     {
-        context.Set<Func<int, Task<string>>>(
-            value => Task.FromResult($"{mapped}{value}"),
-            Constants.MapKey);
+        context.SetSlot<Func<int, Task<string>>>(value => Task.FromResult($"{mapped}{value}"), SpecContext.MapSlot);
     }
 
     [Given("sync MapOr returns {string} + value")]
     public void GivenSyncMapOrReturnsValue(string syncMapped)
     {
-        context.Set<Func<int, string>>(
-            value => $"{syncMapped}{value}",
-            Constants.MapKey);
+        context.SetSlot<Func<int, string>>(value => $"{syncMapped}{value}", SpecContext.MapSlot);
     }
 
     [When("Option Task is invoked with {string} MapOr and default {string}")]
@@ -32,25 +28,25 @@ public class MapOrExtensionsSteps(ScenarioContext context)
         string mapType,
         string defaultValue)
     {
-        var option = context.Get<Task<Option<int>>>();
+        var option = context.Subject<Task<Option<int>>>();
 
         switch (mapType)
         {
             case "async":
             {
                 var mapFunc =
-                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
+                    context.Slot<Func<int, Task<string>>>(SpecContext.MapSlot);
 
                 string result = await option.MapOrAsync(defaultValue, mapFunc);
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case "sync":
             {
-                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
+                var mapFunc = context.Slot<Func<int, string>>(SpecContext.MapSlot);
                 string result = await option.MapOrAsync(defaultValue, mapFunc);
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
@@ -68,25 +64,25 @@ public class MapOrExtensionsSteps(ScenarioContext context)
         string mapType,
         string defaultValue)
     {
-        var option = context.Get<ValueTask<Option<int>>>();
+        var option = context.Subject<ValueTask<Option<int>>>();
 
         switch (mapType)
         {
             case "async":
             {
                 var mapFunc =
-                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
+                    context.Slot<Func<int, Task<string>>>(SpecContext.MapSlot);
 
                 string result = await option.MapOrAsync(defaultValue, mapFunc);
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case "sync":
             {
-                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
+                var mapFunc = context.Slot<Func<int, string>>(SpecContext.MapSlot);
                 string result = await option.MapOrAsync(defaultValue, mapFunc);
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }

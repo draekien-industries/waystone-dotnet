@@ -9,7 +9,7 @@ using Waystone.Monads.Options.Extensions;
 using Waystone.Monads.Options;
 
 [Binding, TestSubject(typeof(IsNoneOrExtensions))]
-public class IsNoneOrExtensionsSteps(ScenarioContext context)
+public class IsNoneOrExtensionsSteps(SpecContext context)
 {
     [When(
         "invoking IsNoneOr on Option Task with sync predicate that returns {string}")]
@@ -17,43 +17,43 @@ public class IsNoneOrExtensionsSteps(ScenarioContext context)
         WhenInvokingIsNoneOrOnOptionTaskWithSyncPredicateThatReturnsString(
             bool predicateResult)
     {
-        var optionTask = context.Get<Task<Option<int>>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
 
         bool result = await optionTask.IsNoneOrAsync(_ => predicateResult);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("invoking IsNoneOr on Option Task with async predicate")]
     public async Task WhenInvokingIsNoneOrOnOptionTaskWithAsyncPredicate()
     {
-        var optionTask = context.Get<Task<Option<int>>>();
-        var predicate = context.Get<Func<int, Task<bool>>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
+        var predicate = context.Subject<Func<int, Task<bool>>>();
 
         bool result = await optionTask.IsNoneOrAsync(predicate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("invoking IsNoneOr on Option ValueTask with async predicate")]
     public async Task WhenInvokingIsNoneOrOnOptionValueTaskWithAsyncPredicate()
     {
-        var optionTask = context.Get<ValueTask<Option<int>>>();
-        var predicate = context.Get<Func<int, Task<bool>>>();
+        var optionTask = context.Subject<ValueTask<Option<int>>>();
+        var predicate = context.Subject<Func<int, Task<bool>>>();
 
         bool result = await optionTask.IsNoneOrAsync(predicate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 
     [When("invoking IsNoneOr on Option Task with sync predicate")]
     public async Task WhenInvokingIsNoneOrOnOptionTaskWithSyncPredicate()
     {
-        var optionTask = context.Get<Task<Option<int>>>();
-        var predicate = context.Get<Func<int, bool>>();
+        var optionTask = context.Subject<Task<Option<int>>>();
+        var predicate = context.Subject<Func<int, bool>>();
 
         bool result = await optionTask.IsNoneOrAsync(predicate);
 
-        context.Set(result, Constants.ResultKey);
+        context.SetOutcome(result);
     }
 }

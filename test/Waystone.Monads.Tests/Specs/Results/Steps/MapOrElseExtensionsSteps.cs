@@ -9,25 +9,24 @@ using Waystone.Monads.Results.Extensions;
 using Waystone.Monads.Results;
 
 [Binding]
-public class MapOrElseExtensionsSteps(ScenarioContext context)
+public class MapOrElseExtensionsSteps(SpecContext context)
 {
     [When(
         "invoking MapOrElse with the async factory and async map on the sync Result")]
     public async Task
         WhenInvokingMapOrElseWithTheAsyncFactoryAndAsyncMapOnTheSyncResult()
     {
-        var result = context.Get<Result<int, string>>();
+        var result = context.Subject<Result<int, string>>();
 
         var factory =
-            context.Get<Func<string, Task<string>>>(
-                Constants.AsyncErrorDelegate);
+            context.Slot<Func<string, Task<string>>>(SpecContext.AsyncErrorSlot);
 
         var map =
-            context.Get<Func<int, Task<string>>>(Constants.AsyncOkDelegate);
+            context.Slot<Func<int, Task<string>>>(SpecContext.AsyncOkSlot);
 
         string output = await result.MapOrElseAsync(factory, map);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -35,19 +34,18 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheAsyncFactoryAndAsyncMapOnTheAsyncResult()
     {
-        var taskResult = context.Get<Task<Result<int, string>>>();
+        var taskResult = context.Subject<Task<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, Task<string>>>(
-                Constants.AsyncErrorDelegate);
+            context.Slot<Func<string, Task<string>>>(SpecContext.AsyncErrorSlot);
 
         var map =
-            context.Get<Func<int, Task<string>>>(Constants.AsyncOkDelegate);
+            context.Slot<Func<int, Task<string>>>(SpecContext.AsyncOkSlot);
 
         string output = await taskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -55,18 +53,18 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheSyncFactoryAndAsyncMapOnTheAsyncResult()
     {
-        var taskResult = context.Get<Task<Result<int, string>>>();
+        var taskResult = context.Subject<Task<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, string>>(Constants.SyncErrorDelegate);
+            context.Slot<Func<string, string>>(SpecContext.SyncErrorSlot);
 
         var map =
-            context.Get<Func<int, Task<string>>>(Constants.AsyncOkDelegate);
+            context.Slot<Func<int, Task<string>>>(SpecContext.AsyncOkSlot);
 
         string output = await taskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -74,19 +72,18 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheAsyncFactoryAndSyncMapOnTheAsyncResult()
     {
-        var taskResult = context.Get<Task<Result<int, string>>>();
+        var taskResult = context.Subject<Task<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, Task<string>>>(
-                Constants.AsyncErrorDelegate);
+            context.Slot<Func<string, Task<string>>>(SpecContext.AsyncErrorSlot);
 
         var map =
-            context.Get<Func<int, string>>(Constants.SyncOkDelegate);
+            context.Slot<Func<int, string>>(SpecContext.SyncOkSlot);
 
         string output = await taskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -94,18 +91,18 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheSyncFactoryAndSyncMapOnTheAsyncResult()
     {
-        var taskResult = context.Get<Task<Result<int, string>>>();
+        var taskResult = context.Subject<Task<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, string>>(Constants.SyncErrorDelegate);
+            context.Slot<Func<string, string>>(SpecContext.SyncErrorSlot);
 
         var map =
-            context.Get<Func<int, string>>(Constants.SyncOkDelegate);
+            context.Slot<Func<int, string>>(SpecContext.SyncOkSlot);
 
         string output = await taskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -113,19 +110,18 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheAsyncFactoryAndAsyncMapOnTheValueTaskResult()
     {
-        var valueTaskResult = context.Get<ValueTask<Result<int, string>>>();
+        var valueTaskResult = context.Subject<ValueTask<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, Task<string>>>(
-                Constants.AsyncErrorDelegate);
+            context.Slot<Func<string, Task<string>>>(SpecContext.AsyncErrorSlot);
 
         var map =
-            context.Get<Func<int, Task<string>>>(Constants.AsyncOkDelegate);
+            context.Slot<Func<int, Task<string>>>(SpecContext.AsyncOkSlot);
 
         string output = await valueTaskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -133,18 +129,18 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheSyncFactoryAndSyncMapOnTheValueTaskResult()
     {
-        var valueTaskResult = context.Get<ValueTask<Result<int, string>>>();
+        var valueTaskResult = context.Subject<ValueTask<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, string>>(Constants.SyncErrorDelegate);
+            context.Slot<Func<string, string>>(SpecContext.SyncErrorSlot);
 
         var map =
-            context.Get<Func<int, string>>(Constants.SyncOkDelegate);
+            context.Slot<Func<int, string>>(SpecContext.SyncOkSlot);
 
         string output = await valueTaskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -152,19 +148,18 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheAsyncFactoryAndSyncMapOnTheValueTaskResult()
     {
-        var valueTaskResult = context.Get<ValueTask<Result<int, string>>>();
+        var valueTaskResult = context.Subject<ValueTask<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, Task<string>>>(
-                Constants.AsyncErrorDelegate);
+            context.Slot<Func<string, Task<string>>>(SpecContext.AsyncErrorSlot);
 
         var map =
-            context.Get<Func<int, string>>(Constants.SyncOkDelegate);
+            context.Slot<Func<int, string>>(SpecContext.SyncOkSlot);
 
         string output = await valueTaskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 
     [When(
@@ -172,17 +167,17 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     public async Task
         WhenInvokingMapOrElseWithTheSyncFactoryAndAsyncMapOnTheValueTaskResult()
     {
-        var valueTaskResult = context.Get<ValueTask<Result<int, string>>>();
+        var valueTaskResult = context.Subject<ValueTask<Result<int, string>>>();
 
         var factory =
-            context.Get<Func<string, string>>(Constants.SyncErrorDelegate);
+            context.Slot<Func<string, string>>(SpecContext.SyncErrorSlot);
 
         var map =
-            context.Get<Func<int, Task<string>>>(Constants.AsyncOkDelegate);
+            context.Slot<Func<int, Task<string>>>(SpecContext.AsyncOkSlot);
 
         string output = await valueTaskResult.MapOrElseAsync(factory, map)
            .ConfigureAwait(false);
 
-        context.Set(output, Constants.ResultKey);
+        context.SetOutcome(output);
     }
 }

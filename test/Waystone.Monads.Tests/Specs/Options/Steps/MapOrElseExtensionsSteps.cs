@@ -9,32 +9,28 @@ using Waystone.Monads.Options.Extensions;
 using Waystone.Monads.Options;
 
 [Binding, TestSubject(typeof(MapOrElseExtensions))]
-public class MapOrElseExtensionsSteps(ScenarioContext context)
+public class MapOrElseExtensionsSteps(SpecContext context)
 {
     [Given("async Else returns {string}")]
     public void GivenAsyncElseReturnsString(string fallback)
     {
-        context.Set<Func<Task<string>>>(
-            async () =>
+        context.SetSlot<Func<Task<string>>>(async () =>
             {
                 await Task.Yield();
 
                 return fallback;
-            },
-            Constants.ElseKey);
+            }, SpecContext.ElseSlot);
     }
 
     [Given("async Map returns {string} + value")]
     public void GivenAsyncMapReturnsStringValue(string mapped)
     {
-        context.Set<Func<int, Task<string>>>(
-            async value =>
+        context.SetSlot<Func<int, Task<string>>>(async value =>
             {
                 await Task.Yield();
 
                 return mapped + value;
-            },
-            Constants.MapKey);
+            }, SpecContext.MapSlot);
     }
 
     [When("MapOrElse Task is invoked with {string} Else and {string} Map")]
@@ -46,62 +42,62 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
         {
             case ("async", "async"):
             {
-                var optionTask = context.Get<Task<Option<int>>>();
+                var optionTask = context.Subject<Task<Option<int>>>();
 
                 var elseFunc =
-                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+                    context.Slot<Func<Task<string>>>(SpecContext.ElseSlot);
 
                 var mapFunc =
-                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
+                    context.Slot<Func<int, Task<string>>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case ("sync", "sync"):
             {
-                var optionTask = context.Get<Task<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
-                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
+                var optionTask = context.Subject<Task<Option<int>>>();
+                var elseFunc = context.Slot<Func<string>>(SpecContext.ElseSlot);
+                var mapFunc = context.Slot<Func<int, string>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case ("async", "sync"):
             {
-                var optionTask = context.Get<Task<Option<int>>>();
+                var optionTask = context.Subject<Task<Option<int>>>();
 
                 var elseFunc =
-                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+                    context.Slot<Func<Task<string>>>(SpecContext.ElseSlot);
 
-                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
+                var mapFunc = context.Slot<Func<int, string>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case ("sync", "async"):
             {
-                var optionTask = context.Get<Task<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
+                var optionTask = context.Subject<Task<Option<int>>>();
+                var elseFunc = context.Slot<Func<string>>(SpecContext.ElseSlot);
 
                 var mapFunc =
-                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
+                    context.Slot<Func<int, Task<string>>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
@@ -114,15 +110,13 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
     [Given("sync Else returns {string}")]
     public void GivenSyncElseReturns(string syncFallback)
     {
-        context.Set<Func<string>>(() => syncFallback, Constants.ElseKey);
+        context.SetSlot<Func<string>>(() => syncFallback, SpecContext.ElseSlot);
     }
 
     [Given("sync Map returns {string} + value")]
     public void GivenSyncMapReturnsValue(string syncMapped)
     {
-        context.Set<Func<int, string>>(
-            value => syncMapped + value,
-            Constants.MapKey);
+        context.SetSlot<Func<int, string>>(value => syncMapped + value, SpecContext.MapSlot);
     }
 
     [When("MapOrElse ValueTask is invoked with {string} Else and {string} Map")]
@@ -134,62 +128,62 @@ public class MapOrElseExtensionsSteps(ScenarioContext context)
         {
             case ("async", "async"):
             {
-                var optionTask = context.Get<ValueTask<Option<int>>>();
+                var optionTask = context.Subject<ValueTask<Option<int>>>();
 
                 var elseFunc =
-                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+                    context.Slot<Func<Task<string>>>(SpecContext.ElseSlot);
 
                 var mapFunc =
-                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
+                    context.Slot<Func<int, Task<string>>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case ("sync", "sync"):
             {
-                var optionTask = context.Get<ValueTask<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
-                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
+                var optionTask = context.Subject<ValueTask<Option<int>>>();
+                var elseFunc = context.Slot<Func<string>>(SpecContext.ElseSlot);
+                var mapFunc = context.Slot<Func<int, string>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case ("async", "sync"):
             {
-                var optionTask = context.Get<ValueTask<Option<int>>>();
+                var optionTask = context.Subject<ValueTask<Option<int>>>();
 
                 var elseFunc =
-                    context.Get<Func<Task<string>>>(Constants.ElseKey);
+                    context.Slot<Func<Task<string>>>(SpecContext.ElseSlot);
 
-                var mapFunc = context.Get<Func<int, string>>(Constants.MapKey);
+                var mapFunc = context.Slot<Func<int, string>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }
             case ("sync", "async"):
             {
-                var optionTask = context.Get<ValueTask<Option<int>>>();
-                var elseFunc = context.Get<Func<string>>(Constants.ElseKey);
+                var optionTask = context.Subject<ValueTask<Option<int>>>();
+                var elseFunc = context.Slot<Func<string>>(SpecContext.ElseSlot);
 
                 var mapFunc =
-                    context.Get<Func<int, Task<string>>>(Constants.MapKey);
+                    context.Slot<Func<int, Task<string>>>(SpecContext.MapSlot);
 
                 string result =
                     await optionTask.MapOrElseAsync(elseFunc, mapFunc);
 
-                context.Set(result, Constants.ResultKey);
+                context.SetOutcome(result);
 
                 break;
             }

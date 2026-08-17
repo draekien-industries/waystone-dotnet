@@ -12,26 +12,26 @@ using Waystone.Monads.Results.Extensions;
 using Waystone.Monads.Results;
 
 [Binding]
-public sealed class DelegateSteps(ScenarioContext context)
+public sealed class DelegateSteps(SpecContext context)
 {
     [Given("an async delegate")]
     public void GivenAnAsyncDelegate()
     {
         var asyncDelegate = Substitute.For<Func<int, Task>>();
-        context.Set(asyncDelegate);
+        context.SetSubject(asyncDelegate);
     }
 
     [Then("the async delegate should be invoked with value {int}")]
     public void ThenTheAsyncDelegateShouldBeInvokedWithValue(int value)
     {
-        var asyncDelegate = context.Get<Func<int, Task>>();
+        var asyncDelegate = context.Subject<Func<int, Task>>();
         asyncDelegate.Received(1).Invoke(value);
     }
 
     [Then("the async delegate should not be invoked")]
     public void ThenTheAsyncDelegateShouldNotBeInvoked()
     {
-        var asyncDelegate = context.Get<Func<int, Task>>();
+        var asyncDelegate = context.Subject<Func<int, Task>>();
         asyncDelegate.DidNotReceive().Invoke(Arg.Any<int>());
     }
 
@@ -39,20 +39,20 @@ public sealed class DelegateSteps(ScenarioContext context)
     public void GivenASynchronousDelegate()
     {
         var syncDelegate = Substitute.For<Action<int>>();
-        context.Set(syncDelegate);
+        context.SetSubject(syncDelegate);
     }
 
     [Then("the synchronous delegate should be invoked with value {int}")]
     public void ThenTheSynchronousDelegateShouldBeInvokedWithValue(int value)
     {
-        var syncDelegate = context.Get<Action<int>>();
+        var syncDelegate = context.Subject<Action<int>>();
         syncDelegate.Received(1).Invoke(value);
     }
 
     [Then("the synchronous delegate should not be invoked")]
     public void ThenTheSynchronousDelegateShouldNotBeInvoked()
     {
-        var syncDelegate = context.Get<Action<int>>();
+        var syncDelegate = context.Subject<Action<int>>();
         syncDelegate.DidNotReceive().Invoke(Arg.Any<int>());
     }
 
@@ -61,7 +61,7 @@ public sealed class DelegateSteps(ScenarioContext context)
     {
         var asyncErrDelegate = Substitute.For<Func<Task<string>>>();
         asyncErrDelegate.Invoke().Returns(Task.FromResult(value));
-        context.Set(asyncErrDelegate, Constants.AsyncErrorDelegate);
+        context.SetSlot(asyncErrDelegate, SpecContext.AsyncErrorSlot);
     }
 
     [Given("a synchronous Error delegate that returns {string}")]
@@ -69,7 +69,7 @@ public sealed class DelegateSteps(ScenarioContext context)
     {
         var syncErrDelegate = Substitute.For<Func<string>>();
         syncErrDelegate.Invoke().Returns(value);
-        context.Set(syncErrDelegate, Constants.SyncErrorDelegate);
+        context.SetSlot(syncErrDelegate, SpecContext.SyncErrorSlot);
     }
 
     [Given("an async delegate that returns an OK result with value {int}")]
@@ -80,7 +80,7 @@ public sealed class DelegateSteps(ScenarioContext context)
         func.Invoke(Arg.Any<int>())
            .Returns(Task.FromResult(Result.Ok<int, string>(value)));
 
-        context.Set(func, Constants.AsyncOkDelegate);
+        context.SetSlot(func, SpecContext.AsyncOkSlot);
     }
 
     [Given(
@@ -93,7 +93,7 @@ public sealed class DelegateSteps(ScenarioContext context)
         func.Invoke(Arg.Any<int>())
            .Returns(Task.FromResult(Result.Err<int, string>(message)));
 
-        context.Set(func, Constants.AsyncErrorDelegate);
+        context.SetSlot(func, SpecContext.AsyncErrorSlot);
     }
 
     [Given("a sync delegate that returns an OK result with value {int}")]
@@ -104,7 +104,7 @@ public sealed class DelegateSteps(ScenarioContext context)
         func.Invoke(Arg.Any<int>())
            .Returns(Result.Ok<int, string>(value));
 
-        context.Set(func, Constants.SyncOkDelegate);
+        context.SetSlot(func, SpecContext.SyncOkSlot);
     }
 
     [Given(
@@ -116,13 +116,13 @@ public sealed class DelegateSteps(ScenarioContext context)
         func.Invoke(Arg.Any<int>())
            .Returns(Result.Err<int, string>(message));
 
-        context.Set(func, Constants.SyncErrorDelegate);
+        context.SetSlot(func, SpecContext.SyncErrorSlot);
     }
 
     [Then("the async delegate should not have been invoked")]
     public void ThenTheAsyncDelegateShouldNotHaveBeenInvoked()
     {
-        var func = context.Get<Func<string, Task>>();
+        var func = context.Subject<Func<string, Task>>();
 
         func.DidNotReceive().Invoke(Arg.Any<string>());
     }
@@ -132,7 +132,7 @@ public sealed class DelegateSteps(ScenarioContext context)
     public void ThenTheAsyncDelegateShouldHaveBeenInvokedOnceWithMessage(
         string message)
     {
-        var func = context.Get<Func<string, Task>>();
+        var func = context.Subject<Func<string, Task>>();
 
         func.Received(1).Invoke(message);
     }
@@ -141,7 +141,7 @@ public sealed class DelegateSteps(ScenarioContext context)
     public void GivenAnAsyncDelegateForStringReturningTask()
     {
         var asyncDelegate = Substitute.For<Func<string, Task>>();
-        context.Set(asyncDelegate);
+        context.SetSubject(asyncDelegate);
     }
 
     [Given("an async factory that returns {string}")]
@@ -152,7 +152,7 @@ public sealed class DelegateSteps(ScenarioContext context)
         asyncFactory.Invoke(Arg.Any<string>())
            .Returns(Task.FromResult(missing));
 
-        context.Set(asyncFactory, Constants.AsyncErrorDelegate);
+        context.SetSlot(asyncFactory, SpecContext.AsyncErrorSlot);
     }
 
     [Given("an async map that converts the value into a string")]
@@ -168,7 +168,7 @@ public sealed class DelegateSteps(ScenarioContext context)
                 return Task.FromResult(value.ToString());
             });
 
-        context.Set(asyncMap, Constants.AsyncOkDelegate);
+        context.SetSlot(asyncMap, SpecContext.AsyncOkSlot);
     }
 
     [Given("a sync factory that returns {string}")]
@@ -178,7 +178,7 @@ public sealed class DelegateSteps(ScenarioContext context)
 
         syncFactory.Invoke(Arg.Any<string>()).Returns(value);
 
-        context.Set(syncFactory, Constants.SyncErrorDelegate);
+        context.SetSlot(syncFactory, SpecContext.SyncErrorSlot);
     }
 
     [Given("a sync map that converts the value into a string")]
@@ -194,7 +194,7 @@ public sealed class DelegateSteps(ScenarioContext context)
                 return value.ToString();
             });
 
-        context.Set(syncMap, Constants.SyncOkDelegate);
+        context.SetSlot(syncMap, SpecContext.SyncOkSlot);
     }
 
     [Given("an {string} {string} handler that returns no value")]
@@ -206,7 +206,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             {
                 var asyncOkHandler = Substitute.For<Func<int, Task>>();
 
-                context.Set(asyncOkHandler, Constants.AsyncOkDelegate);
+                context.SetSlot(asyncOkHandler, SpecContext.AsyncOkSlot);
 
                 break;
             }
@@ -214,7 +214,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             {
                 var asyncErrHandler = Substitute.For<Func<string, Task>>();
 
-                context.Set(asyncErrHandler, Constants.AsyncErrorDelegate);
+                context.SetSlot(asyncErrHandler, SpecContext.AsyncErrorSlot);
 
                 break;
             }
@@ -222,7 +222,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             {
                 var syncOkHandler = Substitute.For<Action<int>>();
 
-                context.Set(syncOkHandler, Constants.SyncOkDelegate);
+                context.SetSlot(syncOkHandler, SpecContext.SyncOkSlot);
 
                 break;
             }
@@ -230,7 +230,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             {
                 var syncErrHandler = Substitute.For<Action<string>>();
 
-                context.Set(syncErrHandler, Constants.SyncErrorDelegate);
+                context.SetSlot(syncErrHandler, SpecContext.SyncErrorSlot);
 
                 break;
             }
@@ -252,7 +252,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "async" when handler == "Ok":
             {
                 var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+                    context.Slot<Func<int, Task>>(SpecContext.AsyncOkSlot);
 
                 asyncOkHandler.Received(1).Invoke(value);
 
@@ -261,7 +261,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "sync" when handler == "Ok":
             {
                 var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+                    context.Slot<Action<int>>(SpecContext.SyncOkSlot);
 
                 syncOkHandler.Received(1).Invoke(value);
 
@@ -283,7 +283,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "async" when handler == "Ok":
             {
                 var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+                    context.Slot<Func<int, Task>>(SpecContext.AsyncOkSlot);
 
                 asyncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
 
@@ -292,7 +292,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "sync" when handler == "Ok":
             {
                 var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+                    context.Slot<Action<int>>(SpecContext.SyncOkSlot);
 
                 syncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
 
@@ -301,8 +301,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "async" when handler == "Error":
             {
                 var asyncErrHandler =
-                    context.Get<Func<string, Task>>(
-                        Constants.AsyncErrorDelegate);
+                    context.Slot<Func<string, Task>>(SpecContext.AsyncErrorSlot);
 
                 asyncErrHandler.DidNotReceive().Invoke(Arg.Any<string>());
 
@@ -311,7 +310,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "sync" when handler == "Error":
             {
                 var syncErrHandler =
-                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
+                    context.Slot<Action<string>>(SpecContext.SyncErrorSlot);
 
                 syncErrHandler.DidNotReceive().Invoke(Arg.Any<string>());
 
@@ -335,8 +334,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "async" when handler == "Error":
             {
                 var asyncErrHandler =
-                    context.Get<Func<string, Task>>(
-                        Constants.AsyncErrorDelegate);
+                    context.Slot<Func<string, Task>>(SpecContext.AsyncErrorSlot);
 
                 asyncErrHandler.Received(1).Invoke(value);
 
@@ -345,7 +343,7 @@ public sealed class DelegateSteps(ScenarioContext context)
             case "sync" when handler == "Error":
             {
                 var syncErrHandler =
-                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
+                    context.Slot<Action<string>>(SpecContext.SyncErrorSlot);
 
                 syncErrHandler.Received(1).Invoke(value);
 

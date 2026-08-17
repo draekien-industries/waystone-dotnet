@@ -9,7 +9,7 @@ using Waystone.Monads.Results.Extensions;
 using Waystone.Monads.Results;
 
 [Binding]
-public class MatchExtensionsSteps(ScenarioContext context)
+public class MatchExtensionsSteps(SpecContext context)
 {
     [When(
         "invoking MatchAsync with the {string} OK handler and {string} Error handler on the result {string}")]
@@ -23,14 +23,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
         {
             case "Task" when okHandler == "async" && errHandler == "async":
             {
-                var taskResult = context.Get<Task<Result<int, string>>>();
+                var taskResult = context.Subject<Task<Result<int, string>>>();
 
                 var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+                    context.Slot<Func<int, Task>>(SpecContext.AsyncOkSlot);
 
                 var asyncErrHandler =
-                    context.Get<Func<string, Task>>(
-                        Constants.AsyncErrorDelegate);
+                    context.Slot<Func<string, Task>>(SpecContext.AsyncErrorSlot);
 
                 await taskResult.MatchAsync(asyncOkHandler, asyncErrHandler)
                    .ConfigureAwait(false);
@@ -39,13 +38,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
             }
             case "Task" when okHandler == "async" && errHandler == "sync":
             {
-                var taskResult = context.Get<Task<Result<int, string>>>();
+                var taskResult = context.Subject<Task<Result<int, string>>>();
 
                 var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+                    context.Slot<Func<int, Task>>(SpecContext.AsyncOkSlot);
 
                 var syncErrHandler =
-                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
+                    context.Slot<Action<string>>(SpecContext.SyncErrorSlot);
 
                 await taskResult.MatchAsync(asyncOkHandler, syncErrHandler)
                    .ConfigureAwait(false);
@@ -54,14 +53,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
             }
             case "Task" when okHandler == "sync" && errHandler == "async":
             {
-                var taskResult = context.Get<Task<Result<int, string>>>();
+                var taskResult = context.Subject<Task<Result<int, string>>>();
 
                 var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+                    context.Slot<Action<int>>(SpecContext.SyncOkSlot);
 
                 var asyncErrHandler =
-                    context.Get<Func<string, Task>>(
-                        Constants.AsyncErrorDelegate);
+                    context.Slot<Func<string, Task>>(SpecContext.AsyncErrorSlot);
 
                 await taskResult.MatchAsync(syncOkHandler, asyncErrHandler)
                    .ConfigureAwait(false);
@@ -70,13 +68,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
             }
             case "Task" when okHandler == "sync" && errHandler == "sync":
             {
-                var taskResult = context.Get<Task<Result<int, string>>>();
+                var taskResult = context.Subject<Task<Result<int, string>>>();
 
                 var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+                    context.Slot<Action<int>>(SpecContext.SyncOkSlot);
 
                 var syncErrHandler =
-                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
+                    context.Slot<Action<string>>(SpecContext.SyncErrorSlot);
 
                 await taskResult.MatchAsync(syncOkHandler, syncErrHandler)
                    .ConfigureAwait(false);
@@ -85,14 +83,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
             }
             case "ValueTask" when okHandler == "async" && errHandler == "async":
             {
-                var taskResult = context.Get<ValueTask<Result<int, string>>>();
+                var taskResult = context.Subject<ValueTask<Result<int, string>>>();
 
                 var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+                    context.Slot<Func<int, Task>>(SpecContext.AsyncOkSlot);
 
                 var asyncErrHandler =
-                    context.Get<Func<string, Task>>(
-                        Constants.AsyncErrorDelegate);
+                    context.Slot<Func<string, Task>>(SpecContext.AsyncErrorSlot);
 
                 await taskResult.MatchAsync(asyncOkHandler, asyncErrHandler)
                    .ConfigureAwait(false);
@@ -101,13 +98,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
             }
             case "ValueTask" when okHandler == "async" && errHandler == "sync":
             {
-                var taskResult = context.Get<ValueTask<Result<int, string>>>();
+                var taskResult = context.Subject<ValueTask<Result<int, string>>>();
 
                 var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+                    context.Slot<Func<int, Task>>(SpecContext.AsyncOkSlot);
 
                 var syncErrHandler =
-                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
+                    context.Slot<Action<string>>(SpecContext.SyncErrorSlot);
 
                 await taskResult.MatchAsync(asyncOkHandler, syncErrHandler)
                    .ConfigureAwait(false);
@@ -116,14 +113,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
             }
             case "ValueTask" when okHandler == "sync" && errHandler == "async":
             {
-                var taskResult = context.Get<ValueTask<Result<int, string>>>();
+                var taskResult = context.Subject<ValueTask<Result<int, string>>>();
 
                 var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+                    context.Slot<Action<int>>(SpecContext.SyncOkSlot);
 
                 var asyncErrHandler =
-                    context.Get<Func<string, Task>>(
-                        Constants.AsyncErrorDelegate);
+                    context.Slot<Func<string, Task>>(SpecContext.AsyncErrorSlot);
 
                 await taskResult.MatchAsync(syncOkHandler, asyncErrHandler)
                    .ConfigureAwait(false);
@@ -133,13 +129,13 @@ public class MatchExtensionsSteps(ScenarioContext context)
             case "ValueTask" when okHandler == "sync" && errHandler == "sync":
             {
                 var taskResult =
-                    context.Get<ValueTask<Result<int, string>>>();
+                    context.Subject<ValueTask<Result<int, string>>>();
 
                 var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+                    context.Slot<Action<int>>(SpecContext.SyncOkSlot);
 
                 var syncErrHandler =
-                    context.Get<Action<string>>(Constants.SyncErrorDelegate);
+                    context.Slot<Action<string>>(SpecContext.SyncErrorSlot);
 
                 await taskResult.MatchAsync(syncOkHandler, syncErrHandler)
                    .ConfigureAwait(false);
