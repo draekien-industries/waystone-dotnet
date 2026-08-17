@@ -135,15 +135,19 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Unwrap on Task Some Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="Unwrap on a Some <receiver> Option returns the value")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Unwrap on Task Some Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOnTaskSomeOption()
+        [global::Xunit.TraitAttribute("Description", "Unwrap on a Some <receiver> Option returns the value")]
+        [global::Xunit.InlineDataAttribute("Task", "10", "0", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "20", "1", new string[0])]
+        public async global::System.Threading.Tasks.Task UnwrapOnASomeReceiverOptionReturnsTheValue(string receiver, string value, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Unwrap on Task Some Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            argumentsOfScenario.Add("value", value);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Unwrap on a Some <receiver> Option returns the value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 4
@@ -157,33 +161,36 @@ namespace Waystone.Monads.Specs.Options.Features
             {
                 await this.ScenarioStartAsync();
 #line 5
-        await testRunner.GivenAsync("Option is Some with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.GivenAsync(string.Format("Option is Some with value {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 7
-        await testRunner.WhenAsync("unwrapping the Task Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync(string.Format("unwrapping the {0} Option", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 8
-        await testRunner.ThenAsync("the unwrapped Option value should be 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync(string.Format("the unwrapped Option value should be {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Unwrap on ValueTask Some Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="Unwrap on a None <receiver> Option throws")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Unwrap on ValueTask Some Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOnValueTaskSomeOption()
+        [global::Xunit.TraitAttribute("Description", "Unwrap on a None <receiver> Option throws")]
+        [global::Xunit.InlineDataAttribute("Task", "2", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "3", new string[0])]
+        public async global::System.Threading.Tasks.Task UnwrapOnANoneReceiverOptionThrows(string receiver, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "1";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Unwrap on ValueTask Some Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Unwrap on a None <receiver> Option throws", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 10
+#line 15
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -193,108 +200,38 @@ namespace Waystone.Monads.Specs.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 11
-        await testRunner.GivenAsync("Option is Some with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 12
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 13
-        await testRunner.WhenAsync("unwrapping the ValueTask Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 14
-        await testRunner.ThenAsync("the unwrapped Option value should be 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Unwrap on Task None Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Unwrap on Task None Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOnTaskNoneOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "2";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Unwrap on Task None Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
 #line 16
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 17
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 17
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 18
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.WhenAsync(string.Format("unwrapping the {0} Option", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 19
-        await testRunner.WhenAsync("unwrapping the Task Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 20
         await testRunner.ThenAsync("an Option UnwrapException should be thrown", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Unwrap on ValueTask None Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="UnwrapOr on a Some <receiver> Option ignores the default")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Unwrap on ValueTask None Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOnValueTaskNoneOption()
+        [global::Xunit.TraitAttribute("Description", "UnwrapOr on a Some <receiver> Option ignores the default")]
+        [global::Xunit.InlineDataAttribute("Task", "10", "4", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "30", "5", new string[0])]
+        public async global::System.Threading.Tasks.Task UnwrapOrOnASomeReceiverOptionIgnoresTheDefault(string receiver, string value, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "3";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Unwrap on ValueTask None Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            argumentsOfScenario.Add("value", value);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOr on a Some <receiver> Option ignores the default", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 22
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 23
-        await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 24
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 25
-        await testRunner.WhenAsync("unwrapping the ValueTask Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 26
-        await testRunner.ThenAsync("an Option UnwrapException should be thrown", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOr on Task Some Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOr on Task Some Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrOnTaskSomeOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "4";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOr on Task Some Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 28
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -304,34 +241,37 @@ namespace Waystone.Monads.Specs.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
+#line 27
+        await testRunner.GivenAsync(string.Format("Option is Some with value {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 28
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
 #line 29
-        await testRunner.GivenAsync("Option is Some with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.WhenAsync(string.Format("unwrapping the {0} Option with a default of 99", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 30
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 31
-        await testRunner.WhenAsync("unwrapping the Task Option with a default of 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 32
-        await testRunner.ThenAsync("the unwrapped Option value should be 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync(string.Format("the unwrapped Option value should be {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOr on Task None Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="UnwrapOr on a None <receiver> Option returns the default")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOr on Task None Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrOnTaskNoneOption()
+        [global::Xunit.TraitAttribute("Description", "UnwrapOr on a None <receiver> Option returns the default")]
+        [global::Xunit.InlineDataAttribute("Task", "6", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "7", new string[0])]
+        public async global::System.Threading.Tasks.Task UnwrapOrOnANoneReceiverOptionReturnsTheDefault(string receiver, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "5";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOr on Task None Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOr on a None <receiver> Option returns the default", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 34
+#line 37
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -341,145 +281,78 @@ namespace Waystone.Monads.Specs.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 35
+#line 38
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 36
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line 39
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 37
-        await testRunner.WhenAsync("unwrapping the Task Option with a default of 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line 40
+        await testRunner.WhenAsync(string.Format("unwrapping the {0} Option with a default of 99", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 38
+#line 41
         await testRunner.ThenAsync("the unwrapped Option value should be 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOr on ValueTask Some Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="UnwrapOrDefault on a Some <receiver> Option returns the value")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOr on ValueTask Some Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrOnValueTaskSomeOption()
+        [global::Xunit.TraitAttribute("Description", "UnwrapOrDefault on a Some <receiver> Option returns the value")]
+        [global::Xunit.InlineDataAttribute("Task", "10", "8", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "40", "9", new string[0])]
+        public async global::System.Threading.Tasks.Task UnwrapOrDefaultOnASomeReceiverOptionReturnsTheValue(string receiver, string value, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "6";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOr on ValueTask Some Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            argumentsOfScenario.Add("value", value);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOrDefault on a Some <receiver> Option returns the value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 40
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 41
-        await testRunner.GivenAsync("Option is Some with value 30", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 42
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 43
-        await testRunner.WhenAsync("unwrapping the ValueTask Option with a default of 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 44
-        await testRunner.ThenAsync("the unwrapped Option value should be 30", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOr on ValueTask None Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOr on ValueTask None Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrOnValueTaskNoneOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "7";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOr on ValueTask None Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 46
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 47
-        await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
 #line 48
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
 #line 49
-        await testRunner.WhenAsync("unwrapping the ValueTask Option with a default of 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.GivenAsync(string.Format("Option is Some with value {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 50
-        await testRunner.ThenAsync("the unwrapped Option value should be 99", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOrDefault on Task Some Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOrDefault on Task Some Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrDefaultOnTaskSomeOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "8";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOrDefault on Task Some Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 51
+        await testRunner.WhenAsync(string.Format("unwrapping the {0} Option or its default", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
 #line 52
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 53
-        await testRunner.GivenAsync("Option is Some with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 54
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 55
-        await testRunner.WhenAsync("unwrapping the Task Option or its default", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 56
-        await testRunner.ThenAsync("the unwrapped Option value should be 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync(string.Format("the unwrapped Option value should be {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOrDefault on Task None Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="UnwrapOrDefault on a None <receiver> Option returns the type default")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOrDefault on Task None Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrDefaultOnTaskNoneOption()
+        [global::Xunit.TraitAttribute("Description", "UnwrapOrDefault on a None <receiver> Option returns the type default")]
+        [global::Xunit.InlineDataAttribute("Task", "10", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "11", new string[0])]
+        public async global::System.Threading.Tasks.Task UnwrapOrDefaultOnANoneReceiverOptionReturnsTheTypeDefault(string receiver, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "9";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOrDefault on Task None Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOrDefault on a None <receiver> Option returns the type default", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 58
+#line 59
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -489,90 +362,16 @@ namespace Waystone.Monads.Specs.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 59
-        await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
 #line 60
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 61
-        await testRunner.WhenAsync("unwrapping the Task Option or its default", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 62
-        await testRunner.ThenAsync("the unwrapped Option value should be 0", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.WhenAsync(string.Format("unwrapping the {0} Option or its default", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOrDefault on ValueTask Some Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOrDefault on ValueTask Some Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrDefaultOnValueTaskSomeOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "10";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOrDefault on ValueTask Some Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 64
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 65
-        await testRunner.GivenAsync("Option is Some with value 40", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 66
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 67
-        await testRunner.WhenAsync("unwrapping the ValueTask Option or its default", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 68
-        await testRunner.ThenAsync("the unwrapped Option value should be 40", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="UnwrapOrDefault on ValueTask None Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Unwrap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "UnwrapOrDefault on ValueTask None Option")]
-        public async global::System.Threading.Tasks.Task UnwrapOrDefaultOnValueTaskNoneOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "11";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("UnwrapOrDefault on ValueTask None Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 70
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 71
-        await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 72
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 73
-        await testRunner.WhenAsync("unwrapping the ValueTask Option or its default", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 74
+#line 63
         await testRunner.ThenAsync("the unwrapped Option value should be 0", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

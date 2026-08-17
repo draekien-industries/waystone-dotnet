@@ -1,74 +1,68 @@
-﻿@option
+@option
 Feature: Unwrap Extensions for Async Option
 
-    Scenario: Unwrap on Task Some Option
-        Given Option is Some with value 10
-        And Option is wrapped in a Task
-        When unwrapping the Task Option
-        Then the unwrapped Option value should be 10
+    Scenario Outline: Unwrap on a Some <receiver> Option returns the value
+        Given Option is Some with value <value>
+        And Option is wrapped in a <receiver>
+        When unwrapping the <receiver> Option
+        Then the unwrapped Option value should be <value>
 
-    Scenario: Unwrap on ValueTask Some Option
-        Given Option is Some with value 20
-        And Option is wrapped in a ValueTask
-        When unwrapping the ValueTask Option
-        Then the unwrapped Option value should be 20
+        Examples:
+            | receiver  | value |
+            | Task      | 10    |
+            | ValueTask | 20    |
 
-    Scenario: Unwrap on Task None Option
+    Scenario Outline: Unwrap on a None <receiver> Option throws
         Given Option is None
-        And Option is wrapped in a Task
-        When unwrapping the Task Option
+        And Option is wrapped in a <receiver>
+        When unwrapping the <receiver> Option
         Then an Option UnwrapException should be thrown
 
-    Scenario: Unwrap on ValueTask None Option
-        Given Option is None
-        And Option is wrapped in a ValueTask
-        When unwrapping the ValueTask Option
-        Then an Option UnwrapException should be thrown
+        Examples:
+            | receiver  |
+            | Task      |
+            | ValueTask |
 
-    Scenario: UnwrapOr on Task Some Option
-        Given Option is Some with value 10
-        And Option is wrapped in a Task
-        When unwrapping the Task Option with a default of 99
-        Then the unwrapped Option value should be 10
+    Scenario Outline: UnwrapOr on a Some <receiver> Option ignores the default
+        Given Option is Some with value <value>
+        And Option is wrapped in a <receiver>
+        When unwrapping the <receiver> Option with a default of 99
+        Then the unwrapped Option value should be <value>
 
-    Scenario: UnwrapOr on Task None Option
+        Examples:
+            | receiver  | value |
+            | Task      | 10    |
+            | ValueTask | 30    |
+
+    Scenario Outline: UnwrapOr on a None <receiver> Option returns the default
         Given Option is None
-        And Option is wrapped in a Task
-        When unwrapping the Task Option with a default of 99
+        And Option is wrapped in a <receiver>
+        When unwrapping the <receiver> Option with a default of 99
         Then the unwrapped Option value should be 99
 
-    Scenario: UnwrapOr on ValueTask Some Option
-        Given Option is Some with value 30
-        And Option is wrapped in a ValueTask
-        When unwrapping the ValueTask Option with a default of 99
-        Then the unwrapped Option value should be 30
+        Examples:
+            | receiver  |
+            | Task      |
+            | ValueTask |
 
-    Scenario: UnwrapOr on ValueTask None Option
+    Scenario Outline: UnwrapOrDefault on a Some <receiver> Option returns the value
+        Given Option is Some with value <value>
+        And Option is wrapped in a <receiver>
+        When unwrapping the <receiver> Option or its default
+        Then the unwrapped Option value should be <value>
+
+        Examples:
+            | receiver  | value |
+            | Task      | 10    |
+            | ValueTask | 40    |
+
+    Scenario Outline: UnwrapOrDefault on a None <receiver> Option returns the type default
         Given Option is None
-        And Option is wrapped in a ValueTask
-        When unwrapping the ValueTask Option with a default of 99
-        Then the unwrapped Option value should be 99
-
-    Scenario: UnwrapOrDefault on Task Some Option
-        Given Option is Some with value 10
-        And Option is wrapped in a Task
-        When unwrapping the Task Option or its default
-        Then the unwrapped Option value should be 10
-
-    Scenario: UnwrapOrDefault on Task None Option
-        Given Option is None
-        And Option is wrapped in a Task
-        When unwrapping the Task Option or its default
+        And Option is wrapped in a <receiver>
+        When unwrapping the <receiver> Option or its default
         Then the unwrapped Option value should be 0
 
-    Scenario: UnwrapOrDefault on ValueTask Some Option
-        Given Option is Some with value 40
-        And Option is wrapped in a ValueTask
-        When unwrapping the ValueTask Option or its default
-        Then the unwrapped Option value should be 40
-
-    Scenario: UnwrapOrDefault on ValueTask None Option
-        Given Option is None
-        And Option is wrapped in a ValueTask
-        When unwrapping the ValueTask Option or its default
-        Then the unwrapped Option value should be 0
+        Examples:
+            | receiver  |
+            | Task      |
+            | ValueTask |

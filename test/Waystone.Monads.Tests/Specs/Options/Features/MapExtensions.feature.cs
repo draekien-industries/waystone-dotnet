@@ -135,15 +135,23 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Map on Some Task Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="Map on a Some <receiver> Option applies the <variant> map")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Map Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Map on Some Task Option")]
-        public async global::System.Threading.Tasks.Task MapOnSomeTaskOption()
+        [global::Xunit.TraitAttribute("Description", "Map on a Some <receiver> Option applies the <variant> map")]
+        [global::Xunit.InlineDataAttribute("Task", "10", "async", "mapped", "mapped10", "0", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "20", "async", "value", "value20", "1", new string[0])]
+        [global::Xunit.InlineDataAttribute("Task", "30", "sync", "syncMapped", "syncMapped30", "2", new string[0])]
+        public async global::System.Threading.Tasks.Task MapOnASomeReceiverOptionAppliesTheVariantMap(string receiver, string value, string variant, string prefix, string expected, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map on Some Task Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            argumentsOfScenario.Add("value", value);
+            argumentsOfScenario.Add("variant", variant);
+            argumentsOfScenario.Add("prefix", prefix);
+            argumentsOfScenario.Add("expected", expected);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map on a Some <receiver> Option applies the <variant> map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 4
@@ -157,36 +165,39 @@ namespace Waystone.Monads.Specs.Options.Features
             {
                 await this.ScenarioStartAsync();
 #line 5
-        await testRunner.GivenAsync("Option is Some with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.GivenAsync(string.Format("Option is Some with value {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 7
-        await testRunner.AndAsync("async Map returns \"mapped\" + value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync(string.Format("{0} Map returns \"{1}\" + value", variant, prefix), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 8
-        await testRunner.WhenAsync("Option Task is invoked with \"async\" Map", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync(string.Format("Option {0} is invoked with \"{1}\" Map", receiver, variant), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 9
-        await testRunner.ThenAsync("the result Option should be Some with value \"mapped10\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync(string.Format("the result Option should be Some with value \"{0}\"", expected), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Map on None Task Option")]
+        [global::Xunit.TheoryAttribute(DisplayName="Map on a None <receiver> Option stays None without applying the map")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Map Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Map on None Task Option")]
-        public async global::System.Threading.Tasks.Task MapOnNoneTaskOption()
+        [global::Xunit.TraitAttribute("Description", "Map on a None <receiver> Option stays None without applying the map")]
+        [global::Xunit.InlineDataAttribute("Task", "3", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "4", new string[0])]
+        public async global::System.Threading.Tasks.Task MapOnANoneReceiverOptionStaysNoneWithoutApplyingTheMap(string receiver, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "1";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map on None Task Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map on a None <receiver> Option stays None without applying the map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 11
+#line 17
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -196,140 +207,20 @@ namespace Waystone.Monads.Specs.Options.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 12
+#line 18
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 13
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 14
-        await testRunner.AndAsync("async Map returns \"mapped\" + value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 15
-        await testRunner.WhenAsync("Option Task is invoked with \"async\" Map", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 16
-        await testRunner.ThenAsync("the result Option should be None of \"string\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Map on Some ValueTask Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Map Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Map on Some ValueTask Option")]
-        public async global::System.Threading.Tasks.Task MapOnSomeValueTaskOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "2";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map on Some ValueTask Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 18
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
 #line 19
-        await testRunner.GivenAsync("Option is Some with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 20
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync("async Map returns \"mapped\" + value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 21
-        await testRunner.AndAsync("async Map returns \"value\" + value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.WhenAsync(string.Format("Option {0} is invoked with \"async\" Map", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 22
-        await testRunner.WhenAsync("Option ValueTask is invoked with \"async\" Map", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 23
-        await testRunner.ThenAsync("the result Option should be Some with value \"value20\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Map on None ValueTask Option")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Map Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Map on None ValueTask Option")]
-        public async global::System.Threading.Tasks.Task MapOnNoneValueTaskOption()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "3";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map on None ValueTask Option", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 25
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 26
-        await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 27
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 28
-        await testRunner.AndAsync("async Map returns \"value\" + value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 29
-        await testRunner.WhenAsync("Option ValueTask is invoked with \"async\" Map", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 30
         await testRunner.ThenAsync("the result Option should be None of \"string\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Map on Some Task Option with sync map")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Map Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Map on Some Task Option with sync map")]
-        public async global::System.Threading.Tasks.Task MapOnSomeTaskOptionWithSyncMap()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "4";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Map on Some Task Option with sync map", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 32
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 33
-        await testRunner.GivenAsync("Option is Some with value 30", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 34
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 35
-        await testRunner.AndAsync("sync Map returns \"syncMapped\" + value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 36
-        await testRunner.WhenAsync("Option Task is invoked with \"sync\" Map", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 37
-        await testRunner.ThenAsync("the result Option should be Some with value \"syncMapped30\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

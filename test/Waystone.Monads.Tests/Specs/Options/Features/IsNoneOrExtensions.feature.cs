@@ -169,7 +169,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 9
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -209,7 +209,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 16
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -249,7 +249,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option Task with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 23
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -289,7 +289,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 30
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -329,7 +329,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 37
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -369,7 +369,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option ValueTask with async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 44
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -409,7 +409,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 51
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -449,7 +449,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 58
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -489,7 +489,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.WhenAsync("invoking IsNoneOr on Option Task with sync predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 65
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

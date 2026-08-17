@@ -15,12 +15,11 @@ public class IsNoneOrExtensionsSteps(ScenarioContext context)
         "invoking IsNoneOr on Option Task with sync predicate that returns {string}")]
     public async Task
         WhenInvokingIsNoneOrOnOptionTaskWithSyncPredicateThatReturnsString(
-            string predicateResult)
+            bool predicateResult)
     {
         var optionTask = context.Get<Task<Option<int>>>();
 
-        bool result = await optionTask.IsNoneOrAsync(_ =>
-            bool.Parse(predicateResult));
+        bool result = await optionTask.IsNoneOrAsync(_ => predicateResult);
 
         context.Set(result, Constants.ResultKey);
     }

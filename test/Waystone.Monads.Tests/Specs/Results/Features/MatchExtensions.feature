@@ -1,146 +1,42 @@
-﻿@result
+@result
 Feature: Match Extensions for Async Result
 
-    Scenario: Match on Task OK Result with async OK and async Error handlers
+    Scenario Outline: MatchAsync on an Ok <receiver> result calls the Ok handler
         Given an OK result with value 10
-        And the result is wrapped in a Task
-        And an "async" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "async" Error handler on the result "Task"
-        Then the "async" "Ok" handler should have been called with value 10
-        And the "async" "Error" handler should not have been called
+        And the result is wrapped in a <receiver>
+        And an "<okHandler>" "Ok" handler that returns no value
+        And an "<errHandler>" "Error" handler that returns no value
+        When invoking MatchAsync with the "<okHandler>" OK handler and "<errHandler>" Error handler on the result "<receiver>"
+        Then the "<okHandler>" "Ok" handler should have been called with value 10
+        And the "<errHandler>" "Error" handler should not have been called
 
-    Scenario: Match on Task OK Result with sync OK and async Error handlers
-        Given an OK result with value 10
-        And the result is wrapped in a Task
-        And an "sync" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "async" Error handler on the result "Task"
-        Then the "sync" "Ok" handler should have been called with value 10
-        And the "async" "Error" handler should not have been called
+        Examples:
+            | receiver  | okHandler | errHandler |
+            | Task      | async     | async      |
+            | Task      | async     | sync       |
+            | Task      | sync      | async      |
+            | Task      | sync      | sync       |
+            | ValueTask | async     | async      |
+            | ValueTask | async     | sync       |
+            | ValueTask | sync      | async      |
+            | ValueTask | sync      | sync       |
 
-    Scenario: Match on Task OK Result with async OK and sync Error handlers
-        Given an OK result with value 10
-        And the result is wrapped in a Task
-        And an "async" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "sync" Error handler on the result "Task"
-        Then the "async" "Ok" handler should have been called with value 10
-        And the "sync" "Error" handler should not have been called
-
-    Scenario: Match on Task OK Result with sync OK and sync Error handlers
-        Given an OK result with value 10
-        And the result is wrapped in a Task
-        And an "sync" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "sync" Error handler on the result "Task"
-        Then the "sync" "Ok" handler should have been called with value 10
-        And the "sync" "Error" handler should not have been called
-
-    Scenario: Match ok Task Error Result with async OK and async Error handlers
+    Scenario Outline: MatchAsync on an Error <receiver> result calls the Error handler
         Given an Error result with value "Error"
-        And the result is wrapped in a Task
-        And an "async" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "async" Error handler on the result "Task"
-        Then the "async" "Error" handler should have been called with value "Error"
-        And the "async" "Ok" handler should have not been called
+        And the result is wrapped in a <receiver>
+        And an "<okHandler>" "Ok" handler that returns no value
+        And an "<errHandler>" "Error" handler that returns no value
+        When invoking MatchAsync with the "<okHandler>" OK handler and "<errHandler>" Error handler on the result "<receiver>"
+        Then the "<errHandler>" "Error" handler should have been called with value "Error"
+        And the "<okHandler>" "Ok" handler should not have been called
 
-    Scenario: Match on Task Error with sync OK and async Error handlers
-        Given an Error result with value "Error"
-        And the result is wrapped in a Task
-        And an "sync" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "async" Error handler on the result "Task"
-        Then the "async" "Error" handler should have been called with value "Error"
-        And the "sync" "Ok" handler should have not been called
-
-    Scenario: Match on Task Error Result with async OK and sync Error handlers
-        Given an Error result with value "Error"
-        And the result is wrapped in a Task
-        And an "async" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "sync" Error handler on the result "Task"
-        Then the "sync" "Error" handler should have been called with value "Error"
-        And the "async" "Ok" handler should have not been called
-
-    Scenario: Match on Task Error with sync OK and sync Error handlers
-        Given an Error result with value "Error"
-        And the result is wrapped in a Task
-        And an "sync" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "sync" Error handler on the result "Task"
-        Then the "sync" "Error" handler should have been called with value "Error"
-        And the "sync" "Ok" handler should have not been called
-
-    Scenario: Match on ValueTask OK Result with async OK and async Error handlers
-        Given an OK result with value 10
-        And the result is wrapped in a ValueTask
-        And an "async" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "async" Error handler on the result "ValueTask"
-        Then the "async" "Ok" handler should have been called with value 10
-        And the "async" "Error" handler should not have been called
-
-    Scenario: Match on ValueTask OK Result with sync OK and async Error handlers
-        Given an OK result with value 10
-        And the result is wrapped in a ValueTask
-        And an "sync" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "async" Error handler on the result "ValueTask"
-        Then the "sync" "Ok" handler should have been called with value 10
-        And the "async" "Error" handler should not have been called
-
-    Scenario: Match on ValueTask OK Result with async OK and sync Error handlers
-        Given an OK result with value 10
-        And the result is wrapped in a ValueTask
-        And an "async" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "sync" Error handler on the result "ValueTask"
-        Then the "async" "Ok" handler should have been called with value 10
-        And the "sync" "Error" handler should not have been called
-
-    Scenario: Match on ValueTask OK Result with sync OK and sync Error handlers
-        Given an OK result with value 10
-        And the result is wrapped in a ValueTask
-        And an "sync" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "sync" Error handler on the result "ValueTask"
-        Then the "sync" "Ok" handler should have been called with value 10
-        And the "sync" "Error" handler should not have been called
-
-    Scenario: Match ok ValueTask Error Result with async OK and async Error handlers
-        Given an Error result with value "Error"
-        And the result is wrapped in a ValueTask
-        And an "async" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "async" Error handler on the result "ValueTask"
-        Then the "async" "Error" handler should have been called with value "Error"
-        And the "async" "Ok" handler should have not been called
-
-    Scenario: Match on ValueTask Error with sync OK and async Error handlers
-        Given an Error result with value "Error"
-        And the result is wrapped in a ValueTask
-        And an "sync" "Ok" handler that returns no value
-        And an "async" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "async" Error handler on the result "ValueTask"
-        Then the "async" "Error" handler should have been called with value "Error"
-        And the "sync" "Ok" handler should have not been called
-
-    Scenario: Match on ValueTask Error Result with async OK and sync Error handlers
-        Given an Error result with value "Error"
-        And the result is wrapped in a ValueTask
-        And an "async" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "async" OK handler and "sync" Error handler on the result "ValueTask"
-        Then the "sync" "Error" handler should have been called with value "Error"
-        And the "async" "Ok" handler should have not been called
-
-    Scenario: Match on ValueTask Error with sync OK and sync Error handlers
-        Given an Error result with value "Error"
-        And the result is wrapped in a ValueTask
-        And an "sync" "Ok" handler that returns no value
-        And an "sync" "Error" handler that returns no value
-        When invoking MatchAsync with the "sync" OK handler and "sync" Error handler on the result "ValueTask"
-        Then the "sync" "Error" handler should have been called with value "Error"
-        And the "sync" "Ok" handler should have not been called
+        Examples:
+            | receiver  | okHandler | errHandler |
+            | Task      | async     | async      |
+            | Task      | async     | sync       |
+            | Task      | sync      | async      |
+            | Task      | sync      | sync       |
+            | ValueTask | async     | async      |
+            | ValueTask | async     | sync       |
+            | ValueTask | sync      | async      |
+            | ValueTask | sync      | sync       |

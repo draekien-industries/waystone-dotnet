@@ -280,6 +280,24 @@ public sealed class DelegateSteps(ScenarioContext context)
     {
         switch (variant)
         {
+            case "async" when handler == "Ok":
+            {
+                var asyncOkHandler =
+                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
+
+                asyncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
+
+                break;
+            }
+            case "sync" when handler == "Ok":
+            {
+                var syncOkHandler =
+                    context.Get<Action<int>>(Constants.SyncOkDelegate);
+
+                syncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
+
+                break;
+            }
             case "async" when handler == "Error":
             {
                 var asyncErrHandler =
@@ -339,32 +357,4 @@ public sealed class DelegateSteps(ScenarioContext context)
         }
     }
 
-    [Then("the {string} {string} handler should have not been called")]
-    public void ThenTheHandlerShouldHaveNotBeenCalled(string variant, string handler)
-    {
-        switch (variant)
-        {
-            case "async" when handler == "Ok":
-            {
-                var asyncOkHandler =
-                    context.Get<Func<int, Task>>(Constants.AsyncOkDelegate);
-
-                asyncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
-
-                break;
-            }
-            case "sync" when handler == "Ok":
-            {
-                var syncOkHandler =
-                    context.Get<Action<int>>(Constants.SyncOkDelegate);
-
-                syncOkHandler.DidNotReceive().Invoke(Arg.Any<int>());
-
-                break;
-            }
-            default:
-                throw new NotImplementedException(
-                    "Handler not implemented: " + variant + " " + handler);
-        }
-    }
 }

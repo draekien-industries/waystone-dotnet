@@ -12,13 +12,13 @@ using Waystone.Monads.Options;
 public class FilterExtensionsSteps(ScenarioContext context)
 {
     [Given("an async predicate that returns {string} for int value")]
-    public void GivenAnAsyncPredicateThatReturnsBoolForIntValue(string result)
+    public void GivenAnAsyncPredicateThatReturnsBoolForIntValue(bool result)
     {
         var predicate = new Func<int, Task<bool>>(async _ =>
         {
             await Task.Yield();
 
-            return bool.Parse(result);
+            return result;
         });
 
         context.Set(predicate);
@@ -48,9 +48,9 @@ public class FilterExtensionsSteps(ScenarioContext context)
     }
 
     [Given("a sync predicate that returns {string} for int value")]
-    public void GivenASyncPredicateThatReturnsForIntValue(string result)
+    public void GivenASyncPredicateThatReturnsForIntValue(bool result)
     {
-        var predicate = new Func<int, bool>(_ => bool.Parse(result));
+        var predicate = new Func<int, bool>(_ => result);
 
         context.Set(predicate);
     }

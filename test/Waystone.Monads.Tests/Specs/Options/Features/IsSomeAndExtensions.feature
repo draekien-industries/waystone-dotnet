@@ -1,44 +1,28 @@
-﻿@option
+@option
 Feature: IsSomeAnd Extensions for Async Option
 
-    Scenario: Task Option IsSomeAnd when Some with async predicate returning "true"
-        Given Option is Some with value 15
-        And Option is wrapped in a Task
-        And an async predicate that returns "true" for int value
-        When invoking IsSomeAnd on Option Task with the async predicate
-        Then the result should be "true"
+    Scenario Outline: IsSomeAnd on a Some <receiver> Option returns the predicate result
+        Given Option is Some with value <value>
+        And Option is wrapped in a <receiver>
+        And an async predicate that returns "<predicate>" for int value
+        When invoking IsSomeAnd on Option <receiver> with the async predicate
+        Then the boolean result should be "<predicate>"
 
-    Scenario: Task Option IsSomeAnd when Some with async predicate returning "false"
-        Given Option is Some with value 25
-        And Option is wrapped in a Task
-        And an async predicate that returns "false" for int value
-        When invoking IsSomeAnd on Option Task with the async predicate
-        Then the result should be "false"
+        Examples:
+            | receiver  | value | predicate |
+            | Task      | 15    | true      |
+            | Task      | 25    | false     |
+            | ValueTask | 35    | true      |
+            | ValueTask | 45    | false     |
 
-    Scenario: Task Option IsSomeAnd when None with async predicate
+    Scenario Outline: IsSomeAnd on a None <receiver> Option is false without calling the predicate
         Given Option is None
-        And Option is wrapped in a Task
+        And Option is wrapped in a <receiver>
         And an async predicate that returns "true" for int value
-        When invoking IsSomeAnd on Option Task with the async predicate
-        Then the result should be "false"
+        When invoking IsSomeAnd on Option <receiver> with the async predicate
+        Then the boolean result should be "false"
 
-    Scenario: ValueTask Option IsSomeAnd when Some with async predicate returning "true"
-        Given Option is Some with value 35
-        And Option is wrapped in a ValueTask
-        And an async predicate that returns "true" for int value
-        When invoking IsSomeAnd on Option ValueTask with the async predicate
-        Then the result should be "true"
-
-    Scenario: ValueTask Option IsSomeAnd when Some with async predicate returning "false"
-        Given Option is Some with value 45
-        And Option is wrapped in a ValueTask
-        And an async predicate that returns "false" for int value
-        When invoking IsSomeAnd on Option ValueTask with the async predicate
-        Then the result should be "false"
-
-    Scenario: ValueTask Option IsSomeAnd when None with async predicate
-        Given Option is None
-        And Option is wrapped in a ValueTask
-        And an async predicate that returns "true" for int value
-        When invoking IsSomeAnd on Option ValueTask with the async predicate
-        Then the result should be "false"
+        Examples:
+            | receiver  |
+            | Task      |
+            | ValueTask |

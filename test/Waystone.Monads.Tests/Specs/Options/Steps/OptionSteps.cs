@@ -52,6 +52,13 @@ public sealed class OptionSteps(ScenarioContext context)
         result.Unwrap().ShouldBe(value);
     }
 
+    [Then("the boolean result should be {string}")]
+    public void ThenTheBooleanResultShouldBe(bool expected)
+    {
+        var result = context.Get<bool>(Constants.ResultKey);
+        result.ShouldBe(expected);
+    }
+
     [Then("the result Option should be None")]
     public void ThenTheResultOptionShouldBeNone()
     {

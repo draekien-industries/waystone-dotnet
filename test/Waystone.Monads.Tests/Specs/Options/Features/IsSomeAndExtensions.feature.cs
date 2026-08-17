@@ -135,15 +135,22 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Task Option IsSomeAnd when Some with async predicate returning \"true\"")]
+        [global::Xunit.TheoryAttribute(DisplayName="IsSomeAnd on a Some <receiver> Option returns the predicate result")]
         [global::Xunit.TraitAttribute("FeatureTitle", "IsSomeAnd Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Task Option IsSomeAnd when Some with async predicate returning \"true\"")]
-        public async global::System.Threading.Tasks.Task TaskOptionIsSomeAndWhenSomeWithAsyncPredicateReturningTrue()
+        [global::Xunit.TraitAttribute("Description", "IsSomeAnd on a Some <receiver> Option returns the predicate result")]
+        [global::Xunit.InlineDataAttribute("Task", "15", "true", "0", new string[0])]
+        [global::Xunit.InlineDataAttribute("Task", "25", "false", "1", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "35", "true", "2", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "45", "false", "3", new string[0])]
+        public async global::System.Threading.Tasks.Task IsSomeAndOnASomeReceiverOptionReturnsThePredicateResult(string receiver, string value, string predicate, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsSomeAnd when Some with async predicate returning \"true\"", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            argumentsOfScenario.Add("value", value);
+            argumentsOfScenario.Add("predicate", predicate);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("IsSomeAnd on a Some <receiver> Option returns the predicate result", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 4
@@ -157,73 +164,36 @@ namespace Waystone.Monads.Specs.Options.Features
             {
                 await this.ScenarioStartAsync();
 #line 5
-        await testRunner.GivenAsync("Option is Some with value 15", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+        await testRunner.GivenAsync(string.Format("Option is Some with value {0}", value), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 7
-        await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync(string.Format("an async predicate that returns \"{0}\" for int value", predicate), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 8
-        await testRunner.WhenAsync("invoking IsSomeAnd on Option Task with the async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync(string.Format("invoking IsSomeAnd on Option {0} with the async predicate", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 9
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync(string.Format("the boolean result should be \"{0}\"", predicate), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Task Option IsSomeAnd when Some with async predicate returning \"false\"")]
+        [global::Xunit.TheoryAttribute(DisplayName="IsSomeAnd on a None <receiver> Option is false without calling the predicate")]
         [global::Xunit.TraitAttribute("FeatureTitle", "IsSomeAnd Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Task Option IsSomeAnd when Some with async predicate returning \"false\"")]
-        public async global::System.Threading.Tasks.Task TaskOptionIsSomeAndWhenSomeWithAsyncPredicateReturningFalse()
+        [global::Xunit.TraitAttribute("Description", "IsSomeAnd on a None <receiver> Option is false without calling the predicate")]
+        [global::Xunit.InlineDataAttribute("Task", "4", new string[0])]
+        [global::Xunit.InlineDataAttribute("ValueTask", "5", new string[0])]
+        public async global::System.Threading.Tasks.Task IsSomeAndOnANoneReceiverOptionIsFalseWithoutCallingThePredicate(string receiver, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "1";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsSomeAnd when Some with async predicate returning \"false\"", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 11
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 12
-        await testRunner.GivenAsync("Option is Some with value 25", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 13
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 14
-        await testRunner.AndAsync("an async predicate that returns \"false\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 15
-        await testRunner.WhenAsync("invoking IsSomeAnd on Option Task with the async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 16
-        await testRunner.ThenAsync("the result should be \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Task Option IsSomeAnd when None with async predicate")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "IsSomeAnd Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Task Option IsSomeAnd when None with async predicate")]
-        public async global::System.Threading.Tasks.Task TaskOptionIsSomeAndWhenNoneWithAsyncPredicate()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "2";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Task Option IsSomeAnd when None with async predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("receiver", receiver);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("IsSomeAnd on a None <receiver> Option is false without calling the predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 18
@@ -240,136 +210,16 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 20
-        await testRunner.AndAsync("Option is wrapped in a Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+        await testRunner.AndAsync(string.Format("Option is wrapped in a {0}", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 21
         await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 22
-        await testRunner.WhenAsync("invoking IsSomeAnd on Option Task with the async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync(string.Format("invoking IsSomeAnd on Option {0} with the async predicate", receiver), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 23
-        await testRunner.ThenAsync("the result should be \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="ValueTask Option IsSomeAnd when Some with async predicate returning \"true\"")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "IsSomeAnd Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "ValueTask Option IsSomeAnd when Some with async predicate returning \"true\"")]
-        public async global::System.Threading.Tasks.Task ValueTaskOptionIsSomeAndWhenSomeWithAsyncPredicateReturningTrue()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "3";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("ValueTask Option IsSomeAnd when Some with async predicate returning \"true\"", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 25
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 26
-        await testRunner.GivenAsync("Option is Some with value 35", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 27
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 28
-        await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 29
-        await testRunner.WhenAsync("invoking IsSomeAnd on Option ValueTask with the async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 30
-        await testRunner.ThenAsync("the result should be \"true\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="ValueTask Option IsSomeAnd when Some with async predicate returning \"false\"")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "IsSomeAnd Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "ValueTask Option IsSomeAnd when Some with async predicate returning \"false\"")]
-        public async global::System.Threading.Tasks.Task ValueTaskOptionIsSomeAndWhenSomeWithAsyncPredicateReturningFalse()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "4";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("ValueTask Option IsSomeAnd when Some with async predicate returning \"false\"", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 32
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 33
-        await testRunner.GivenAsync("Option is Some with value 45", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 34
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 35
-        await testRunner.AndAsync("an async predicate that returns \"false\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 36
-        await testRunner.WhenAsync("invoking IsSomeAnd on Option ValueTask with the async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 37
-        await testRunner.ThenAsync("the result should be \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="ValueTask Option IsSomeAnd when None with async predicate")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "IsSomeAnd Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "ValueTask Option IsSomeAnd when None with async predicate")]
-        public async global::System.Threading.Tasks.Task ValueTaskOptionIsSomeAndWhenNoneWithAsyncPredicate()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "5";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("ValueTask Option IsSomeAnd when None with async predicate", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 39
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 40
-        await testRunner.GivenAsync("Option is None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
-#line hidden
-#line 41
-        await testRunner.AndAsync("Option is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 42
-        await testRunner.AndAsync("an async predicate that returns \"true\" for int value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
-#line hidden
-#line 43
-        await testRunner.WhenAsync("invoking IsSomeAnd on Option ValueTask with the async predicate", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 44
-        await testRunner.ThenAsync("the result should be \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+        await testRunner.ThenAsync("the boolean result should be \"false\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
