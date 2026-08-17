@@ -9,8 +9,6 @@ using Shouldly;
 [Binding]
 public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
 {
-    private const string ErrorKey = "error";
-
     private enum TestErrorCodes
     {
         NotFound,
@@ -19,7 +17,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
     [Given("an Error with code {string} and message {string}")]
     public void GivenAnErrorWithCodeAndMessage(string code, string message)
     {
-        context.Set(new Error(code, message), ErrorKey);
+        context.Set(new Error(code, message), Constants.ErrorKey);
     }
 
     [When("creating an Ok result with the value {int}")]
@@ -33,7 +31,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
     [When("creating an Err result from the Error")]
     public void WhenCreatingAnErrResultFromTheError()
     {
-        var error = context.Get<Error>(ErrorKey);
+        var error = context.Get<Error>(Constants.ErrorKey);
 
         Result<int, Error> result = Result.Err<int>(error);
 
@@ -57,7 +55,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
     {
         context.Set(
             Error.FromEnum(TestErrorCodes.NotFound, message),
-            ErrorKey);
+            Constants.ErrorKey);
     }
 
     [When("trying a factory that returns {int}")]
@@ -135,7 +133,7 @@ public sealed class ErrorResultFactoriesSteps(ScenarioContext context)
         string code,
         string message)
     {
-        var error = context.Get<Error>(ErrorKey);
+        var error = context.Get<Error>(Constants.ErrorKey);
 
         error.Code.Value.ShouldBe(code);
         error.Message.ShouldBe(message);
