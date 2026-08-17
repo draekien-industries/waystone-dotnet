@@ -59,6 +59,20 @@ determines the version.** Give it the same care as a commit message, and reserve
 
 ## Changing public API
 
+Any change to the public surface needs a matching PR in
+[draekien-industries/docs](https://github.com/draekien-industries/docs). That
+covers new types and members, changed behaviour, obsoletions and removals. Link
+the two PRs to each other.
+
+**Merge this repository's PR first, then the docs PR.** Merging here publishes to
+NuGet; merging there syncs GitBook. That order means the documentation always
+describes a version you can install. The other order documents API that does not
+exist yet.
+
+If your code PR is closed without merging, close the docs PR too.
+
+### Deprecating
+
 Public API is deprecated, never deleted:
 
 1. Mark the old member `[Obsolete]` with a message naming its replacement and

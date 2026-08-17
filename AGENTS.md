@@ -27,6 +27,26 @@ from the first. The documentation source lives in the
 [draekien-industries/docs](https://github.com/draekien-industries/docs)
 repository.
 
+**A public API change needs a paired documentation PR.** Open a PR in
+[draekien-industries/docs](https://github.com/draekien-industries/docs) covering
+the change, and link the two PRs to each other so a reviewer can see both at once.
+This applies when you add, change, obsolete or remove a public type or member, and
+when you change the behaviour or the default of one that is already documented.
+
+**Merge this repository's PR first, then the documentation PR.** Merging here
+publishes to NuGet; merging there syncs GitBook. In that order the documentation
+describes a version that consumers can already install. Reverse the order and the
+published documentation describes API that does not exist yet.
+
+If a code PR is closed without merging, close its documentation PR too. A docs PR
+left open against abandoned API is worse than no docs PR — someone will eventually
+merge it.
+
+Changes that leave the public surface untouched need no documentation PR: internal
+refactors, tests, CI, and build configuration. Write the documentation the way that
+repository asks — read its `AGENTS.md` first, since new pages there need a
+`SUMMARY.md` entry in the same commit or GitBook never shows them.
+
 **Comment only public API surface.** XML doc comments on public members; no
 explanatory comments inside method bodies. `CS1591` is suppressed, so the build
 will not tell you when public docs are missing.
