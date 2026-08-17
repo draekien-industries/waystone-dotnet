@@ -6,6 +6,8 @@
 ## Documentation
 
 - [Draekien-Industries](https://draekien-industries.wpei.me/)
+- [Breaking Changes](BREAKING_CHANGES.md) - deprecated API and what replaces it
+  in the next major release
 
 ## Getting Started
 
