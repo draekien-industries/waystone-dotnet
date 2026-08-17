@@ -22,10 +22,6 @@ public sealed class MonadValidationOptions : IMonadOptionsSatellite
 
     internal static MonadValidationOptions Global => For(MonadOptions.Global);
 
-    /// <summary>
-    /// The validation options that are currently in effect, which follow the
-    /// innermost open <see cref="MonadOptionsScope" /> when one exists.
-    /// </summary>
     internal static MonadValidationOptions Current =>
         For(MonadOptions.Current);
 

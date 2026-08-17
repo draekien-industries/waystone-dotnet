@@ -65,12 +65,13 @@ public sealed class ValidationErr
             _validationResult.IsValid is false,
             "Validation Result should never be valid here.");
 
-        ErrorCode errorCode =
-            new(MonadValidationOptions.Current.ValidationErrorCode);
+        MonadValidationOptions options = MonadValidationOptions.Current;
+
+        ErrorCode errorCode = new(options.ValidationErrorCode);
 
         string errorMessage = Errors.Count > 0
             ? string.Join("; ", Errors.Select(e => e.ErrorMessage.TrimEnd('.')))
-            : MonadValidationOptions.Current.FallbackValidationErrorMessage;
+            : options.FallbackValidationErrorMessage;
 
         return new Error(errorCode, $"{errorMessage};");
     }

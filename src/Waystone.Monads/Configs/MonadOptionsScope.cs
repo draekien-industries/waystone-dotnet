@@ -31,6 +31,6 @@ public readonly struct MonadOptionsScope : IDisposable
     /// <summary>Restores the options that were in effect before this scope.</summary>
     public void Dispose()
     {
-        MonadOptions.RestoreScope(_previous);
+        MonadOptions.ScopedOptions.Value = _previous;
     }
 }

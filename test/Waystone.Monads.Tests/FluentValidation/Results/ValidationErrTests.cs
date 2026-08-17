@@ -59,14 +59,9 @@ public class ValidationErrTests
     public void
         GivenConfiguredValidationErrorCode_WhenConvertingToError_ThenUseConfiguredCode()
     {
-        string original = MonadValidationOptions.Global.ValidationErrorCode;
-
-        try
+        using (MonadOptions.CreateScope(
+            options => options.UseValidationErrorCode("custom.validation")))
         {
-            MonadOptions.Configure(
-                options =>
-                    options.UseValidationErrorCode("custom.validation"));
-
             Error error = ValidationErr.Create(
                     new ValidationResult(
                     [
@@ -76,10 +71,6 @@ public class ValidationErrTests
                .ToError();
 
             error.Code.Value.ShouldBe("custom.validation");
-        }
-        finally
-        {
-            MonadValidationOptions.Global.UseValidationErrorCode(original);
         }
     }
 

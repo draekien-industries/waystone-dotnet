@@ -19,10 +19,11 @@ public sealed class MonadOptions
     private static readonly Lazy<MonadOptions> Singleton =
         new(() => new MonadOptions());
 
-    private static readonly AsyncLocal<MonadOptions?> ScopedOptions = new();
+    internal static readonly AsyncLocal<MonadOptions?> ScopedOptions = new();
 
-    private readonly ConcurrentDictionary<Type, IMonadOptionsSatellite>
-        _satellites;
+    private static volatile bool _scopingHasBeenUsed;
+
+    private ConcurrentDictionary<Type, IMonadOptionsSatellite>? _satellites;
 
     private MonadOptions()
     {
@@ -30,7 +31,6 @@ public sealed class MonadOptions
         ErrorCodeFactory = new ErrorCodeFactory();
         FallbackErrorCode = "Unspecified";
         FallbackErrorMessage = "An unexpected error occurred.";
-        _satellites = new ConcurrentDictionary<Type, IMonadOptionsSatellite>();
     }
 
     private MonadOptions(MonadOptions source)
@@ -39,22 +39,29 @@ public sealed class MonadOptions
         ErrorCodeFactory = source.ErrorCodeFactory;
         FallbackErrorCode = source.FallbackErrorCode;
         FallbackErrorMessage = source.FallbackErrorMessage;
-        _satellites = new ConcurrentDictionary<Type, IMonadOptionsSatellite>();
+
+        ConcurrentDictionary<Type, IMonadOptionsSatellite>? satellites =
+            source._satellites;
+
+        if (satellites is null)
+        {
+            return;
+        }
 
         foreach (KeyValuePair<Type, IMonadOptionsSatellite> satellite in
-                 source._satellites)
+                 satellites)
         {
-            _satellites[satellite.Key] = satellite.Value.Clone();
+            Satellites[satellite.Key] = satellite.Value.Clone();
         }
     }
 
     internal static MonadOptions Global => Singleton.Value;
 
-    /// <summary>
-    /// The options that are currently in effect, which is the innermost open
-    /// scope when one exists, otherwise the globally configured options.
-    /// </summary>
-    internal static MonadOptions Current => ScopedOptions.Value ?? Global;
+    internal static MonadOptions Current =>
+        _scopingHasBeenUsed ? ScopedOptions.Value ?? Global : Global;
+
+    private ConcurrentDictionary<Type, IMonadOptionsSatellite> Satellites =>
+        LazyInitializer.EnsureInitialized(ref _satellites)!;
 
     internal Option<Action<Exception, CallerInfo>> ExceptionLogger { get; set; }
     internal ErrorCodeFactory ErrorCodeFactory { get; set; }
@@ -62,12 +69,15 @@ public sealed class MonadOptions
     internal string FallbackErrorMessage { get; set; }
 
     internal T Satellite<T>(Func<T> create)
-        where T : class, IMonadOptionsSatellite =>
-        (T)_satellites.GetOrAdd(typeof(T), _ => create());
-
-    internal static void RestoreScope(MonadOptions? previous)
+        where T : class, IMonadOptionsSatellite
     {
-        ScopedOptions.Value = previous;
+        if (_satellites is { } satellites
+         && satellites.TryGetValue(typeof(T), out IMonadOptionsSatellite? found))
+        {
+            return (T)found;
+        }
+
+        return (T)Satellites.GetOrAdd(typeof(T), _ => create());
     }
 
     internal void Log(Exception exception, CallerInfo callerInfo)
@@ -158,6 +168,7 @@ public sealed class MonadOptions
     /// </returns>
     internal static MonadOptionsScope CreateScope(MonadOptions options)
     {
+        _scopingHasBeenUsed = true;
         MonadOptions? previous = ScopedOptions.Value;
         ScopedOptions.Value = options;
         return new MonadOptionsScope(previous);
