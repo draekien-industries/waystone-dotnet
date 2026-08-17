@@ -98,8 +98,8 @@ public sealed class MonadOptions
     }
 
     /// <summary>
-    /// Creates a reusable snapshot of the options that are currently in
-    /// effect, with the provided configuration applied on top.
+    /// Creates a snapshot of the options that are currently in effect, with
+    /// the provided configuration applied on top.
     /// </summary>
     /// <remarks>
     /// Options that the <paramref name="configure" /> action does not set are
@@ -112,7 +112,7 @@ public sealed class MonadOptions
     /// <see cref="MonadOptions" />
     /// </param>
     /// <returns>The created <see cref="MonadOptions" />.</returns>
-    public static MonadOptions Create(Action<MonadOptions> configure)
+    internal static MonadOptions Create(Action<MonadOptions> configure)
     {
         var options = new MonadOptions(Current);
         configure.Invoke(options);
@@ -148,15 +148,15 @@ public sealed class MonadOptions
     /// </summary>
     /// <remarks>
     /// The provided <paramref name="options" /> are used as they are rather
-    /// than copied, so the caller should not mutate them while the scope is open.
-    /// Use <see cref="Create" /> to build an instance to pass here.
+    /// than copied, so the caller must pass an instance that nothing else holds.
+    /// Use <see cref="Create" /> to build one.
     /// </remarks>
     /// <param name="options">The options to use for the duration of the scope.</param>
     /// <returns>
     /// A <see cref="MonadOptionsScope" /> which restores the previous options
     /// when disposed.
     /// </returns>
-    public static MonadOptionsScope CreateScope(MonadOptions options)
+    internal static MonadOptionsScope CreateScope(MonadOptions options)
     {
         MonadOptions? previous = ScopedOptions.Value;
         ScopedOptions.Value = options;

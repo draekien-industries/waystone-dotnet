@@ -154,14 +154,16 @@ scope is created, and the scope is a snapshot, so a later `Configure` call does
 not change an open scope. Scopes nest, and disposing one restores the scope
 around it.
 
-Build a reusable snapshot with `Create` when the same overrides are used
-repeatedly:
+Scopes accept the same configuration methods as `Configure`, so an override can
+change any option:
 
 ```csharp
-static readonly MonadOptions DebugOptions =
-    MonadOptions.Create(options => options.UseErrorCodeFactory(new MyErrorCodeFactory()));
-
-using (MonadOptions.CreateScope(DebugOptions)) { /* ... */ }
+using (MonadOptions.CreateScope(options => options
+    .UseErrorCodeFactory(new MyErrorCodeFactory())
+    .UseFallbackErrorMessage("Something went wrong while debugging.")))
+{
+    // ...
+}
 ```
 
 Because a scope applies to the current asynchronous flow, concurrent flows each
