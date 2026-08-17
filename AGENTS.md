@@ -86,6 +86,16 @@ is confined to the current asynchronous flow.
 obsoleted API raises no warning in this repository. The build will not find call
 sites for you after a deprecation — search for them.
 
+**Reqnroll binds step definitions across the whole test assembly.** The
+`Specs/Options/Steps` and `Specs/Results/Steps` folders scope nothing, so step
+text has to be unique across the project and a step class binds happily from the
+wrong folder. Two classes sat in the wrong area for a long time because nothing
+complains. When a step is not found, the folder is never the reason.
+
+**A step that switches on a string argument needs a `default` that throws.**
+Without one, an unmatched value runs no assertion and the scenario passes. This
+hid three no-op assertions in the Result specs.
+
 ## Documentation
 
 Agent-facing documentation lives in `docs/`. Read [docs/AGENTS.md](docs/AGENTS.md) before reading or writing anything there.

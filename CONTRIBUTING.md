@@ -19,10 +19,28 @@ below.
 1. Branch off `main`: `git checkout -b feature/my-cool-new-feature`. There is no
    `develop` branch.
 2. Code up a storm.
-3. Add tests. `Waystone.Monads.Tests` uses xUnit v3 with Shouldly, and covers
-   behaviour-style scenarios with Reqnroll `.feature` files. The generated
-   `.feature.cs` files are committed, so build after editing a `.feature` and
-   commit both.
+3. Add tests. `Waystone.Monads.Tests` uses xUnit v3 with Shouldly. Unit tests
+   sit at the top level, mirroring the namespace they cover. Reqnroll
+   behaviour tests live under `Specs/`, with a `Features/` and `Steps/` pair
+   per area.
+
+   The generated `.feature.cs` files are committed, so build after editing a
+   `.feature` and commit both.
+
+   Features carry an `@option` or `@result` tag, which Reqnroll maps to an
+   xUnit trait. To run one kind on its own:
+
+   ```sh
+   dotnet test --filter "Category=option|Category=result"    # behaviour only
+   dotnet test --filter "Category!=option&Category!=result"  # unit only
+   ```
+
+   Scenarios that differ only in a value or a variant belong in a
+   `Scenario Outline` with an `Examples` table, not in copied scenarios.
+   Shared scenario state goes through the injected `SpecContext` rather than
+   Reqnroll's `ScenarioContext`. Note that Reqnroll binds steps across the
+   whole assembly, so a `Steps` folder scopes nothing — step text has to be
+   unique repository-wide.
 4. Run the tests — all target frameworks, not just the default:
 
    ```sh
