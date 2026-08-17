@@ -19,7 +19,7 @@ public sealed class OptionTests
     }
 
     private MonadOptionsScope LoggerScope() =>
-        MonadOptions.CreateScope(
+        MonadOptions.BeginScope(
             options => options.UseExceptionLogger(_callback));
 
     [Fact]

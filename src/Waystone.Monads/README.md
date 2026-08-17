@@ -140,7 +140,7 @@ test, or a block you are debugging - create a scope instead of reconfiguring the
 whole application:
 
 ```csharp
-using (MonadOptions.CreateScope(options => options.UseFallbackErrorCode("Debug")))
+using (MonadOptions.BeginScope(options => options.UseFallbackErrorCode("Debug")))
 {
     // reads inside here, including after an await, see "Debug"
     var result = Result.Try<int>(() => int.Parse(input));
@@ -158,7 +158,7 @@ Scopes accept the same configuration methods as `Configure`, so an override can
 change any option:
 
 ```csharp
-using (MonadOptions.CreateScope(options => options
+using (MonadOptions.BeginScope(options => options
     .UseErrorCodeFactory(new MyErrorCodeFactory())
     .UseFallbackErrorMessage("Something went wrong while debugging.")))
 {

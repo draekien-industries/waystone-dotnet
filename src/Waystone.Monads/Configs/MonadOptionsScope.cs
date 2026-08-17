@@ -13,7 +13,7 @@ using System.Diagnostics;
 /// <remarks>
 /// Dispose the scope to restore the options that were in effect before it
 /// was created. Created by
-/// <see cref="MonadOptions.CreateScope(System.Action{MonadOptions})" />.
+/// <see cref="MonadOptions.BeginScope(System.Action{MonadOptions})" />.
 /// </remarks>
 [ExcludeFromCodeCoverage]
 #if !DEBUG

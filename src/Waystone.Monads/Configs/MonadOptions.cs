@@ -146,9 +146,9 @@ public sealed class MonadOptions
     /// A <see cref="MonadOptionsScope" /> which restores the previous options
     /// when disposed.
     /// </returns>
-    public static MonadOptionsScope CreateScope(
+    public static MonadOptionsScope BeginScope(
         Action<MonadOptions> configure) =>
-        CreateScope(Create(configure));
+        BeginScope(Create(configure));
 
     /// <summary>
     /// Overrides the options for the current asynchronous flow with the
@@ -164,7 +164,7 @@ public sealed class MonadOptions
     /// A <see cref="MonadOptionsScope" /> which restores the previous options
     /// when disposed.
     /// </returns>
-    internal static MonadOptionsScope CreateScope(MonadOptions options)
+    internal static MonadOptionsScope BeginScope(MonadOptions options)
     {
         _scopingHasBeenUsed = true;
         MonadOptions? previous = ScopedOptions.Value;

@@ -59,7 +59,7 @@ public class ValidationErrTests
     public void
         GivenConfiguredValidationErrorCode_WhenConvertingToError_ThenUseConfiguredCode()
     {
-        using (MonadOptions.CreateScope(
+        using (MonadOptions.BeginScope(
             options => options.UseValidationErrorCode("custom.validation")))
         {
             Error error = ValidationErr.Create(

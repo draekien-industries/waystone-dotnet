@@ -24,7 +24,7 @@ public sealed class MonadOptionsScopeTests
     [Fact]
     public void GivenScope_WhenResolvingOptions_ThenUseScopedValue()
     {
-        using (MonadOptions.CreateScope(o => o.UseFallbackErrorCode("scoped")))
+        using (MonadOptions.BeginScope(o => o.UseFallbackErrorCode("scoped")))
         {
             ResolveFallbackCode().ShouldBe("scoped");
         }
@@ -35,7 +35,7 @@ public sealed class MonadOptionsScopeTests
     {
         string global = ResolveFallbackCode();
 
-        using (MonadOptions.CreateScope(o => o.UseFallbackErrorCode("scoped")))
+        using (MonadOptions.BeginScope(o => o.UseFallbackErrorCode("scoped")))
         {
             ResolveFallbackCode().ShouldBe("scoped");
         }
@@ -48,7 +48,7 @@ public sealed class MonadOptionsScopeTests
     {
         string globalMessage = ResolveFallbackMessage();
 
-        using (MonadOptions.CreateScope(o => o.UseFallbackErrorCode("scoped")))
+        using (MonadOptions.BeginScope(o => o.UseFallbackErrorCode("scoped")))
         {
             ResolveFallbackCode().ShouldBe("scoped");
             ResolveFallbackMessage().ShouldBe(globalMessage);
@@ -58,11 +58,11 @@ public sealed class MonadOptionsScopeTests
     [Fact]
     public void GivenNestedScopes_WhenInnerEnds_ThenRestoreOuterScope()
     {
-        using (MonadOptions.CreateScope(o => o.UseFallbackErrorCode("outer")))
+        using (MonadOptions.BeginScope(o => o.UseFallbackErrorCode("outer")))
         {
             ResolveFallbackCode().ShouldBe("outer");
 
-            using (MonadOptions.CreateScope(
+            using (MonadOptions.BeginScope(
                 o => o.UseFallbackErrorCode("inner")))
             {
                 ResolveFallbackCode().ShouldBe("inner");
@@ -75,7 +75,7 @@ public sealed class MonadOptionsScopeTests
     [Fact]
     public async Task GivenScope_WhenAwaiting_ThenScopeFlowsAcrossAwait()
     {
-        using (MonadOptions.CreateScope(o => o.UseFallbackErrorCode("scoped")))
+        using (MonadOptions.BeginScope(o => o.UseFallbackErrorCode("scoped")))
         {
             await Task.Yield();
             ResolveFallbackCode().ShouldBe("scoped");
@@ -92,7 +92,7 @@ public sealed class MonadOptionsScopeTests
     {
         async Task<string> Resolve(string code)
         {
-            using (MonadOptions.CreateScope(o => o.UseFallbackErrorCode(code)))
+            using (MonadOptions.BeginScope(o => o.UseFallbackErrorCode(code)))
             {
                 await Task.Yield();
                 await Task.Delay(5, TestContext.Current.CancellationToken);
@@ -114,7 +114,7 @@ public sealed class MonadOptionsScopeTests
     {
         string global = ResolveFallbackCode();
 
-        using (MonadOptions.CreateScope(o => o.UseFallbackErrorCode("scoped")))
+        using (MonadOptions.BeginScope(o => o.UseFallbackErrorCode("scoped")))
         { }
 
         MonadOptions.Global.FallbackErrorCode.ShouldBe(global);
@@ -125,7 +125,7 @@ public sealed class MonadOptionsScopeTests
     {
         string global = ErrorCode.FromEnum(TestErrorCodes.Failure).Value;
 
-        using (MonadOptions.CreateScope(
+        using (MonadOptions.BeginScope(
             o => o.UseErrorCodeFactory(new PrefixingErrorCodeFactory())))
         {
             ErrorCode.FromEnum(TestErrorCodes.Failure)
@@ -139,7 +139,7 @@ public sealed class MonadOptionsScopeTests
     public void
         GivenScope_WhenOverridingValidationOptions_ThenUseScopedValidationOptions()
     {
-        using (MonadOptions.CreateScope(
+        using (MonadOptions.BeginScope(
             o => o.UseValidationErrorCode("scoped.validation")))
         {
             MonadValidationOptions.Current.ValidationErrorCode.ShouldBe(
@@ -151,17 +151,17 @@ public sealed class MonadOptionsScopeTests
     }
 
     [Fact]
-    public void GivenPrebuiltOptions_WhenCreatingScope_ThenUseThoseOptions()
+    public void GivenPrebuiltOptions_WhenBeginningScope_ThenUseThoseOptions()
     {
         MonadOptions options =
             MonadOptions.Create(o => o.UseFallbackErrorCode("prebuilt"));
 
-        using (MonadOptions.CreateScope(options))
+        using (MonadOptions.BeginScope(options))
         {
             ResolveFallbackCode().ShouldBe("prebuilt");
         }
 
-        using (MonadOptions.CreateScope(options))
+        using (MonadOptions.BeginScope(options))
         {
             ResolveFallbackCode().ShouldBe("prebuilt");
         }
@@ -175,7 +175,7 @@ public sealed class MonadOptionsScopeTests
 
         try
         {
-            using (MonadOptions.CreateScope(
+            using (MonadOptions.BeginScope(
                 o => o.UseFallbackErrorCode("scoped")))
             {
                 MonadOptions.Configure(
