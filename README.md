@@ -8,12 +8,14 @@
 - [Draekien-Industries](https://draekien-industries.wpei.me/)
 - [Breaking Changes](BREAKING_CHANGES.md) - deprecated API and what replaces it
   in the next major release
+- [Contributing](CONTRIBUTING.md) - how to build, test, and release this
+  repository
 
 ## Getting Started
 
 1. Read the documentation linked above
 2. Clone the repository and have a look around
-3. Have a read of the contributing steps
+3. Have a read of the [contributing guide](CONTRIBUTING.md)
 4. Code up a storm
 
 ## Installation
@@ -21,12 +23,12 @@
 Waystone.Net is a collection of C# class libraries published to NuGet.org. You can install them via the NuGet package manager by searching for `Waystone` packages. The following packages are currently available:
 
 - Waystone.Monads
+- Waystone.Monads.FluentValidation
+- Waystone.WideLogEvents
+- Serilog.Enrichers.Waystone.WideLogEvents
+- Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore
 
 ## Contributing
 
-1. Clone this repository, e.g. `gh repo clone draekien-industries/waystone-dotnet` 
-2. Checkout a new branch `git checkout -b feature/my-cool-new-feature`
-3. Open the `Waystone.Net.sln` file in your IDE of choice.
-4. Code up a storm
-5. Commit your changes with `git commit -am 'feat: my cool new feature description`
-6. Push your changes and create a Pull Request
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the test matrix, commit
+message conventions, and how releases work.
