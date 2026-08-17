@@ -133,6 +133,18 @@ RS2008 fails the build without one, and `src/**` builds with
 `TreatWarningsAsErrors`. Use severity `Disabled` in that table for a rule that
 ships off.
 
+**A `null` literal's `ConvertedType` is the monad in a comparison too.** A rule
+keyed on it fires on `option == null` and `option is null` as readily as on an
+assignment, so `WM1002` double-reported alongside `WM2008` at warning severity and
+its code fix produced `option is Option.None<int>()`, which does not compile.
+`NullAndDefaultAnalyzer.IsNullTest` excludes the comparison and pattern positions.
+
+**`UnwrapAwaitable` does not see through `ConfigureAwait`.** It knows `Task<T>` and
+`ValueTask<T>` only, and this library awaits with `.ConfigureAwait(false)`
+everywhere, so a rule that unwraps the inner call's type goes quiet on exactly the
+style the library teaches. Read `IAwaitOperation.Type` instead when there is an
+await.
+
 **Move the release-tracking row to `Shipped.md` before merging, not after.**
 Merging publishes, and there is no separate release step that would move it later,
 so a row left in `Unshipped.md` is wrong from the moment the PR lands. File it

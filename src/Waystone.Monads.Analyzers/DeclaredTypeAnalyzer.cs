@@ -42,7 +42,7 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
             return;
         }
 
-        if (!Semantics.IsDeclarationTypePosition(Outermost(node)))
+        if (!Semantics.IsDeclarationTypePosition(node))
         {
             return;
         }
@@ -101,16 +101,4 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
         }
     }
 
-    private static SyntaxNode Outermost(SyntaxNode node)
-    {
-        var current = node;
-
-        while (current.Parent is QualifiedNameSyntax
-            or AliasQualifiedNameSyntax)
-        {
-            current = current.Parent;
-        }
-
-        return current;
-    }
 }

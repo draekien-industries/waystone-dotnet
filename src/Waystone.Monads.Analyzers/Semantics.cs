@@ -164,6 +164,12 @@ public static class Semantics
         type.WithNullableAnnotation(NullableAnnotation.None)
            .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
 
+    public static ITypeSymbol NonNullable(ITypeSymbol type) =>
+        type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+     && type is INamedTypeSymbol { TypeArguments.Length: 1 } nullable
+            ? nullable.TypeArguments[0]
+            : type;
+
     public static bool IsNullable(ITypeSymbol type) =>
         type.NullableAnnotation == NullableAnnotation.Annotated
      || type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
@@ -182,16 +188,30 @@ public static class Semantics
         return (ReferencedSymbol(property.Instance), property.Property.Name);
     }
 
-    public static bool IsDeclarationTypePosition(SyntaxNode node) =>
-        node.Parent switch
+    public static bool IsDeclarationTypePosition(SyntaxNode node)
+    {
+        var current = node;
+
+        while (current.Parent is QualifiedNameSyntax
+            or AliasQualifiedNameSyntax)
         {
-            ParameterSyntax parameter => parameter.Type == node,
-            MethodDeclarationSyntax method => method.ReturnType == node,
-            PropertyDeclarationSyntax property => property.Type == node,
-            VariableDeclarationSyntax variable => variable.Type == node,
-            DelegateDeclarationSyntax @delegate => @delegate.ReturnType == node,
+            current = current.Parent;
+        }
+
+        return current.Parent switch
+        {
+            ParameterSyntax parameter => parameter.Type == current,
+            MethodDeclarationSyntax method => method.ReturnType == current,
+            LocalFunctionStatementSyntax local => local.ReturnType == current,
+            PropertyDeclarationSyntax property => property.Type == current,
+            VariableDeclarationSyntax variable => variable.Type == current,
+            DelegateDeclarationSyntax @delegate =>
+                @delegate.ReturnType == current,
+            TypeArgumentListSyntax list => list.Parent is not null
+             && IsDeclarationTypePosition(list.Parent),
             _ => false,
         };
+    }
 
     public static Location TypeLocationOf(ISymbol symbol)
     {

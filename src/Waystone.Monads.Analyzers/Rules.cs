@@ -113,7 +113,7 @@ public static class Rules
     public static readonly DiagnosticDescriptor NullableMemberAlongsideMonads = Idiom(
         "WM2012",
         "A nullable member sits alongside Option or Result members",
-        "'{0}' returns a nullable type while '{1}' expresses absence through Option. Two conventions for absence in one type leaves callers guessing which applies.",
+        "'{0}' returns a nullable type while '{1}' expresses absence through '{2}'. Two conventions for absence in one type leaves callers guessing which applies.",
         "This type has already adopted Option or Result. A nullable return here is a second, weaker way of saying the same thing.");
 
     public static readonly DiagnosticDescriptor OptionDiscarded = Idiom(

@@ -83,4 +83,21 @@ public class DiscardedMonadAnalyzerTests
                 Count();
             }
             """);
+
+    [Fact]
+    public Task FlagsADiscardedResultBehindConfigureAwait() =>
+        Verify.AnalyzerAsync<DiscardedMonadAnalyzer>(
+            """
+            internal System.Threading.Tasks.Task<Result<int, string>> SaveAsync() =>
+                System.Threading.Tasks.Task.FromResult(
+                    Result.Ok<int, string>(1));
+
+            internal async System.Threading.Tasks.Task Run()
+            {
+                await {|#0:SaveAsync|}().ConfigureAwait(false);
+            }
+            """,
+            Verify.Diagnostic(Rules.ResultDiscarded)
+               .WithLocation(0)
+               .WithArguments("Result<int, string>"));
 }

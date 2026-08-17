@@ -18,7 +18,7 @@ public class NullableSurfaceAnalyzerTests
             """,
             Verify.Diagnostic(Rules.NullableMemberAlongsideMonads)
                .WithLocation(0)
-               .WithArguments("Describe", "Find"));
+               .WithArguments("Describe", "Find", "Option"));
 
     [Fact]
     public Task FlagsANullablePropertyAlongsideAResultMember() =>
@@ -34,7 +34,25 @@ public class NullableSurfaceAnalyzerTests
             """,
             Verify.Diagnostic(Rules.NullableMemberAlongsideMonads)
                .WithLocation(0)
-               .WithArguments("Name", "Save"));
+               .WithArguments("Name", "Save", "Result"));
+
+    [Fact]
+    public Task FlagsANullableMemberBehindATask() =>
+        Verify.AnalyzerAsync<NullableSurfaceAnalyzer>(
+            """
+            using System.Threading.Tasks;
+
+            internal class Repository
+            {
+                internal Option<int> Find(int id) => Option.None<int>();
+
+                internal {|#0:Task<string?>|} DescribeAsync(int id) =>
+                    Task.FromResult<string?>(null);
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMemberAlongsideMonads)
+               .WithLocation(0)
+               .WithArguments("DescribeAsync", "Find", "Option"));
 
     [Fact]
     public Task IgnoresATypeWithNoMonadMembers() =>
@@ -71,4 +89,17 @@ public class NullableSurfaceAnalyzerTests
             Verify.Diagnostic(Rules.NullableReturnCouldBeOption)
                .WithLocation(0)
                .WithArguments("Describe", "string?", "string"));
+
+    [Fact]
+    public Task NamesTheUnderlyingTypeForANullableValueReturn() =>
+        Verify.AnalyzerAsync<NullableReturnAnalyzer>(
+            """
+            internal class Formatter
+            {
+                internal {|#0:int?|} Count(int id) => null;
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableReturnCouldBeOption)
+               .WithLocation(0)
+               .WithArguments("Count", "int?", "int"));
 }

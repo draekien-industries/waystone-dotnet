@@ -166,7 +166,7 @@ testing packages resolve their own Roslyn floor to 1.0.1 unless a direct referen
 
 Deviations from the plan:
 
-- **Fixes ship for 10 rules, not for every rule the table names one against.** WM1002 has no
+- **Fixes ship for 11 rules, not for every rule the table names one against.** WM1002 has no
   fix on `Result` (`Ok` or `Err` is not inferable, as planned), and WM1006, WM2003, WM2004,
   WM2006, WM2009, WM2010, WM2012, WM2013, WM3001 and WM3002 report without one — each either
   changes a signature and cascades to callers the fix cannot see, or has no single correct

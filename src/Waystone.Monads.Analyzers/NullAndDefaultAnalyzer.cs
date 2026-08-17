@@ -53,6 +53,7 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
            .ConvertedType;
 
         if (!symbols.IsMonad(type)
+         || IsNullTest(expression)
          || TargetIsExplicitlyNullable(context, expression))
         {
             return;
@@ -78,6 +79,7 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
         var type = info.Type ?? info.ConvertedType;
 
         if (!symbols.IsMonad(type)
+         || IsNullTest(expression)
          || TargetIsExplicitlyNullable(context, expression))
         {
             return;
@@ -122,6 +124,14 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
                     SymbolDisplayFormat.MinimallyQualifiedFormat),
                 operand.Syntax.ToString()));
     }
+
+    private static bool IsNullTest(ExpressionSyntax expression) =>
+        expression.Parent is ConstantPatternSyntax
+            or BinaryExpressionSyntax
+            {
+                RawKind: (int)SyntaxKind.EqualsExpression
+                    or (int)SyntaxKind.NotEqualsExpression,
+            };
 
     private static bool TargetIsExplicitlyNullable(
         SyntaxNodeAnalysisContext context,

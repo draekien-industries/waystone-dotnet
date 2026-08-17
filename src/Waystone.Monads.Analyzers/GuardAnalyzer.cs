@@ -58,6 +58,24 @@ public sealed class GuardAnalyzer : MonadAnalyzer
                 member));
     }
 
+    private static (ISymbol? Instance, string? Member) StateCheckIn(
+        IOperation operand,
+        BinaryOperatorKind kind,
+        MonadSymbols symbols)
+    {
+        var check = Semantics.StateCheck(operand, symbols);
+
+        if (check.Instance is not null)
+        {
+            return check;
+        }
+
+        return operand is IBinaryOperation nested
+            && nested.OperatorKind == kind
+                ? StateCheckIn(nested.RightOperand, kind, symbols)
+                : (null, null);
+    }
+
     private static void AnalyzeBinary(
         OperationAnalysisContext context,
         MonadSymbols symbols)
@@ -70,8 +88,9 @@ public sealed class GuardAnalyzer : MonadAnalyzer
             return;
         }
 
-        var (instance, member) = Semantics.StateCheck(
+        var (instance, member) = StateCheckIn(
             binary.LeftOperand,
+            binary.OperatorKind,
             symbols);
 
         if (instance is null || member is null)

@@ -120,4 +120,15 @@ public class GuardAnalyzerTests
             internal bool Big(Option<int> option, int other) =>
                 option.IsSome && other > 2;
             """);
+
+    [Fact]
+    public Task FlagsAStateCheckLaterInAConjunction() =>
+        Verify.AnalyzerAsync<GuardAnalyzer>(
+            """
+            internal bool Big(Option<int> option, bool enabled) =>
+                {|#0:enabled && option.IsSome && option.Unwrap() > 2|};
+            """,
+            Verify.Diagnostic(Rules.CheckCombinedWithUnwrap)
+               .WithLocation(0)
+               .WithArguments("IsSome", "IsSomeAnd"));
 }

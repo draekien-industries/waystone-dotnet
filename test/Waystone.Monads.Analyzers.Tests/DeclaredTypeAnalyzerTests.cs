@@ -66,4 +66,30 @@ public class DeclaredTypeAnalyzerTests
             internal Option<int> Find() => Option.None<int>();
             internal Result<int, string> Save() => Result.Ok<int, string>(1);
             """);
+
+    [Fact]
+    public Task FlagsACaseDeclaredByALocalFunction() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Run()
+            {
+                {|#0:Some<int>|} Local() => (Some<int>)Option.Some(1);
+
+                Local();
+            }
+            """,
+            Verify.Diagnostic(Rules.DerivedMonadTypeDeclared)
+               .WithLocation(0)
+               .WithArguments("Some<int>", "Option<int>"));
+
+    [Fact]
+    public Task FlagsACaseDeclaredAsATypeArgument() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal System.Collections.Generic.List<{|#0:Some<int>|}> Cases() =>
+                new System.Collections.Generic.List<Some<int>>();
+            """,
+            Verify.Diagnostic(Rules.DerivedMonadTypeDeclared)
+               .WithLocation(0)
+               .WithArguments("Some<int>", "Option<int>"));
 }

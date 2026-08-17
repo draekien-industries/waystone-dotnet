@@ -36,6 +36,11 @@ public sealed class NullableSurfaceAnalyzer : MonadAnalyzer
             return;
         }
 
+        string convention = symbols.IsOption(
+            symbols.UnwrapAwaitable(Members.ReturnTypeOf(monadMember)))
+            ? "Option"
+            : "Result";
+
         foreach (var member in type.GetMembers())
         {
             if (!Members.IsOrdinary(member)
@@ -44,7 +49,8 @@ public sealed class NullableSurfaceAnalyzer : MonadAnalyzer
                 continue;
             }
 
-            var returned = Members.ReturnTypeOf(member);
+            var returned =
+                symbols.UnwrapAwaitable(Members.ReturnTypeOf(member));
 
             if (returned is null
              || !Semantics.IsNullable(returned)
@@ -58,7 +64,8 @@ public sealed class NullableSurfaceAnalyzer : MonadAnalyzer
                     Rules.NullableMemberAlongsideMonads,
                     Semantics.TypeLocationOf(member),
                     member.Name,
-                    monadMember.Name));
+                    monadMember.Name,
+                    convention));
         }
     }
 }

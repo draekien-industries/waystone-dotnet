@@ -24,16 +24,24 @@ public sealed class DiscardedMonadAnalyzer : MonadAnalyzer
     {
         var statement = (IExpressionStatementOperation)context.Operation;
 
-        var value = statement.Operation is IAwaitOperation await
-            ? await.Operation
-            : statement.Operation;
+        var awaited = statement.Operation as IAwaitOperation;
 
-        if (value is not IInvocationOperation invocation)
+        if (Semantics.Unconverted(awaited?.Operation ?? statement.Operation)
+            is not IInvocationOperation invocation)
         {
             return;
         }
 
-        var returned = symbols.UnwrapAwaitable(invocation.Type);
+        if (invocation.TargetMethod.Name is "ConfigureAwait"
+         && Semantics.ReceiverOf(invocation) is { } receiver
+         && Semantics.Unconverted(receiver) is IInvocationOperation awaitedCall)
+        {
+            invocation = awaitedCall;
+        }
+
+        var returned = awaited is null
+            ? symbols.UnwrapAwaitable(invocation.Type)
+            : awaited.Type;
 
         var rule = symbols.IsResult(returned) ? Rules.ResultDiscarded
             : symbols.IsOption(returned) ? Rules.OptionDiscarded

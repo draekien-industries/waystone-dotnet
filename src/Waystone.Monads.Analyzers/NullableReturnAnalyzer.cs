@@ -45,6 +45,6 @@ public sealed class NullableReturnAnalyzer : MonadAnalyzer
                 member.Name,
                 returned.ToDisplayString(
                     SymbolDisplayFormat.MinimallyQualifiedFormat),
-                Semantics.Display(returned)));
+                Semantics.Display(Semantics.NonNullable(returned))));
     }
 }

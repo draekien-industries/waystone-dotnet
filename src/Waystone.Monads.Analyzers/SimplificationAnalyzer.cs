@@ -54,7 +54,7 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
 
         if (name is "UnwrapOr" or "UnwrapOrAsync")
         {
-            AnalyzeUnwrapOr(context, invocation);
+            AnalyzeUnwrapOr(context, invocation, symbols);
         }
     }
 
@@ -80,7 +80,8 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
 
     private static void AnalyzeUnwrapOr(
         OperationAnalysisContext context,
-        IInvocationOperation invocation)
+        IInvocationOperation invocation,
+        MonadSymbols symbols)
     {
         if (invocation.Arguments.Length == 0
          || invocation.Type is null)
@@ -100,7 +101,8 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
             Diagnostic.Create(
                 Rules.UnwrapOrWithDefault,
                 Semantics.NameLocationOf(invocation),
-                Semantics.Display(invocation.Type)));
+                Semantics.Display(
+                    symbols.UnwrapAwaitable(invocation.Type)!)));
     }
 
     private static void AnalyzeComparison(

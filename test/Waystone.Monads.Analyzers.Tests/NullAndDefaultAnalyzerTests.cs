@@ -59,6 +59,17 @@ public class NullAndDefaultAnalyzerTests
             internal void Call() => Take(null);
             """);
 
+    [Theory]
+    [InlineData("option == null")]
+    [InlineData("option != null")]
+    [InlineData("null == option")]
+    [InlineData("option is null")]
+    [InlineData("option is not null")]
+    [InlineData("option == default")]
+    public Task IgnoresANullTest(string test) =>
+        Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
+            $"internal bool Test(Option<int> option) => {test};");
+
     [Fact]
     public Task FlagsTheDefaultOfAnOption() =>
         Verify.AnalyzerAsync<NullAndDefaultAnalyzer>(
