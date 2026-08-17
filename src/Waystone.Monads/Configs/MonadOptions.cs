@@ -4,13 +4,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Options;
 using Results.Errors;
 
 /// <summary>Global configuration options for the Waystone.Monads library.</summary>
-[ExcludeFromCodeCoverage]
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
