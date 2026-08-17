@@ -2,6 +2,7 @@ namespace Waystone.Monads.FluentValidation.Configs;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Monads.Configs;
 using Monads.Results.Errors;
 using Results;
 
@@ -12,9 +13,6 @@ using Results;
 [ExcludeFromCodeCoverage]
 public sealed class MonadValidationOptions
 {
-    private static readonly Lazy<MonadValidationOptions> Singleton =
-        new(() => new MonadValidationOptions());
-
     private MonadValidationOptions()
     {
         ValidationErrorCode = "validation.failed";
@@ -22,7 +20,10 @@ public sealed class MonadValidationOptions
             "One or more validation errors occurred.";
     }
 
-    internal static MonadValidationOptions Global => Singleton.Value;
+    internal static MonadValidationOptions Global => For(MonadOptions.Global);
+
+    internal static MonadValidationOptions For(MonadOptions options) =>
+        options.Satellite(() => new MonadValidationOptions());
 
 
     internal string ValidationErrorCode { get; set; }

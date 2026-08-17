@@ -17,16 +17,20 @@ public static class MonadOptionsExtensions
     /// <see cref="ValidationErr" /> into an <see cref="Error" />
     /// </summary>
     /// <remarks>The default error code is `validation.failed`.</remarks>
-    /// <param name="_">The <see cref="MonadOptions" /> to chain the method from.</param>
+    /// <param name="options">
+    /// The <see cref="MonadOptions" /> whose validation options
+    /// will be configured.
+    /// </param>
     /// <param name="errorCode">The validation error code to use.</param>
     /// <returns>
     /// The instance of <see cref="MonadValidationOptions" /> for chaining
     /// more configurations.
     /// </returns>
     public static MonadValidationOptions UseValidationErrorCode(
-        this MonadOptions _,
+        this MonadOptions options,
         string errorCode) =>
-        MonadValidationOptions.Global.UseValidationErrorCode(errorCode);
+        MonadValidationOptions.For(options)
+           .UseValidationErrorCode(errorCode);
 
 
     /// <summary>
@@ -38,15 +42,18 @@ public static class MonadOptionsExtensions
     /// The default fallback error message is `One or more validation errors
     /// occurred.`
     /// </remarks>
-    /// <param name="_">The <see cref="MonadOptions" /> to chain the method from.</param>
+    /// <param name="options">
+    /// The <see cref="MonadOptions" /> whose validation options
+    /// will be configured.
+    /// </param>
     /// <param name="fallbackErrorMessage">The fallback error message to use.</param>
     /// <returns>
     /// The instance of <see cref="MonadValidationOptions" /> for chaining
     /// more configurations.
     /// </returns>
     public static MonadValidationOptions UseFallbackValidationErrorMessage(
-        this MonadOptions _,
+        this MonadOptions options,
         string fallbackErrorMessage) =>
-        MonadValidationOptions.Global.UseFallbackValidationErrorMessage(
-            fallbackErrorMessage);
+        MonadValidationOptions.For(options)
+           .UseFallbackValidationErrorMessage(fallbackErrorMessage);
 }

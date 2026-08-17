@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Configs;
 
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Options;
@@ -16,6 +17,8 @@ public sealed class MonadOptions
     private static readonly Lazy<MonadOptions> Singleton =
         new(() => new MonadOptions());
 
+    private readonly ConcurrentDictionary<Type, object> _satellites = new();
+
     private MonadOptions()
     {
         ExceptionLogger = Option.None<Action<Exception, CallerInfo>>();
@@ -30,6 +33,9 @@ public sealed class MonadOptions
     internal ErrorCodeFactory ErrorCodeFactory { get; set; }
     internal string FallbackErrorCode { get; set; }
     internal string FallbackErrorMessage { get; set; }
+
+    internal T Satellite<T>(Func<T> create) where T : class =>
+        (T)_satellites.GetOrAdd(typeof(T), _ => create());
 
     internal void Log(Exception exception, CallerInfo callerInfo)
     {

@@ -1,7 +1,10 @@
 namespace Waystone.Monads.FluentValidation.Results;
 
+using Configs;
 using global::FluentValidation.Results;
+using Monads.Configs;
 using Monads.Extensions;
+using Monads.Results.Errors;
 using Options;
 using Shouldly;
 using Xunit;
@@ -50,5 +53,62 @@ public class ValidationErrTests
 
         error.Code.Value.ShouldBe("validation.failed");
         error.Message.ShouldBe("Error message 1; Error message 2;");
+    }
+
+    [Fact]
+    public void
+        GivenConfiguredValidationErrorCode_WhenConvertingToError_ThenUseConfiguredCode()
+    {
+        string original = MonadValidationOptions.Global.ValidationErrorCode;
+
+        try
+        {
+            MonadOptions.Configure(
+                options =>
+                    options.UseValidationErrorCode("custom.validation"));
+
+            Error error = ValidationErr.Create(
+                    new ValidationResult(
+                    [
+                        new ValidationFailure("Property", "Error message."),
+                    ]))
+               .Unwrap()
+               .ToError();
+
+            error.Code.Value.ShouldBe("custom.validation");
+        }
+        finally
+        {
+            MonadValidationOptions.Global.UseValidationErrorCode(original);
+        }
+    }
+
+    [Fact]
+    public void
+        WhenConfiguringThroughMonadOptions_ThenTheValidationOptionsAreUpdated()
+    {
+        string originalCode = MonadValidationOptions.Global.ValidationErrorCode;
+
+        string originalMessage =
+            MonadValidationOptions.Global.FallbackValidationErrorMessage;
+
+        try
+        {
+            MonadOptions.Configure(
+                options => options.UseValidationErrorCode("chained.validation")
+                   .UseFallbackValidationErrorMessage("chained fallback."));
+
+            MonadValidationOptions.Global.ValidationErrorCode.ShouldBe(
+                "chained.validation");
+
+            MonadValidationOptions.Global.FallbackValidationErrorMessage
+               .ShouldBe("chained fallback.");
+        }
+        finally
+        {
+            MonadValidationOptions.Global
+               .UseValidationErrorCode(originalCode)
+               .UseFallbackValidationErrorMessage(originalMessage);
+        }
     }
 }
