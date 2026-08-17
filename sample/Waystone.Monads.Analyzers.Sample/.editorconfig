@@ -1,0 +1,6 @@
+[*.cs]
+
+# The WM3xxx migration rules ship disabled. This is the opt-in a team adopting
+# Option and Result would add while converting a codebase.
+dotnet_diagnostic.WM3001.severity = suggestion
+dotnet_diagnostic.WM3002.severity = suggestion

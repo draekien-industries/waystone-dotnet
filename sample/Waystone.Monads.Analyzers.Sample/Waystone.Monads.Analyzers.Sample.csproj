@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <Import Project="..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
+
+</Project>
