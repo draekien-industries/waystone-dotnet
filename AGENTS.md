@@ -69,6 +69,19 @@ is why net472 and net481 sit in the test matrix.
 applied to all of them, so a change to one package bumps and republishes the
 rest. Packages cannot be versioned independently.
 
+**The analyzer ships inside the `Waystone.Monads` package.**
+`Waystone.Monads.Analyzers` and `Waystone.Monads.Analyzers.CodeFixes` are
+`IsPackable=false` and are packed into `analyzers/dotnet/cs` of the Monads nupkg
+by the `PackMonadAnalyzers` target. Every consumer therefore gets the rules on
+upgrade with no opt-out beyond `.editorconfig`, which is why `WM1xxx` are the only
+rules allowed to ship at warning severity — a rule that fires on working code
+breaks a build somebody did not ask to change.
+
+**The analyzer targets Roslyn 4.8 and must not reference `Waystone.Monads`.** It
+resolves the library's types by metadata name through `MonadSymbols.TryCreate` and
+goes silent when they are absent. A project reference would make the library's own
+consumption of its analyzer a build cycle.
+
 ## Gotchas
 
 **CI runs one target framework.** Both workflows call
@@ -95,6 +108,30 @@ complains. When a step is not found, the folder is never the reason.
 **A step that switches on a string argument needs a `default` that throws.**
 Without one, an unmatched value runs no assertion and the scenario passes. This
 hid three no-op assertions in the Result specs.
+
+**The library's extensions are C# 14 `extension` blocks, so `IsExtensionMethod`
+is not a reliable test in an analyzer.** The compiler emits a compatibility static
+method that older Roslyn sees as a classic extension, so a rule keyed on
+`IsExtensionMethod` passes its tests and then misses real call sites on a modern
+consumer's compiler. Identify the receiver instead — `MonadSymbols.IsMonadInvocation`
+falls back to the type of the expression before the dot.
+
+**The analyzer tests run on Roslyn 5.6 while the analyzer builds against 4.8.**
+That mismatch is deliberate: it is the forward-compatibility case every consumer
+is in. Both versions are pinned in the test project with `VersionOverride`, and
+the testing packages resolve their own Roslyn floor to 1.0.1 unless a direct
+reference lifts it.
+
+**`Microsoft.CodeAnalysis.Testing` force-enables every diagnostic the analyzer
+under test supports**, so `isEnabledByDefault: false` cannot be observed through
+it and a disabled rule fires in tests that do not expect it. Assert the default on
+the descriptor instead — `RulesTests` does — and keep a disabled-by-default rule in
+its own analyzer class so it does not pollute another rule's tests.
+
+**A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
+RS2008 fails the build without one, and `src/**` builds with
+`TreatWarningsAsErrors`. Use severity `Disabled` in that table for a rule that
+ships off.
 
 ## Documentation
 

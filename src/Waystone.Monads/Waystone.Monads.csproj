@@ -18,6 +18,20 @@
         <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackMonadAnalyzers</TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
+
+    <Import Project="..\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
+
+    <Target Name="PackMonadAnalyzers" DependsOnTargets="ResolveProjectReferences">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="@(Analyzer)"
+                                    Condition="'%(Filename)' == 'Waystone.Monads.Analyzers' or '%(Filename)' == 'Waystone.Monads.Analyzers.CodeFixes'"
+                                    PackagePath="analyzers/dotnet/cs"/>
+        </ItemGroup>
+    </Target>
+
     <ItemGroup>
         <PackageReference Include="PolySharp">
             <PrivateAssets>all</PrivateAssets>

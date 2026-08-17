@@ -1,0 +1,10 @@
+<Project>
+    <ItemGroup Label="Load the monad analyzers into the importing project's build">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)Waystone.Monads.Analyzers.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Waystone.Monads.Analyzers.CodeFixes\Waystone.Monads.Analyzers.CodeFixes.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+</Project>

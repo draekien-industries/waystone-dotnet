@@ -41,7 +41,9 @@ below.
    Reqnroll's `ScenarioContext`. Note that Reqnroll binds steps across the
    whole assembly, so a `Steps` folder scopes nothing — step text has to be
    unique repository-wide.
-4. Run the tests — all target frameworks, not just the default:
+4. If you are adding or changing an analyzer rule, see
+   [Analyzer rules](#analyzer-rules) below.
+5. Run the tests — all target frameworks, not just the default:
 
    ```sh
    dotnet test
@@ -52,7 +54,45 @@ below.
    net481. A break on any framework other than net8.0 will pass CI and reach
    NuGet. Running the full matrix locally is the only place that gets caught.
 
-5. Commit and push, then open a Pull Request.
+6. Commit and push, then open a Pull Request.
+
+## Analyzer rules
+
+`Waystone.Monads.Analyzers` ships **inside** the `Waystone.Monads` package, so a
+new rule reaches every consumer on their next upgrade. There is no opt-out beyond
+`.editorconfig`.
+
+Severity follows the tier, and the tier is not a matter of taste:
+
+| Tier | Severity | Admits |
+| --- | --- | --- |
+| `WM1xxx` | Warning | Code that throws or silently misbehaves at runtime |
+| `WM2xxx` | Info | Idiom — correct code that reads better another way |
+| `WM3xxx` | Disabled | Migration aids that fire across a whole codebase |
+
+**Nothing that fires on working code may ship at warning.** A consumer building
+with `TreatWarningsAsErrors` gets a broken build from a version bump they did not
+ask for, and the rule gets suppressed wholesale rather than read.
+
+To add one:
+
+1. Add the descriptor to `Rules.cs` through `Bug`, `Idiom` or `Migration`.
+2. Add a row to `AnalyzerReleases.Unshipped.md` — RS2008 fails the build without
+   it, and `src/**` treats warnings as errors. Use `Disabled` for a `WM3xxx` rule.
+3. Implement it on an existing analyzer, or a new one deriving from
+   `MonadAnalyzer`. Resolve library types through the injected `MonadSymbols`;
+   never add a project reference to `Waystone.Monads`.
+4. Write three tests: it fires, it does not fire on the nearest legitimate shape,
+   and — if it has a fix — the fix produces the expected source.
+5. Add the misuse to `sample/Waystone.Monads.Analyzers.Sample` so the rule shows
+   up in build output too.
+
+Messages must satisfy RS1032: one sentence with no trailing period, or several
+with one.
+
+The analyzer builds against Roslyn 4.8 for reach, while its tests run on 5.6 —
+the forward-compatibility case consumers are actually in. Do not assume the two
+agree about extension methods; see the gotchas in [AGENTS.md](AGENTS.md).
 
 ## Commit messages
 
