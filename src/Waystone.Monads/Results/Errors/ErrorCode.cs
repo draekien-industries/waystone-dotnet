@@ -18,7 +18,7 @@ public record ErrorCode
     public ErrorCode(string value)
     {
         Value = string.IsNullOrWhiteSpace(value)
-            ? MonadOptions.Global.FallbackErrorCode
+            ? MonadOptions.Current.FallbackErrorCode
             : value.Trim();
     }
 
@@ -33,7 +33,7 @@ public record ErrorCode
     /// <param name="value">The enum value to create the error code from.</param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
     public static ErrorCode FromEnum(Enum value) =>
-        MonadOptions.Global.ErrorCodeFactory.FromEnum(value);
+        MonadOptions.Current.ErrorCodeFactory.FromEnum(value);
 
     /// <summary>
     /// (Not Recommended) Creates an instance of an <see cref="ErrorCode" />
@@ -46,7 +46,7 @@ public record ErrorCode
     /// <param name="exception"></param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
     public static ErrorCode FromException(Exception exception) =>
-        MonadOptions.Global.ErrorCodeFactory.FromException(exception);
+        MonadOptions.Current.ErrorCodeFactory.FromException(exception);
 
     /// <summary>
     /// Implicitly converts an <see cref="ErrorCode" /> instance to its string

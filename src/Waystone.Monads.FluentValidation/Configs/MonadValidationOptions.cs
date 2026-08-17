@@ -11,7 +11,7 @@ using Results;
 /// library.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public sealed class MonadValidationOptions
+public sealed class MonadValidationOptions : IMonadOptionsSatellite
 {
     private MonadValidationOptions()
     {
@@ -22,8 +22,22 @@ public sealed class MonadValidationOptions
 
     internal static MonadValidationOptions Global => For(MonadOptions.Global);
 
+    /// <summary>
+    /// The validation options that are currently in effect, which follow the
+    /// innermost open <see cref="MonadOptionsScope" /> when one exists.
+    /// </summary>
+    internal static MonadValidationOptions Current =>
+        For(MonadOptions.Current);
+
     internal static MonadValidationOptions For(MonadOptions options) =>
         options.Satellite(() => new MonadValidationOptions());
+
+    IMonadOptionsSatellite IMonadOptionsSatellite.Clone() =>
+        new MonadValidationOptions
+        {
+            ValidationErrorCode = ValidationErrorCode,
+            FallbackValidationErrorMessage = FallbackValidationErrorMessage,
+        };
 
 
     internal string ValidationErrorCode { get; set; }

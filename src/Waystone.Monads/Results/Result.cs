@@ -59,7 +59,7 @@ public static class Result
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Global.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller);
             return Err<TOk, TErr>(onError(ex));
         }
     }
@@ -150,7 +150,7 @@ public static class Result
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Global.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller);
             return Err<TOk, TErr>(onError(ex));
         }
     }

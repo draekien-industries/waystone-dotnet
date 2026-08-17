@@ -66,11 +66,11 @@ public sealed class ValidationErr
             "Validation Result should never be valid here.");
 
         ErrorCode errorCode =
-            new(MonadValidationOptions.Global.ValidationErrorCode);
+            new(MonadValidationOptions.Current.ValidationErrorCode);
 
         string errorMessage = Errors.Count > 0
             ? string.Join("; ", Errors.Select(e => e.ErrorMessage.TrimEnd('.')))
-            : MonadValidationOptions.Global.FallbackValidationErrorMessage;
+            : MonadValidationOptions.Current.FallbackValidationErrorMessage;
 
         return new Error(errorCode, $"{errorMessage};");
     }

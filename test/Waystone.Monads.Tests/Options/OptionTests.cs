@@ -16,8 +16,11 @@ public sealed class OptionTests
     public OptionTests()
     {
         _callback = Substitute.For<Action<Exception, CallerInfo>>();
-        MonadOptions.Global.UseExceptionLogger(_callback);
     }
+
+    private MonadOptionsScope LoggerScope() =>
+        MonadOptions.CreateScope(
+            options => options.UseExceptionLogger(_callback));
 
     [Fact]
     public async Task GivenAsyncFactory_WhenBinding_ReturnSome()
@@ -47,29 +50,35 @@ public sealed class OptionTests
     public async Task
         GivenAsyncFactoryThrows_WhenBinding_ThenReturnNone()
     {
-        Task<Option<int>> optionTask = Option.TryAsync<int>(async () =>
+        using (LoggerScope())
         {
-            await Task.Delay(10, TestContext.Current.CancellationToken);
+            Task<Option<int>> optionTask = Option.TryAsync<int>(async () =>
+            {
+                await Task.Delay(10, TestContext.Current.CancellationToken);
 
-            throw new Exception();
-        });
+                throw new Exception();
+            });
 
-        Option<int> option = await optionTask;
+            Option<int> option = await optionTask;
 
-        option.ShouldBe(Option.None<int>());
+            option.ShouldBe(Option.None<int>());
 
-        _callback.Received()
-           .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+            _callback.Received()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
     }
 
     [Fact]
     public void WhenBindingFactoryThatSucceeds_ThenReturnSome()
     {
-        Option<int> option = Option.Try(() => 1);
-        option.ShouldBe(Option.Some(1));
+        using (LoggerScope())
+        {
+            Option<int> option = Option.Try(() => 1);
+            option.ShouldBe(Option.Some(1));
 
-        _callback.DidNotReceive()
-           .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+            _callback.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
     }
 
     [Fact]

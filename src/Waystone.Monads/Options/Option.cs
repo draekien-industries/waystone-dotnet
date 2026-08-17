@@ -52,7 +52,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Global.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller);
             return None<T>();
         }
     }
@@ -127,7 +127,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Global.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller);
             return None<T>();
         }
     }

@@ -31,7 +31,7 @@ public record Error
     {
         Code = code;
         Message = string.IsNullOrWhiteSpace(message)
-            ? MonadOptions.Global.FallbackErrorMessage
+            ? MonadOptions.Current.FallbackErrorMessage
             : message.Trim();
     }
 

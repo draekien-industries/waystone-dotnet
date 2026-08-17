@@ -132,3 +132,41 @@ MonadOptions.Configure(options => options.UseErrorCodeFactory(new MyErrorCodeFac
 > ![NOTE]
 > The `MonadOptions` class acts like a singleton, so you should only configure it once
 > in your application's life-cycle.
+
+### Scoped Configuration
+
+When you need different options for one region of code - a single request, a
+test, or a block you are debugging - create a scope instead of reconfiguring the
+whole application:
+
+```csharp
+using (MonadOptions.CreateScope(options => options.UseFallbackErrorCode("Debug")))
+{
+    // reads inside here, including after an await, see "Debug"
+    var result = Result.Try<int>(() => int.Parse(input));
+}
+
+// the global configuration is unchanged out here
+```
+
+Options you do not set are inherited from the configuration in effect when the
+scope is created, and the scope is a snapshot, so a later `Configure` call does
+not change an open scope. Scopes nest, and disposing one restores the scope
+around it.
+
+Build a reusable snapshot with `Create` when the same overrides are used
+repeatedly:
+
+```csharp
+static readonly MonadOptions DebugOptions =
+    MonadOptions.Create(options => options.UseErrorCodeFactory(new MyErrorCodeFactory()));
+
+using (MonadOptions.CreateScope(DebugOptions)) { /* ... */ }
+```
+
+Because a scope applies to the current asynchronous flow, concurrent flows each
+see their own options. This makes scopes safe to use in parallel tests.
+
+> [!NOTE]
+> A scope affects work started inside it. It does not affect work that was
+> already running when the scope was created.
