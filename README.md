@@ -5,9 +5,9 @@
 
 ## Documentation
 
-- [Draekien-Industries](https://draekien-industries.wpei.me/)
-- [Breaking Changes](BREAKING_CHANGES.md) - deprecated API and what replaces it
-  in the next major release
+- [Draekien-Industries](https://draekien-industries.wpei.me/) - the published
+  documentation, including the Deprecations page listing API that the next major
+  release removes
 - [Contributing](CONTRIBUTING.md) - how to build, test, and release this
   repository
 

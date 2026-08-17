@@ -16,9 +16,16 @@ title becomes the version-determining subject — a `!` in a PR title ships a
 major release. Use `!` only when something is actually being removed.
 
 **Deprecate; never remove.** Public API is obsoleted with a message naming both
-its replacement and the version that removes it, recorded in
-`BREAKING_CHANGES.md`, and removed only in the next major. Deleting public API
-outright is not an option, however small the change looks.
+its replacement and the version that removes it, and removed only in the next
+major. Deleting public API outright is not an option, however small the change
+looks.
+
+**Deprecations are tracked in GitBook, not here.** The published documentation
+carries the Deprecations page, and it is the source of truth for what is going
+away and when. Do not reintroduce a `BREAKING_CHANGES.md` — a second list drifts
+from the first. The documentation source lives in the
+[draekien-industries/docs](https://github.com/draekien-industries/docs)
+repository.
 
 **Comment only public API surface.** XML doc comments on public members; no
 explanatory comments inside method bodies. `CS1591` is suppressed, so the build

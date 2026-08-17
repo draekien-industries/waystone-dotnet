@@ -62,9 +62,21 @@ determines the version.** Give it the same care as a commit message, and reserve
 Public API is deprecated, never deleted:
 
 1. Mark the old member `[Obsolete]` with a message naming its replacement and
-   the version that removes it.
-2. Record the change in [BREAKING_CHANGES.md](BREAKING_CHANGES.md).
-3. Remove it in the next major release, not before.
+   the version that removes it, so it reads the same in the IDE as it does in the
+   documentation:
+
+   ```csharp
+   [Obsolete(
+       "Use TryAsync instead. This overload will be removed in v6 of Waystone.Monads.")]
+   ```
+
+2. Add it to the Deprecations page in the [published documentation](https://draekien-industries.wpei.me/),
+   in the same change. Record the version that deprecated it and the version that
+   removes it, grouped under the owning package. The documentation is the source
+   of truth for what is deprecated — this repository does not track it separately.
+3. Remove it in the next major release, not before. When that major is cut, delete
+   the members, move their entries into the release notes, and clear the
+   Deprecations page for the next cycle.
 
 Note that `CS0618` is suppressed in `Waystone.Monads.csproj`, so the build will
 not flag call sites of your own obsoleted API. Search for them yourself.
