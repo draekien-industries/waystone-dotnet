@@ -2,6 +2,23 @@
 
 An interop package for using FluentValidation with Waystone.Monads
 
+## Configuration
+
+This package's options are configured through `MonadOptions`, so they are set
+alongside the core options and respect `MonadOptions.BeginScope`:
+
+```csharp
+MonadOptions.Configure(options => options
+    .UseValidationErrorCode("validation.failed")
+    .UseFallbackValidationErrorMessage("One or more validation errors occurred."));
+
+// or scoped to a region of code
+using (MonadOptions.BeginScope(options => options.UseValidationErrorCode("debug.validation")))
+{
+    Error error = validationErr.ToError(); // code is "debug.validation"
+}
+```
+
 ## ValidationErr
 
 A decorator for the `ValidationResult` provided by FluentValidation which

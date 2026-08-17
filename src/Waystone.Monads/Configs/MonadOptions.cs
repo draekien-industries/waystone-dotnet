@@ -1,13 +1,14 @@
 namespace Waystone.Monads.Configs;
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using Options;
 using Results.Errors;
 
 /// <summary>Global configuration options for the Waystone.Monads library.</summary>
-[ExcludeFromCodeCoverage]
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
@@ -15,6 +16,12 @@ public sealed class MonadOptions
 {
     private static readonly Lazy<MonadOptions> Singleton =
         new(() => new MonadOptions());
+
+    internal static readonly AsyncLocal<MonadOptions?> ScopedOptions = new();
+
+    private static volatile bool _scopingHasBeenUsed;
+
+    private ConcurrentDictionary<Type, IMonadOptionsSatellite>? _satellites;
 
     private MonadOptions()
     {
@@ -24,12 +31,52 @@ public sealed class MonadOptions
         FallbackErrorMessage = "An unexpected error occurred.";
     }
 
+    private MonadOptions(MonadOptions source)
+    {
+        ExceptionLogger = source.ExceptionLogger;
+        ErrorCodeFactory = source.ErrorCodeFactory;
+        FallbackErrorCode = source.FallbackErrorCode;
+        FallbackErrorMessage = source.FallbackErrorMessage;
+
+        ConcurrentDictionary<Type, IMonadOptionsSatellite>? satellites =
+            source._satellites;
+
+        if (satellites is null)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<Type, IMonadOptionsSatellite> satellite in
+                 satellites)
+        {
+            Satellites[satellite.Key] = satellite.Value.Clone();
+        }
+    }
+
     internal static MonadOptions Global => Singleton.Value;
+
+    internal static MonadOptions Current =>
+        _scopingHasBeenUsed ? ScopedOptions.Value ?? Global : Global;
+
+    private ConcurrentDictionary<Type, IMonadOptionsSatellite> Satellites =>
+        LazyInitializer.EnsureInitialized(ref _satellites)!;
 
     internal Option<Action<Exception, CallerInfo>> ExceptionLogger { get; set; }
     internal ErrorCodeFactory ErrorCodeFactory { get; set; }
     internal string FallbackErrorCode { get; set; }
     internal string FallbackErrorMessage { get; set; }
+
+    internal T Satellite<T>(Func<T> create)
+        where T : class, IMonadOptionsSatellite
+    {
+        if (_satellites is { } satellites
+         && satellites.TryGetValue(typeof(T), out IMonadOptionsSatellite? found))
+        {
+            return (T)found;
+        }
+
+        return (T)Satellites.GetOrAdd(typeof(T), _ => create());
+    }
 
     internal void Log(Exception exception, CallerInfo callerInfo)
     {
@@ -56,6 +103,73 @@ public sealed class MonadOptions
     public static void Configure(Action<MonadOptions> configure)
     {
         configure.Invoke(Global);
+    }
+
+    /// <summary>
+    /// Creates a snapshot of the options that are currently in effect, with
+    /// the provided configuration applied on top.
+    /// </summary>
+    /// <remarks>
+    /// Options that the <paramref name="configure" /> action does not set are
+    /// inherited from the options in effect when this method is called. The
+    /// returned instance is detached, so later calls to <see cref="Configure" />
+    /// do not affect it.
+    /// </remarks>
+    /// <param name="configure">
+    /// The action that will configure the returned
+    /// <see cref="MonadOptions" />
+    /// </param>
+    /// <returns>The created <see cref="MonadOptions" />.</returns>
+    internal static MonadOptions Create(Action<MonadOptions> configure)
+    {
+        var options = new MonadOptions(Current);
+        configure.Invoke(options);
+        return options;
+    }
+
+    /// <summary>
+    /// Overrides the options for the current asynchronous flow until the
+    /// returned scope is disposed.
+    /// </summary>
+    /// <remarks>
+    /// The scope applies to work started inside it, including work that
+    /// continues after an <c>await</c>. It does not affect work that was already
+    /// running when the scope was created, and it does not modify the globally
+    /// configured options. Scopes may be nested, and disposing one restores the
+    /// scope that surrounded it.
+    /// </remarks>
+    /// <param name="configure">
+    /// The action that will configure the scoped
+    /// <see cref="MonadOptions" />
+    /// </param>
+    /// <returns>
+    /// A <see cref="MonadOptionsScope" /> which restores the previous options
+    /// when disposed.
+    /// </returns>
+    public static MonadOptionsScope BeginScope(
+        Action<MonadOptions> configure) =>
+        BeginScope(Create(configure));
+
+    /// <summary>
+    /// Overrides the options for the current asynchronous flow with the
+    /// provided options until the returned scope is disposed.
+    /// </summary>
+    /// <remarks>
+    /// The provided <paramref name="options" /> are used as they are rather
+    /// than copied, so the caller must pass an instance that nothing else holds.
+    /// Use <see cref="Create" /> to build one.
+    /// </remarks>
+    /// <param name="options">The options to use for the duration of the scope.</param>
+    /// <returns>
+    /// A <see cref="MonadOptionsScope" /> which restores the previous options
+    /// when disposed.
+    /// </returns>
+    internal static MonadOptionsScope BeginScope(MonadOptions options)
+    {
+        _scopingHasBeenUsed = true;
+        MonadOptions? previous = ScopedOptions.Value;
+        ScopedOptions.Value = options;
+        return new MonadOptionsScope(previous);
     }
 
     /// <summary>

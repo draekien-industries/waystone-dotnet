@@ -12,8 +12,17 @@ public sealed class MonadOptionsTests
     [Fact]
     public void GivenCustomErrorCodeFactory_ThenErrorCodeFactoryShouldBeSet()
     {
-        MonadOptions.Configure(option => option.UseErrorCodeFactory(new CustomErrorCodeFactory()));
-        MonadOptions.Global.ErrorCodeFactory.ShouldNotBeNull();
-        MonadOptions.Global.ErrorCodeFactory.ShouldBeOfType<CustomErrorCodeFactory>();
+        ErrorCodeFactory original = MonadOptions.Global.ErrorCodeFactory;
+
+        try
+        {
+            MonadOptions.Configure(option => option.UseErrorCodeFactory(new CustomErrorCodeFactory()));
+            MonadOptions.Global.ErrorCodeFactory.ShouldNotBeNull();
+            MonadOptions.Global.ErrorCodeFactory.ShouldBeOfType<CustomErrorCodeFactory>();
+        }
+        finally
+        {
+            MonadOptions.Configure(option => option.UseErrorCodeFactory(original));
+        }
     }
 }

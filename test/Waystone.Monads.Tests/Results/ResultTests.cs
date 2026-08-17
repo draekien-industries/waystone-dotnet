@@ -43,9 +43,23 @@ public sealed class ResultTests
         GivenAsyncFactoryThatSucceeds_WhenBindingFactory_ThenReturnOk()
     {
         var callback = Substitute.For<Func<Exception, string>>();
+        Result<int, string> result = await Result.TryAsync(
+            () => Task.FromResult(1),
+            callback);
+        result.ShouldBe(Result.Ok<int, string>(1));
+        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public async Task
+        GivenObsoleteAsyncTry_WhenBindingFactory_ThenReturnOk()
+    {
+        var callback = Substitute.For<Func<Exception, string>>();
+#pragma warning disable CS0618 // Type or member is obsolete
         Result<int, string> result = await Result.Try(
             () => Task.FromResult(1),
             callback);
+#pragma warning restore CS0618 // Type or member is obsolete
         result.ShouldBe(Result.Ok<int, string>(1));
         callback.DidNotReceive().Invoke(Arg.Any<Exception>());
     }
@@ -56,7 +70,7 @@ public sealed class ResultTests
     {
         var callback = Substitute.For<Func<Exception, string>>();
         callback.Invoke(Arg.Any<Exception>()).Returns("error");
-        Result<int, string> result = await Result.Try(
+        Result<int, string> result = await Result.TryAsync(
             () =>
             {
                 throw new Exception();

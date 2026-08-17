@@ -36,6 +36,74 @@ representing an error and containing an error value.
 > Each concrete result type requires the other's generic type parameters in
 > order to correlate correctly with each other.
 
+### Creating Results
+
+Supply both type parameters when you provide your own error type:
+
+```csharp
+Result<int, string> result = Result.Ok<int, string>(1);
+Result<int, string> error = Result.Err<int, string>("something went wrong");
+```
+
+If you are happy with the built in `Error` type, use the single type parameter
+overloads instead. These default `TErr` to `Error`:
+
+```csharp
+Result<int, Error> result = Result.Ok<int>(1);
+Result<int, Error> error = Result.Err<int>(new Error("MyCode", "something went wrong"));
+```
+
+An `Error` code can be derived from an enum value, which keeps the code stable
+across occurrences of the same error type:
+
+```csharp
+enum UserErrors
+{
+    NotFound,
+}
+
+// code becomes "UserErrors.NotFound"
+Result<User, Error> error = Result.Err<User>(UserErrors.NotFound, "the user was not found");
+
+// or, when you need the error on its own
+Error err = Error.FromEnum(UserErrors.NotFound, "the user was not found");
+```
+
+Use `Try` to capture the value of a factory that may throw. The single type
+parameter overload converts the exception using `Error.FromException`:
+
+```csharp
+Result<int, string> custom = Result.Try(() => int.Parse(input), ex => ex.Message);
+Result<int, Error> parsed = Result.Try<int>(() => int.Parse(input));
+```
+
+## Async
+
+Both monads provide `TryAsync` for factories that return a `Task`:
+
+```csharp
+Result<User, Error> result = await Result.TryAsync<User>(() => FetchUserAsync(id));
+Option<User> option = await Option.TryAsync(() => FetchUserAsync(id));
+```
+
+> [!NOTE]
+> The `Try` overloads that accept an async factory are obsolete and will be
+> removed in v6. Call `TryAsync` instead.
+
+The terminal operations are also available on `Task` and `ValueTask` receivers,
+so you do not have to await the monad before unwrapping it:
+
+```csharp
+User user = await FetchUserAsync(id).UnwrapAsync();
+User userOrGuest = await FetchUserAsync(id).UnwrapOrAsync(Guest);
+User expected = await FetchUserAsync(id).ExpectAsync("the user must exist");
+Error error = await FetchUserAsync(id).UnwrapErrAsync();
+```
+
+`Result` provides `UnwrapAsync`, `UnwrapErrAsync`, `UnwrapOrAsync`,
+`UnwrapOrDefaultAsync`, `ExpectAsync` and `ExpectErrAsync`. `Option` provides
+`UnwrapAsync`, `UnwrapOrAsync`, `UnwrapOrDefaultAsync` and `ExpectAsync`.
+
 ## Configuration
 
 You can configure an action to be invoked when an exception is caught and
@@ -64,3 +132,43 @@ MonadOptions.Configure(options => options.UseErrorCodeFactory(new MyErrorCodeFac
 > ![NOTE]
 > The `MonadOptions` class acts like a singleton, so you should only configure it once
 > in your application's life-cycle.
+
+### Scoped Configuration
+
+When you need different options for one region of code - a single request, a
+test, or a block you are debugging - create a scope instead of reconfiguring the
+whole application:
+
+```csharp
+using (MonadOptions.BeginScope(options => options.UseFallbackErrorCode("Debug")))
+{
+    // reads inside here, including after an await, see "Debug"
+    var result = Result.Try<int>(() => int.Parse(input));
+}
+
+// the global configuration is unchanged out here
+```
+
+Options you do not set are inherited from the configuration in effect when the
+scope is created, and the scope is a snapshot, so a later `Configure` call does
+not change an open scope. Scopes nest, and disposing one restores the scope
+around it.
+
+Scopes accept the same configuration methods as `Configure`, so an override can
+change any option:
+
+```csharp
+using (MonadOptions.BeginScope(options => options
+    .UseErrorCodeFactory(new MyErrorCodeFactory())
+    .UseFallbackErrorMessage("Something went wrong while debugging.")))
+{
+    // ...
+}
+```
+
+Because a scope applies to the current asynchronous flow, concurrent flows each
+see their own options. This makes scopes safe to use in parallel tests.
+
+> [!NOTE]
+> A scope affects work started inside it. It does not affect work that was
+> already running when the scope was created.
