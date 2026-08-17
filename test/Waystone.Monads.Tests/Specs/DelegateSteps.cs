@@ -134,7 +134,7 @@ public sealed class DelegateSteps(ScenarioContext context)
     {
         var func = context.Get<Func<string, Task>>();
 
-        func.Received(1).Invoke(Arg.Any<string>());
+        func.Received(1).Invoke(message);
     }
 
     [Given("an async delegate for string returning Task")]

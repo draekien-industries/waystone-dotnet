@@ -107,7 +107,7 @@ namespace Waystone.Monads.Specs.Results.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Specs/Results/Features/MatchExtensions.feature.ndjson", 10);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Specs/Results/Features/MatchExtensions.feature.ndjson", 18);
         }
         
         async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
@@ -505,6 +505,382 @@ namespace Waystone.Monads.Specs.Results.Features
         await testRunner.ThenAsync("the \"sync\" \"Error\" handler should have been called with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 74
+        await testRunner.AndAsync("the \"sync\" \"Ok\" handler should have not been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match on ValueTask OK Result with async OK and async Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match on ValueTask OK Result with async OK and async Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOnValueTaskOKResultWithAsyncOKAndAsyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "8";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match on ValueTask OK Result with async OK and async Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 76
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 77
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 78
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 79
+        await testRunner.AndAsync("an \"async\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 80
+        await testRunner.AndAsync("an \"async\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 81
+        await testRunner.WhenAsync("invoking MatchAsync with the \"async\" OK handler and \"async\" Error handler on the " +
+                        "result \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 82
+        await testRunner.ThenAsync("the \"async\" \"Ok\" handler should have been called with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 83
+        await testRunner.AndAsync("the \"async\" \"Error\" handler should not have been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match on ValueTask OK Result with sync OK and async Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match on ValueTask OK Result with sync OK and async Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOnValueTaskOKResultWithSyncOKAndAsyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "9";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match on ValueTask OK Result with sync OK and async Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 85
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 86
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 87
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 88
+        await testRunner.AndAsync("an \"sync\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 89
+        await testRunner.AndAsync("an \"async\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 90
+        await testRunner.WhenAsync("invoking MatchAsync with the \"sync\" OK handler and \"async\" Error handler on the r" +
+                        "esult \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 91
+        await testRunner.ThenAsync("the \"sync\" \"Ok\" handler should have been called with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 92
+        await testRunner.AndAsync("the \"async\" \"Error\" handler should not have been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match on ValueTask OK Result with async OK and sync Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match on ValueTask OK Result with async OK and sync Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOnValueTaskOKResultWithAsyncOKAndSyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "10";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match on ValueTask OK Result with async OK and sync Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 94
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 95
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 96
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 97
+        await testRunner.AndAsync("an \"async\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 98
+        await testRunner.AndAsync("an \"sync\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 99
+        await testRunner.WhenAsync("invoking MatchAsync with the \"async\" OK handler and \"sync\" Error handler on the r" +
+                        "esult \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 100
+        await testRunner.ThenAsync("the \"async\" \"Ok\" handler should have been called with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 101
+        await testRunner.AndAsync("the \"sync\" \"Error\" handler should not have been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match on ValueTask OK Result with sync OK and sync Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match on ValueTask OK Result with sync OK and sync Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOnValueTaskOKResultWithSyncOKAndSyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "11";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match on ValueTask OK Result with sync OK and sync Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 103
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 104
+        await testRunner.GivenAsync("an OK result with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 105
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 106
+        await testRunner.AndAsync("an \"sync\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 107
+        await testRunner.AndAsync("an \"sync\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 108
+        await testRunner.WhenAsync("invoking MatchAsync with the \"sync\" OK handler and \"sync\" Error handler on the re" +
+                        "sult \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 109
+        await testRunner.ThenAsync("the \"sync\" \"Ok\" handler should have been called with value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 110
+        await testRunner.AndAsync("the \"sync\" \"Error\" handler should not have been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match ok ValueTask Error Result with async OK and async Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match ok ValueTask Error Result with async OK and async Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOkValueTaskErrorResultWithAsyncOKAndAsyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "12";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match ok ValueTask Error Result with async OK and async Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 112
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 113
+        await testRunner.GivenAsync("an Error result with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 114
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 115
+        await testRunner.AndAsync("an \"async\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 116
+        await testRunner.AndAsync("an \"async\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 117
+        await testRunner.WhenAsync("invoking MatchAsync with the \"async\" OK handler and \"async\" Error handler on the " +
+                        "result \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 118
+        await testRunner.ThenAsync("the \"async\" \"Error\" handler should have been called with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 119
+        await testRunner.AndAsync("the \"async\" \"Ok\" handler should have not been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match on ValueTask Error with sync OK and async Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match on ValueTask Error with sync OK and async Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOnValueTaskErrorWithSyncOKAndAsyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "13";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match on ValueTask Error with sync OK and async Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 121
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 122
+        await testRunner.GivenAsync("an Error result with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 123
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 124
+        await testRunner.AndAsync("an \"sync\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 125
+        await testRunner.AndAsync("an \"async\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 126
+        await testRunner.WhenAsync("invoking MatchAsync with the \"sync\" OK handler and \"async\" Error handler on the r" +
+                        "esult \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 127
+        await testRunner.ThenAsync("the \"async\" \"Error\" handler should have been called with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 128
+        await testRunner.AndAsync("the \"sync\" \"Ok\" handler should have not been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match on ValueTask Error Result with async OK and sync Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match on ValueTask Error Result with async OK and sync Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOnValueTaskErrorResultWithAsyncOKAndSyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "14";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match on ValueTask Error Result with async OK and sync Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 130
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 131
+        await testRunner.GivenAsync("an Error result with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 132
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 133
+        await testRunner.AndAsync("an \"async\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 134
+        await testRunner.AndAsync("an \"sync\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 135
+        await testRunner.WhenAsync("invoking MatchAsync with the \"async\" OK handler and \"sync\" Error handler on the r" +
+                        "esult \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 136
+        await testRunner.ThenAsync("the \"sync\" \"Error\" handler should have been called with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 137
+        await testRunner.AndAsync("the \"async\" \"Ok\" handler should have not been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.FactAttribute(DisplayName="Match on ValueTask Error with sync OK and sync Error handlers")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Match Extensions for Async Result")]
+        [global::Xunit.TraitAttribute("Description", "Match on ValueTask Error with sync OK and sync Error handlers")]
+        public async global::System.Threading.Tasks.Task MatchOnValueTaskErrorWithSyncOKAndSyncErrorHandlers()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "15";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Match on ValueTask Error with sync OK and sync Error handlers", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 139
+    this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 140
+        await testRunner.GivenAsync("an Error result with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 141
+        await testRunner.AndAsync("the result is wrapped in a ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 142
+        await testRunner.AndAsync("an \"sync\" \"Ok\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 143
+        await testRunner.AndAsync("an \"sync\" \"Error\" handler that returns no value", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 144
+        await testRunner.WhenAsync("invoking MatchAsync with the \"sync\" OK handler and \"sync\" Error handler on the re" +
+                        "sult \"ValueTask\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 145
+        await testRunner.ThenAsync("the \"sync\" \"Error\" handler should have been called with value \"Error\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 146
         await testRunner.AndAsync("the \"sync\" \"Ok\" handler should have not been called", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
