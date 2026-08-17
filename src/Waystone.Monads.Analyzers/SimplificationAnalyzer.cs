@@ -38,7 +38,9 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
         var invocation = (IInvocationOperation)context.Operation;
         string name = invocation.TargetMethod.Name;
 
-        if (!symbols.IsMonadInvocation(invocation))
+        if (name is not ("Flatten" or "FlattenAsync" or "UnwrapOr"
+            or "UnwrapOrAsync")
+         || !symbols.IsMonadInvocation(invocation))
         {
             return;
         }

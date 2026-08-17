@@ -79,6 +79,13 @@ To add one:
 1. Add the descriptor to `Rules.cs` through `Bug`, `Idiom` or `Migration`.
 2. Add a row to `AnalyzerReleases.Unshipped.md` — RS2008 fails the build without
    it, and `src/**` treats warnings as errors. Use `Disabled` for a `WM3xxx` rule.
+
+   Before merging, move the row into `AnalyzerReleases.Shipped.md` under the
+   version the PR will publish, and leave `Unshipped.md` holding only its header.
+   Merging publishes, so a row left in `Unshipped.md` is wrong the moment the PR
+   lands, and this repository has no separate release step that would move it
+   later. The version is whatever GitVersion computes from the PR title — a `feat`
+   on top of `v5.2.0` publishes `5.3.0`.
 3. Implement it on an existing analyzer, or a new one deriving from
    `MonadAnalyzer`. Resolve library types through the injected `MonadSymbols`;
    never add a project reference to `Waystone.Monads`.

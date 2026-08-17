@@ -74,13 +74,22 @@ public abstract class MonadCodeFix : CodeFixProvider
         return document.WithSyntaxRoot(updated);
     }
 
+    protected static (InvocationExpressionSyntax Invocation,
+        MemberAccessExpressionSyntax Access)? MemberInvocationAt(
+            SyntaxNode node) =>
+        node.FirstAncestorOrSelf<InvocationExpressionSyntax>() is
+            {
+                Expression: MemberAccessExpressionSyntax access,
+            } invocation
+            ? (invocation, access)
+            : null;
+
     protected static ExpressionSyntax OptionFactoryCall(
         string name,
         ITypeSymbol? typeArgument,
         SemanticModel model,
         int position,
-        MonadSymbols symbols,
-        params ExpressionSyntax[] arguments)
+        MonadSymbols symbols)
     {
         SimpleNameSyntax member = typeArgument is null
             ? SyntaxFactory.IdentifierName(name)
@@ -95,12 +104,7 @@ public abstract class MonadCodeFix : CodeFixProvider
                     SyntaxKind.SimpleMemberAccessExpression,
                     OptionFactoryName(model, position, symbols),
                     member))
-           .WithArgumentList(
-                SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SeparatedList(
-                        Enumerable.Select(
-                            arguments,
-                            SyntaxFactory.Argument))));
+           .WithArgumentList(SyntaxFactory.ArgumentList());
     }
 
     private static ExpressionSyntax OptionFactoryName(
@@ -115,10 +119,6 @@ public abstract class MonadCodeFix : CodeFixProvider
             ? SyntaxFactory.IdentifierName("Option")
             : SyntaxFactory.ParseExpression(
                 "Waystone.Monads.Options.Option");
-
-    protected static string Display(ITypeSymbol type) =>
-        type.WithNullableAnnotation(NullableAnnotation.None)
-           .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
 
     protected static TypeSyntax TypeNameOf(
         ITypeSymbol type,

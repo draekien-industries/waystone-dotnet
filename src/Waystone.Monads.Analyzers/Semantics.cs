@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-internal static class Semantics
+public static class Semantics
 {
     public static readonly ImmutableHashSet<string> UnwrapNames =
         ImmutableHashSet.Create(

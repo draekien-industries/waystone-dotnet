@@ -30,7 +30,7 @@ public sealed class UseBaseMonadTypeCodeFix : MonadCodeFix
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                "Use " + Display(declared),
+                "Use " + Semantics.Display(declared),
                 token => ReplaceAsync(
                     context.Document,
                     node,

@@ -192,6 +192,6 @@ public static class Rules
             severity,
             enabledByDefault,
             description,
-            "https://draekien-industries.wpei.me/analyzer-rules#"
+            "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
           + id.ToLowerInvariant());
 }

@@ -36,12 +36,9 @@ public sealed class UseNoneCodeFix : MonadCodeFix
 
         var info = model.GetTypeInfo(target, context.CancellationToken);
 
-        var option = info.Type ?? info.ConvertedType;
-
-        if (diagnostic.Id == "WM1004")
-        {
-            option = info.ConvertedType;
-        }
+        var option = diagnostic.Id == "WM1004"
+            ? info.ConvertedType
+            : info.Type ?? info.ConvertedType;
 
         var arguments = symbols.TypeArgumentsOf(option);
 
@@ -61,7 +58,7 @@ public sealed class UseNoneCodeFix : MonadCodeFix
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                "Use Option.None<" + Display(value) + ">()",
+                "Use Option.None<" + Semantics.Display(value) + ">()",
                 token => ReplaceAsync(
                     context.Document,
                     target,

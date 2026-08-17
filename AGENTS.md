@@ -133,6 +133,11 @@ RS2008 fails the build without one, and `src/**` builds with
 `TreatWarningsAsErrors`. Use severity `Disabled` in that table for a rule that
 ships off.
 
+**Move the release-tracking row to `Shipped.md` before merging, not after.**
+Merging publishes, and there is no separate release step that would move it later,
+so a row left in `Unshipped.md` is wrong from the moment the PR lands. File it
+under the version GitVersion will compute from the PR title.
+
 ## Documentation
 
 Agent-facing documentation lives in `docs/`. Read [docs/AGENTS.md](docs/AGENTS.md) before reading or writing anything there.

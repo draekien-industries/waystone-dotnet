@@ -15,6 +15,15 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
             Rules.ResultWithIdenticalTypeArguments,
             Rules.DerivedMonadTypeDeclared);
 
+    private static readonly ImmutableHashSet<string> MonadNames =
+        ImmutableHashSet.Create(
+            "Option",
+            "Some",
+            "None",
+            "Result",
+            "Ok",
+            "Err");
+
     protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
@@ -27,6 +36,11 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
         MonadSymbols symbols)
     {
         var node = (GenericNameSyntax)context.Node;
+
+        if (!MonadNames.Contains(node.Identifier.ValueText))
+        {
+            return;
+        }
 
         if (!Semantics.IsDeclarationTypePosition(Outermost(node)))
         {

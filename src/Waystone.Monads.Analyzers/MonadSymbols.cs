@@ -223,15 +223,6 @@ public sealed class MonadSymbols
                 invocation.SemanticModel.GetTypeInfo(access.Expression).Type));
     }
 
-    public bool DeclaresMonadMember(INamedTypeSymbol type) =>
-        type.GetMembers()
-           .OfType<IMethodSymbol>()
-           .Any(
-                method => IsMonad(UnwrapAwaitable(method.ReturnType)))
-     || type.GetMembers()
-           .OfType<IPropertySymbol>()
-           .Any(property => IsMonad(property.Type));
-
     private static bool IsConstructedFrom(
         ITypeSymbol? type,
         INamedTypeSymbol definition) =>

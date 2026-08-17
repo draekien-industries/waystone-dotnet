@@ -21,10 +21,7 @@ public sealed class UseFromNullableCodeFix : MonadCodeFix
         SemanticModel model,
         MonadSymbols symbols)
     {
-        if (node.FirstAncestorOrSelf<InvocationExpressionSyntax>() is not
-            {
-                Expression: MemberAccessExpressionSyntax access,
-            } invocation)
+        if (MemberInvocationAt(node) is not var (invocation, access))
         {
             return;
         }

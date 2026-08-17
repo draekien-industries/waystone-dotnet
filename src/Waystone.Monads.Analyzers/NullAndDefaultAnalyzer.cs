@@ -62,7 +62,7 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
             Diagnostic.Create(
                 Rules.NullAssignedToMonad,
                 expression.GetLocation(),
-                Display(type!)));
+                Semantics.Display(type!)));
     }
 
     private static void AnalyzeDefault(
@@ -87,7 +87,7 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
             Diagnostic.Create(
                 Rules.DefaultOfMonad,
                 expression.GetLocation(),
-                Display(type!)));
+                Semantics.Display(type!)));
     }
 
     private static void AnalyzeConversion(
@@ -172,8 +172,4 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
             } => variable.Type,
             _ => null,
         };
-
-    private static string Display(ITypeSymbol type) =>
-        type.WithNullableAnnotation(NullableAnnotation.None)
-           .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
 }

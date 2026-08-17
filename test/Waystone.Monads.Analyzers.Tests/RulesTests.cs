@@ -44,7 +44,7 @@ public class RulesTests
     public void EveryRuleCarriesAHelpLink(string id) =>
         Rule(id)
            .HelpLinkUri.ShouldBe(
-                "https://draekien-industries.wpei.me/analyzer-rules#"
+                "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
               + id.ToLowerInvariant());
 
     [Fact]

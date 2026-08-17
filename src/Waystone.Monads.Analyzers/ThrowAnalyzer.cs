@@ -9,8 +9,8 @@ using System.Linq;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ThrowAnalyzer : MonadAnalyzer
 {
-    private static readonly ImmutableHashSet<string> ContractExceptions =
-        ImmutableHashSet.Create(
+    private static readonly ImmutableArray<string> ContractExceptionNames =
+        ImmutableArray.Create(
             "System.ArgumentException",
             "System.NotImplementedException",
             "System.NotSupportedException",
@@ -26,20 +26,29 @@ public sealed class ThrowAnalyzer : MonadAnalyzer
 
     protected override void Register(
         CompilationStartAnalysisContext context,
-        MonadSymbols symbols) =>
+        MonadSymbols symbols)
+    {
+        var contractExceptions = ContractExceptionNames
+           .Select(context.Compilation.GetTypeByMetadataName)
+           .Where(type => type is not null)
+           .ToImmutableHashSet(SymbolEqualityComparer.Default);
+
         context.RegisterOperationAction(
-            operation => Analyze(operation, symbols),
+            operation => Analyze(operation, symbols, contractExceptions),
             OperationKind.Throw);
+    }
 
     private static void Analyze(
         OperationAnalysisContext context,
-        MonadSymbols symbols)
+        MonadSymbols symbols,
+        ImmutableHashSet<ISymbol?> contractExceptions)
     {
         var thrown = (IThrowOperation)context.Operation;
 
         if (thrown.Exception is null
          || IsContractException(
-                Semantics.Unconverted(thrown.Exception).Type)
+                Semantics.Unconverted(thrown.Exception).Type,
+                contractExceptions)
          || IsInsideTryFactory(thrown, symbols))
         {
             return;
@@ -72,11 +81,13 @@ public sealed class ThrowAnalyzer : MonadAnalyzer
                 member.Name));
     }
 
-    private static bool IsContractException(ITypeSymbol? type)
+    private static bool IsContractException(
+        ITypeSymbol? type,
+        ImmutableHashSet<ISymbol?> contractExceptions)
     {
         for (var current = type; current is not null; current = current.BaseType)
         {
-            if (ContractExceptions.Contains(current.ToDisplayString()))
+            if (contractExceptions.Contains(current))
             {
                 return true;
             }
