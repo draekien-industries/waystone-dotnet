@@ -56,6 +56,12 @@ public static class Rules
         "'{0}?' has three states where two are meaningful. Drop the annotation — '{1}' already expresses the case you are reaching for.",
         "Option and Result are records, so the compiler accepts a nullable annotation on one. The annotation adds a third state to a type whose whole purpose is to have exactly two, and the null it admits throws on the next member access rather than being handled as an absence. This reports alongside WM2011 on a nullable derived case such as 'Some<int>?' deliberately: both statements are independently true and each has its own fix.");
 
+    public static readonly DiagnosticDescriptor OptionOfZeroValuedType = Bug(
+        "WM1009",
+        "Option of bool or of an enum with a zero member",
+        "'{0}' cannot hold the default of '{1}', because 'Option.Some' throws on it. {2}.",
+        "Option.Some rejects a value equal to default(T), so an Option over a type whose zero is a meaningful value cannot represent part of its own domain. WM1001 and WM1004 catch a call site that provably passes a default; this rule catches the declaration, before anything reaches the throwing path. The scope is bool and enums with a zero member deliberately — widening it to every value type would fire on Option<int> throughout code that works today, and a Warning ships enabled to every consumer on upgrade.");
+
     public static readonly DiagnosticDescriptor UnwrapUsed = Idiom(
         "WM2001",
         "Unwrap throws on the failure case",
