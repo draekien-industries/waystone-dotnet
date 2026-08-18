@@ -35,36 +35,8 @@ WM3002 | Design | Disabled | A throw could be a Result
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-WM2014 | Usage | Info | FlatMap has been renamed to AndThen
-
-## Release 5.6.0
-
-### New Rules
-
-Rule ID | Category | Severity | Notes
---------|----------|----------|-------
 WM1007 | Reliability | Warning | A type derives from Option or Result
-
-## Release 5.7.0
-
-### New Rules
-
-Rule ID | Category | Severity | Notes
---------|----------|----------|-------
 WM1008 | Reliability | Warning | An Option or Result is declared nullable
-
-## Release 5.8.0
-
-### New Rules
-
-Rule ID | Category | Severity | Notes
---------|----------|----------|-------
 WM1009 | Reliability | Warning | Option of bool or of an enum with a zero member
-
-## Release 5.10.0
-
-### New Rules
-
-Rule ID | Category | Severity | Notes
---------|----------|----------|-------
+WM2014 | Usage | Info | FlatMap has been renamed to AndThen
 WM2015 | Usage | Info | OrDefault on a value type cannot express the absent case
