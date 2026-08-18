@@ -69,6 +69,7 @@ public sealed class ThrowAnalyzer : MonadAnalyzer
                 Diagnostic.Create(
                     Rules.ThrowInResultMember,
                     thrown.Syntax.GetLocation(),
+                    member.Name,
                     Semantics.Display(returned!)));
 
             return;

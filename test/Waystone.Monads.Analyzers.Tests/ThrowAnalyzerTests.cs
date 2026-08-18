@@ -16,7 +16,7 @@ public class ThrowAnalyzerTests
             """,
             Verify.Diagnostic(Rules.ThrowInResultMember)
                .WithLocation(0)
-               .WithArguments("Result<int, string>"));
+               .WithArguments("Parse", "Result<int, string>"));
 
     [Fact]
     public Task FlagsAThrowInAnAsyncResultReturningMember() =>
@@ -30,7 +30,7 @@ public class ThrowAnalyzerTests
             """,
             Verify.Diagnostic(Rules.ThrowInResultMember)
                .WithLocation(0)
-               .WithArguments("Result<int, string>"));
+               .WithArguments("ParseAsync", "Result<int, string>"));
 
     [Fact]
     public Task IgnoresArgumentValidation() =>

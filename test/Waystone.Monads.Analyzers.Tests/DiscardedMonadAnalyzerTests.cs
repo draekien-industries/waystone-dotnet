@@ -18,7 +18,7 @@ public class DiscardedMonadAnalyzerTests
             """,
             Verify.Diagnostic(Rules.ResultDiscarded)
                .WithLocation(0)
-               .WithArguments("Result<int, string>"));
+               .WithArguments("Save", "Result<int, string>"));
 
     [Fact]
     public Task FlagsADiscardedOptionAtItsOwnSeverity() =>
@@ -33,7 +33,7 @@ public class DiscardedMonadAnalyzerTests
             """,
             Verify.Diagnostic(Rules.OptionDiscarded)
                .WithLocation(0)
-               .WithArguments("Option<int>"));
+               .WithArguments("Find", "Option<int>"));
 
     [Fact]
     public Task FlagsADiscardedAwaitedResult() =>
@@ -49,7 +49,7 @@ public class DiscardedMonadAnalyzerTests
             """,
             Verify.Diagnostic(Rules.ResultDiscarded)
                .WithLocation(0)
-               .WithArguments("Result<int, string>"));
+               .WithArguments("SaveAsync", "Result<int, string>"));
 
     [Fact]
     public Task IgnoresAnExplicitDiscard() =>
@@ -99,5 +99,5 @@ public class DiscardedMonadAnalyzerTests
             """,
             Verify.Diagnostic(Rules.ResultDiscarded)
                .WithLocation(0)
-               .WithArguments("Result<int, string>"));
+               .WithArguments("SaveAsync", "Result<int, string>"));
 }

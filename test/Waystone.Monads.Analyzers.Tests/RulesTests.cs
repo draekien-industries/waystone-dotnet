@@ -47,6 +47,18 @@ public class RulesTests
                 "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
               + id.ToLowerInvariant());
 
+    [Theory]
+    [MemberData(nameof(AllRules))]
+    public void EveryTitleFitsAnErrorListColumn(string id) =>
+        Rule(id).Title.ToString().Length.ShouldBeLessThanOrEqualTo(60);
+
+    [Theory]
+    [MemberData(nameof(MigrationRules))]
+    public void MigrationDescriptionsSayTheyAreOff(string id) =>
+        Rule(id)
+           .Description.ToString()
+           .ShouldStartWith("Disabled by default.");
+
     [Fact]
     public void EveryTierIsPopulated()
     {
