@@ -50,6 +50,12 @@ public static class Rules
         "'{0}' derives from '{1}', which has exactly two cases. Compose the monad instead of inheriting from it.",
         "Option and Result exist to have two states, and every member that switches on them handles two. A third case is invisible to Match, so it takes whichever branch the base case falls into. Both hierarchies close in v6, and a derived type will not compile against it.");
 
+    public static readonly DiagnosticDescriptor NullableMonadDeclared = Bug(
+        "WM1008",
+        "An Option or Result is declared nullable",
+        "'{0}?' has three states where two are meaningful. Drop the annotation — '{1}' already expresses the case you are reaching for.",
+        "Option and Result are records, so the compiler accepts a nullable annotation on one. The annotation adds a third state to a type whose whole purpose is to have exactly two, and the null it admits throws on the next member access rather than being handled as an absence. This reports alongside WM2011 on a nullable derived case such as 'Some<int>?' deliberately: both statements are independently true and each has its own fix.");
+
     public static readonly DiagnosticDescriptor UnwrapUsed = Idiom(
         "WM2001",
         "Unwrap throws on the failure case",

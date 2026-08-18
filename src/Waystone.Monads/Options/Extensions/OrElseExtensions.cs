@@ -20,7 +20,7 @@ public static class OrElseExtensions
     {
         public async Task<Option<T>> OrElseAsync(Func<Option<T>> elseFunc)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return option.IsSome ? option : elseFunc.Invoke();
         }
@@ -39,7 +39,7 @@ public static class OrElseExtensions
     {
         public async Task<Option<T>> OrElseAsync(Func<Option<T>> elseFunc)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return option.IsSome ? option : elseFunc.Invoke();
         }

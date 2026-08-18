@@ -44,3 +44,11 @@ WM2014 | Usage | Info | FlatMap has been renamed to AndThen
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM1007 | Reliability | Warning | A type derives from Option or Result
+
+## Release 5.7.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM1008 | Reliability | Warning | An Option or Result is declared nullable

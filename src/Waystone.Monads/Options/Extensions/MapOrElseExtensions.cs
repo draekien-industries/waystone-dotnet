@@ -56,7 +56,7 @@ public static class MapOrElseExtensions
             Func<TOut> defaultFunc,
             Func<T, TOut> map)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
@@ -123,7 +123,7 @@ public static class MapOrElseExtensions
             Func<TOut> defaultFunc,
             Func<T, TOut> map)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {

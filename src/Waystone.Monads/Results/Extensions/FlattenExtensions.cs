@@ -43,7 +43,7 @@ public static class FlattenExtensions
         /// </returns>
         public async Task<Result<TOk, TErr>> FlattenAsync()
         {
-            Result<Result<TOk, TErr>, TErr>? result =
+            Result<Result<TOk, TErr>, TErr> result =
                 await resultTask.ConfigureAwait(false);
 
             if (result.IsOk) return result.Expect("Expected Ok but found Err.");
@@ -71,7 +71,7 @@ public static class FlattenExtensions
         /// </returns>
         public async Task<Result<TOk, TErr>> FlattenAsync()
         {
-            Result<Result<TOk, TErr>, TErr>? result =
+            Result<Result<TOk, TErr>, TErr> result =
                 await resultTask.ConfigureAwait(false);
 
             if (result.IsOk) return result.Expect("Expected Ok but found Err.");

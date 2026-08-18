@@ -34,7 +34,7 @@ public static class InspectExtensions
 
         public async Task<Option<T>> InspectAsync(Action<T> action)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone) return option;
 
@@ -61,7 +61,7 @@ public static class InspectExtensions
 
         public async Task<Option<T>> InspectAsync(Action<T> action)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone) return option;
 

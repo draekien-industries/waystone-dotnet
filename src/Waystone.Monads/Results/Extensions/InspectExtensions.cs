@@ -56,7 +56,7 @@ public static class InspectExtensions
         public async Task<Result<TOk, TErr>> InspectAsync(
             Func<TOk, Task> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return await result.InspectAsync(action).ConfigureAwait(false);
         }
@@ -80,7 +80,7 @@ public static class InspectExtensions
         /// </returns>
         public async Task<Result<TOk, TErr>> InspectAsync(Action<TOk> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return result.Inspect(action);
         }
@@ -106,7 +106,7 @@ public static class InspectExtensions
         public async Task<Result<TOk, TErr>> InspectAsync(
             Func<TOk, Task> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return await result.InspectAsync(action).ConfigureAwait(false);
         }
@@ -130,7 +130,7 @@ public static class InspectExtensions
         /// </returns>
         public async Task<Result<TOk, TErr>> InspectAsync(Action<TOk> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return result.Inspect(action);
         }

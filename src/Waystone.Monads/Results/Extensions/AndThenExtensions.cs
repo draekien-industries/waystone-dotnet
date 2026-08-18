@@ -111,7 +111,7 @@ public static class AndThenExtensions
         public async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return result.AndThen(factory);
         }
@@ -175,7 +175,7 @@ public static class AndThenExtensions
         public async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return result.AndThen(factory);
         }

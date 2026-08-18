@@ -80,7 +80,7 @@ public static class IsOkAndExtensions
         /// </returns>
         public async Task<bool> IsOkAndAsync(Func<TOk, bool> predicate)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             if (result.IsErr) return false;
 
@@ -136,7 +136,7 @@ public static class IsOkAndExtensions
         /// </returns>
         public async Task<bool> IsOkAndAsync(Func<TOk, bool> predicate)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             if (result.IsErr) return false;
 
