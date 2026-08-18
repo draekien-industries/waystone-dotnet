@@ -175,6 +175,16 @@ puts all of their untested lines in the patch, so a change that added no behavio
 at all fails the check. It is a required check, so it blocks the merge. Close the
 test gap rather than moving the threshold — the gap it found in 5.4.0 was real.
 
+**A PR that touches no filtered path cannot satisfy the required checks.** The
+`main` ruleset requires `codecov/patch`, `Calculate Version` and `Build and run
+tests`, and all three come from `pull-request.yml`, which has a `paths` filter. A
+documentation-only PR matches nothing in it, so the workflow never runs, the three
+checks never report, and the PR sits `BLOCKED` with nothing pending to wait for.
+The ruleset grants `OrganizationAdmin` a standing bypass, so these land with
+`gh pr merge --admin`. That is the accepted trade rather than an oversight —
+widening the filter would run the five-framework matrix over prose. Do not wait on
+checks for a docs-only PR; nothing is coming.
+
 **Move the release-tracking row to `Shipped.md` before merging, not after.**
 Merging publishes, and there is no separate release step that would move it later,
 so a row left in `Unshipped.md` is wrong from the moment the PR lands. File it
