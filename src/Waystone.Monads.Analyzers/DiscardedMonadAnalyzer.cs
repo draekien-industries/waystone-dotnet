@@ -56,7 +56,7 @@ public sealed class DiscardedMonadAnalyzer : MonadAnalyzer
             Diagnostic.Create(
                 rule,
                 Semantics.NameLocationOf(invocation),
-                returned!.ToDisplayString(
-                    SymbolDisplayFormat.MinimallyQualifiedFormat)));
+                invocation.TargetMethod.Name,
+                Semantics.Display(returned!)));
     }
 }

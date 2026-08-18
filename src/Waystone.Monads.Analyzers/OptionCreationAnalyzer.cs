@@ -39,8 +39,7 @@ public sealed class OptionCreationAnalyzer : MonadAnalyzer
 
         var argument = invocation.Arguments[0].Value;
 
-        string type = method.TypeArguments[0]
-           .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+        string type = Semantics.Display(method.TypeArguments[0]);
 
         if (Semantics.IsDefaultValue(argument))
         {

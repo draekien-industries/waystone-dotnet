@@ -120,8 +120,7 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
             Diagnostic.Create(
                 Rules.DefaultValueConvertsToNone,
                 operand.Syntax.GetLocation(),
-                valueType.ToDisplayString(
-                    SymbolDisplayFormat.MinimallyQualifiedFormat),
+                Semantics.Display(valueType),
                 operand.Syntax.ToString()));
     }
 
