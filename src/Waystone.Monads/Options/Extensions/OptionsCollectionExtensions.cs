@@ -54,6 +54,27 @@ public static class OptionsCollectionExtensions
         options.Select(o => o.Map(mapper));
 
     /// <summary>
+    /// Returns the values contained by the <see cref="Some{T}" /> elements of a
+    /// sequence, skipping the <see cref="None{T}" /> ones.
+    /// </summary>
+    /// <remarks>
+    /// This is the sequence counterpart of Rust's <c>iter().flatten()</c>, which
+    /// works because <c>Option</c> is itself iterable. It is lazy and streams.
+    /// </remarks>
+    /// <param name="options">
+    /// An <see cref="IEnumerable{T}" /> of
+    /// <see cref="Option{T}" />
+    /// </param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// An <see cref="IEnumerable{T}" /> yielding the value of every
+    /// <see cref="Some{T}" /> in the source, in order
+    /// </returns>
+    public static IEnumerable<T> Flatten<T>(
+        this IEnumerable<Option<T>> options) where T : notnull =>
+        options.SelectMany(option => option.AsEnumerable());
+
+    /// <summary>
     /// Returns the first <see cref="Option{T}" /> of the sequence that
     /// satisfies a condition or a <see cref="None{T}" /> if a match is not found
     /// </summary>
