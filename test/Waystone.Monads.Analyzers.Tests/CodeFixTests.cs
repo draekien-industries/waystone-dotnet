@@ -103,10 +103,17 @@ public class CodeFixTests
     public Task ReplacesUnwrapOrOfADefaultWithUnwrapOrDefault() =>
         Verify.CodeFixAsync<SimplificationAnalyzer, UseUnwrapOrDefaultCodeFix>(
             "internal int Value(Option<int> option) => option.{|#0:UnwrapOr|}(0);",
-            "internal int Value(Option<int> option) => option.UnwrapOrDefault();",
-            Verify.Diagnostic(Rules.UnwrapOrWithDefault)
-               .WithLocation(0)
-               .WithArguments("int"));
+            "internal int Value(Option<int> option) => option.{|#1:UnwrapOrDefault|}();",
+            [
+                Verify.Diagnostic(Rules.UnwrapOrWithDefault)
+                   .WithLocation(0)
+                   .WithArguments("int"),
+            ],
+            [
+                Verify.Diagnostic(Rules.OrDefaultOnAValueType)
+                   .WithLocation(1)
+                   .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull"),
+            ]);
 
     [Fact]
     public Task ReplacesMapThenFlattenWithAndThen() =>

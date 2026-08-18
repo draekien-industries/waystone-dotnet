@@ -42,6 +42,85 @@ public class SimplificationAnalyzerTests
                .WithArguments("int"));
 
     [Fact]
+    public Task FlagsUnwrapOrDefaultOnAnOptionOfAStruct() =>
+        Verify.AnalyzerAsync<SimplificationAnalyzer>(
+            """
+            internal int Value(Option<int> option) =>
+                option.{|#0:UnwrapOrDefault|}();
+            """,
+            Verify.Diagnostic(Rules.OrDefaultOnAValueType)
+               .WithLocation(0)
+               .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull"));
+
+    [Fact]
+    public Task FlagsUnwrapOrDefaultOnAResultWhoseOkIsAStruct() =>
+        Verify.AnalyzerAsync<SimplificationAnalyzer>(
+            """
+            internal int Value(Result<int, string> result) =>
+                result.{|#0:UnwrapOrDefault|}();
+            """,
+            Verify.Diagnostic(Rules.OrDefaultOnAValueType)
+               .WithLocation(0)
+               .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull"));
+
+    [Fact]
+    public Task FlagsMapOrDefaultProducingAStruct() =>
+        Verify.AnalyzerAsync<SimplificationAnalyzer>(
+            """
+            internal int Length(Option<string> option) =>
+                option.{|#0:MapOrDefault|}(value => value.Length);
+            """,
+            Verify.Diagnostic(Rules.OrDefaultOnAValueType)
+               .WithLocation(0)
+               .WithArguments("MapOrDefault", "int", "MapOrNull"));
+
+    [Fact]
+    public Task FlagsUnwrapOrDefaultAsyncBehindConfigureAwait() =>
+        Verify.AnalyzerAsync<SimplificationAnalyzer>(
+            """
+            internal async Task<int> ValueAsync(Task<Option<int>> option) =>
+                await option.{|#0:UnwrapOrDefaultAsync|}()
+                   .ConfigureAwait(false);
+            """,
+            Verify.Diagnostic(Rules.OrDefaultOnAValueType)
+               .WithLocation(0)
+               .WithArguments(
+                    "UnwrapOrDefaultAsync",
+                    "int",
+                    "UnwrapOrNullAsync"));
+
+    [Fact]
+    public Task IgnoresUnwrapOrDefaultOnAnOptionOfAReferenceType() =>
+        Verify.NoDiagnosticAsync<SimplificationAnalyzer>(
+            """
+            internal string? Value(Option<string> option) =>
+                option.UnwrapOrDefault();
+            """);
+
+    [Fact]
+    public Task IgnoresMapOrDefaultProducingAReferenceType() =>
+        Verify.NoDiagnosticAsync<SimplificationAnalyzer>(
+            """
+            internal string? Text(Option<int> option) =>
+                option.MapOrDefault(value => value.ToString());
+            """);
+
+    [Fact]
+    public Task IgnoresUnwrapOrDefaultOnSomethingThatIsNotAMonad() =>
+        Verify.NoDiagnosticAsync<SimplificationAnalyzer>(
+            """
+            internal sealed class Box
+            {
+                internal int UnwrapOrDefault() => 0;
+            }
+
+            internal class Subject
+            {
+                internal int Value(Box box) => box.UnwrapOrDefault();
+            }
+            """);
+
+    [Fact]
     public Task IgnoresUnwrapOrGivenARealFallback() =>
         Verify.NoDiagnosticAsync<SimplificationAnalyzer>(
             "internal int Value(Option<int> option) => option.UnwrapOr(1);");

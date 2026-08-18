@@ -12,6 +12,7 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
         ImmutableArray.Create(
             Rules.MapThenFlatten,
             Rules.UnwrapOrWithDefault,
+            Rules.OrDefaultOnAValueType,
             Rules.MonadComparedToNull);
 
     protected override void Register(
@@ -39,7 +40,8 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
         string name = invocation.TargetMethod.Name;
 
         if (name is not ("Flatten" or "FlattenAsync" or "UnwrapOr"
-            or "UnwrapOrAsync")
+            or "UnwrapOrAsync" or "UnwrapOrDefault" or "UnwrapOrDefaultAsync"
+            or "MapOrDefault" or "MapOrDefaultAsync")
          || !symbols.IsMonadInvocation(invocation))
         {
             return;
@@ -55,7 +57,34 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
         if (name is "UnwrapOr" or "UnwrapOrAsync")
         {
             AnalyzeUnwrapOr(context, invocation, symbols);
+
+            return;
         }
+
+        AnalyzeOrDefault(context, invocation, symbols);
+    }
+
+    private static void AnalyzeOrDefault(
+        OperationAnalysisContext context,
+        IInvocationOperation invocation,
+        MonadSymbols symbols)
+    {
+        var produced = symbols.UnwrapAwaitable(invocation.Type);
+
+        if (produced is null || !produced.IsValueType)
+        {
+            return;
+        }
+
+        string name = invocation.TargetMethod.Name;
+
+        context.ReportDiagnostic(
+            Diagnostic.Create(
+                Rules.OrDefaultOnAValueType,
+                Semantics.NameLocationOf(invocation),
+                name,
+                Semantics.Display(produced),
+                name.Replace("Default", "Null")));
     }
 
     private static void AnalyzeFlatten(
