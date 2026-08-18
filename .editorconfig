@@ -14,3 +14,14 @@ tab_width = 4
 [*.cs]
 dotnet_sort_system_directives_first = true
 csharp_using_directive_placement = inside_namespace
+
+[src/Waystone.Monads.Analyzers*/**.cs]
+
+# Microsoft.CodeAnalysis.Analyzers ships these off by default. They are the
+# descriptor conventions this repository follows, so the build enforces them
+# rather than leaving them to review. RS1007 stays off deliberately: descriptor
+# strings are raw literals, not LocalizableResourceString, so that they read in
+# Rules.cs.
+dotnet_diagnostic.RS1015.severity = warning
+dotnet_diagnostic.RS1020.severity = warning
+dotnet_diagnostic.RS1028.severity = warning
