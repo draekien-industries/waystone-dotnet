@@ -172,6 +172,15 @@ Fill type and member placeholders through `Semantics.Display`, not
 annotation, so messages read `Option<int>` rather than a fully-qualified name
 with a stray `?`.
 
+**A rule whose message is *about* nullability is the exception.** `WM3001` reports
+a nullable return, so the annotation is the payload rather than noise —
+`Semantics.Display` strips it and the message reads `string` where it has to read
+`string?`. `NullableReturnAnalyzer` fills that placeholder with
+`returned.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)` directly
+and reserves `Semantics.Display` for the non-nullable form it suggests. Reach for
+`ToDisplayString` only when you can say which part of the message would otherwise
+be lost; a preference for the longer name is not a reason.
+
 ## Custom tags
 
 All three factories take `params string[] tags` and forward them to the

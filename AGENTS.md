@@ -12,8 +12,16 @@ in one package implies nothing about the others.
 **The commit type determines the published version.** GitVersion parses commit
 subjects, so `feat` bumps minor, `fix` and `perf` bump patch, and a `!` before
 the colon forces a major bump on *any* type. PRs are squash-merged, so the PR
-title becomes the version-determining subject — a `!` in a PR title ships a
+title becomes a version-determining subject — a `!` in a PR title ships a
 major release. Use `!` only when something is actually being removed.
+
+**A stack contributes every one of its PR titles.** `gh stack merge` squashes each
+PR in the stack separately, so an eleven-PR stack lands eleven commits and
+GitVersion reads all eleven subjects. It applies one increment for the highest bump
+among them, so ten `feat` commits give a single minor bump rather than ten. The trap
+runs the other way: a `!` in *any* title in the stack takes the whole release major,
+including a mid-stack PR nobody was thinking of as the release. Read the titles
+together before merging, not one at a time as you open them.
 
 **Deprecate; never remove.** Public API is obsoleted with a message naming both
 its replacement and the version that removes it, and removed only in the next
@@ -144,6 +152,28 @@ its code fix produced `option is Option.None<int>()`, which does not compile.
 everywhere, so a rule that unwraps the inner call's type goes quiet on exactly the
 style the library teaches. Read `IAwaitOperation.Type` instead when there is an
 await.
+
+**A `branches` filter on `pull_request` stops mid-stack checks, whatever the docs
+say.** GitHub's stacked-pull-request documentation states that workflows trigger as
+if each PR in the stack targeted the base of the stack, and that no workflow changes
+are required. That is not what happens. With `branches: [main]` on the trigger, only
+the bottom PR of an eleven-PR stack ran build and test — the other ten target their
+parent branch and were filtered out. The filter is gone from `pull-request.yml` and
+should not come back. Since the checks are required by the `main` ruleset, a PR that
+never ran one can never satisfy it, so this blocks the entire stack rather than
+failing visibly.
+
+**A stack cancels its own checks without a per-PR concurrency group.** `gh stack
+submit` pushes every branch at once. A `concurrency.group` that does not vary by PR
+puts all of them in one group, and `cancel-in-progress` then kills every run but the
+last to start. The group is keyed on `github.event.pull_request.number` for that
+reason.
+
+**`codecov/patch` counts every line the diff touches, not the lines that added
+logic.** Stripping a nullable annotation across a dozen untested async overloads
+puts all of their untested lines in the patch, so a change that added no behaviour
+at all fails the check. It is a required check, so it blocks the merge. Close the
+test gap rather than moving the threshold — the gap it found in 5.4.0 was real.
 
 **Move the release-tracking row to `Shipped.md` before merging, not after.**
 Merging publishes, and there is no separate release step that would move it later,
