@@ -3,7 +3,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pull-request
+  group: pull-request-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 on:
@@ -13,6 +13,12 @@ on:
     paths:
       - 'src/**'
       - 'test/**'
+      - 'sample/**'
+      - '.editorconfig'
+      - 'Directory.Packages.props'
+      - 'Waystone.Net.sln'
+      - 'global.json'
+      - 'GitVersion.yml'
       - '.github/workflows/pull-request.yml'
 
 jobs:
