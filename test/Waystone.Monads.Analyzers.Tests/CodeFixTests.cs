@@ -109,17 +109,47 @@ public class CodeFixTests
                .WithArguments("int"));
 
     [Fact]
-    public Task ReplacesMapThenFlattenWithFlatMap() =>
-        Verify.CodeFixAsync<SimplificationAnalyzer, UseFlatMapCodeFix>(
+    public Task ReplacesMapThenFlattenWithAndThen() =>
+        Verify.CodeFixAsync<SimplificationAnalyzer, UseAndThenCodeFix>(
             """
             internal Option<int> Doubled(Option<int> option) =>
                 option.Map(value => Option.Some(value * 2)).{|#0:Flatten|}();
             """,
             """
             internal Option<int> Doubled(Option<int> option) =>
-                option.FlatMap(value => Option.Some(value * 2));
+                option.AndThen(value => Option.Some(value * 2));
             """,
             Verify.Diagnostic(Rules.MapThenFlatten).WithLocation(0));
+
+    [Fact]
+    public Task RenamesFlatMapToAndThen() =>
+        Verify.CodeFixAsync<DeprecationAnalyzer, UseAndThenCodeFix>(
+            """
+            internal Option<int> Doubled(Option<int> option) =>
+                option.{|#0:FlatMap|}(value => Option.Some(value * 2));
+            """,
+            """
+            internal Option<int> Doubled(Option<int> option) =>
+                option.AndThen(value => Option.Some(value * 2));
+            """,
+            Verify.Diagnostic(Rules.RenamedToAndThen)
+               .WithLocation(0)
+               .WithArguments("FlatMap", "AndThen"));
+
+    [Fact]
+    public Task RenamesFlatMapAsyncToAndThenAsync() =>
+        Verify.CodeFixAsync<DeprecationAnalyzer, UseAndThenCodeFix>(
+            """
+            internal Task<Option<int>> Doubled(Task<Option<int>> option) =>
+                option.{|#0:FlatMapAsync|}(value => Option.Some(value * 2));
+            """,
+            """
+            internal Task<Option<int>> Doubled(Task<Option<int>> option) =>
+                option.AndThenAsync(value => Option.Some(value * 2));
+            """,
+            Verify.Diagnostic(Rules.RenamedToAndThen)
+               .WithLocation(0)
+               .WithArguments("FlatMapAsync", "AndThenAsync"));
 
     [Fact]
     public Task ReplacesANullComparisonWithIsNone() =>

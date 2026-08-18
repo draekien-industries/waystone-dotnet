@@ -28,3 +28,11 @@ WM2012 | Usage | Info | A nullable member sits alongside Option or Result member
 WM2013 | Usage | Info | The Option of this call is discarded
 WM3001 | Design | Disabled | A nullable return could be an Option
 WM3002 | Design | Disabled | A throw could be a Result
+
+## Release 5.4.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2014 | Usage | Info | FlatMap has been renamed to AndThen
