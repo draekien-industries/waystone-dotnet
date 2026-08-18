@@ -52,3 +52,11 @@ WM1007 | Reliability | Warning | A type derives from Option or Result
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM1008 | Reliability | Warning | An Option or Result is declared nullable
+
+## Release 5.8.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM1009 | Reliability | Warning | Option of bool or of an enum with a zero member

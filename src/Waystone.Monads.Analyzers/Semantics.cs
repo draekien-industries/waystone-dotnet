@@ -69,6 +69,9 @@ public static class Semantics
         return IsWellKnownDefault(value);
     }
 
+    public static bool IsZeroConstant(object? constant) =>
+        constant is not null && IsZero(constant);
+
     public static bool IsMaybeNull(IOperation operation)
     {
         var value = Unconverted(operation);

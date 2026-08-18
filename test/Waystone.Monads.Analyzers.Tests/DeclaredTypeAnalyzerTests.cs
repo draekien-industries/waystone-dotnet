@@ -101,6 +101,94 @@ public class DeclaredTypeAnalyzerTests
             """);
 
     [Fact]
+    public Task FlagsAnOptionOfBool() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal {|#0:Option<bool>|} Flag() => Option.None<bool>();
+            """,
+            Verify.Diagnostic(Rules.OptionOfZeroValuedType)
+               .WithLocation(0)
+               .WithArguments(
+                    "Option<bool>",
+                    "bool",
+                    "Use a three-state enum whose zero member carries the state you meant None to express"));
+
+    [Fact]
+    public Task FlagsAnOptionOfAnEnumWithAZeroMember() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal enum Colour { Red = 0, Green = 1 }
+
+            internal class Subject
+            {
+                internal {|#0:Option<Colour>|} Chosen() => Option.None<Colour>();
+            }
+            """,
+            Verify.Diagnostic(Rules.OptionOfZeroValuedType)
+               .WithLocation(0)
+               .WithArguments(
+                    "Option<Colour>",
+                    "Colour",
+                    "Renumber it so no meaningful member is 0, leaving zero to the state None expresses"));
+
+    [Fact]
+    public Task FlagsAnOptionOfAnEnumWhoseZeroMemberIsImplicit() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal enum Colour { Red, Green }
+
+            internal class Subject
+            {
+                internal {|#0:Option<Colour>|} Chosen() => Option.None<Colour>();
+            }
+            """,
+            Verify.Diagnostic(Rules.OptionOfZeroValuedType)
+               .WithLocation(0)
+               .WithArguments(
+                    "Option<Colour>",
+                    "Colour",
+                    "Renumber it so no meaningful member is 0, leaving zero to the state None expresses"));
+
+    [Fact]
+    public Task IgnoresAnOptionOfAnEnumWithoutAZeroMember() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal enum Colour { Red = 1, Green = 2 }
+
+            internal class Subject
+            {
+                internal Option<Colour> Chosen() => Option.None<Colour>();
+            }
+            """);
+
+    [Fact]
+    public Task IgnoresAnOptionOfAnEnumWithAnUnsignedUnderlyingType() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal enum Colour : byte { Red = 1, Green = 2 }
+
+            internal class Subject
+            {
+                internal Option<Colour> Chosen() => Option.None<Colour>();
+            }
+            """);
+
+    [Fact]
+    public Task IgnoresAnOptionOfAnIntEvenThoughZeroIsMeaningful() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal Option<int> Count() => Option.None<int>();
+            """);
+
+    [Fact]
+    public Task IgnoresAResultWhoseOkIsBool() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal Result<bool, string> Flag() =>
+                Result.Ok<bool, string>(true);
+            """);
+
+    [Fact]
     public Task FlagsANestedOptionReturnType() =>
         Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
             """

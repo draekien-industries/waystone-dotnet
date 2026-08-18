@@ -23,6 +23,11 @@ internal class Misuse
 
     internal void DiscardedResult() => Save();
 
+    internal Option<bool> OptionOfBool() => Option.None<bool>();
+
+    internal Option<Colour> OptionOfAnEnumWithAZeroMember() =>
+        Option.None<Colour>();
+
 #nullable enable
     internal Option<int>? NullableOption() => null;
 #nullable restore
@@ -36,4 +41,10 @@ internal class Misuse
 
     private Task<Result<int, Error>> SaveAsync() =>
         Task.FromResult(Result.Ok<int, Error>(1));
+}
+
+internal enum Colour
+{
+    Red = 0,
+    Green = 1,
 }
