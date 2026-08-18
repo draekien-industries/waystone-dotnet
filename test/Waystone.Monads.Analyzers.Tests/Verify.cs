@@ -49,6 +49,26 @@ internal static class Verify
         return test.RunAsync();
     }
 
+    public static Task CodeFixAsync<TAnalyzer, TCodeFix>(
+        string source,
+        string fixedSource,
+        DiagnosticResult[] expected,
+        DiagnosticResult[] remaining)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+        where TCodeFix : CodeFixProvider, new()
+    {
+        var test = new CodeFixTest<TAnalyzer, TCodeFix>
+        {
+            TestCode = Wrap(source),
+            FixedCode = Wrap(fixedSource),
+        };
+
+        test.ExpectedDiagnostics.AddRange(expected);
+        test.FixedState.ExpectedDiagnostics.AddRange(remaining);
+
+        return test.RunAsync();
+    }
+
     public static Task RawCodeFixAsync<TAnalyzer, TCodeFix>(
         string source,
         string fixedSource,

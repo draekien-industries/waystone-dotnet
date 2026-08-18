@@ -25,7 +25,7 @@ nullable, which is what `WM1005` needs to see that a value may be null.
 
 ## Trying the code fixes
 
-Open either file in an IDE and invoke the lightbulb. Thirteen of the twenty-four rules
+Open either file in an IDE and invoke the lightbulb. Thirteen of the twenty-five rules
 offer a fix; the rest are reported without one, either because the correction is
 ambiguous (`Ok` or `Err`?) or because it changes a signature and cascades to
 callers the fix cannot see.

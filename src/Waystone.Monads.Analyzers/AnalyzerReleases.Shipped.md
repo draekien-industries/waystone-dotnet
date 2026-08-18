@@ -60,3 +60,11 @@ WM1008 | Reliability | Warning | An Option or Result is declared nullable
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM1009 | Reliability | Warning | Option of bool or of an enum with a zero member
+
+## Release 5.10.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2015 | Usage | Info | OrDefault on a value type cannot express the absent case

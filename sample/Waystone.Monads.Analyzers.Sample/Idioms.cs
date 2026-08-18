@@ -55,6 +55,9 @@ internal class Idioms
 
     internal string? NullableAlongsideOption(int id) => null;
 
+    internal int UnwrapsOrDefaultOnAStruct(Option<int> option) =>
+        option.UnwrapOrDefault();
+
     internal Option<int> UsesTheOldFlatMapName(Option<int> option) =>
         option.FlatMap(value => Option.Some(value * 2));
 }

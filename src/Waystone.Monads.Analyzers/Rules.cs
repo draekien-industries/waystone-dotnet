@@ -146,6 +146,12 @@ public static class Rules
         "'{0}' is obsolete and will be removed in v6. Use '{1}'.",
         "Rust names this operation and_then, and Result already spelled it AndThen. FlatMap remains only as a forwarding member until the next major version.");
 
+    public static readonly DiagnosticDescriptor OrDefaultOnAValueType = Idiom(
+        "WM2015",
+        "OrDefault on a value type cannot express the absent case",
+        "'{0}' hands back the default of '{1}' when there is no value, which is indistinguishable from a real one. '{2}' returns null instead.",
+        "T? on a type parameter constrained only to notnull is an annotation, not a Nullable<T>, so for a value type UnwrapOrDefault and MapOrDefault return 0, false or default(Guid) for the absent case. That is legitimate where the caller genuinely wants the default, which is why this rule informs rather than warns. It does not contradict WM2007: that rule removes a repeated type from UnwrapOr, and this one asks whether the default was meant as a value.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "A nullable return could be an Option",
