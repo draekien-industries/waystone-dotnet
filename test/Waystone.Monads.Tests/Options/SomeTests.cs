@@ -523,4 +523,53 @@ public sealed class SomeTests
 
         result.ShouldBeNone();
     }
+
+    [Fact]
+    public void WhenAndGivenSome_ThenReturnTheOtherOption()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.And(Option.Some("value")).ShouldBeSomeValue("value");
+    }
+
+    [Fact]
+    public void WhenAndGivenNone_ThenReturnNone()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.And(Option.None<string>()).ShouldBeNone();
+    }
+
+    [Fact]
+    public void WhenMapOrDefault_ThenReturnTheMappedValue()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.MapOrDefault(x => x + 1).ShouldBe(2);
+    }
+
+    [Fact]
+    public void WhenReduceGivenSome_ThenCombineBothValues()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.Reduce(Option.Some(2), (x, y) => x + y).ShouldBeSomeValue(3);
+    }
+
+    [Fact]
+    public void WhenReduceGivenNone_ThenReturnThisOption()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.Reduce(Option.None<int>(), (x, y) => x + y)
+           .ShouldBeSomeValue(1);
+    }
+
+    [Fact]
+    public void WhenAsEnumerable_ThenYieldTheValueOnce()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.AsEnumerable().ShouldBe(new[] { 1 });
+    }
 }

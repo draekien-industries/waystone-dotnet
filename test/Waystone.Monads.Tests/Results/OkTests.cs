@@ -327,4 +327,20 @@ public class OkTests
 
         result.ShouldBe(Result.Ok<int, int>(1));
     }
+
+    [Fact]
+    public void WhenMapOrDefault_ThenReturnTheMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.MapOrDefault(value => value + 1).ShouldBe(2);
+    }
+
+    [Fact]
+    public void WhenAsEnumerable_ThenYieldTheOkValueOnce()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.AsEnumerable().ShouldBe(new[] { 1 });
+    }
 }
