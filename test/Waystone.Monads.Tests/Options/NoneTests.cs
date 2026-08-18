@@ -391,4 +391,45 @@ public class NoneTest
 
         result.ShouldBeNone();
     }
+
+    [Fact]
+    public void GivenNone_WhenAnd_ThenReturnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.And(Option.Some("value")).ShouldBeNone();
+    }
+
+    [Fact]
+    public void GivenNone_WhenMapOrDefault_ThenReturnTheDefault()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.MapOrDefault(x => x + 1).ShouldBe(0);
+        none.MapOrDefault(x => x.ToString()).ShouldBeNull();
+    }
+
+    [Fact]
+    public void GivenNone_WhenReduceGivenSome_ThenReturnTheOtherOption()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.Reduce(Option.Some(2), (x, y) => x + y).ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public void GivenNone_WhenReduceGivenNone_ThenReturnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.Reduce(Option.None<int>(), (x, y) => x + y).ShouldBeNone();
+    }
+
+    [Fact]
+    public void GivenNone_WhenAsEnumerable_ThenYieldNothing()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.AsEnumerable().ShouldBeEmpty();
+    }
 }

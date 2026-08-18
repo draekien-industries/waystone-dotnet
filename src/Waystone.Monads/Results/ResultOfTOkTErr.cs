@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
+using System.Collections.Generic;
 using Exceptions;
 using Options;
 #if !DEBUG
@@ -280,6 +281,20 @@ public abstract record Result<TOk, TErr>
     public abstract TOut MapOr<TOut>(TOut @default, Func<TOk, TOut> map);
 
     /// <summary>
+    /// Returns the <see langword="default" /> of <typeparamref name="TOut" /> (if
+    /// <see cref="Err{TOk,TErr}" />), or applies a function to the contained value
+    /// (if <see cref="Ok{TOk,TErr}" />).
+    /// </summary>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
+    /// <typeparam name="TOut">The mapped result value type</typeparam>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public TOut? MapOrDefault<TOut>(Func<TOk, TOut> map)
+        where TOut : notnull =>
+        Match<TOut?>(map, _ => default);
+
+    /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
     /// by applying fallback function <paramref name="createDefault" /> to a contained
     /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
@@ -332,6 +347,23 @@ public abstract record Result<TOk, TErr>
     /// consuming the result instance, and discarding the success value, if any.
     /// </remarks>
     public abstract Option<TErr> GetErr();
+
+    /// <summary>
+    /// Returns a sequence over the possibly contained
+    /// <see cref="Ok{TOk,TErr}" /> value.
+    /// </summary>
+    /// <returns>
+    /// A sequence yielding the contained value once if the result is an
+    /// <see cref="Ok{TOk,TErr}" />, otherwise an empty sequence. The error of an
+    /// <see cref="Err{TOk,TErr}" /> is discarded.
+    /// </returns>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public IEnumerable<TOk> AsEnumerable() =>
+        Match<IEnumerable<TOk>>(
+            value => new[] { value },
+            _ => Array.Empty<TOk>());
 
     /// <summary>
     /// Implicitly creates an <see cref="Ok{TOk,TErr}" /> result from a value

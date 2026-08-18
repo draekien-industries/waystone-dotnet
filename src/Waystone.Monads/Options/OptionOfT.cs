@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
+using System.Collections.Generic;
 using Exceptions;
 using Extensions;
 using Results;
@@ -131,6 +132,23 @@ public abstract record Option<T> where T : notnull
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
+    /// otherwise returns <paramref name="other" />.
+    /// </summary>
+    /// <remarks>
+    /// <paramref name="other" /> is eagerly evaluated. If you are passing the
+    /// result of a function call, prefer <see cref="AndThen{T2}" />, which is
+    /// lazily evaluated.
+    /// </remarks>
+    /// <param name="other">The option to return when this one is a <see cref="Some{T}" />.</param>
+    /// <typeparam name="T2">The type of the value contained in the other option.</typeparam>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public Option<T2> And<T2>(Option<T2> other) where T2 : notnull =>
+        Match(_ => other, Option.None<T2>);
+
+    /// <summary>
+    /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
     /// otherwise calls <paramref name="map" /> with the wrapped value and returns
     /// the result.
     /// </summary>
@@ -183,6 +201,19 @@ public abstract record Option<T> where T : notnull
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
     public abstract T2 MapOr<T2>(T2 @default, Func<T, T2> map);
+
+    /// <summary>
+    /// Returns the <see langword="default" /> of <typeparamref name="T2" /> (if
+    /// <see cref="None{T}" />), or applies a function to the contained value (if
+    /// <see cref="Some{T}" />).
+    /// </summary>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public T2? MapOrDefault<T2>(Func<T, T2> map) where T2 : notnull =>
+        Match<T2?>(map, () => default);
 
     /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
@@ -279,6 +310,39 @@ public abstract record Option<T> where T : notnull
         Func<T, TOther, TOut> zip)
         where TOther : notnull
         where TOut : notnull;
+
+    /// <summary>Merges the current option with another option.</summary>
+    /// <remarks>
+    /// Unlike <see cref="ZipWith{TOther,TOut}" />, an option that is a
+    /// <see cref="Some{T}" /> survives a <see cref="None{T}" /> on the other side.
+    /// </remarks>
+    /// <param name="other">The option to merge with.</param>
+    /// <param name="reduce">The function that combines two present values.</param>
+    /// <returns>
+    /// <c>Some(reduce(a, b))</c> when both options are <see cref="Some{T}" />,
+    /// whichever option is <see cref="Some{T}" /> when only one of them is, and
+    /// <see cref="None{T}" /> when neither is.
+    /// </returns>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public Option<T> Reduce(Option<T> other, Func<T, T, T> reduce) =>
+        Match(
+            value => other.Match<Option<T>>(
+                otherValue => reduce(value, otherValue),
+                () => value),
+            () => other);
+
+    /// <summary>Returns a sequence over the possibly contained value.</summary>
+    /// <returns>
+    /// A sequence yielding the contained value once if the option is a
+    /// <see cref="Some{T}" />, otherwise an empty sequence.
+    /// </returns>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public IEnumerable<T> AsEnumerable() =>
+        Match<IEnumerable<T>>(value => new[] { value }, Array.Empty<T>);
 
     /// <summary>
     /// Transforms the current <see cref="Option{T}" /> into a

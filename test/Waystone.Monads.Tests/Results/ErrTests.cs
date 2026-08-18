@@ -348,4 +348,21 @@ public class ErrTests
 
         result.ShouldBe(Result.Err<int, int>(10));
     }
+
+    [Fact]
+    public void WhenMapOrDefault_ThenReturnTheDefault()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        err.MapOrDefault(value => value + 1).ShouldBe(0);
+        err.MapOrDefault(value => value.ToString()).ShouldBeNull();
+    }
+
+    [Fact]
+    public void WhenAsEnumerable_ThenYieldNothing()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        err.AsEnumerable().ShouldBeEmpty();
+    }
 }
