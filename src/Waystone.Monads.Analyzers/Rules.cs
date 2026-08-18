@@ -168,7 +168,8 @@ public static class Rules
         string id,
         string title,
         string messageFormat,
-        string description) =>
+        string description,
+        params string[] tags) =>
         Create(
             id,
             title,
@@ -176,13 +177,15 @@ public static class Rules
             description,
             Reliability,
             DiagnosticSeverity.Warning,
-            true);
+            true,
+            tags);
 
     private static DiagnosticDescriptor Idiom(
         string id,
         string title,
         string messageFormat,
-        string description) =>
+        string description,
+        params string[] tags) =>
         Create(
             id,
             title,
@@ -190,13 +193,15 @@ public static class Rules
             description,
             Usage,
             DiagnosticSeverity.Info,
-            true);
+            true,
+            tags);
 
     private static DiagnosticDescriptor Migration(
         string id,
         string title,
         string messageFormat,
-        string description) =>
+        string description,
+        params string[] tags) =>
         Create(
             id,
             title,
@@ -204,7 +209,8 @@ public static class Rules
             description,
             Design,
             DiagnosticSeverity.Info,
-            false);
+            false,
+            tags);
 
     private static DiagnosticDescriptor Create(
         string id,
@@ -213,7 +219,8 @@ public static class Rules
         string description,
         string category,
         DiagnosticSeverity severity,
-        bool enabledByDefault) =>
+        bool enabledByDefault,
+        params string[] tags) =>
         new DiagnosticDescriptor(
             id,
             title,
@@ -223,5 +230,6 @@ public static class Rules
             enabledByDefault,
             description,
             "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
-          + id.ToLowerInvariant());
+          + id.ToLowerInvariant(),
+            tags);
 }
