@@ -82,6 +82,66 @@ public sealed class OptionTests
     }
 
     [Fact]
+    public void GivenFactoryReturningDefault_WhenBinding_ThenReturnNone()
+    {
+        using (LoggerScope())
+        {
+            Option.Try(() => 0).ShouldBe(Option.None<int>());
+            Option.Try(() => false).ShouldBe(Option.None<bool>());
+            Option.Try(() => default(Guid)).ShouldBe(Option.None<Guid>());
+
+            _callback.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
+    }
+
+    [Fact]
+    public void GivenFactoryReturningNull_WhenBinding_ThenReturnNone()
+    {
+        using (LoggerScope())
+        {
+            Option<string> option = Option.Try(() => default(string)!);
+
+            option.ShouldBe(Option.None<string>());
+
+            _callback.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
+    }
+
+    [Fact]
+    public async Task
+        GivenAsyncFactoryReturningDefault_WhenBinding_ThenReturnNone()
+    {
+        using (LoggerScope())
+        {
+            Option<int> option =
+                await Option.TryAsync(() => Task.FromResult(0));
+
+            option.ShouldBe(Option.None<int>());
+
+            _callback.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
+    }
+
+    [Fact]
+    public async Task
+        GivenAsyncFactoryReturningNull_WhenBinding_ThenReturnNone()
+    {
+        using (LoggerScope())
+        {
+            Option<string> option = await Option.TryAsync(
+                () => Task.FromResult(default(string)!));
+
+            option.ShouldBe(Option.None<string>());
+
+            _callback.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
+    }
+
+    [Fact]
     public void WhenImplicitlyCreatingOption_ThenReturnExpected()
     {
         Option<int> option1 = 0;

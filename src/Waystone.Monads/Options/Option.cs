@@ -30,9 +30,15 @@ public static class Option
     /// </param>
     /// <typeparam name="T">The factory return value's type</typeparam>
     /// <returns>
-    /// A <see cref="Some{T}" /> if the factory executes successfully,
-    /// otherwise a <see cref="None{T}" />
+    /// A <see cref="Some{T}" /> if the factory produces a value that a
+    /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
+    /// <remarks>
+    /// A <see cref="None{T}" /> is returned both when the factory throws and
+    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
+    /// thrown case is reported to the exception logger configured on
+    /// <see cref="MonadOptions" />.
+    /// </remarks>
     public static Option<T> Try<T>(
         Func<T> factory,
         [CallerMemberName] string callerMemberName = "",
@@ -41,10 +47,11 @@ public static class Option
         string callerArgumentExpression = "")
         where T : notnull
     {
+        T value;
+
         try
         {
-            T value = factory();
-            return Some(value);
+            value = factory();
         }
         catch (Exception ex)
         {
@@ -55,6 +62,8 @@ public static class Option
             MonadOptions.Current.Log(ex, caller);
             return None<T>();
         }
+
+        return Equals(value, default(T)) ? None<T>() : Some(value);
     }
 
     /// <summary>
@@ -73,8 +82,8 @@ public static class Option
     /// </param>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
-    /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
-    /// <see cref="None{T}" />
+    /// A <see cref="Some{T}" /> if the factory produces a value that a
+    /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
     [Obsolete(
         "Use TryAsync instead. This overload will be removed in v6 of Waystone.Monads.")]
@@ -106,9 +115,15 @@ public static class Option
     /// </param>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
-    /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
-    /// <see cref="None{T}" />
+    /// A <see cref="Some{T}" /> if the factory produces a value that a
+    /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
+    /// <remarks>
+    /// A <see cref="None{T}" /> is returned both when the factory throws and
+    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
+    /// thrown case is reported to the exception logger configured on
+    /// <see cref="MonadOptions" />.
+    /// </remarks>
     public static async Task<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
@@ -116,10 +131,11 @@ public static class Option
         [CallerArgumentExpression(nameof(asyncFactory))]
         string callerArgumentExpression = "") where T : notnull
     {
+        T value;
+
         try
         {
-            T value = await asyncFactory();
-            return Some(value);
+            value = await asyncFactory();
         }
         catch (Exception ex)
         {
@@ -130,6 +146,8 @@ public static class Option
             MonadOptions.Current.Log(ex, caller);
             return None<T>();
         }
+
+        return Equals(value, default(T)) ? None<T>() : Some(value);
     }
 
     /// <summary>Creates a <see cref="Some{T}" /></summary>

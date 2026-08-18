@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Configs;
 using JetBrains.Annotations;
 using NSubstitute;
 using Shouldly;
@@ -81,6 +82,58 @@ public sealed class ResultTests
             callback);
         result.ShouldBe(Result.Err<int, string>("error"));
         callback.Received(1).Invoke(Arg.Any<Exception>());
+    }
+
+    [Fact]
+    public void GivenFactoryReturningNull_WhenBindingFactory_ThenReturnError()
+    {
+        var logger = Substitute.For<Action<Exception, CallerInfo>>();
+        var callback = Substitute.For<Func<Exception, string>>();
+        callback.Invoke(Arg.Any<Exception>()).Returns("error");
+
+        using (MonadOptions.BeginScope(
+                   options => options.UseExceptionLogger(logger)))
+        {
+            Result<string, string> result =
+                Result.Try(() => default(string)!, callback);
+
+            result.ShouldBe(Result.Err<string, string>("error"));
+
+            callback.Received(1)
+               .Invoke(
+                    Arg.Is<ArgumentNullException>(
+                        ex => ex.ParamName == "factory"));
+
+            logger.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
+    }
+
+    [Fact]
+    public async Task
+        GivenAsyncFactoryReturningNull_WhenBindingFactory_ThenReturnError()
+    {
+        var logger = Substitute.For<Action<Exception, CallerInfo>>();
+        var callback = Substitute.For<Func<Exception, string>>();
+        callback.Invoke(Arg.Any<Exception>()).Returns("error");
+
+        using (MonadOptions.BeginScope(
+                   options => options.UseExceptionLogger(logger)))
+        {
+            Result<string, string> result = await Result.TryAsync(
+                () => Task.FromResult(default(string)!),
+                callback);
+
+            result.ShouldBe(Result.Err<string, string>("error"));
+
+            callback.Received(1)
+               .Invoke(
+                    Arg.Is<ArgumentNullException>(
+                        ex => ex.ParamName == "asyncFactory"));
+
+            logger.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
     }
 
     [Fact]

@@ -37,9 +37,17 @@ public static class Result
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
-    /// otherwise a <see cref="Err{TOk,TErr}" />
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
+    /// <remarks>
+    /// An <see cref="Err{TOk,TErr}" /> is returned both when the factory throws
+    /// and when it returns null, and <paramref name="onError" /> is invoked in
+    /// either case. A factory that returns null is handed an
+    /// <see cref="ArgumentNullException" /> that was never thrown, so it carries
+    /// no stack trace, and only the thrown case is reported to the exception
+    /// logger configured on <see cref="MonadOptions" />.
+    /// </remarks>
     public static Result<TOk, TErr> Try<TOk, TErr>(
         Func<TOk> factory,
         Func<Exception, TErr> onError,
@@ -49,9 +57,11 @@ public static class Result
         string callerArgumentExpression = "")
         where TOk : notnull where TErr : notnull
     {
+        TOk value;
+
         try
         {
-            return Ok<TOk, TErr>(factory());
+            value = factory();
         }
         catch (Exception ex)
         {
@@ -62,6 +72,10 @@ public static class Result
             MonadOptions.Current.Log(ex, caller);
             return Err<TOk, TErr>(onError(ex));
         }
+
+        return value is null
+            ? Err<TOk, TErr>(onError(FactoryReturnedNull(nameof(factory))))
+            : Ok<TOk, TErr>(value);
     }
 
     /// <summary>
@@ -86,8 +100,8 @@ public static class Result
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
-    /// otherwise a <see cref="Err{TOk,TErr}" />
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     [Obsolete(
         "Use TryAsync instead. This overload will be removed in v6 of Waystone.Monads.")]
@@ -128,9 +142,17 @@ public static class Result
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
-    /// otherwise a <see cref="Err{TOk,TErr}" />
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
+    /// <remarks>
+    /// An <see cref="Err{TOk,TErr}" /> is returned both when the factory throws
+    /// and when it returns null, and <paramref name="onError" /> is invoked in
+    /// either case. A factory that returns null is handed an
+    /// <see cref="ArgumentNullException" /> that was never thrown, so it carries
+    /// no stack trace, and only the thrown case is reported to the exception
+    /// logger configured on <see cref="MonadOptions" />.
+    /// </remarks>
     public static async Task<Result<TOk, TErr>> TryAsync<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError,
@@ -140,9 +162,11 @@ public static class Result
         string callerArgumentExpression = "")
         where TOk : notnull where TErr : notnull
     {
+        TOk value;
+
         try
         {
-            return Ok<TOk, TErr>(await asyncFactory());
+            value = await asyncFactory();
         }
         catch (Exception ex)
         {
@@ -153,7 +177,16 @@ public static class Result
             MonadOptions.Current.Log(ex, caller);
             return Err<TOk, TErr>(onError(ex));
         }
+
+        return value is null
+            ? Err<TOk, TErr>(
+                onError(FactoryReturnedNull(nameof(asyncFactory))))
+            : Ok<TOk, TErr>(value);
     }
+
+    private static ArgumentNullException FactoryReturnedNull(
+        string parameterName) =>
+        new(parameterName, "The factory returned null.");
 
 
     /// <summary>
@@ -194,8 +227,8 @@ public static class Result
     /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
-    /// otherwise a <see cref="Err{TOk,TErr}" />
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     public static Result<TOk, Error> Try<TOk>(
         Func<TOk> factory,
@@ -229,8 +262,8 @@ public static class Result
     /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory executes successfully,
-    /// otherwise a <see cref="Err{TOk,TErr}" />
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     public static Task<Result<TOk, Error>> TryAsync<TOk>(
         Func<Task<TOk>> asyncFactory,
