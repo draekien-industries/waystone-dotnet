@@ -44,6 +44,12 @@ public static class Rules
         "This call returns '{0}' and the value is unused, so a failure is silently ignored",
         "A discarded Result throws nothing and reports nothing. Match on it, or propagate it to a caller that will.");
 
+    public static readonly DiagnosticDescriptor DerivesFromMonad = Bug(
+        "WM1007",
+        "A type derives from Option or Result",
+        "'{0}' derives from '{1}', which has exactly two cases. Compose the monad instead of inheriting from it.",
+        "Option and Result exist to have two states, and every member that switches on them handles two. A third case is invisible to Match, so it takes whichever branch the base case falls into. Both hierarchies close in v6, and a derived type will not compile against it.");
+
     public static readonly DiagnosticDescriptor UnwrapUsed = Idiom(
         "WM2001",
         "Unwrap throws on the failure case",

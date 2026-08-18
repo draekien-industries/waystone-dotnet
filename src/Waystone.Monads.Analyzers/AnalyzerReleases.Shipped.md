@@ -36,3 +36,11 @@ WM3002 | Design | Disabled | A throw could be a Result
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2014 | Usage | Info | FlatMap has been renamed to AndThen
+
+## Release 5.6.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM1007 | Reliability | Warning | A type derives from Option or Result
