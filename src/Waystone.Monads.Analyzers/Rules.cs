@@ -70,9 +70,9 @@ public static class Rules
 
     public static readonly DiagnosticDescriptor MapThenFlatten = Idiom(
         "WM2005",
-        "Map followed by Flatten is FlatMap",
-        "'Map' followed by 'Flatten' is 'FlatMap'",
-        "FlatMap exists for this composition and avoids materialising the nested monad.");
+        "Map followed by Flatten is AndThen",
+        "'Map' followed by 'Flatten' is 'AndThen'",
+        "AndThen exists for this composition and avoids materialising the nested monad.");
 
     public static readonly DiagnosticDescriptor CheckCombinedWithUnwrap = Idiom(
         "WM2006",
@@ -121,6 +121,12 @@ public static class Rules
         "The Option of this call is discarded",
         "This call returns '{0}' and the value is unused, so the call has no observable effect beyond its side effects",
         "Discarding an Option is less harmful than discarding a Result, but it is usually a sign the return value was meant to be handled.");
+
+    public static readonly DiagnosticDescriptor RenamedToAndThen = Idiom(
+        "WM2014",
+        "FlatMap has been renamed to AndThen",
+        "'{0}' is obsolete and will be removed in v6. Use '{1}'.",
+        "Rust names this operation and_then, and Result already spelled it AndThen. FlatMap remains only as a forwarding member until the next major version.");
 
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",

@@ -246,22 +246,22 @@ public class NoneTest
     }
 
     [Fact]
-    public void GivenNone_WhenFlatMap_ThenReturnNone()
+    public void GivenNone_WhenAndThen_ThenReturnNone()
     {
         Option<int> none = Option.None<int>();
 
-        Option<int> result = none.FlatMap(x => Option.Some(x + 1));
+        Option<int> result = none.AndThen(x => Option.Some(x + 1));
 
         result.ShouldBe(none);
     }
 
     [Fact]
-    public async Task GivenNone_WhenFlatMapAsync_ThenReturnNone()
+    public async Task GivenNone_WhenAndThenAsync_ThenReturnNone()
     {
         Option<int> none = Option.None<int>();
 
         Option<int> result =
-            await none.FlatMapAsync(x => Task.FromResult(Option.Some(x + 1)));
+            await none.AndThenAsync(x => Task.FromResult(Option.Some(x + 1)));
 
         result.ShouldBe(none);
     }

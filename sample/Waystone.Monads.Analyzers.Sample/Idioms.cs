@@ -54,4 +54,7 @@ internal class Idioms
     internal bool DeclaresACase(Some<int> some) => some.IsSome;
 
     internal string? NullableAlongsideOption(int id) => null;
+
+    internal Option<int> UsesTheOldFlatMapName(Option<int> option) =>
+        option.FlatMap(value => Option.Some(value * 2));
 }

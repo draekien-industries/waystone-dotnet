@@ -380,19 +380,19 @@ public sealed class SomeTests
     }
 
     [Fact]
-    public void WhenFlatMap_ThenReturnMappedOption()
+    public void WhenAndThen_ThenReturnMappedOption()
     {
         Option<int> some = Option.Some(1);
-        Option<int> result = some.FlatMap(x => Option.Some(x + 1));
+        Option<int> result = some.AndThen(x => Option.Some(x + 1));
         result.Unwrap().ShouldBe(2);
     }
 
     [Fact]
-    public async Task WhenFlatMapAsync_ThenReturnMappedOption()
+    public async Task WhenAndThenAsync_ThenReturnMappedOption()
     {
         Option<int> some = Option.Some(1);
 
-        Option<int> result = await some.FlatMapAsync(x =>
+        Option<int> result = await some.AndThenAsync(x =>
             Task.FromResult(Option.Some(x + 1)));
 
         result.Unwrap().ShouldBe(2);

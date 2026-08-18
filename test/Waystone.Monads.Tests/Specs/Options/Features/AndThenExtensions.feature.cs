@@ -18,7 +18,7 @@ namespace Waystone.Monads.Specs.Options.Features
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::Xunit.TraitAttribute("Category", "option")]
-    public partial class FlatMapExtensionsForAsyncOptionFeature : object, Xunit.IClassFixture<FlatMapExtensionsForAsyncOptionFeature.FixtureData>, Xunit.IAsyncLifetime
+    public partial class AndThenExtensionsForAsyncOptionFeature : object, Xunit.IClassFixture<AndThenExtensionsForAsyncOptionFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
@@ -28,12 +28,12 @@ namespace Waystone.Monads.Specs.Options.Features
         private static string[] featureTags = new string[] {
                 "option"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Specs/Options/Features", "FlatMap Extensions for Async Option", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Specs/Options/Features", "AndThen Extensions for Async Option", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
-#line 1 "FlatMapExtensions.feature"
+#line 1 "AndThenExtensions.feature"
 #line hidden
         
-        public FlatMapExtensionsForAsyncOptionFeature(FlatMapExtensionsForAsyncOptionFeature.FixtureData fixtureData, Xunit.ITestOutputHelper testOutputHelper)
+        public AndThenExtensionsForAsyncOptionFeature(AndThenExtensionsForAsyncOptionFeature.FixtureData fixtureData, Xunit.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -107,7 +107,7 @@ namespace Waystone.Monads.Specs.Options.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Specs/Options/Features/FlatMapExtensions.feature.ndjson", 12);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Specs/Options/Features/AndThenExtensions.feature.ndjson", 12);
         }
         
         async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
@@ -135,15 +135,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Async FlatMap on Option with Some Value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Async FlatMap on Option with Some Value")]
-        public async global::System.Threading.Tasks.Task AsyncFlatMapOnOptionWithSomeValue()
+        [global::Xunit.FactAttribute(DisplayName="Async AndThen on Option with Some Value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Async AndThen on Option with Some Value")]
+        public async global::System.Threading.Tasks.Task AsyncAndThenOnOptionWithSomeValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async FlatMap on Option with Some Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async AndThen on Option with Some Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 4
@@ -163,7 +163,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("an async map function that returns a Some with value multiplied by 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 7
-        await testRunner.WhenAsync("invoking async FlatMap on Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking async AndThen on Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 8
         await testRunner.ThenAsync("the result Option should be Some with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -172,15 +172,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Async FlatMap on Option with None Value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Async FlatMap on Option with None Value")]
-        public async global::System.Threading.Tasks.Task AsyncFlatMapOnOptionWithNoneValue()
+        [global::Xunit.FactAttribute(DisplayName="Async AndThen on Option with None Value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Async AndThen on Option with None Value")]
+        public async global::System.Threading.Tasks.Task AsyncAndThenOnOptionWithNoneValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "1";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async FlatMap on Option with None Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async AndThen on Option with None Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 10
@@ -200,7 +200,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("an async map function that returns a None", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 13
-        await testRunner.WhenAsync("invoking async FlatMap on Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking async AndThen on Option", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 14
         await testRunner.ThenAsync("the result Option should be None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -209,15 +209,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Async FlatMap on Option Task with Some value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Async FlatMap on Option Task with Some value")]
-        public async global::System.Threading.Tasks.Task AsyncFlatMapOnOptionTaskWithSomeValue()
+        [global::Xunit.FactAttribute(DisplayName="Async AndThen on Option Task with Some value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Async AndThen on Option Task with Some value")]
+        public async global::System.Threading.Tasks.Task AsyncAndThenOnOptionTaskWithSomeValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "2";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async FlatMap on Option Task with Some value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async AndThen on Option Task with Some value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 16
@@ -240,7 +240,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("an async map function that returns a Some with value multiplied by 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 20
-        await testRunner.WhenAsync("invoking async FlatMap on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking async AndThen on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 21
         await testRunner.ThenAsync("the result Option should be Some with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -249,15 +249,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Async FlatMap on Option Task with None value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Async FlatMap on Option Task with None value")]
-        public async global::System.Threading.Tasks.Task AsyncFlatMapOnOptionTaskWithNoneValue()
+        [global::Xunit.FactAttribute(DisplayName="Async AndThen on Option Task with None value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Async AndThen on Option Task with None value")]
+        public async global::System.Threading.Tasks.Task AsyncAndThenOnOptionTaskWithNoneValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "3";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async FlatMap on Option Task with None value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async AndThen on Option Task with None value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 23
@@ -280,7 +280,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("an async map function that returns a None", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 27
-        await testRunner.WhenAsync("invoking async FlatMap on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking async AndThen on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 28
         await testRunner.ThenAsync("the result Option should be None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -289,15 +289,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Sync FlatMap on Option Task with Some Value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Sync FlatMap on Option Task with Some Value")]
-        public async global::System.Threading.Tasks.Task SyncFlatMapOnOptionTaskWithSomeValue()
+        [global::Xunit.FactAttribute(DisplayName="Sync AndThen on Option Task with Some Value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Sync AndThen on Option Task with Some Value")]
+        public async global::System.Threading.Tasks.Task SyncAndThenOnOptionTaskWithSomeValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "4";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync FlatMap on Option Task with Some Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync AndThen on Option Task with Some Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 30
@@ -320,7 +320,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("a sync map function that returns a Some with value multiplied by 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 34
-        await testRunner.WhenAsync("invoking sync FlatMap on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking sync AndThen on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 35
         await testRunner.ThenAsync("the result Option should be Some with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -329,15 +329,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Sync FlatMap on Option Task with None Value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Sync FlatMap on Option Task with None Value")]
-        public async global::System.Threading.Tasks.Task SyncFlatMapOnOptionTaskWithNoneValue()
+        [global::Xunit.FactAttribute(DisplayName="Sync AndThen on Option Task with None Value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Sync AndThen on Option Task with None Value")]
+        public async global::System.Threading.Tasks.Task SyncAndThenOnOptionTaskWithNoneValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "5";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync FlatMap on Option Task with None Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync AndThen on Option Task with None Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 37
@@ -360,7 +360,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("a sync map function that returns a None", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 41
-        await testRunner.WhenAsync("invoking sync FlatMap on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking sync AndThen on Option Task", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 42
         await testRunner.ThenAsync("the result Option should be None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -369,15 +369,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Async FlatMap on Option ValueTask with Some value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Async FlatMap on Option ValueTask with Some value")]
-        public async global::System.Threading.Tasks.Task AsyncFlatMapOnOptionValueTaskWithSomeValue()
+        [global::Xunit.FactAttribute(DisplayName="Async AndThen on Option ValueTask with Some value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Async AndThen on Option ValueTask with Some value")]
+        public async global::System.Threading.Tasks.Task AsyncAndThenOnOptionValueTaskWithSomeValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "6";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async FlatMap on Option ValueTask with Some value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async AndThen on Option ValueTask with Some value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 44
@@ -400,7 +400,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("an async map function that returns a Some with value multiplied by 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 48
-        await testRunner.WhenAsync("invoking async FlatMap on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking async AndThen on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 49
         await testRunner.ThenAsync("the result Option should be Some with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -409,15 +409,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Async FlatMap on Option ValueTask with None value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Async FlatMap on Option ValueTask with None value")]
-        public async global::System.Threading.Tasks.Task AsyncFlatMapOnOptionValueTaskWithNoneValue()
+        [global::Xunit.FactAttribute(DisplayName="Async AndThen on Option ValueTask with None value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Async AndThen on Option ValueTask with None value")]
+        public async global::System.Threading.Tasks.Task AsyncAndThenOnOptionValueTaskWithNoneValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "7";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async FlatMap on Option ValueTask with None value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Async AndThen on Option ValueTask with None value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 51
@@ -440,7 +440,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("an async map function that returns a None", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 55
-        await testRunner.WhenAsync("invoking async FlatMap on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking async AndThen on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 56
         await testRunner.ThenAsync("the result Option should be None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -449,15 +449,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Sync FlatMap on Option ValueTask with Some Value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Sync FlatMap on Option ValueTask with Some Value")]
-        public async global::System.Threading.Tasks.Task SyncFlatMapOnOptionValueTaskWithSomeValue()
+        [global::Xunit.FactAttribute(DisplayName="Sync AndThen on Option ValueTask with Some Value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Sync AndThen on Option ValueTask with Some Value")]
+        public async global::System.Threading.Tasks.Task SyncAndThenOnOptionValueTaskWithSomeValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "8";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync FlatMap on Option ValueTask with Some Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync AndThen on Option ValueTask with Some Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 58
@@ -480,7 +480,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("a sync map function that returns a Some with value multiplied by 2", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 62
-        await testRunner.WhenAsync("invoking sync FlatMap on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking sync AndThen on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 63
         await testRunner.ThenAsync("the result Option should be Some with value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -489,15 +489,15 @@ namespace Waystone.Monads.Specs.Options.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Sync FlatMap on Option ValueTask with None Value")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "FlatMap Extensions for Async Option")]
-        [global::Xunit.TraitAttribute("Description", "Sync FlatMap on Option ValueTask with None Value")]
-        public async global::System.Threading.Tasks.Task SyncFlatMapOnOptionValueTaskWithNoneValue()
+        [global::Xunit.FactAttribute(DisplayName="Sync AndThen on Option ValueTask with None Value")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "AndThen Extensions for Async Option")]
+        [global::Xunit.TraitAttribute("Description", "Sync AndThen on Option ValueTask with None Value")]
+        public async global::System.Threading.Tasks.Task SyncAndThenOnOptionValueTaskWithNoneValue()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "9";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync FlatMap on Option ValueTask with None Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Sync AndThen on Option ValueTask with None Value", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 65
@@ -520,7 +520,7 @@ namespace Waystone.Monads.Specs.Options.Features
         await testRunner.AndAsync("a sync map function that returns a None", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 69
-        await testRunner.WhenAsync("invoking sync FlatMap on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+        await testRunner.WhenAsync("invoking sync AndThen on Option ValueTask", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 70
         await testRunner.ThenAsync("the result Option should be None", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -536,12 +536,12 @@ namespace Waystone.Monads.Specs.Options.Features
             
             async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await FlatMapExtensionsForAsyncOptionFeature.FeatureSetupAsync();
+                await AndThenExtensionsForAsyncOptionFeature.FeatureSetupAsync();
             }
             
             async System.Threading.Tasks.ValueTask System.IAsyncDisposable.DisposeAsync()
             {
-                await FlatMapExtensionsForAsyncOptionFeature.FeatureTearDownAsync();
+                await AndThenExtensionsForAsyncOptionFeature.FeatureTearDownAsync();
             }
         }
     }

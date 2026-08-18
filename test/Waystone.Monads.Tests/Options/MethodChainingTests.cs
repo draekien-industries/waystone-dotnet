@@ -19,7 +19,7 @@ public sealed class MethodChainingTests
 
         string result = await option.MapAsync(x => Task.FromResult(x + 1))
                                     .InspectAsync(inspect)
-                                    .FlatMapAsync(x => Task.FromResult(
+                                    .AndThenAsync(x => Task.FromResult(
                                                       Option.Some(x + 1)))
                                     .FilterAsync(x => Task.FromResult(x > 0))
                                     .OrElseAsync(() => Task.FromResult(
