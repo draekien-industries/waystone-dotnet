@@ -17,7 +17,7 @@ public static class UnwrapOrElseExtensions
     {
         public async Task<T> UnwrapOrElseAsync(Func<T> elseFunc)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return option.IsSome
                 ? option.Expect("Expected Some but found None.")
@@ -38,7 +38,7 @@ public static class UnwrapOrElseExtensions
     {
         public async Task<T> UnwrapOrElseAsync(Func<T> elseFunc)
         {
-            Option<T>? option = await optionTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return option.IsSome
                 ? option.Expect("Expected Some but found None.")

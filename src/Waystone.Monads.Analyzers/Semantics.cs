@@ -193,7 +193,8 @@ public static class Semantics
         var current = node;
 
         while (current.Parent is QualifiedNameSyntax
-            or AliasQualifiedNameSyntax)
+            or AliasQualifiedNameSyntax
+            or NullableTypeSyntax)
         {
             current = current.Parent;
         }

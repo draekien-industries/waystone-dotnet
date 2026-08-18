@@ -54,7 +54,7 @@ public static class InspectErrExtensions
         public async Task<Result<TOk, TErr>> InspectErrAsync(
             Func<TErr, Task> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             if (result.IsOk) return result;
 
@@ -79,7 +79,7 @@ public static class InspectErrExtensions
         public async Task<Result<TOk, TErr>> InspectErrAsync(
             Action<TErr> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             if (result.IsOk) return result;
 
@@ -112,7 +112,7 @@ public static class InspectErrExtensions
         public async Task<Result<TOk, TErr>> InspectErrAsync(
             Func<TErr, Task> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             if (result.IsOk) return result;
 
@@ -138,7 +138,7 @@ public static class InspectErrExtensions
         public async Task<Result<TOk, TErr>> InspectErrAsync(
             Action<TErr> action)
         {
-            Result<TOk, TErr>? result = await resultTask.ConfigureAwait(false);
+            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             if (result.IsOk) return result;
 

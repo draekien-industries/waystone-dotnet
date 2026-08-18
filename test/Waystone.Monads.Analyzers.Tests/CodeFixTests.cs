@@ -183,4 +183,14 @@ public class CodeFixTests
             Verify.Diagnostic(Rules.DerivedMonadTypeDeclared)
                .WithLocation(0)
                .WithArguments("Some<int>", "Option<int>"));
+
+    [Fact]
+    public Task StripsTheNullableAnnotationFromAnOption() =>
+        Verify.CodeFixAsync<DeclaredTypeAnalyzer,
+            RemoveNullableAnnotationCodeFix>(
+            "internal bool Check({|#0:Option<int>?|} option) => option is null;",
+            "internal bool Check(Option<int> option) => option is null;",
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
 }

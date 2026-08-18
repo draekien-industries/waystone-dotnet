@@ -6,6 +6,101 @@ using Xunit;
 public class DeclaredTypeAnalyzerTests
 {
     [Fact]
+    public Task FlagsANullableOptionReturnType() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal {|#0:Option<int>?|} Absent() => null;
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableResultParameter() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal bool Check({|#0:Result<int, string>?|} result) =>
+                result is null;
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Result<int, string>", "Err"));
+
+    [Fact]
+    public Task FlagsANullableOptionProperty() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal {|#0:Option<string>?|} Value { get; set; }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<string>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionLocal() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal bool Check()
+            {
+                {|#0:Option<int>?|} absent = null;
+
+                return absent is null;
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionInATypeArgument() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal Task<{|#0:Option<int>?|}> AbsentAsync() =>
+                Task.FromResult<Option<int>?>(null);
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableDerivedCaseTwice() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal bool Check({|#0:{|#1:Some<int>|}?|} some) => some is null;
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Some<int>", "None"),
+            Verify.Diagnostic(Rules.DerivedMonadTypeDeclared)
+               .WithLocation(1)
+               .WithArguments("Some<int>", "Option<int>"));
+
+    [Fact]
+    public Task FlagsANullableOptionInAnUnannotatedContext() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            #nullable disable
+            internal {|#0:Option<int>?|} Absent() => null;
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task IgnoresAnUnannotatedOption() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal Option<int> Absent() => Option.None<int>();
+            """);
+
+    [Fact]
+    public Task IgnoresANullableValueThatIsNotAMonad() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal int? Absent() => null;
+            """);
+
+    [Fact]
     public Task FlagsANestedOptionReturnType() =>
         Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
             """

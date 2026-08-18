@@ -11,6 +11,7 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
+            Rules.NullableMonadDeclared,
             Rules.NestedOption,
             Rules.ResultWithIdenticalTypeArguments,
             Rules.DerivedMonadTypeDeclared);
@@ -54,6 +55,16 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
         }
 
         var location = node.GetLocation();
+
+        if (node.Parent is NullableTypeSyntax annotated)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    Rules.NullableMonadDeclared,
+                    annotated.GetLocation(),
+                    Semantics.Display(type),
+                    symbols.IsOption(type) ? "None" : "Err"));
+        }
 
         if (symbols.IsDerivedCase(type))
         {

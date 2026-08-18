@@ -23,6 +23,10 @@ internal class Misuse
 
     internal void DiscardedResult() => Save();
 
+#nullable enable
+    internal Option<int>? NullableOption() => null;
+#nullable restore
+
     private void Accept(Option<int> option) { }
 
     internal async Task DiscardedResultBehindConfigureAwait() =>
