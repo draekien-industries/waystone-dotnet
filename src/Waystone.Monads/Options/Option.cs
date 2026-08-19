@@ -37,7 +37,9 @@ public static class Option
     /// A <see cref="None{T}" /> is returned both when the factory throws and
     /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
     /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />.
+    /// <see cref="MonadOptions" />. Which values a <see cref="Some{T}" /> can
+    /// hold is decided by the implicit conversion to <see cref="Option{T}" />
+    /// rather than tested here, so the two cannot disagree.
     /// </remarks>
     public static Option<T> Try<T>(
         Func<T> factory,
@@ -63,7 +65,7 @@ public static class Option
             return None<T>();
         }
 
-        return Equals(value, default(T)) ? None<T>() : Some(value);
+        return value;
     }
 
     /// <summary>
@@ -122,7 +124,9 @@ public static class Option
     /// A <see cref="None{T}" /> is returned both when the factory throws and
     /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
     /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />.
+    /// <see cref="MonadOptions" />. Which values a <see cref="Some{T}" /> can
+    /// hold is decided by the implicit conversion to <see cref="Option{T}" />
+    /// rather than tested here, so the two cannot disagree.
     /// </remarks>
     public static async Task<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
@@ -147,7 +151,7 @@ public static class Option
             return None<T>();
         }
 
-        return Equals(value, default(T)) ? None<T>() : Some(value);
+        return value;
     }
 
     /// <summary>Creates a <see cref="Some{T}" /></summary>

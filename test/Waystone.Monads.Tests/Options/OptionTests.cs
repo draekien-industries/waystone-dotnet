@@ -96,6 +96,21 @@ public sealed class OptionTests
     }
 
     [Fact]
+    public void GivenAnyFactory_WhenBinding_ThenAgreeWithTheConversion()
+    {
+        using (LoggerScope())
+        {
+            Option<int> zero = 0;
+            Option<int> one = 1;
+            Option<Guid> empty = default(Guid);
+
+            Option.Try(() => 0).ShouldBe(zero);
+            Option.Try(() => 1).ShouldBe(one);
+            Option.Try(() => default(Guid)).ShouldBe(empty);
+        }
+    }
+
+    [Fact]
     public void GivenFactoryReturningNull_WhenBinding_ThenReturnNone()
     {
         using (LoggerScope())
