@@ -95,6 +95,22 @@ public class NullAndDefaultAnalyzerTests
                .WithArguments("int", "0"));
 
     [Fact]
+    public Task RendersTheV6ForecastInTheConversionMessage() =>
+        Verify.AnalyzerAsync<NullAndDefaultAnalyzer>(
+            "internal Option<int> Make() => {|#0:0|};",
+            Verify.Diagnostic(Rules.DefaultValueConvertsToNone)
+               .WithLocation(0)
+               .WithMessage(
+                    "The implicit conversion maps the default of 'int' to "
+                  + "None, so this produces None rather than a Some holding 0 "
+                  + "today. In v6 it produces a Some holding 0."));
+
+    [Fact]
+    public Task IgnoresTheDefaultOfAReferenceTypeConvertedToAnOption() =>
+        Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
+            "internal Option<string> Make() => default(string)!;");
+
+    [Fact]
     public Task IgnoresANonDefaultValueConvertedToAnOption() =>
         Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
             "internal Option<int> Make() => 1;");

@@ -10,6 +10,8 @@ internal class Misuse
 {
     internal Option<int> SomeOfADefault() => Option.Some(0);
 
+    internal Option<string> SomeOfANull() => Option.Some(default(string)!);
+
     internal Option<Guid> SomeOfAnEmptyGuid() => Option.Some(Guid.Empty);
 
     internal Option<int> NullInsteadOfNone() => null;
