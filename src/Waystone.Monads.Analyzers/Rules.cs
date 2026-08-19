@@ -29,10 +29,14 @@ public static class Rules
     /// <see cref="NullAndDefaultAnalyzer.TargetIsExplicitlyNullable" /> matches
     /// an enumerated set of positions and defaults to reporting. None of those
     /// is working code: reaching them requires declaring the monad as
-    /// <c>Option&lt;T&gt;?</c>, which WM1008 forbids outright. So the rule fires
-    /// on code that is already wrong, and reports alongside WM1008 where that
-    /// rule sees the declaration. Do not lower the tier to accommodate them, and
-    /// do not widen the exclusion either — it would silence a real null.
+    /// <c>Option&lt;T&gt;?</c>, which WM1008 forbids. It reports alongside
+    /// WM1008 for the collection-initializer element and the local-function
+    /// return, but not for the tuple element:
+    /// <see cref="Semantics.IsDeclarationTypePosition" /> has no case for a
+    /// tuple element, so WM1008 never sees that declaration and this rule is the
+    /// only one that fires there. That gap is WM1008's, tracked in DRA-98, not a
+    /// reason to change this rule. Do not lower the tier to accommodate them,
+    /// and do not widen the exclusion either — it would silence a real null.
     /// </remarks>
     public static readonly DiagnosticDescriptor NullAssignedToMonad = Bug(
         "WM1002",
@@ -44,7 +48,9 @@ public static class Rules
     /// Warning survives the false-positive question, examined in DRA-77, on the
     /// same reasoning as WM1002: every position where the target's nullability
     /// cannot be proven requires an <c>Option&lt;T&gt;?</c> declaration, which
-    /// WM1008 forbids. The generic case that prompted the question is safe —
+    /// WM1008 forbids — though it does not see the declaration in a tuple
+    /// element, so there this rule reports alone, which is DRA-98's gap rather
+    /// than this rule's. The generic case that prompted the question is safe —
     /// <c>default</c> written for an unconstrained <c>T</c> has <c>T</c> as its
     /// type rather than the monad, so the rule stays quiet however <c>T</c> is
     /// instantiated.
