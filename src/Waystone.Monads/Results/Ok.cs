@@ -18,6 +18,13 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
 {
     internal Ok(TOk value)
     {
+        if (value is null)
+        {
+            throw new ArgumentNullException(
+                nameof(value),
+                "The value of an `Ok` result cannot be null.");
+        }
+
         Value = value;
     }
 

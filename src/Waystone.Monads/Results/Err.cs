@@ -19,6 +19,13 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 {
     internal Err(TErr value)
     {
+        if (value is null)
+        {
+            throw new ArgumentNullException(
+                nameof(value),
+                "The value of an `Err` result cannot be null.");
+        }
+
         Value = value;
     }
 

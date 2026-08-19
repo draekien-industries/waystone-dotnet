@@ -30,9 +30,19 @@ public static class Option
     /// </param>
     /// <typeparam name="T">The factory return value's type</typeparam>
     /// <returns>
-    /// A <see cref="Some{T}" /> if the factory executes successfully,
-    /// otherwise a <see cref="None{T}" />
+    /// A <see cref="Some{T}" /> if the factory produces a value that a
+    /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
+    /// <remarks>
+    /// A <see cref="None{T}" /> is returned both when the factory throws and
+    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
+    /// thrown case is reported to the exception logger configured on
+    /// <see cref="MonadOptions" />, because the implicit conversion to
+    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
+    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
+    /// conversion is applied inside the try, so the two cannot disagree and
+    /// nothing it throws escapes.
+    /// </remarks>
     public static Option<T> Try<T>(
         Func<T> factory,
         [CallerMemberName] string callerMemberName = "",
@@ -43,8 +53,7 @@ public static class Option
     {
         try
         {
-            T value = factory();
-            return Some(value);
+            return factory();
         }
         catch (Exception ex)
         {
@@ -73,8 +82,8 @@ public static class Option
     /// </param>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
-    /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
-    /// <see cref="None{T}" />
+    /// A <see cref="Some{T}" /> if the factory produces a value that a
+    /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
     [Obsolete(
         "Use TryAsync instead. This overload will be removed in v6 of Waystone.Monads.")]
@@ -106,9 +115,19 @@ public static class Option
     /// </param>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
-    /// A <see cref="Some{T}" /> if the factory succeeds, otherwise a
-    /// <see cref="None{T}" />
+    /// A <see cref="Some{T}" /> if the factory produces a value that a
+    /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
+    /// <remarks>
+    /// A <see cref="None{T}" /> is returned both when the factory throws and
+    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
+    /// thrown case is reported to the exception logger configured on
+    /// <see cref="MonadOptions" />, because the implicit conversion to
+    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
+    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
+    /// conversion is applied inside the try, so the two cannot disagree and
+    /// nothing it throws escapes.
+    /// </remarks>
     public static async Task<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
@@ -118,8 +137,7 @@ public static class Option
     {
         try
         {
-            T value = await asyncFactory();
-            return Some(value);
+            return await asyncFactory();
         }
         catch (Exception ex)
         {
