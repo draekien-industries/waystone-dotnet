@@ -21,12 +21,34 @@ public static class Rules
         "'Option.Some' throws at runtime when the value is null. Use 'Option.None<{0}>()' to express the absence of a value.",
         "The constructor of Some rejects null, so this call always throws an InvalidOperationException.");
 
+    /// <remarks>
+    /// Warning survives the false-positive question, examined in DRA-77. The
+    /// worst case found is a null reaching a target the analyzer cannot prove is
+    /// non-nullable, which happens in a tuple element, a collection-initializer
+    /// element and a local function return, because
+    /// <see cref="NullAndDefaultAnalyzer.TargetIsExplicitlyNullable" /> matches
+    /// an enumerated set of positions and defaults to reporting. None of those
+    /// is working code: reaching them requires declaring the monad as
+    /// <c>Option&lt;T&gt;?</c>, which WM1008 forbids outright. So the rule fires
+    /// on code that is already wrong, and reports alongside WM1008 where that
+    /// rule sees the declaration. Do not lower the tier to accommodate them, and
+    /// do not widen the exclusion either — it would silence a real null.
+    /// </remarks>
     public static readonly DiagnosticDescriptor NullAssignedToMonad = Bug(
         "WM1002",
         "Do not assign null to an Option or Result",
         "'{0}' is never null in correct use. Null here defeats the type and throws on the next member access.",
         "Option and Result are records, so the compiler permits null where one is expected. None and Err express absence and failure; null expresses neither.");
 
+    /// <remarks>
+    /// Warning survives the false-positive question, examined in DRA-77, on the
+    /// same reasoning as WM1002: every position where the target's nullability
+    /// cannot be proven requires an <c>Option&lt;T&gt;?</c> declaration, which
+    /// WM1008 forbids. The generic case that prompted the question is safe —
+    /// <c>default</c> written for an unconstrained <c>T</c> has <c>T</c> as its
+    /// type rather than the monad, so the rule stays quiet however <c>T</c> is
+    /// instantiated.
+    /// </remarks>
     public static readonly DiagnosticDescriptor DefaultOfMonad = Bug(
         "WM1003",
         "Do not use the default of an Option or Result",
