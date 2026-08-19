@@ -15,6 +15,23 @@ the colon forces a major bump on *any* type. PRs are squash-merged, so the PR
 title becomes a version-determining subject — a `!` in a PR title ships a
 major release. Use `!` only when something is actually being removed.
 
+**Build a stack with `gh stack`, never by hand.** `gh stack init <bottom> … <top>`
+takes the branches bottom to top, adopting ones that already exist and creating
+the rest, and `gh stack submit` then pushes them, repoints each PR's base onto the
+one below it, and registers the stack on GitHub. Do the same thing by passing
+`--base` to `gh pr create` and you get the right base branches and *no stack*:
+reviewers see unrelated PRs with no chain, `gh stack view` shows nothing, and
+`gh stack merge` — the only supported way to land one — has nothing to merge.
+
+`gh stack submit` opens an editor that an agent cannot drive, so pass `--auto`,
+which is also what a non-interactive terminal falls back to. Note that `--auto`
+creates *new* PRs as drafts unless you add `--open`.
+
+Adopting a hand-built chain after the fact does work: `gh stack init` reports
+"Found PRs for N of N branches" and `gh stack submit --auto` reports each one "up
+to date" and links them without creating duplicates. That is a repair, not a
+route — run `gh stack init` before opening the first PR.
+
 **A stack contributes every one of its PR titles.** `gh stack merge` squashes each
 PR in the stack separately, so an eleven-PR stack lands eleven commits and
 GitVersion reads all eleven subjects. It applies one increment for the highest bump
