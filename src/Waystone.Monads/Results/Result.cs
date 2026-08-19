@@ -48,6 +48,16 @@ public static class Result
     /// no stack trace, and only the thrown case is reported to the exception
     /// logger configured on <see cref="MonadOptions" />.
     /// </remarks>
+    /// <remarks>
+    /// The null test is made here rather than left to
+    /// <see cref="Ok{TOk,TErr}" />'s own guard, which would throw. This method
+    /// exists so a caller learns whether a workable value came back without
+    /// having to guard the call, so the guard's exception has to become an
+    /// <see cref="Err{TOk,TErr}" /> instead. That is the opposite of
+    /// <c>Option.Try</c>, which delegates because the conversion it
+    /// delegates to returns a <see cref="Options.None{T}" /> rather than
+    /// throwing.
+    /// </remarks>
     public static Result<TOk, TErr> Try<TOk, TErr>(
         Func<TOk> factory,
         Func<Exception, TErr> onError,
@@ -153,6 +163,16 @@ public static class Result
     /// no stack trace, and only the thrown case is reported to the exception
     /// logger configured on <see cref="MonadOptions" />.
     /// </remarks>
+    /// <remarks>
+    /// The null test is made here rather than left to
+    /// <see cref="Ok{TOk,TErr}" />'s own guard, which would throw. This method
+    /// exists so a caller learns whether a workable value came back without
+    /// having to guard the call, so the guard's exception has to become an
+    /// <see cref="Err{TOk,TErr}" /> instead. That is the opposite of
+    /// <c>Option.Try</c>, which delegates because the conversion it
+    /// delegates to returns a <see cref="Options.None{T}" /> rather than
+    /// throwing.
+    /// </remarks>
     public static async Task<Result<TOk, TErr>> TryAsync<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError,
@@ -193,6 +213,11 @@ public static class Result
     /// value.
     /// </summary>
     /// <param name="value">The value of the result type.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="value" /> is null. An <see cref="Ok{TOk,TErr}" /> cannot
+    /// hold null, matching the <c>notnull</c> constraint on
+    /// <typeparamref name="TOk" />.
+    /// </exception>
     public static Result<TOk, TErr> Ok<TOk, TErr>(TOk value)
         where TOk : notnull
         where TErr : notnull =>
@@ -203,6 +228,11 @@ public static class Result
     /// value.
     /// </summary>
     /// <param name="value">The value of the result type.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="value" /> is null. An <see cref="Err{TOk,TErr}" /> cannot
+    /// hold null, matching the <c>notnull</c> constraint on
+    /// <typeparamref name="TErr" />.
+    /// </exception>
     public static Result<TOk, TErr> Err<TOk, TErr>(TErr value)
         where TOk : notnull
         where TErr : notnull =>
@@ -284,6 +314,9 @@ public static class Result
     /// </summary>
     /// <param name="value">The value of the result type.</param>
     /// <typeparam name="TOk">The ok result value's type</typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="value" /> is null.
+    /// </exception>
     public static Result<TOk, Error> Ok<TOk>(TOk value)
         where TOk : notnull =>
         new Ok<TOk, Error>(value);
@@ -294,6 +327,9 @@ public static class Result
     /// </summary>
     /// <param name="error">The error contained in the result.</param>
     /// <typeparam name="TOk">The ok result value's type</typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="error" /> is null.
+    /// </exception>
     public static Result<TOk, Error> Err<TOk>(Error error)
         where TOk : notnull =>
         new Err<TOk, Error>(error);
