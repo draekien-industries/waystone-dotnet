@@ -6,13 +6,22 @@ using Xunit;
 public class CodeFixTests
 {
     [Fact]
-    public Task ReplacesSomeOfADefaultWithNone() =>
+    public Task ReplacesSomeOfAValueTypeDefaultWithNone() =>
         Verify.CodeFixAsync<OptionCreationAnalyzer, UseNoneCodeFix>(
             "internal Option<int> Make() => Option.Some({|#0:0|});",
             "internal Option<int> Make() => Option.None<int>();",
+            Verify.Diagnostic(Rules.DefaultOfValueTypeInOption)
+               .WithLocation(0)
+               .WithArguments("0", "int"));
+
+    [Fact]
+    public Task ReplacesSomeOfANullWithNone() =>
+        Verify.CodeFixAsync<OptionCreationAnalyzer, UseNoneCodeFix>(
+            "internal Option<string> Make() => Option.Some({|#0:default(string)|}!);",
+            "internal Option<string> Make() => Option.None<string>();",
             Verify.Diagnostic(Rules.SomeFromDefaultValue)
                .WithLocation(0)
-               .WithArguments("int"));
+               .WithArguments("string"));
 
     [Fact]
     public Task ReplacesNullWithNone() =>

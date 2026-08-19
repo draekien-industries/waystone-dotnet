@@ -11,6 +11,7 @@ public sealed class OptionCreationAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             Rules.SomeFromDefaultValue,
+            Rules.DefaultOfValueTypeInOption,
             Rules.PossiblyNullPassedToSome);
 
     protected override void Register(
@@ -39,15 +40,23 @@ public sealed class OptionCreationAnalyzer : MonadAnalyzer
 
         var argument = invocation.Arguments[0].Value;
 
-        string type = Semantics.Display(method.TypeArguments[0]);
+        var valueType = method.TypeArguments[0];
 
         if (Semantics.IsDefaultValue(argument))
         {
+            string type = Semantics.Display(valueType);
+
             context.ReportDiagnostic(
-                Diagnostic.Create(
-                    Rules.SomeFromDefaultValue,
-                    argument.Syntax.GetLocation(),
-                    type));
+                valueType.IsValueType
+                    ? Diagnostic.Create(
+                        Rules.DefaultOfValueTypeInOption,
+                        argument.Syntax.GetLocation(),
+                        argument.Syntax.ToString(),
+                        type)
+                    : Diagnostic.Create(
+                        Rules.SomeFromDefaultValue,
+                        argument.Syntax.GetLocation(),
+                        type));
 
             return;
         }

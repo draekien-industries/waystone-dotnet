@@ -40,3 +40,11 @@ WM1008 | Reliability | Warning | An Option or Result is declared nullable
 WM1009 | Reliability | Warning | Option of bool or of an enum with a zero member
 WM2014 | Usage | Info | FlatMap has been renamed to AndThen
 WM2015 | Usage | Info | OrDefault on a value type cannot express the absent case
+
+## Release 5.5.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM1010 | Reliability | Warning | The default of a value type is used as an Option value
