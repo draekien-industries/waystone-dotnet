@@ -17,7 +17,7 @@ public static class Rules
     /// </remarks>
     public static readonly DiagnosticDescriptor SomeFromDefaultValue = Bug(
         "WM1001",
-        "Do not pass a default value to Some",
+        "Do not pass null to Some",
         "'Option.Some' throws at runtime when the value is null. Use 'Option.None<{0}>()' to express the absence of a value.",
         "The constructor of Some rejects null, so this call always throws an InvalidOperationException.");
 

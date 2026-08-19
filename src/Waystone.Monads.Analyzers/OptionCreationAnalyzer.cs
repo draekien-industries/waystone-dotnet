@@ -42,10 +42,10 @@ public sealed class OptionCreationAnalyzer : MonadAnalyzer
 
         var valueType = method.TypeArguments[0];
 
-        string type = Semantics.Display(valueType);
-
         if (Semantics.IsDefaultValue(argument))
         {
+            string type = Semantics.Display(valueType);
+
             context.ReportDiagnostic(
                 valueType.IsValueType
                     ? Diagnostic.Create(
