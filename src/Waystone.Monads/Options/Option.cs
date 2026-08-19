@@ -37,9 +37,11 @@ public static class Option
     /// A <see cref="None{T}" /> is returned both when the factory throws and
     /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
     /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />. Which values a <see cref="Some{T}" /> can
-    /// hold is decided by the implicit conversion to <see cref="Option{T}" />
-    /// rather than tested here, so the two cannot disagree.
+    /// <see cref="MonadOptions" />, because the implicit conversion to
+    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
+    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
+    /// conversion is applied inside the try, so the two cannot disagree and
+    /// nothing it throws escapes.
     /// </remarks>
     public static Option<T> Try<T>(
         Func<T> factory,
@@ -49,11 +51,9 @@ public static class Option
         string callerArgumentExpression = "")
         where T : notnull
     {
-        T value;
-
         try
         {
-            value = factory();
+            return factory();
         }
         catch (Exception ex)
         {
@@ -64,8 +64,6 @@ public static class Option
             MonadOptions.Current.Log(ex, caller);
             return None<T>();
         }
-
-        return value;
     }
 
     /// <summary>
@@ -124,9 +122,11 @@ public static class Option
     /// A <see cref="None{T}" /> is returned both when the factory throws and
     /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
     /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />. Which values a <see cref="Some{T}" /> can
-    /// hold is decided by the implicit conversion to <see cref="Option{T}" />
-    /// rather than tested here, so the two cannot disagree.
+    /// <see cref="MonadOptions" />, because the implicit conversion to
+    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
+    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
+    /// conversion is applied inside the try, so the two cannot disagree and
+    /// nothing it throws escapes.
     /// </remarks>
     public static async Task<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
@@ -135,11 +135,9 @@ public static class Option
         [CallerArgumentExpression(nameof(asyncFactory))]
         string callerArgumentExpression = "") where T : notnull
     {
-        T value;
-
         try
         {
-            value = await asyncFactory();
+            return await asyncFactory();
         }
         catch (Exception ex)
         {
@@ -150,8 +148,6 @@ public static class Option
             MonadOptions.Current.Log(ex, caller);
             return None<T>();
         }
-
-        return value;
     }
 
     /// <summary>Creates a <see cref="Some{T}" /></summary>

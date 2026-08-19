@@ -188,7 +188,6 @@ public static class Result
         string parameterName) =>
         new(parameterName, "The factory returned null.");
 
-
     /// <summary>
     /// Creates an <see cref="Ok{TOk,TErr}" /> result containing the provided
     /// value.
