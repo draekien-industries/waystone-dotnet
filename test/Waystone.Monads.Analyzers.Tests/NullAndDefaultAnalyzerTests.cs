@@ -71,6 +71,27 @@ public class NullAndDefaultAnalyzerTests
             $"internal bool Test(Option<int> option) => {test};");
 
     [Fact]
+    public Task FlagsNullInANullableTupleElement() =>
+        Verify.AnalyzerAsync<NullAndDefaultAnalyzer>(
+            "internal (Option<int>? a, int b) Make() => ({|#0:null|}, 1);",
+            Verify.Diagnostic(Rules.NullAssignedToMonad)
+               .WithLocation(0)
+               .WithArguments("Option<int>"));
+
+    [Fact]
+    public Task FlagsTheDefaultInANullableTupleElement() =>
+        Verify.AnalyzerAsync<NullAndDefaultAnalyzer>(
+            "internal (Option<int>? a, int b) Make() => ({|#0:default|}, 1);",
+            Verify.Diagnostic(Rules.DefaultOfMonad)
+               .WithLocation(0)
+               .WithArguments("Option<int>"));
+
+    [Fact]
+    public Task IgnoresTheDefaultOfAnUnconstrainedTypeParameter() =>
+        Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
+            "internal T Get<T>() => default!;");
+
+    [Fact]
     public Task FlagsTheDefaultOfAnOption() =>
         Verify.AnalyzerAsync<NullAndDefaultAnalyzer>(
             "internal Option<int> Make() => {|#0:default(Option<int>)|};",
