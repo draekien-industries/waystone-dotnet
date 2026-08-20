@@ -95,6 +95,18 @@ public class ErrTests
     }
 
     [Fact]
+    public void GivenState_WhenAndThen_ThenReturnError()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        err.AndThen(10, static (x, state) => Result.Ok<int, string>(x + state))
+           .ShouldBe(Result.Err<int, string>("error"));
+
+        err.AndThen(10, static (_, state) => Result.Err<int, string>($"e{state}"))
+           .ShouldBe(Result.Err<int, string>("error"));
+    }
+
+    [Fact]
     public void WhenOr_ThenReturnOther()
     {
         Result<int, string> result = Result.Err<int, string>("error");

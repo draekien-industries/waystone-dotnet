@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Exceptions;
+using Extensions;
 using Options;
 #if !DEBUG
 using System.Diagnostics;
@@ -139,6 +140,32 @@ public abstract record Result<TOk, TErr>
     /// </typeparam>
     public abstract Result<TOut, TErr> AndThen<TOut>(
         Func<TOk, Result<TOut, TErr>> createOther) where TOut : notnull;
+
+    /// <summary>
+    /// Calls the <paramref name="createOther" /> with <paramref name="state" />
+    /// if the result is <see cref="Ok{TOk,TErr}" />, otherwise returns the
+    /// <see cref="Err{TOk,TErr}" /> value of <see langword="this" /> instance.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the function rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the <paramref name="createOther" /> function.</param>
+    /// <param name="createOther">A function that creates the other result.</param>
+    /// <typeparam name="TState">The type of the state passed to the function.</typeparam>
+    /// <typeparam name="TOut">
+    /// The <see cref="Ok{TOk,TErr}" /> value's type of the
+    /// other result.
+    /// </typeparam>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public Result<TOut, TErr> AndThen<TState, TOut>(
+        TState state,
+        Func<TOk, TState, Result<TOut, TErr>> createOther)
+        where TOut : notnull =>
+        Map(state, createOther).Flatten();
 
     /// <summary>
     /// Returns <paramref name="other" /> if the result is
