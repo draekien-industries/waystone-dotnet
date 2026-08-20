@@ -165,4 +165,104 @@ public class CodeFixTests
             Verify.Diagnostic(Rules.NullableMonadDeclared)
                .WithLocation(0)
                .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task WrapsAnEagerOrArgumentInALambda() =>
+        Verify.CodeFixAsync<LazyVariantAnalyzer, UseLazyVariantCodeFix>(
+            """
+            internal Option<int> Fallback() => Option.Some(0);
+
+            internal Option<int> Pick(Option<int> option) =>
+                option.{|#0:Or|}(Fallback());
+            """,
+            """
+            internal Option<int> Fallback() => Option.Some(0);
+
+            internal Option<int> Pick(Option<int> option) =>
+                option.OrElse(() => Fallback());
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("Or", "Option<int>", "OrElse"));
+
+    /// <remarks>
+    /// <c>AndThen</c> is the only replacement whose delegate takes the
+    /// receiver's value, so the fix has to discard it rather than emit the
+    /// parameterless lambda the other four use.
+    /// </remarks>
+    [Fact]
+    public Task DiscardsTheValueWhenWrappingAnEagerAndArgument() =>
+        Verify.CodeFixAsync<LazyVariantAnalyzer, UseLazyVariantCodeFix>(
+            """
+            internal Option<string> Next() => Option.Some("x");
+
+            internal Option<string> Pick(Option<int> option) =>
+                option.{|#0:And|}(Next());
+            """,
+            """
+            internal Option<string> Next() => Option.Some("x");
+
+            internal Option<string> Pick(Option<int> option) =>
+                option.AndThen(_ => Next());
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("And", "Option<int>", "AndThen"));
+
+    [Fact]
+    public Task WrapsAnEagerUnwrapOrArgumentInALambda() =>
+        Verify.CodeFixAsync<LazyVariantAnalyzer, UseLazyVariantCodeFix>(
+            """
+            internal int Expensive() => 42;
+
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOr|}(Expensive());
+            """,
+            """
+            internal int Expensive() => 42;
+
+            internal int Read(Option<int> option) =>
+                option.UnwrapOrElse(() => Expensive());
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("UnwrapOr", "Option<int>", "UnwrapOrElse"));
+
+    [Fact]
+    public Task KeepsTheMapDelegateWhenWrappingMapOr() =>
+        Verify.CodeFixAsync<LazyVariantAnalyzer, UseLazyVariantCodeFix>(
+            """
+            internal int Expensive() => 42;
+
+            internal int Read(Option<int> option) =>
+                option.{|#0:MapOr|}(Expensive(), value => value + 1);
+            """,
+            """
+            internal int Expensive() => 42;
+
+            internal int Read(Option<int> option) =>
+                option.MapOrElse(() => Expensive(), value => value + 1);
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("MapOr", "Option<int>", "MapOrElse"));
+
+    [Fact]
+    public Task WrapsAnEagerOkOrArgumentInALambda() =>
+        Verify.CodeFixAsync<LazyVariantAnalyzer, UseLazyVariantCodeFix>(
+            """
+            internal string Reason() => "missing";
+
+            internal Result<int, string> Convert(Option<int> option) =>
+                option.{|#0:OkOr|}(Reason());
+            """,
+            """
+            internal string Reason() => "missing";
+
+            internal Result<int, string> Convert(Option<int> option) =>
+                option.OkOrElse(() => Reason());
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("OkOr", "Option<int>", "OkOrElse"));
 }
