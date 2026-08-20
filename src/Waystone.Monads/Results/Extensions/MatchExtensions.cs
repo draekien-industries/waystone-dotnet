@@ -8,7 +8,7 @@ public static class MatchExtensions
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull where TErr : notnull
     {
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Func<TOk, Task> onOk,
             Func<TErr, Task> onErr)
         {
@@ -26,7 +26,7 @@ public static class MatchExtensions
             await onErr.Invoke(err).ConfigureAwait(false);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Func<TOk, Task> onOk,
             Action<TErr> onErr)
         {
@@ -44,7 +44,7 @@ public static class MatchExtensions
             onErr.Invoke(err);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Action<TOk> onOk,
             Func<TErr, Task> onErr)
         {
@@ -62,7 +62,7 @@ public static class MatchExtensions
             await onErr.Invoke(err).ConfigureAwait(false);
         }
 
-        public async Task<TOut> MatchAsync<TOut>(
+        public async ValueTask<TOut> MatchAsync<TOut>(
             Func<TOk, Task<TOut>> onOk,
             Func<TErr, Task<TOut>> onErr)
         {
@@ -82,7 +82,7 @@ public static class MatchExtensions
     extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
         where TOk : notnull where TErr : notnull
     {
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Func<TOk, Task> onOk,
             Func<TErr, Task> onErr)
         {
@@ -91,7 +91,7 @@ public static class MatchExtensions
             await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Func<TOk, Task> onOk,
             Action<TErr> onErr)
         {
@@ -100,7 +100,7 @@ public static class MatchExtensions
             await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Action<TOk> onOk,
             Func<TErr, Task> onErr)
         {
@@ -109,7 +109,7 @@ public static class MatchExtensions
             await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task<TOut> MatchAsync<TOut>(
+        public async ValueTask<TOut> MatchAsync<TOut>(
             Func<TOk, Task<TOut>> onOk,
             Func<TErr, Task<TOut>> onErr)
         {
@@ -118,7 +118,7 @@ public static class MatchExtensions
             return await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Action<TOk> onOk,
             Action<TErr> onErr)
         {
@@ -142,7 +142,7 @@ public static class MatchExtensions
     extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
         where TOk : notnull where TErr : notnull
     {
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Func<TOk, Task> onOk,
             Func<TErr, Task> onErr)
         {
@@ -151,7 +151,7 @@ public static class MatchExtensions
             await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Func<TOk, Task> onOk,
             Action<TErr> onErr)
         {
@@ -160,7 +160,7 @@ public static class MatchExtensions
             await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Action<TOk> onOk,
             Func<TErr, Task> onErr)
         {
@@ -169,7 +169,7 @@ public static class MatchExtensions
             await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task<TOut> MatchAsync<TOut>(
+        public async ValueTask<TOut> MatchAsync<TOut>(
             Func<TOk, Task<TOut>> onOk,
             Func<TErr, Task<TOut>> onErr)
         {
@@ -178,7 +178,7 @@ public static class MatchExtensions
             return await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
         }
 
-        public async Task MatchAsync(
+        public async ValueTask MatchAsync(
             Action<TOk> onOk,
             Action<TErr> onErr)
         {

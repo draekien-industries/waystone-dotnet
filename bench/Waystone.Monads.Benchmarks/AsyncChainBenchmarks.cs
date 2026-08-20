@@ -27,14 +27,43 @@ public class AsyncChainBenchmarks
         _none.MapAsync(static value => Task.FromResult(value + 1));
 
     [Benchmark]
-    public Task<Option<int>> ThreeLinkChainOnSome() =>
+    public ValueTask<Option<int>> ThreeLinkChainOnSome() =>
         _some.MapAsync(static value => Task.FromResult(value + 1))
              .MapAsync(static value => value + 1)
              .MapAsync(static value => value + 1);
 
     [Benchmark]
-    public Task<Option<int>> ThreeLinkChainOnNone() =>
+    public ValueTask<Option<int>> ThreeLinkChainOnNone() =>
         _none.MapAsync(static value => Task.FromResult(value + 1))
              .MapAsync(static value => value + 1)
              .MapAsync(static value => value + 1);
+
+    [Benchmark]
+    public async Task<Option<int>> ThreeLinkChainOnCompletedTask()
+    {
+        var chain = Task.FromResult(_some)
+                        .MapAsync(static value => value + 1)
+                        .MapAsync(static value => value + 1)
+                        .MapAsync(static value => value + 1);
+
+        return await chain;
+    }
+
+    [Benchmark]
+    public async Task<Option<int>> ThreeLinkChainOnPendingTask()
+    {
+        var chain = PendingAsync(_some)
+                   .MapAsync(static value => value + 1)
+                   .MapAsync(static value => value + 1)
+                   .MapAsync(static value => value + 1);
+
+        return await chain;
+    }
+
+    private static async Task<Option<int>> PendingAsync(Option<int> option)
+    {
+        await Task.Yield();
+
+        return option;
+    }
 }

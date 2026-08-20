@@ -17,11 +17,11 @@ public static class AndExtensions
         /// <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" /> containing
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" /> containing
         /// <paramref name="other" /> if the awaited option was a <see cref="Some{T}" />,
         /// or <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> AndAsync<TOut>(Option<TOut> other)
+        public async ValueTask<Option<TOut>> AndAsync<TOut>(Option<TOut> other)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -43,11 +43,11 @@ public static class AndExtensions
         /// <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" /> containing
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" /> containing
         /// <paramref name="other" /> if the awaited option was a <see cref="Some{T}" />,
         /// or <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> AndAsync<TOut>(Option<TOut> other)
+        public async ValueTask<Option<TOut>> AndAsync<TOut>(Option<TOut> other)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);

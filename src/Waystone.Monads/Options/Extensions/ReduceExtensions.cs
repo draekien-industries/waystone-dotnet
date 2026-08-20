@@ -45,11 +45,11 @@ public static class ReduceExtensions
         /// <param name="other">The option to merge with.</param>
         /// <param name="reduce">The function that combines two present values.</param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the combined option when both are a
+        /// A <see cref="ValueTask{TResult}" /> containing the combined option when both are a
         /// <see cref="Some{T}" />, whichever option is a <see cref="Some{T}" /> when only
         /// one of them is, and <see cref="None{T}" /> when neither is.
         /// </returns>
-        public async Task<Option<T>> ReduceAsync(
+        public async ValueTask<Option<T>> ReduceAsync(
             Option<T> other,
             Func<T, T, T> reduce)
         {
@@ -69,11 +69,11 @@ public static class ReduceExtensions
         /// values.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the combined option when both are a
+        /// A <see cref="ValueTask{TResult}" /> containing the combined option when both are a
         /// <see cref="Some{T}" />, whichever option is a <see cref="Some{T}" /> when only
         /// one of them is, and <see cref="None{T}" /> when neither is.
         /// </returns>
-        public async Task<Option<T>> ReduceAsync(
+        public async ValueTask<Option<T>> ReduceAsync(
             Option<T> other,
             Func<T, T, Task<T>> reduce)
         {
@@ -93,11 +93,11 @@ public static class ReduceExtensions
         /// <param name="other">The option to merge with.</param>
         /// <param name="reduce">The function that combines two present values.</param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the combined option when both are a
+        /// A <see cref="ValueTask{TResult}" /> containing the combined option when both are a
         /// <see cref="Some{T}" />, whichever option is a <see cref="Some{T}" /> when only
         /// one of them is, and <see cref="None{T}" /> when neither is.
         /// </returns>
-        public async Task<Option<T>> ReduceAsync(
+        public async ValueTask<Option<T>> ReduceAsync(
             Option<T> other,
             Func<T, T, T> reduce)
         {
@@ -117,11 +117,11 @@ public static class ReduceExtensions
         /// values.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the combined option when both are a
+        /// A <see cref="ValueTask{TResult}" /> containing the combined option when both are a
         /// <see cref="Some{T}" />, whichever option is a <see cref="Some{T}" /> when only
         /// one of them is, and <see cref="None{T}" /> when neither is.
         /// </returns>
-        public async Task<Option<T>> ReduceAsync(
+        public async ValueTask<Option<T>> ReduceAsync(
             Option<T> other,
             Func<T, T, Task<T>> reduce)
         {

@@ -101,3 +101,37 @@ from every other `None<T>` of its type.
 
 The async rows show the `ValueTask` to `Task` degradation: `ThreeLinkChainOnNone`
 allocates 216 B to short-circuit three times and produce nothing.
+
+## The uniform `ValueTask` result
+
+`artifacts/v6-dra66/` holds the run after DRA-66, on the same machine and
+settings. It is the reason the two `Task`-receiver chain benchmarks exist.
+
+| Three-link chain, by head | before | after | Δ |
+| -- | --: | --: | --: |
+| sync `Option`, `Some` | 432 B | 288 B | −144 B |
+| sync `Option`, `None` | 216 B | 72 B | −144 B |
+| completed `Task` | 576 B | 360 B | −216 B |
+| pending `Task` | 782 B | 866 B | **+84 B** |
+
+The last row is a real regression and was measured rather than predicted. A
+fluent chain is built eagerly, so every link attaches before the one above it
+completes: if the head is pending, link two awaits an incomplete `ValueTask`
+and suspends as well, and so does link three. The chain is either wholly
+synchronous or wholly pending, and there is no partial case where `ValueTask`
+saves one hop out of three. When it is wholly pending, `ValueTask` costs more
+than `Task`, because an `AsyncValueTaskMethodBuilder` box holds the state
+machine inline and is larger than the `Task` it replaces.
+
+`ValueTask` therefore pays only when the head completes synchronously — which
+is why the first three rows win and the fourth loses. The trade was taken
+deliberately: the loss lands on a chain that has just done real I/O, where 84 B
+against a 619 ns await is noise, and the win lands on the synchronous path,
+which is the hot one.
+
+The `before` column for the first two rows comes from `artifacts/v5-baseline/`.
+The last two benchmarks did not exist at 5.5.0, so their `before` column was
+captured from a scratch build with the `Task`-receiver row left on `Task` and
+the `ValueTask`-receiver row converted. For a chain whose head is a `Task`,
+every link binds to the `Task`-receiver row and never reaches the other one, so
+that configuration is byte-identical to 5.5.0 for these two rows only.

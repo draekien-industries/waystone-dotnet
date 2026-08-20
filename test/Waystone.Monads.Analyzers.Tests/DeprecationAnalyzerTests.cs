@@ -32,7 +32,7 @@ public class DeprecationAnalyzerTests
     public Task FlagsFlatMapAsyncOnAnOptionTask() =>
         Verify.AnalyzerAsync<DeprecationAnalyzer>(
             """
-            internal Task<Option<int>> Doubled(Task<Option<int>> option) =>
+            internal ValueTask<Option<int>> Doubled(Task<Option<int>> option) =>
                 option.{|#0:FlatMapAsync|}(value => Option.Some(value * 2));
             """,
             Verify.Diagnostic(Rules.RenamedToAndThen)
@@ -43,7 +43,7 @@ public class DeprecationAnalyzerTests
     public Task FlagsFlatMapAsyncOnAnOptionValueTask() =>
         Verify.AnalyzerAsync<DeprecationAnalyzer>(
             """
-            internal Task<Option<int>> Doubled(ValueTask<Option<int>> option) =>
+            internal ValueTask<Option<int>> Doubled(ValueTask<Option<int>> option) =>
                 option.{|#0:FlatMapAsync|}(value => Option.Some(value * 2));
             """,
             Verify.Diagnostic(Rules.RenamedToAndThen)

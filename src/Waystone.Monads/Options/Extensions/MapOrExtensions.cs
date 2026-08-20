@@ -44,7 +44,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />
         /// </returns>
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, TOut> map)
         {
@@ -80,7 +80,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />
         /// </returns>
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, Task<TOut>> map)
         {
@@ -119,7 +119,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />.
         /// </returns>
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, TOut> map)
         {
@@ -155,7 +155,7 @@ public static class MapOrExtensions
         /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
         /// or the provided default value if the option is <see cref="None{T}" />
         /// </returns>
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, Task<TOut>> map)
         {

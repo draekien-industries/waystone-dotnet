@@ -25,7 +25,7 @@ public static class MapOrExtensions
     extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
         where TOk : notnull where TErr : notnull
     {
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
@@ -36,7 +36,7 @@ public static class MapOrExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<TOk, TOut> map)
             where TOut : notnull
@@ -50,7 +50,7 @@ public static class MapOrExtensions
     extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
         where TOk : notnull where TErr : notnull
     {
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
@@ -61,7 +61,7 @@ public static class MapOrExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrAsync<TOut>(
+        public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<TOk, TOut> map)
             where TOut : notnull

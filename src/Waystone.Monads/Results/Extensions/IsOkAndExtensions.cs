@@ -18,7 +18,7 @@ public static class IsOkAndExtensions
         /// to evaluate the <c>Ok</c> value against.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <c>true</c> if the current result is
+        /// A <see cref="ValueTask{TResult}" /> containing <c>true</c> if the current result is
         /// an
         /// <c>Ok</c> value and the <paramref name="predicate" /> returns <c>true</c>;
         /// otherwise, <c>false</c>.
@@ -47,12 +47,12 @@ public static class IsOkAndExtensions
         /// to evaluate the <c>Ok</c> value against.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <c>true</c> if the resolved result is
+        /// A <see cref="ValueTask{TResult}" /> containing <c>true</c> if the resolved result is
         /// an
         /// <c>Ok</c> value and the <paramref name="predicate" /> returns <c>true</c>;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> IsOkAndAsync(Func<TOk, Task<bool>> predicate)
+        public async ValueTask<bool> IsOkAndAsync(Func<TOk, Task<bool>> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -73,12 +73,12 @@ public static class IsOkAndExtensions
         /// to evaluate the <c>Ok</c> value against.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <c>true</c> if the current result is
+        /// A <see cref="ValueTask{TResult}" /> containing <c>true</c> if the current result is
         /// an
         /// <c>Ok</c> value and the <paramref name="predicate" /> returns <c>true</c>;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> IsOkAndAsync(Func<TOk, bool> predicate)
+        public async ValueTask<bool> IsOkAndAsync(Func<TOk, bool> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -103,12 +103,12 @@ public static class IsOkAndExtensions
         /// to evaluate the <c>Ok</c> value against.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <c>true</c> if the resolved result is
+        /// A <see cref="ValueTask{TResult}" /> containing <c>true</c> if the resolved result is
         /// an
         /// <c>Ok</c> value and the <paramref name="predicate" /> returns <c>true</c>;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> IsOkAndAsync(Func<TOk, Task<bool>> predicate)
+        public async ValueTask<bool> IsOkAndAsync(Func<TOk, Task<bool>> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -128,13 +128,13 @@ public static class IsOkAndExtensions
         /// to evaluate the <c>Ok</c> value against.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
         /// current result
         /// is an <c>Ok</c> value and the <paramref name="predicate" /> returns
         /// <see langword="true" />;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsOkAndAsync(Func<TOk, bool> predicate)
+        public async ValueTask<bool> IsOkAndAsync(Func<TOk, bool> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

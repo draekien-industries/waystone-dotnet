@@ -44,14 +44,14 @@ public static class FlatMapExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the <see cref="Option{TOut}" />, with
+        /// A <see cref="ValueTask{TResult}" /> containing the <see cref="Option{TOut}" />, with
         /// the mapped value if the original <see cref="Option{T}" /> was
         /// <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
         [Obsolete(
             "Use AndThenAsync instead. This method will be removed in v6 of Waystone.Monads.")]
-        public Task<Option<TOut>> FlatMapAsync<TOut>(
+        public ValueTask<Option<TOut>> FlatMapAsync<TOut>(
             Func<T, Task<Option<TOut>>> map)
             where TOut : notnull =>
             optionTask.AndThenAsync(map);
@@ -68,14 +68,14 @@ public static class FlatMapExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" />, containing the
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" />, containing the
         /// mapped
         /// value if the original <see cref="Option{T}" /> was <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
         [Obsolete(
             "Use AndThenAsync instead. This method will be removed in v6 of Waystone.Monads.")]
-        public Task<Option<TOut>> FlatMapAsync<TOut>(
+        public ValueTask<Option<TOut>> FlatMapAsync<TOut>(
             Func<T, Option<TOut>> map)
             where TOut : notnull =>
             optionTask.AndThenAsync(map);
@@ -93,14 +93,14 @@ public static class FlatMapExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" />, containing
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" />, containing
         /// the mapped value if the original <see cref="Option{T}" /> was
         /// <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
         [Obsolete(
             "Use AndThenAsync instead. This method will be removed in v6 of Waystone.Monads.")]
-        public Task<Option<TOut>> FlatMapAsync<TOut>(
+        public ValueTask<Option<TOut>> FlatMapAsync<TOut>(
             Func<T, Task<Option<TOut>>> map)
             where TOut : notnull =>
             optionTask.AndThenAsync(map);
@@ -115,14 +115,14 @@ public static class FlatMapExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" />, containing
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" />, containing
         /// the mapped value if the original <see cref="Option{T}" /> was
         /// <see cref="Some{T}" />,
         /// or <see cref="None{T}" /> otherwise.
         /// </returns>
         [Obsolete(
             "Use AndThenAsync instead. This method will be removed in v6 of Waystone.Monads.")]
-        public Task<Option<TOut>> FlatMapAsync<TOut>(
+        public ValueTask<Option<TOut>> FlatMapAsync<TOut>(
             Func<T, Option<TOut>> map)
             where TOut : notnull =>
             optionTask.AndThenAsync(map);

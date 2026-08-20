@@ -46,13 +46,13 @@ public static class IsErrAndExtensions
         /// value.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> representing the asynchronous operation,
+        /// A <see cref="ValueTask{TResult}" /> representing the asynchronous operation,
         /// containing
         /// <see langword="true" /> if the result is an Err value and satisfies the
         /// specified predicate;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsErrAndAsync(Func<TErr, Task<bool>> predicate)
+        public async ValueTask<bool> IsErrAndAsync(Func<TErr, Task<bool>> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -72,12 +72,12 @@ public static class IsErrAndExtensions
         /// value.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> representing the asynchronous operation,
+        /// A <see cref="ValueTask{TResult}" /> representing the asynchronous operation,
         /// containing <see langword="true" /> if the result is an Err value and satisfies
         /// the
         /// specified predicate; otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsErrAndAsync(Func<TErr, bool> predicate)
+        public async ValueTask<bool> IsErrAndAsync(Func<TErr, bool> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -101,13 +101,13 @@ public static class IsErrAndExtensions
         /// asynchronously.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> that represents the asynchronous operation,
+        /// A <see cref="ValueTask{TResult}" /> that represents the asynchronous operation,
         /// containing
         /// <see langword="true" /> if the result is an Err value and satisfies the
         /// specified predicate;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsErrAndAsync(Func<TErr, Task<bool>> predicate)
+        public async ValueTask<bool> IsErrAndAsync(Func<TErr, Task<bool>> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -127,12 +127,12 @@ public static class IsErrAndExtensions
         /// asynchronously.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> that represents the asynchronous operation,
+        /// A <see cref="ValueTask{TResult}" /> that represents the asynchronous operation,
         /// containing <see langword="true" /> if the result is an Err value and satisfies
         /// the
         /// specified predicate; otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsErrAndAsync(Func<TErr, bool> predicate)
+        public async ValueTask<bool> IsErrAndAsync(Func<TErr, bool> predicate)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

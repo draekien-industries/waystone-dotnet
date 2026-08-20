@@ -19,7 +19,7 @@ public static class ExpectExtensions
         /// Thrown when the awaited
         /// option is a <see cref="None{T}" />
         /// </exception>
-        public async Task<T> ExpectAsync(string message)
+        public async ValueTask<T> ExpectAsync(string message)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -41,7 +41,7 @@ public static class ExpectExtensions
         /// Thrown when the awaited
         /// option is a <see cref="None{T}" />
         /// </exception>
-        public async Task<T> ExpectAsync(string message)
+        public async ValueTask<T> ExpectAsync(string message)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

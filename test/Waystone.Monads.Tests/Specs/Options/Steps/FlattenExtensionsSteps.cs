@@ -25,7 +25,7 @@ public class FlattenExtensionsSteps(SpecContext context)
         var nestedOptionTask =
             context.Subject<ValueTask<Option<Option<int>>>>();
 
-        Task<Option<int>> flattenTask = nestedOptionTask.FlattenAsync();
+        ValueTask<Option<int>> flattenTask = nestedOptionTask.FlattenAsync();
 
         Option<int> result = flattenTask.GetAwaiter().GetResult();
 

@@ -33,7 +33,7 @@ public static class OrElseExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async Task<Result<TOk, TOut>> OrElseAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
             Func<TErr, Result<TOk, TOut>> factory)
             where TOut : notnull
         {
@@ -42,7 +42,7 @@ public static class OrElseExtensions
             return result.OrElse(factory);
         }
 
-        public async Task<Result<TOk, TOut>> OrElseAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
             Func<TErr, Task<Result<TOk, TOut>>> factory)
             where TOut : notnull
         {
@@ -56,7 +56,7 @@ public static class OrElseExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async Task<Result<TOk, TOut>> OrElseAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
             Func<TErr, Result<TOk, TOut>> factory)
             where TOut : notnull
         {
@@ -65,7 +65,7 @@ public static class OrElseExtensions
             return result.OrElse(factory);
         }
 
-        public async Task<Result<TOk, TOut>> OrElseAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
             Func<TErr, Task<Result<TOk, TOut>>> factory)
             where TOut : notnull
         {

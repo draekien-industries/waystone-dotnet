@@ -27,7 +27,7 @@ public static class OkOrElseExtensions
 
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
-        public async Task<Result<T, TErr>> OkOrElseAsync<TErr>(
+        public async ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
             Func<TErr> errFunc)
             where TErr : notnull
         {
@@ -36,7 +36,7 @@ public static class OkOrElseExtensions
             return option.OkOrElse(errFunc);
         }
 
-        public Task<Result<T, TErr>> OkOrElseAsync<TErr>(
+        public ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
             Func<Task<TErr>> errFunc)
             where TErr : notnull =>
             optionTask.MatchAsync(
@@ -51,7 +51,7 @@ public static class OkOrElseExtensions
 
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
-        public async Task<Result<T, TErr>> OkOrElseAsync<TErr>(
+        public async ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
             Func<TErr> errFunc)
             where TErr : notnull
         {
@@ -60,7 +60,7 @@ public static class OkOrElseExtensions
             return option.OkOrElse(errFunc);
         }
 
-        public Task<Result<T, TErr>> OkOrElseAsync<TErr>(
+        public ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
             Func<Task<TErr>> errFunc)
             where TErr : notnull =>
             optionTask.MatchAsync(

@@ -156,11 +156,11 @@ public class CodeFixTests
     public Task RenamesFlatMapAsyncToAndThenAsync() =>
         Verify.CodeFixAsync<DeprecationAnalyzer, UseAndThenCodeFix>(
             """
-            internal Task<Option<int>> Doubled(Task<Option<int>> option) =>
+            internal ValueTask<Option<int>> Doubled(Task<Option<int>> option) =>
                 option.{|#0:FlatMapAsync|}(value => Option.Some(value * 2));
             """,
             """
-            internal Task<Option<int>> Doubled(Task<Option<int>> option) =>
+            internal ValueTask<Option<int>> Doubled(Task<Option<int>> option) =>
                 option.AndThenAsync(value => Option.Some(value * 2));
             """,
             Verify.Diagnostic(Rules.RenamedToAndThen)

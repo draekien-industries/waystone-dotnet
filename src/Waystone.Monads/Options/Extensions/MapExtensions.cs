@@ -36,7 +36,7 @@ public static class MapExtensions
         /// A task containing an <see cref="Option{TOut}" /> with the transformed value if
         /// the original option was in a "Some" state; otherwise, an empty option.
         /// </returns>
-        public async Task<Option<TOut>> MapAsync<TOut>(Func<T, Task<TOut>> map)
+        public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, Task<TOut>> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -66,7 +66,7 @@ public static class MapExtensions
         /// A task containing an <see cref="Option{TOut}" /> with the transformed value if
         /// the original option was in a "Some" state; otherwise, an empty option.
         /// </returns>
-        public async Task<Option<TOut>> MapAsync<TOut>(Func<T, TOut> map)
+        public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, TOut> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -97,7 +97,7 @@ public static class MapExtensions
         /// the original <see cref="Option{T}" /> was in a "Some" state; otherwise, an
         /// empty option.
         /// </returns>
-        public async Task<Option<TOut>> MapAsync<TOut>(Func<T, Task<TOut>> map)
+        public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, Task<TOut>> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -126,7 +126,7 @@ public static class MapExtensions
         /// transformed value
         /// if the original option was in a "Some" state; otherwise, an empty option.
         /// </returns>
-        public async Task<Option<TOut>> MapAsync<TOut>(Func<T, TOut> map)
+        public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, TOut> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);

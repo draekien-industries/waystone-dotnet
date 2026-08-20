@@ -35,11 +35,11 @@ public static class UnwrapOrNullExtensions
         /// <see langword="null" />.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the contained value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the contained value if the awaited
         /// result was an <see cref="Ok{TOk,TErr}" />, otherwise
         /// <see langword="null" />.
         /// </returns>
-        public async Task<TOk?> UnwrapOrNullAsync()
+        public async ValueTask<TOk?> UnwrapOrNullAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -56,11 +56,11 @@ public static class UnwrapOrNullExtensions
         /// <see langword="null" />.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the contained value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the contained value if the awaited
         /// result was an <see cref="Ok{TOk,TErr}" />, otherwise
         /// <see langword="null" />.
         /// </returns>
-        public async Task<TOk?> UnwrapOrNullAsync()
+        public async ValueTask<TOk?> UnwrapOrNullAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

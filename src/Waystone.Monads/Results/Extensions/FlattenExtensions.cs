@@ -36,12 +36,12 @@ public static class FlattenExtensions
         /// asynchronously.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task" /> representing the asynchronous operation. The task result
+        /// A <see cref="ValueTask" /> representing the asynchronous operation. The task result
         /// contains a flattened <see cref="Result{TOk, TErr}" />.
         /// If the outer result is <c>Ok</c>, its inner value is returned. If the outer
         /// result is <c>Err</c>, its error value is propagated.
         /// </returns>
-        public async Task<Result<TOk, TErr>> FlattenAsync()
+        public async ValueTask<Result<TOk, TErr>> FlattenAsync()
         {
             Result<Result<TOk, TErr>, TErr> result =
                 await resultTask.ConfigureAwait(false);
@@ -63,13 +63,13 @@ public static class FlattenExtensions
         /// <see cref="Result{TOk, TErr}" />.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task" /> that represents the asynchronous operation. The task
+        /// A <see cref="ValueTask" /> that represents the asynchronous operation. The task
         /// result
         /// contains a flattened <see cref="Result{TOk, TErr}" />.
         /// If the outer result is <c>Ok</c>, its inner value is returned.
         /// If the outer result is <c>Err</c>, its error value is propagated.
         /// </returns>
-        public async Task<Result<TOk, TErr>> FlattenAsync()
+        public async ValueTask<Result<TOk, TErr>> FlattenAsync()
         {
             Result<Result<TOk, TErr>, TErr> result =
                 await resultTask.ConfigureAwait(false);

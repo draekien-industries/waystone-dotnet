@@ -30,11 +30,11 @@ public static class UnwrapOrNullExtensions
         /// the option is a <see cref="Some{T}" />, otherwise <see langword="null" />.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the contained value if the
+        /// A <see cref="ValueTask{TResult}" /> containing the contained value if the
         /// awaited option was a <see cref="Some{T}" />, otherwise
         /// <see langword="null" />.
         /// </returns>
-        public async Task<T?> UnwrapOrNullAsync()
+        public async ValueTask<T?> UnwrapOrNullAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -50,11 +50,11 @@ public static class UnwrapOrNullExtensions
         /// <see langword="null" />.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the contained value if the
+        /// A <see cref="ValueTask{TResult}" /> containing the contained value if the
         /// awaited option was a <see cref="Some{T}" />, otherwise
         /// <see langword="null" />.
         /// </returns>
-        public async Task<T?> UnwrapOrNullAsync()
+        public async ValueTask<T?> UnwrapOrNullAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

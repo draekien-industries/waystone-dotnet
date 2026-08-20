@@ -13,11 +13,11 @@ public static class AsEnumerableExtensions
         /// possibly contained <see cref="Ok{TOk,TErr}" /> value.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing a sequence that yields the
+        /// A <see cref="ValueTask{TResult}" /> containing a sequence that yields the
         /// contained value once if the awaited result was an
         /// <see cref="Ok{TOk,TErr}" />, otherwise an empty sequence.
         /// </returns>
-        public async Task<IEnumerable<TOk>> AsEnumerableAsync()
+        public async ValueTask<IEnumerable<TOk>> AsEnumerableAsync()
         {
             Result<TOk, TErr> result =
                 await resultTask.ConfigureAwait(false);
@@ -34,11 +34,11 @@ public static class AsEnumerableExtensions
         /// possibly contained <see cref="Ok{TOk,TErr}" /> value.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing a sequence that yields the
+        /// A <see cref="ValueTask{TResult}" /> containing a sequence that yields the
         /// contained value once if the awaited result was an
         /// <see cref="Ok{TOk,TErr}" />, otherwise an empty sequence.
         /// </returns>
-        public async Task<IEnumerable<TOk>> AsEnumerableAsync()
+        public async ValueTask<IEnumerable<TOk>> AsEnumerableAsync()
         {
             Result<TOk, TErr> result =
                 await resultTask.ConfigureAwait(false);

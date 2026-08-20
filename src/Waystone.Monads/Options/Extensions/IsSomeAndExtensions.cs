@@ -47,12 +47,12 @@ public static class IsSomeAndExtensions
         /// <see cref="Option{T}" /> if it is in a "Some" state.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
         /// <see cref="Option{T}" /> is in a "Some" state
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
+        public async ValueTask<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -69,12 +69,12 @@ public static class IsSomeAndExtensions
         /// in a "Some" state.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
         /// <see cref="Option{T}" /> is in a "Some" state and the predicate evaluates to
         /// <see langword="true" /> for the contained value; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAndAsync(Func<T, bool> predicate)
+        public async ValueTask<bool> IsSomeAndAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -94,12 +94,12 @@ public static class IsSomeAndExtensions
         /// <see cref="Option{T}" /> if it is in a "Some" state.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
         /// <see cref="Option{T}" /> is in a "Some" state
         /// and the predicate evaluates to <see langword="true" /> for the contained value;
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
+        public async ValueTask<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionValueTask.ConfigureAwait(false);
 
@@ -116,12 +116,12 @@ public static class IsSomeAndExtensions
         /// if it is in a "Some" state.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing <see langword="true" /> if the
+        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
         /// <see cref="Option{T}" /> is in a "Some" state and the predicate evaluates
         /// to <see langword="true" /> for the contained value; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        public async Task<bool> IsSomeAndAsync(Func<T, bool> predicate)
+        public async ValueTask<bool> IsSomeAndAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionValueTask.ConfigureAwait(false);
 
