@@ -19,6 +19,11 @@ using System.Diagnostics;
 #endif
 public abstract record Option<T> where T : notnull
 {
+    internal Option()
+    { }
+
+    internal abstract void OnlyThisAssemblyMayDerive();
+
     /// <summary>
     /// Returns <see langword="true" /> if the option is a
     /// <see cref="Some{T}" /> value.
@@ -141,11 +146,7 @@ public abstract record Option<T> where T : notnull
     /// </remarks>
     /// <param name="other">The option to return when this one is a <see cref="Some{T}" />.</param>
     /// <typeparam name="T2">The type of the value contained in the other option.</typeparam>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public Option<T2> And<T2>(Option<T2> other) where T2 : notnull =>
-        Match(_ => other, Option.None<T2>);
+    public abstract Option<T2> And<T2>(Option<T2> other) where T2 : notnull;
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
@@ -187,11 +188,7 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public T2? MapOrDefault<T2>(Func<T, T2> map) where T2 : notnull =>
-        Match<T2?>(map, () => default);
+    public abstract T2? MapOrDefault<T2>(Func<T, T2> map) where T2 : notnull;
 
     /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
@@ -301,26 +298,14 @@ public abstract record Option<T> where T : notnull
     /// whichever option is <see cref="Some{T}" /> when only one of them is, and
     /// <see cref="None{T}" /> when neither is.
     /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public Option<T> Reduce(Option<T> other, Func<T, T, T> reduce) =>
-        Match(
-            value => other.Match<Option<T>>(
-                otherValue => reduce(value, otherValue),
-                () => value),
-            () => other);
+    public abstract Option<T> Reduce(Option<T> other, Func<T, T, T> reduce);
 
     /// <summary>Returns a sequence over the possibly contained value.</summary>
     /// <returns>
     /// A sequence yielding the contained value once if the option is a
     /// <see cref="Some{T}" />, otherwise an empty sequence.
     /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public IEnumerable<T> AsEnumerable() =>
-        Match<IEnumerable<T>>(value => new[] { value }, Array.Empty<T>);
+    public abstract IEnumerable<T> AsEnumerable();
 
     /// <summary>
     /// Transforms the current <see cref="Option{T}" /> into a
