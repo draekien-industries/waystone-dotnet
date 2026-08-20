@@ -72,6 +72,54 @@ public static class Semantics
     public static bool IsZeroConstant(object? constant) =>
         constant is not null && IsZero(constant);
 
+    public static string DefaultOf(ITypeSymbol type)
+    {
+        if (WellKnownDefaults.TryGetValue(
+                type.ToDisplayString(),
+                out string? wellKnown))
+        {
+            return Display(type) + "." + wellKnown;
+        }
+
+        if (type.TypeKind == TypeKind.Enum)
+        {
+            var zero = ZeroMemberOf(type);
+
+            return zero is null
+                ? "default(" + Display(type) + ")"
+                : Display(type) + "." + zero.Name;
+        }
+
+        switch (type.SpecialType)
+        {
+            case SpecialType.System_Boolean:
+                return "false";
+            case SpecialType.System_Char:
+                return "'\\0'";
+            case SpecialType.System_SByte:
+            case SpecialType.System_Byte:
+            case SpecialType.System_Int16:
+            case SpecialType.System_UInt16:
+            case SpecialType.System_Int32:
+            case SpecialType.System_UInt32:
+            case SpecialType.System_Int64:
+            case SpecialType.System_UInt64:
+            case SpecialType.System_Single:
+            case SpecialType.System_Double:
+            case SpecialType.System_Decimal:
+                return "0";
+            default:
+                return "default(" + Display(type) + ")";
+        }
+    }
+
+    private static IFieldSymbol? ZeroMemberOf(ITypeSymbol type) =>
+        type.GetMembers()
+           .OfType<IFieldSymbol>()
+           .FirstOrDefault(
+                field => field.HasConstantValue
+                      && IsZeroConstant(field.ConstantValue));
+
     public static bool IsMaybeNull(IOperation operation)
     {
         var value = Unconverted(operation);

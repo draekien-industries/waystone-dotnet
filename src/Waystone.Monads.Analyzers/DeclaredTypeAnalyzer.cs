@@ -13,7 +13,6 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             Rules.NullableMonadDeclared,
-            Rules.OptionOfZeroValuedType,
             Rules.NestedOption,
             Rules.ResultWithIdenticalTypeArguments,
             Rules.DerivedMonadTypeDeclared);
@@ -68,19 +67,6 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
                     symbols.IsOption(type) ? "None" : "Err"));
         }
 
-        if (symbols.IsOption(type)
-         && symbols.TypeArgumentsOf(type) is { Length: 1 } held
-         && AdviceFor(held[0]) is { } advice)
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    Rules.OptionOfZeroValuedType,
-                    location,
-                    Semantics.Display(type),
-                    Semantics.Display(held[0]),
-                    advice));
-        }
-
         if (symbols.IsDerivedCase(type))
         {
             var declared = symbols.BaseCaseOf(type);
@@ -126,24 +112,4 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
                     Semantics.Display(type)));
         }
     }
-
-    private static string? AdviceFor(ITypeSymbol held)
-    {
-        if (held.SpecialType == SpecialType.System_Boolean)
-        {
-            return
-                "Use a three-state enum whose zero member carries the state you meant None to express";
-        }
-
-        return held.TypeKind == TypeKind.Enum && HasZeroMember(held)
-            ? "Renumber it so no meaningful member is 0, leaving zero to the state None expresses"
-            : null;
-    }
-
-    private static bool HasZeroMember(ITypeSymbol held) =>
-        held.GetMembers()
-           .OfType<IFieldSymbol>()
-           .Any(
-                field => field.HasConstantValue
-                      && Semantics.IsZeroConstant(field.ConstantValue));
 }

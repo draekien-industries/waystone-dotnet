@@ -8,29 +8,14 @@ public class OptionCreationAnalyzerTests
     [Theory]
     [InlineData("0", "int")]
     [InlineData("false", "bool")]
-    [InlineData("'\\0'", "char")]
     [InlineData("0m", "decimal")]
     [InlineData("default(int)", "int")]
     [InlineData("Guid.Empty", "Guid")]
     [InlineData("DateTime.MinValue", "DateTime")]
     [InlineData("TimeSpan.Zero", "TimeSpan")]
-    public Task FlagsTheDefaultOfAValueType(string value, string type) =>
-        Verify.AnalyzerAsync<OptionCreationAnalyzer>(
-            $"internal Option<{type}> Make() => Option.Some({{|#0:{value}|}});",
-            Verify.Diagnostic(Rules.DefaultOfValueTypeInOption)
-               .WithLocation(0)
-               .WithArguments(value, type));
-
-    [Fact]
-    public Task RendersEveryPlaceholderInTheValueTypeMessage() =>
-        Verify.AnalyzerAsync<OptionCreationAnalyzer>(
-            "internal Option<int> Make() => Option.Some({|#0:0|});",
-            Verify.Diagnostic(Rules.DefaultOfValueTypeInOption)
-               .WithLocation(0)
-               .WithMessage(
-                    "0 is the default of 'int', so 'Option.Some' throws today. "
-                  + "In v6 it returns a Some holding 0. Use "
-                  + "'Option.None<int>()' if you mean the absent case."));
+    public Task IgnoresTheDefaultOfAValueType(string value, string type) =>
+        Verify.NoDiagnosticAsync<OptionCreationAnalyzer>(
+            $"internal Option<{type}> Make() => Option.Some({value});");
 
     [Theory]
     [InlineData("default(string)", "string")]

@@ -55,5 +55,8 @@ WM1010 | Reliability | Warning | The default of a value type is used as an Optio
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+WM1004 | Reliability | Warning | A default value converts to None
 WM1007 | Reliability | Warning | A type derives from Option or Result
+WM1009 | Reliability | Warning | Option of bool or of an enum with a zero member
+WM1010 | Reliability | Warning | The default of a value type is used as an Option value
 WM2014 | Usage | Info | FlatMap has been renamed to AndThen
