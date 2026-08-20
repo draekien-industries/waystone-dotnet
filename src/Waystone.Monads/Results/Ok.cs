@@ -113,9 +113,20 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         map(Value);
 
     /// <inheritdoc />
+    public override Result<TOut, TErr> Map<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> map) => map(Value, state);
+
+    /// <inheritdoc />
     public override TOut MapOr<TOut>(
         TOut @default,
         Func<TOk, TOut> map) => map(Value);
+
+    /// <inheritdoc />
+    public override TOut MapOr<TState, TOut>(
+        TState state,
+        TOut @default,
+        Func<TOk, TState, TOut> map) => map(Value, state);
 
     /// <inheritdoc />
     public override TOut MapOrDefault<TOut>(Func<TOk, TOut> map) =>
@@ -127,8 +138,19 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Func<TOk, TOut> map) => map(Value);
 
     /// <inheritdoc />
+    public override TOut MapOrElse<TState, TOut>(
+        TState state,
+        Func<TErr, TState, TOut> createDefault,
+        Func<TOk, TState, TOut> map) => map(Value, state);
+
+    /// <inheritdoc />
     public override Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map) =>
         Value;
+
+    /// <inheritdoc />
+    public override Result<TOk, TOut> MapErr<TState, TOut>(
+        TState state,
+        Func<TErr, TState, TOut> map) => Value;
 
     /// <inheritdoc />
     public override IEnumerable<TOk> AsEnumerable() =>

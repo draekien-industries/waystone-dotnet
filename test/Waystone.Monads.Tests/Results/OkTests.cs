@@ -184,6 +184,40 @@ public class OkTests
     }
 
     [Fact]
+    public void GivenState_WhenMap_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.Map(10, static (x, state) => x + state)
+           .ShouldBe(Result.Ok<int, string>(11));
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOr_ThenReturnMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.MapOr(10, 100, static (x, state) => x + state).ShouldBe(11);
+
+        ok.MapOrElse(
+                10,
+                static (_, state) => state * 100,
+                static (x, state) => x + state)
+           .ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapErr_ThenDoNothing()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        var map = Substitute.For<Func<string, int, int>>();
+
+        ok.MapErr(10, map).ShouldBe(Result.Ok<int, int>(1));
+        map.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<int>());
+    }
+
+    [Fact]
     public void WhenGetOk_ThenReturnSome()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);

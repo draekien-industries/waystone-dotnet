@@ -136,6 +136,24 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T2> Map<T2>(Func<T, T2> map) where T2 : notnull;
 
     /// <summary>
+    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
+    /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
+    /// <see cref="None{T}" /> (if <see cref="None{T}" />).
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract Option<T2> Map<TState, T2>(
+        TState state,
+        Func<T, TState, T2> map) where T2 : notnull;
+
+    /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
     /// otherwise returns <paramref name="other" />.
     /// </summary>
@@ -173,6 +191,35 @@ public abstract record Option<T> where T : notnull
         Map(map).Flatten();
 
     /// <summary>
+    /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
+    /// otherwise calls <paramref name="map" /> with the wrapped value and the
+    /// <paramref name="state" /> and returns the result.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="map">
+    /// A transform function to apply to the inner value if the
+    /// option is a <see cref="Some{T}" />.
+    /// </param>
+    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="T2">The type of the value contained in the resulting option.</typeparam>
+    /// <returns>
+    /// A flattened <see cref="Option{T2}" /> resulting from applying the
+    /// transform function and flattening the nested option.
+    /// </returns>
+#if !DEBUG
+    [DebuggerStepThrough]
+#endif
+    public Option<T2> AndThen<TState, T2>(
+        TState state,
+        Func<T, TState, Option<T2>> map) where T2 : notnull =>
+        Map(state, map).Flatten();
+
+    /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
@@ -180,6 +227,25 @@ public abstract record Option<T> where T : notnull
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
     public abstract T2 MapOr<T2>(T2 @default, Func<T, T2> map);
+
+    /// <summary>
+    /// Returns the provided default result (if <see cref="None{T}" />), or
+    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="default">The default value for a <see cref="None{T}" />.</param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract T2 MapOr<TState, T2>(
+        TState state,
+        T2 @default,
+        Func<T, TState, T2> map);
 
     /// <summary>
     /// Returns the <see langword="default" /> of <typeparamref name="T2" /> (if
@@ -201,6 +267,28 @@ public abstract record Option<T> where T : notnull
     /// <param name="map">The map function.</param>
     /// <typeparam name="T2">The return type of the map function.</typeparam>
     public abstract T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map);
+
+    /// <summary>
+    /// Computes a default from a function (if <see cref="None{T}" />), or
+    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to both functions.</param>
+    /// <param name="createDefault">
+    /// The function that will create a default value for a
+    /// <see cref="None{T}" />.
+    /// </param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="TState">The type of the state passed to both functions.</typeparam>
+    /// <typeparam name="T2">The return type of the map function.</typeparam>
+    public abstract T2 MapOrElse<TState, T2>(
+        TState state,
+        Func<TState, T2> createDefault,
+        Func<T, TState, T2> map);
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
@@ -228,6 +316,25 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="predicate">The filter function.</param>
     public abstract Option<T> Filter(Func<T, bool> predicate);
+
+    /// <summary>
+    /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
+    /// otherwise calls the <paramref name="predicate" /> with the wrapped value and
+    /// the <paramref name="state" />, returning <see cref="Some{T}" /> when it
+    /// returns <see langword="true" /> and <see cref="None{T}" /> when it returns
+    /// <see langword="false" />.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the predicate.</param>
+    /// <param name="predicate">The filter function.</param>
+    /// <typeparam name="TState">The type of the state passed to the predicate.</typeparam>
+    public abstract Option<T> Filter<TState>(
+        TState state,
+        Func<T, TState, bool> predicate);
 
     /// <summary>
     /// Returns the option if it contains a value, otherwise returns
