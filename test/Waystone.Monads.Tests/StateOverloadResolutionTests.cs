@@ -40,6 +40,12 @@ public sealed class StateOverloadResolutionTests
     private static readonly Func<int, int, Option<int>> SomeAdd = (x, state) =>
         Option.Some(x + state);
 
+    private static readonly Func<int, Result<int, string>> OkIncrement = x =>
+        Result.Ok<int, string>(x + 1);
+
+    private static readonly Func<int, int, Result<int, string>> OkAdd =
+        (x, state) => Result.Ok<int, string>(x + state);
+
     private static readonly Func<Exception, int> OnError = _ => -1;
 
     private static readonly Func<Task<int>> TenAsync = () => Task.FromResult(10);
@@ -84,6 +90,9 @@ public sealed class StateOverloadResolutionTests
 
         ok.MapErr(Zero).ShouldBe(Result.Ok<int, int>(1));
         ok.MapErr(10, ErrorState).ShouldBe(Result.Ok<int, int>(1));
+
+        ok.AndThen(OkIncrement).ShouldBe(Result.Ok<int, string>(2));
+        ok.AndThen(10, OkAdd).ShouldBe(Result.Ok<int, string>(11));
     }
 
     /// <remarks>

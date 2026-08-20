@@ -242,9 +242,9 @@ public static class Rules
     /// than a display class, a smaller cost that would fire on most ordinary
     /// instance-method code and drown the signal.
     /// The overload set is discovered from the containing type rather than
-    /// listed here, because <c>AndThen</c> carries a state overload on Option
-    /// and not on Result, and a hardcoded list would name an overload that does
-    /// not exist. No code fix ships: the natural rewrite reuses the captured
+    /// listed here, because the two are not the same set — <c>Inspect</c> and
+    /// <c>Match</c> take a delegate and carry no state overload — and a
+    /// hardcoded list would name an overload that does not exist. No code fix ships: the natural rewrite reuses the captured
     /// name as the new delegate parameter, which shadows the enclosing local
     /// and is CS0136 before C# 8.
     /// </remarks>

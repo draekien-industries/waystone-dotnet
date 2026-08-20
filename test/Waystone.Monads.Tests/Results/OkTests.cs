@@ -96,6 +96,18 @@ public class OkTests
     }
 
     [Fact]
+    public void GivenState_WhenAndThen_ThenReturnOther()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Result<int, string> result = ok.AndThen(
+            10,
+            static (x, state) => Result.Ok<int, string>(x + state));
+
+        result.ShouldBe(Result.Ok<int, string>(11));
+    }
+
+    [Fact]
     public void WhenOr_ThenReturnOk()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);

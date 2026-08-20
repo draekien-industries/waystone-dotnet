@@ -208,20 +208,36 @@ public class StateOverloadAnalyzerTests
             }
             """);
 
-    /// <remarks>
-    /// AndThen carries a state overload on Option and not on Result, so a rule
-    /// keyed on a list of method names would name an overload that does not
-    /// exist. This pins the containing-type lookup that replaces the list.
-    /// </remarks>
     [Fact]
-    public Task IgnoresResultAndThenWhichHasNoStateOverload() =>
-        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+    public Task FlagsResultAndThenCapturingAParameter() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
             """
             internal Result<int, string> Chain(
                 Result<int, string> result,
                 int offset) =>
-                result.AndThen(
+                result.{|#0:AndThen|}(
                     value => Result.Ok<int, string>(value + offset));
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("AndThen", "offset"));
+
+    /// <remarks>
+    /// Inspect takes a delegate on a type that carries state overloads on other
+    /// methods, and has none of its own. This pins the containing-type lookup:
+    /// a rule that fired because the receiver has state overloads somewhere
+    /// would name an overload that does not exist.
+    /// </remarks>
+    [Fact]
+    public Task IgnoresInspectWhichHasNoStateOverload() =>
+        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+            """
+            internal Option<int> Log(Option<int> option, int offset) =>
+                option.Inspect(value => Record(value + offset));
+
+            private static void Record(int value)
+            {
+            }
             """);
 
     [Fact]
