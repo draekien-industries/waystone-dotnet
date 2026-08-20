@@ -53,7 +53,7 @@ the escape hatch for a throwaway run you do not want in the tree.
 | `OptionBenchmarks` | `Some`/`None` construction, the implicit conversion, `FromNullable`, `Match`, `Map`, `Filter`, `UnwrapOr`, each on both cases |
 | `ResultBenchmarks` | `Ok`/`Err` construction, `Match`, `Map`, `MapErr`, `UnwrapOr`, each on both cases |
 | `AsyncChainBenchmarks` | A single async link and a three-link chain off a synchronous receiver, on both cases |
-| `StateOverloadBenchmarks` | `Map`, `MapOr` and `Filter` on `Option`, and `Map` on `Result`, each run twice — once with a capturing lambda and once with the state overload |
+| `StateOverloadBenchmarks` | `Map`, `MapOr` and `Filter` on `Option`, `Map` on `Result`, and `Try` on both, each run twice — once with a capturing lambda and once with the state overload |
 
 `AsyncChainBenchmarks` is the one to watch across the v6 stack. A chain today
 starts as `ValueTask` off an `Option<T>` receiver and degrades to `Task` at the
@@ -139,7 +139,8 @@ that configuration is byte-identical to 5.5.0 for these two rows only.
 
 ## The closure-avoiding state overloads
 
-`artifacts/dra-84/` holds the run for DRA-84, same machine and settings. Each
+`artifacts/dra-84/` holds the run for the transform methods and
+`artifacts/dra-104/` the run for the factories, same machine and settings. Each
 pair calls the same method twice: once with a lambda closing over a local, and
 once passing that local as state to a `static` lambda.
 
@@ -149,12 +150,18 @@ once passing that local as state to a `static` lambda.
 | `Option.MapOr` | 88 B | 0 B | −88 B |
 | `Option.Filter` | 88 B | 0 B | −88 B |
 | `Result.Map` | 112 B | 24 B | −88 B |
+| `Option.Try` | 112 B | 24 B | −88 B |
+| `Result.Try` | 112 B | 24 B | −88 B |
 
 The closure costs exactly 88 B in every row — 24 B for the display class and
 64 B for the delegate built over it — and the state overload removes all of it.
-The 24 B the two `Map` rows keep is the returned `Some<int>` or
+The 24 B the four `Map` and `Try` rows keep is the returned `Some<int>` or
 `Ok<int, string>`, which no overload can avoid; `MapOr` and `Filter` return a
 value or the receiver and so reach zero.
+
+The two `Try` rows are the ones worth reaching for. A `Try` factory almost
+always needs an argument — that is why it is a factory — so the closure is
+harder to avoid by accident there than on a `Map`.
 
 Read the allocation column, not the timings. The means do move the same way
 (`MapOr` runs at 0.35× the closure version) but short-run error bars here are

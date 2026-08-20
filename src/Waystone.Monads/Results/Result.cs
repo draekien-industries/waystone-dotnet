@@ -178,6 +178,156 @@ public static class Result
             : Ok<TOk, TErr>(value);
     }
 
+    /// <summary>
+    /// Tries to store the result of a <paramref name="factory" /> into a
+    /// <see cref="Result{TOk,TErr}" />, handing it the provided
+    /// <paramref name="state" /> and invoking <paramref name="onError" /> if the
+    /// factory throws an exception.
+    /// </summary>
+    /// <param name="state">The value handed to the <paramref name="factory" />.</param>
+    /// <param name="factory">
+    /// A method which when executed will return the value
+    /// contained in the <see cref="Result{TOk,TErr}" />
+    /// </param>
+    /// <param name="onError">
+    /// A callback method that will be invoked for any exceptions
+    /// thrown by the <paramref name="factory" />
+    /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
+    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <typeparam name="TErr">The error handler return value's type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// </returns>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the factory rather than
+    /// captured by it, so the factory can be <c>static</c> and the call
+    /// allocates no closure. The <paramref name="onError" /> callback is not
+    /// handed the state, because it receives the exception and a handler that
+    /// needs more than that is not on the hot path this exists for.
+    /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
+    /// this method untouched, so it is neither logged nor passed to
+    /// <paramref name="onError" />, and the caller observes the cancellation it
+    /// asked for. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
+    public static Result<TOk, TErr> Try<TState, TOk, TErr>(
+        TState state,
+        Func<TState, TOk> factory,
+        Func<Exception, TErr> onError,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(factory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull where TErr : notnull
+    {
+        TOk value;
+
+        try
+        {
+            value = factory(state);
+        }
+        catch (Exception ex) when (MonadOptions.Current.Catches(ex))
+        {
+            var caller = new CallerInfo(
+                callerMemberName,
+                callerArgumentExpression,
+                callerLineNumber);
+            MonadOptions.Current.Log(ex, caller);
+            return Err<TOk, TErr>(onError(ex));
+        }
+
+        return value is null
+            ? Err<TOk, TErr>(onError(FactoryReturnedNull(nameof(factory))))
+            : Ok<TOk, TErr>(value);
+    }
+
+    /// <summary>
+    /// Tries to store the result of an <paramref name="asyncFactory" /> into
+    /// a <see cref="Result{TOk, TErr}" />, handing it the provided
+    /// <paramref name="state" /> and invoking <paramref name="onError" /> if the
+    /// factory throws an exception.
+    /// </summary>
+    /// <param name="state">
+    /// The value handed to the <paramref name="asyncFactory" />.
+    /// </param>
+    /// <param name="asyncFactory">
+    /// An asynchronous method which when executed will
+    /// produce the value of the <see cref="Result{TOk,TErr}" />
+    /// </param>
+    /// <param name="onError">
+    /// A callback method that will be invoked for any exceptions
+    /// thrown by the <paramref name="asyncFactory" />
+    /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
+    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <typeparam name="TErr">The error handler return value's type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// </returns>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the factory rather than
+    /// captured by it, so the factory can be <c>static</c> and the call
+    /// allocates no closure. A <see cref="System.Threading.CancellationToken" />
+    /// is the state this exists for.
+    /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
+    /// this method untouched, so it is neither logged nor passed to
+    /// <paramref name="onError" />, and the caller observes the cancellation it
+    /// asked for. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
+    public static async Task<Result<TOk, TErr>> TryAsync<TState, TOk, TErr>(
+        TState state,
+        Func<TState, Task<TOk>> asyncFactory,
+        Func<Exception, TErr> onError,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(asyncFactory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull where TErr : notnull
+    {
+        TOk value;
+
+        try
+        {
+            value = await asyncFactory(state);
+        }
+        catch (Exception ex) when (MonadOptions.Current.Catches(ex))
+        {
+            var caller = new CallerInfo(
+                callerMemberName,
+                callerArgumentExpression,
+                callerLineNumber);
+            MonadOptions.Current.Log(ex, caller);
+            return Err<TOk, TErr>(onError(ex));
+        }
+
+        return value is null
+            ? Err<TOk, TErr>(
+                onError(FactoryReturnedNull(nameof(asyncFactory))))
+            : Ok<TOk, TErr>(value);
+    }
+
     private static ArgumentNullException FactoryReturnedNull(
         string parameterName) =>
         new(parameterName, "The factory returned null.");
@@ -286,6 +436,107 @@ public static class Result
         string callerArgumentExpression = "")
         where TOk : notnull =>
         TryAsync(
+            asyncFactory,
+            Error.FromException,
+            callerMemberName,
+            callerLineNumber,
+            callerArgumentExpression);
+
+    /// <summary>
+    /// Tries to store the result of a <paramref name="factory" /> into a
+    /// <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
+    /// type, handing the factory the provided <paramref name="state" /> and
+    /// converting any thrown exception using <see cref="Error.FromException" />.
+    /// </summary>
+    /// <param name="state">The value handed to the <paramref name="factory" />.</param>
+    /// <param name="factory">
+    /// A method which when executed will return the value
+    /// contained in the <see cref="Result{TOk,TErr}" />
+    /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
+    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// </returns>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the factory rather than
+    /// captured by it, so the factory can be <c>static</c> and the call
+    /// allocates no closure.
+    /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
+    public static Result<TOk, Error> Try<TState, TOk>(
+        TState state,
+        Func<TState, TOk> factory,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(factory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull =>
+        Try(
+            state,
+            factory,
+            Error.FromException,
+            callerMemberName,
+            callerLineNumber,
+            callerArgumentExpression);
+
+    /// <summary>
+    /// Tries to store the result of an <paramref name="asyncFactory" /> into
+    /// a <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
+    /// type, handing the factory the provided <paramref name="state" /> and
+    /// converting any thrown exception using <see cref="Error.FromException" />.
+    /// </summary>
+    /// <param name="state">
+    /// The value handed to the <paramref name="asyncFactory" />.
+    /// </param>
+    /// <param name="asyncFactory">
+    /// An asynchronous method which when executed will
+    /// produce the value of the <see cref="Result{TOk,TErr}" />
+    /// </param>
+    /// <param name="callerMemberName">The method name of the caller.</param>
+    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerArgumentExpression">
+    /// The argument expression used as the
+    /// factory.
+    /// </param>
+    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// </returns>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the factory rather than
+    /// captured by it, so the factory can be <c>static</c> and the call
+    /// allocates no closure. A <see cref="System.Threading.CancellationToken" />
+    /// is the state this exists for.
+    /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
+    public static Task<Result<TOk, Error>> TryAsync<TState, TOk>(
+        TState state,
+        Func<TState, Task<TOk>> asyncFactory,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerArgumentExpression(nameof(asyncFactory))]
+        string callerArgumentExpression = "")
+        where TOk : notnull =>
+        TryAsync(
+            state,
             asyncFactory,
             Error.FromException,
             callerMemberName,
