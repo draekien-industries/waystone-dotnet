@@ -56,6 +56,7 @@ WM1010 | Reliability | Warning | The default of a value type is used as an Optio
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM1011 | Reliability | Warning | An async factory is passed to Try
+WM2016 | Usage | Info | An eager argument is not provably free to evaluate
 
 ### Removed Rules
 

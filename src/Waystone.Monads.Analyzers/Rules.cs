@@ -204,6 +204,28 @@ public static class Rules
         "'{0}' hands back {3}, the default of '{1}', when there is no value, and nothing distinguishes that from a real {3}. '{2}' returns null instead.",
         "T? on a type parameter constrained only to notnull is an annotation rather than a Nullable<T>, so for a value type UnwrapOrDefault and MapOrDefault return 0, false or default(Guid) for the absent case. That is legitimate where the caller genuinely wants the default.");
 
+    /// <remarks>
+    /// Fires on what is not provably free rather than on what is provably
+    /// expensive, because only the first is decidable. A constant, a bare
+    /// local, parameter, field or property read and a <c>default</c> cost
+    /// nothing to evaluate twice, so the rule stays silent on all of them; a
+    /// call, a <c>new</c> or an <c>await</c> might be cheap or might not, and
+    /// no static test tells the two apart. The residual imprecision is a fire
+    /// on a call that turns out to be cheap, where the caller pays a delegate
+    /// allocation to avoid nothing. That is documented on the rules page
+    /// rather than tuned away, and Info severity is what makes it affordable.
+    /// A bare property read is skipped whatever the receiver, including one
+    /// whose getter computes: auto-versus-computed is only decidable for a
+    /// symbol declared in the current compilation, and a rule that fired on
+    /// the metadata half would make two identical call sites behave
+    /// differently on nothing but which assembly declared the property.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor EagerArgumentNotFree = Idiom(
+        "WM2016",
+        "Prefer the lazy variant when the argument is not free",
+        "'{0}' evaluates its argument even when '{1}' discards it. Use '{2}' if computing it is expensive or has a side effect.",
+        "And, Or, UnwrapOr, MapOr and OkOr evaluate their argument before checking whether the receiver even needs it, so an expensive computation or a side effect runs unconditionally. Their AndThen, OrElse, UnwrapOrElse, MapOrElse and OkOrElse siblings take a delegate instead and only invoke it when the receiver's other branch is taken.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",
