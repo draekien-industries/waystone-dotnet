@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Analyzers;
+﻿namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -65,6 +65,23 @@ internal static class Verify
 
         test.ExpectedDiagnostics.AddRange(expected);
         test.FixedState.ExpectedDiagnostics.AddRange(remaining);
+
+        return test.RunAsync();
+    }
+
+    public static Task CompilerCodeFixAsync<TCodeFix>(
+        string source,
+        string fixedSource,
+        params DiagnosticResult[] expected)
+        where TCodeFix : CodeFixProvider, new()
+    {
+        var test = new CodeFixTest<EmptyDiagnosticAnalyzer, TCodeFix>
+        {
+            TestCode = Wrap(source),
+            FixedCode = Wrap(fixedSource),
+        };
+
+        test.ExpectedDiagnostics.AddRange(expected);
 
         return test.RunAsync();
     }
