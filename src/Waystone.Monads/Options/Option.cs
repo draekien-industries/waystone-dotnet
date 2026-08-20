@@ -43,6 +43,14 @@ public static class Option
     /// conversion is applied inside the try, so the two cannot disagree and
     /// nothing it throws escapes.
     /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
+    /// this method untouched, so it is neither logged nor turned into a
+    /// <see cref="None{T}" />, and the caller observes the cancellation it
+    /// asked for. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
     public static Option<T> Try<T>(
         Func<T> factory,
         [CallerMemberName] string callerMemberName = "",
@@ -55,7 +63,7 @@ public static class Option
         {
             return factory();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
             var caller = new CallerInfo(
                 callerMemberName,
@@ -95,6 +103,14 @@ public static class Option
     /// conversion is applied inside the try, so the two cannot disagree and
     /// nothing it throws escapes.
     /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
+    /// this method untouched, so it is neither logged nor turned into a
+    /// <see cref="None{T}" />, and the caller observes the cancellation it
+    /// asked for. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
     public static async Task<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
@@ -106,7 +122,7 @@ public static class Option
         {
             return await asyncFactory();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
             var caller = new CallerInfo(
                 callerMemberName,

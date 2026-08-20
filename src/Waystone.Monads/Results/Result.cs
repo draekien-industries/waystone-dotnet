@@ -58,6 +58,14 @@ public static class Result
     /// delegates to returns a <see cref="Options.None{T}" /> rather than
     /// throwing.
     /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
+    /// this method untouched, so it is neither logged nor passed to
+    /// <paramref name="onError" />, and the caller observes the cancellation it
+    /// asked for. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
     public static Result<TOk, TErr> Try<TOk, TErr>(
         Func<TOk> factory,
         Func<Exception, TErr> onError,
@@ -73,7 +81,7 @@ public static class Result
         {
             value = factory();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
             var caller = new CallerInfo(
                 callerMemberName,
@@ -131,6 +139,14 @@ public static class Result
     /// delegates to returns a <see cref="Options.None{T}" /> rather than
     /// throwing.
     /// </remarks>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
+    /// this method untouched, so it is neither logged nor passed to
+    /// <paramref name="onError" />, and the caller observes the cancellation it
+    /// asked for. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
     public static async Task<Result<TOk, TErr>> TryAsync<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError,
@@ -146,7 +162,7 @@ public static class Result
         {
             value = await asyncFactory();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
             var caller = new CallerInfo(
                 callerMemberName,
@@ -217,6 +233,11 @@ public static class Result
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
     public static Result<TOk, Error> Try<TOk>(
         Func<TOk> factory,
         [CallerMemberName] string callerMemberName = "",
@@ -252,6 +273,11 @@ public static class Result
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
+    /// <remarks>
+    /// An <see cref="OperationCanceledException" /> is not caught. Call
+    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// any other exception, as versions before 6.0.0 did.
+    /// </remarks>
     public static Task<Result<TOk, Error>> TryAsync<TOk>(
         Func<Task<TOk>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",

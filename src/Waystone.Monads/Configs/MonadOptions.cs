@@ -29,6 +29,7 @@ public sealed class MonadOptions
         ErrorCodeFactory = new ErrorCodeFactory();
         FallbackErrorCode = "Unspecified";
         FallbackErrorMessage = "An unexpected error occurred.";
+        CatchesCancellation = false;
     }
 
     private MonadOptions(MonadOptions source)
@@ -37,6 +38,7 @@ public sealed class MonadOptions
         ErrorCodeFactory = source.ErrorCodeFactory;
         FallbackErrorCode = source.FallbackErrorCode;
         FallbackErrorMessage = source.FallbackErrorMessage;
+        CatchesCancellation = source.CatchesCancellation;
 
         ConcurrentDictionary<Type, IMonadOptionsSatellite>? satellites =
             source._satellites;
@@ -65,6 +67,10 @@ public sealed class MonadOptions
     internal ErrorCodeFactory ErrorCodeFactory { get; set; }
     internal string FallbackErrorCode { get; set; }
     internal string FallbackErrorMessage { get; set; }
+    internal bool CatchesCancellation { get; set; }
+
+    internal bool Catches(Exception exception) =>
+        CatchesCancellation || exception is not OperationCanceledException;
 
     internal T Satellite<T>(Func<T> create)
         where T : class, IMonadOptionsSatellite
@@ -184,6 +190,33 @@ public sealed class MonadOptions
     public MonadOptions UseExceptionLogger(Action<Exception, CallerInfo> action)
     {
         ExceptionLogger = Option.Some(action);
+        return this;
+    }
+
+    /// <summary>
+    /// Configures <c>Try</c> and <c>TryAsync</c> to treat a cancellation as a
+    /// failure rather than letting it propagate.
+    /// </summary>
+    /// <remarks>
+    /// By default an <see cref="OperationCanceledException" /> is not caught,
+    /// so it leaves <c>Try</c> and <c>TryAsync</c> untouched and is neither
+    /// logged nor converted. Calling this restores the behaviour of versions
+    /// before 6.0.0, where a cancellation produced a
+    /// <see cref="Options.None{T}" /> or an <see cref="Results.Err{TOk,TErr}" />
+    /// like any other exception. Prefer the default: a cancelled operation
+    /// produced no answer, and reporting that as an absent or failed value
+    /// hides the cancellation from the caller that requested it.
+    /// <see cref="System.Threading.Tasks.TaskCanceledException" /> derives from
+    /// <see cref="OperationCanceledException" /> and is covered by this option
+    /// too.
+    /// </remarks>
+    /// <returns>
+    /// The <see cref="MonadOptions" /> instance for you to chain additional
+    /// configurations.
+    /// </returns>
+    public MonadOptions UseCancellationAsFailure()
+    {
+        CatchesCancellation = true;
         return this;
     }
 
