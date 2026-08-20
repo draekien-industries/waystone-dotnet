@@ -56,7 +56,7 @@ public sealed class AsTaskCodeFix : CodeFixProvider
         SyntaxNode node,
         SemanticModel model)
     {
-        if (ExpressionAt(node) is not { } expression)
+        if (node is not ExpressionSyntax expression)
         {
             return;
         }
@@ -79,14 +79,6 @@ public sealed class AsTaskCodeFix : CodeFixProvider
                 nameof(AsTaskCodeFix)),
             diagnostic);
     }
-
-    private static ExpressionSyntax? ExpressionAt(SyntaxNode node) =>
-        node switch
-        {
-            ArgumentSyntax argument => argument.Expression,
-            ExpressionSyntax expression => expression,
-            _ => null,
-        };
 
     private static bool TargetsTask(
         ExpressionSyntax expression,
