@@ -86,6 +86,24 @@ public static class Rules
         "'{0}?' has three states where two are meaningful. Drop the annotation — '{1}' already expresses the case you are reaching for.",
         "Option and Result are records, so the compiler accepts a nullable annotation on one. The annotation adds a third state to a type whose whole purpose is to have exactly two, and the null it admits throws on the next member access rather than being handled as an absence.");
 
+    /// <remarks>
+    /// Exists because the break that produces this code is silent. Until v6 an
+    /// async factory bound to a dedicated <c>Try</c> overload; removing that
+    /// overload does not fail the call, it rebinds it to
+    /// <c>Try&lt;T&gt;(Func&lt;T&gt;)</c> with <c>T</c> inferred as the task,
+    /// which satisfies <c>notnull</c>. Only a call site that assigns to an
+    /// explicitly typed local gets a compiler error, so the rule carries the
+    /// whole migration for every other shape. No code fix: renaming to
+    /// <c>TryAsync</c> alone leaves the caller with an unawaited
+    /// <c>Task&lt;Option&lt;T&gt;&gt;</c>, and where the await belongs is not
+    /// something the fix can decide.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor AsyncFactoryPassedToTry = Bug(
+        "WM1011",
+        "Do not pass an async factory to Try",
+        "'Try' invokes this factory without awaiting it, so it produces '{0}' and catches nothing the asynchronous work throws. Use 'TryAsync'.",
+        "Try catches what its factory throws while invoking it. A factory that returns a task returns before its work has run, so the exception surfaces later on the caller's await with Try's handling already bypassed, and the value is the task rather than its result.");
+
     public static readonly DiagnosticDescriptor UnwrapUsed = Idiom(
         "WM2001",
         "Prefer UnwrapOr or Match over Unwrap",

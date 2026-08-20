@@ -85,39 +85,6 @@ public static class Option
     /// A <see cref="Some{T}" /> if the factory produces a value that a
     /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
-    [Obsolete(
-        "Use TryAsync instead. This overload will be removed in v6 of Waystone.Monads.")]
-    public static Task<Option<T>> Try<T>(
-        Func<Task<T>> asyncFactory,
-        [CallerMemberName] string callerMemberName = "",
-        [CallerLineNumber] int callerLineNumber = 0,
-        [CallerArgumentExpression(nameof(asyncFactory))]
-        string callerArgumentExpression = "") where T : notnull =>
-        TryAsync(
-            asyncFactory,
-            callerMemberName,
-            callerLineNumber,
-            callerArgumentExpression);
-
-    /// <summary>
-    /// Tries to store the result of an <paramref name="asyncFactory" /> into
-    /// an <see cref="Option{T}" />
-    /// </summary>
-    /// <param name="asyncFactory">
-    /// An asynchronous method which when awaited will
-    /// produce the value for the <see cref="Option{T}" />
-    /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
-    /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
-    /// </param>
-    /// <typeparam name="T">The async factory return type</typeparam>
-    /// <returns>
-    /// A <see cref="Some{T}" /> if the factory produces a value that a
-    /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
-    /// </returns>
     /// <remarks>
     /// A <see cref="None{T}" /> is returned both when the factory throws and
     /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
