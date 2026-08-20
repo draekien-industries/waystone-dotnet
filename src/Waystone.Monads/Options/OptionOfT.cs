@@ -472,5 +472,5 @@ public abstract record Option<T> where T : notnull
     [DebuggerStepThrough]
 #endif
     public static implicit operator Option<T>(T value) =>
-        value is null ? new None<T>() : new Some<T>(value);
+        value is null ? Option.None<T>() : new Some<T>(value);
 }

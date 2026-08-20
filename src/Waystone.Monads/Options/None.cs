@@ -16,6 +16,15 @@ using System.Diagnostics;
 public sealed record None<T> : Option<T>
     where T : notnull
 {
+    /// <remarks>
+    /// A <see cref="None{T}" /> holds nothing, so every instance of a given
+    /// closed type is interchangeable and the runtime builds this one once.
+    /// Structural equality is unaffected — two <c>None</c> values were already
+    /// equal — but <c>ReferenceEquals</c> now answers true where it answered
+    /// false before 6.0.0.
+    /// </remarks>
+    internal static readonly None<T> Instance = new();
+
     /// <inheritdoc />
     public override bool IsSome => false;
 
