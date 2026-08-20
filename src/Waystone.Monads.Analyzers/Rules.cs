@@ -226,6 +226,27 @@ public static class Rules
         "'{0}' evaluates its argument even when '{1}' discards it. Use '{2}' if computing it is expensive or has a side effect.",
         "And, Or, UnwrapOr, MapOr and OkOr evaluate their argument before checking whether the receiver even needs it, so an expensive computation or a side effect runs unconditionally. Their AndThen, OrElse, UnwrapOrElse, MapOrElse and OkOrElse siblings take a delegate instead and only invoke it when the receiver's other branch is taken.");
 
+    /// <remarks>
+    /// Keyed on the capture rather than on the lambda: a lambda that captures
+    /// nothing is already cached by the compiler into a static field, so the
+    /// state overload would buy it nothing. Only a captured local or parameter
+    /// forces a display class per call, and that is what the rule reports.
+    /// Capturing <c>this</c> alone is excluded — it allocates a delegate rather
+    /// than a display class, a smaller cost that would fire on most ordinary
+    /// instance-method code and drown the signal.
+    /// The overload set is discovered from the containing type rather than
+    /// listed here, because <c>AndThen</c> carries a state overload on Option
+    /// and not on Result, and a hardcoded list would name an overload that does
+    /// not exist. No code fix ships: the natural rewrite reuses the captured
+    /// name as the new delegate parameter, which shadows the enclosing local
+    /// and is CS0136 before C# 8.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor DelegateCapturesInsteadOfState = Idiom(
+        "WM2017",
+        "Prefer the state overload when the delegate captures",
+        "The delegate passed to '{0}' captures '{1}', so a closure is allocated on every call. Pass the value to the '{0}' overload that takes state instead.",
+        "Map, MapErr, MapOr, MapOrElse, Filter, AndThen, Try and TryAsync each have an overload that takes a state argument and hands it to the delegate. A lambda that captures a local or a parameter allocates a display class every time the call site runs; passing the value as state lets the delegate close over nothing, so the compiler caches it. Where more than one value is captured, pass them as a tuple.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",

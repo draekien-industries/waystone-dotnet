@@ -63,7 +63,7 @@ public class RulesTests
     public void EveryTierIsPopulated()
     {
         MisuseRules().Count.ShouldBe(7);
-        IdiomRules().Count.ShouldBe(15);
+        IdiomRules().Count.ShouldBe(16);
         MigrationRules().Count.ShouldBe(2);
     }
 

@@ -57,6 +57,7 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM1011 | Reliability | Warning | An async factory is passed to Try
 WM2016 | Usage | Info | An eager argument is not provably free to evaluate
+WM2017 | Usage | Info | A delegate captures where a state overload exists
 
 ### Removed Rules
 
