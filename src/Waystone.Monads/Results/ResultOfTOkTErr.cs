@@ -20,6 +20,11 @@ using System.Diagnostics;
 public abstract record Result<TOk, TErr>
     where TOk : notnull where TErr : notnull
 {
+    internal Result()
+    { }
+
+    internal abstract void OnlyThisAssemblyMayDerive();
+
     /// <summary>
     /// Returns <see langword="true" /> if the result is
     /// <see cref="Ok{TOk,TErr}" />.
@@ -287,12 +292,8 @@ public abstract record Result<TOk, TErr>
     /// </summary>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public TOut? MapOrDefault<TOut>(Func<TOk, TOut> map)
-        where TOut : notnull =>
-        Match<TOut?>(map, _ => default);
+    public abstract TOut? MapOrDefault<TOut>(Func<TOk, TOut> map)
+        where TOut : notnull;
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
@@ -357,13 +358,7 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" />, otherwise an empty sequence. The error of an
     /// <see cref="Err{TOk,TErr}" /> is discarded.
     /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public IEnumerable<TOk> AsEnumerable() =>
-        Match<IEnumerable<TOk>>(
-            value => new[] { value },
-            _ => Array.Empty<TOk>());
+    public abstract IEnumerable<TOk> AsEnumerable();
 
     /// <summary>
     /// Implicitly creates an <see cref="Ok{TOk,TErr}" /> result from a value

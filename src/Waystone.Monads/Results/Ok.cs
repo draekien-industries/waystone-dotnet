@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Results;
 
 using System;
+using System.Collections.Generic;
 using Exceptions;
 using Options;
 #if !DEBUG
@@ -117,6 +118,10 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Func<TOk, TOut> map) => map(Value);
 
     /// <inheritdoc />
+    public override TOut MapOrDefault<TOut>(Func<TOk, TOut> map) =>
+        map(Value);
+
+    /// <inheritdoc />
     public override TOut MapOrElse<TOut>(
         Func<TErr, TOut> createDefault,
         Func<TOk, TOut> map) => map(Value);
@@ -126,8 +131,15 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Value;
 
     /// <inheritdoc />
+    public override IEnumerable<TOk> AsEnumerable() =>
+        new[] { Value };
+
+    /// <inheritdoc />
     public override Option<TOk> GetOk() => Option.Some(Value);
 
     /// <inheritdoc />
     public override Option<TErr> GetErr() => Option.None<TErr>();
+
+    internal override void OnlyThisAssemblyMayDerive()
+    { }
 }

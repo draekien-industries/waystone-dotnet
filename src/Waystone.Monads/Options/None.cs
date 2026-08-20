@@ -1,6 +1,7 @@
 ﻿namespace Waystone.Monads.Options;
 
 using System;
+using System.Collections.Generic;
 using Exceptions;
 using Results;
 #if !DEBUG
@@ -61,12 +62,20 @@ public sealed record None<T> : Option<T>
         @else();
 
     /// <inheritdoc />
+    public override Option<T2> And<T2>(Option<T2> other) =>
+        Option.None<T2>();
+
+    /// <inheritdoc />
     public override Option<T2> Map<T2>(Func<T, T2> map) =>
         Option.None<T2>();
 
     /// <inheritdoc />
     public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
         @default;
+
+    /// <inheritdoc />
+    public override T2 MapOrDefault<T2>(Func<T, T2> map) =>
+        default!;
 
     /// <inheritdoc />
     public override T2 MapOrElse<T2>(
@@ -104,10 +113,21 @@ public sealed record None<T> : Option<T>
         Option.None<TOut>();
 
     /// <inheritdoc />
+    public override Option<T> Reduce(Option<T> other, Func<T, T, T> reduce) =>
+        other;
+
+    /// <inheritdoc />
+    public override IEnumerable<T> AsEnumerable() =>
+        Array.Empty<T>();
+
+    /// <inheritdoc />
     public override Result<T, TErr> OkOr<TErr>(TErr error) =>
         Result.Err<T, TErr>(error);
 
     /// <inheritdoc />
     public override Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory) =>
         Result.Err<T, TErr>(errorFactory());
+
+    internal override void OnlyThisAssemblyMayDerive()
+    { }
 }

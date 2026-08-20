@@ -31,6 +31,20 @@ internal static class Verify
         return test.RunAsync();
     }
 
+    public static Task CompilerDiagnosticsAsync(
+        string rawSource,
+        params DiagnosticResult[] expected)
+    {
+        var test = new AnalyzerTest<EmptyDiagnosticAnalyzer>
+        {
+            TestCode = rawSource,
+        };
+
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
+
     public static Task CodeFixAsync<TAnalyzer, TCodeFix>(
         string source,
         string fixedSource,

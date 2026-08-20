@@ -173,6 +173,19 @@ everywhere, so a rule that unwraps the inner call's type goes quiet on exactly t
 style the library teaches. Read `IAwaitOperation.Type` instead when there is an
 await.
 
+**An internal constructor does not close a `record` hierarchy.** Records get a
+compiler-synthesized copy constructor, and CS8878 requires it to be `public` or
+`protected` on an unsealed record — declaring it `private protected` does not
+compile. `protected` reaches a derived type in another assembly, so an outside
+record closes over the hole with `public Evil(Option<T> o) : base(o)`, which was
+verified against the built package rather than reasoned about. What actually
+closes both hierarchies is the `internal abstract OnlyThisAssemblyMayDerive` on
+`Option<T>` and `Result<TOk, TErr>`: an outside type cannot override a member it
+cannot see, so it fails CS0534 with no way out. `ClosedHierarchyTests` in the
+analyzer test project holds the two regression cases, and it lives there because
+`Waystone.Monads.Tests` has `InternalsVisibleTo` and would therefore compile a
+derived type happily, proving nothing.
+
 **A `branches` filter on `pull_request` stops mid-stack checks, whatever the docs
 say.** GitHub's stacked-pull-request documentation states that workflows trigger as
 if each PR in the stack targeted the base of the stack, and that no workflow changes

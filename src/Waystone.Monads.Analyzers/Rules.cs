@@ -89,19 +89,6 @@ public static class Rules
         "A discarded Result throws nothing and reports nothing. Match on it, or propagate it to a caller that will.");
 
     /// <remarks>
-    /// Warning severity with no code fix is deliberate, and is the exception to
-    /// the rule that the two go together: the correction rewrites the type and
-    /// cascades to every caller, which a fixer cannot see. It is earned because
-    /// both hierarchies close in v6, so the marked code stops compiling. Do not
-    /// treat it as precedent for another rule.
-    /// </remarks>
-    public static readonly DiagnosticDescriptor DerivesFromMonad = Bug(
-        "WM1007",
-        "Do not derive from Option or Result",
-        "'{0}' derives from '{1}', which has exactly two cases. Compose the monad instead of inheriting from it.",
-        "Option and Result exist to have two states, and every member that switches on them handles two. A third case is invisible to Match, so it takes whichever branch the base case falls into. Both hierarchies close in v6, and a derived type will not compile against it.");
-
-    /// <remarks>
     /// Reports alongside WM2011 on a nullable derived case such as
     /// <c>Some&lt;int&gt;?</c>. The overlap is deliberate — both statements are
     /// independently true and each has its own code fix — so the report is made
