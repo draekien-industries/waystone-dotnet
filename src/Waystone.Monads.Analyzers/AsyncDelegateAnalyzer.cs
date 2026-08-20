@@ -4,12 +4,15 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
+using System.Linq;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class TryFactoryAnalyzer : MonadAnalyzer
+public sealed class AsyncDelegateAnalyzer : MonadAnalyzer
 {
+    private const string AsyncSuffix = "Async";
+
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Rules.AsyncFactoryPassedToTry);
+        ImmutableArray.Create(Rules.AsyncDelegatePassedToSyncMethod);
 
     protected override void Register(
         CompilationStartAnalysisContext context,
@@ -25,8 +28,9 @@ public sealed class TryFactoryAnalyzer : MonadAnalyzer
         var invocation = (IInvocationOperation)context.Operation;
         var method = invocation.TargetMethod;
 
-        if (method.Name != "Try"
-         || !IsFactory(method.ContainingType, symbols))
+        if (method.Name.EndsWith(AsyncSuffix)
+         || !IsOurs(invocation, method, symbols)
+         || !TakesADelegate(method))
         {
             return;
         }
@@ -34,24 +38,30 @@ public sealed class TryFactoryAnalyzer : MonadAnalyzer
         ImmutableArray<ITypeSymbol> produced =
             symbols.TypeArgumentsOf(invocation.Type);
 
-        if (produced.IsDefaultOrEmpty)
-        {
-            return;
-        }
-
-        var valueType = produced[0];
-
-        if (!IsAwaitable(valueType, symbols))
+        if (!produced.Any(type => IsAwaitable(type, symbols)))
         {
             return;
         }
 
         context.ReportDiagnostic(
             Diagnostic.Create(
-                Rules.AsyncFactoryPassedToTry,
+                Rules.AsyncDelegatePassedToSyncMethod,
                 Semantics.NameLocationOf(invocation),
-                Semantics.Display(valueType)));
+                method.Name,
+                Semantics.Display(invocation.Type!),
+                method.Name + AsyncSuffix));
     }
+
+    private static bool IsOurs(
+        IInvocationOperation invocation,
+        IMethodSymbol method,
+        MonadSymbols symbols) =>
+        IsFactory(method.ContainingType, symbols)
+     || symbols.IsMonadInvocation(invocation);
+
+    private static bool TakesADelegate(IMethodSymbol method) =>
+        method.Parameters.Any(
+            parameter => parameter.Type.TypeKind == TypeKind.Delegate);
 
     private static bool IsFactory(
         INamedTypeSymbol? containingType,

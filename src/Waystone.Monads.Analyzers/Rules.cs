@@ -87,22 +87,29 @@ public static class Rules
         "Option and Result are records, so the compiler accepts a nullable annotation on one. The annotation adds a third state to a type whose whole purpose is to have exactly two, and the null it admits throws on the next member access rather than being handled as an absence.");
 
     /// <remarks>
-    /// Exists because the break that produces this code is silent. Until v6 an
-    /// async factory bound to a dedicated <c>Try</c> overload; removing that
-    /// overload does not fail the call, it rebinds it to
+    /// Exists because the break that produces the <c>Try</c> case is silent.
+    /// Until v6 an async factory bound to a dedicated <c>Try</c> overload;
+    /// removing that overload does not fail the call, it rebinds it to
     /// <c>Try&lt;T&gt;(Func&lt;T&gt;)</c> with <c>T</c> inferred as the task,
     /// which satisfies <c>notnull</c>. Only a call site that assigns to an
     /// explicitly typed local gets a compiler error, so the rule carries the
-    /// whole migration for every other shape. No code fix: renaming to
-    /// <c>TryAsync</c> alone leaves the caller with an unawaited
-    /// <c>Task&lt;Option&lt;T&gt;&gt;</c>, and where the await belongs is not
-    /// something the fix can decide.
+    /// whole migration for every other shape.
+    /// The test is that the awaitable ends up <em>inside</em> the monad, not
+    /// merely that a delegate returned one. <c>Match</c> and <c>MapOr</c> hand
+    /// the task straight back, so the caller awaits it and nothing is lost;
+    /// <c>Map</c> and <c>MapErr</c> trap it in an <c>Option</c> or a
+    /// <c>Result</c> where it cannot be awaited without unwrapping first. A
+    /// delegate parameter is required so that <c>Option.Some(FetchAsync())</c>,
+    /// where the caller built the task deliberately, stays silent.
+    /// No code fix: renaming to the <c>Async</c> sibling alone leaves the caller
+    /// with an unawaited task, and where the await belongs is not something the
+    /// fix can decide.
     /// </remarks>
-    public static readonly DiagnosticDescriptor AsyncFactoryPassedToTry = Bug(
+    public static readonly DiagnosticDescriptor AsyncDelegatePassedToSyncMethod = Bug(
         "WM1011",
-        "Do not pass an async factory to Try",
-        "'Try' invokes this factory without awaiting it, so it produces '{0}' and catches nothing the asynchronous work throws. Use 'TryAsync'.",
-        "Try catches what its factory throws while invoking it. A factory that returns a task returns before its work has run, so the exception surfaces later on the caller's await with Try's handling already bypassed, and the value is the task rather than its result.");
+        "Do not pass an async delegate to a synchronous method",
+        "'{0}' never awaits this delegate, so the task is trapped inside the '{1}' it returns. Use '{2}'.",
+        "A synchronous method invokes its delegate and stores whatever comes back. Hand it one that returns a task and the monad holds the task rather than its result: the work has not finished, anything it throws is unobserved, and Try in particular catches nothing. The Async sibling awaits the delegate and holds the result.");
 
     public static readonly DiagnosticDescriptor UnwrapUsed = Idiom(
         "WM2001",
