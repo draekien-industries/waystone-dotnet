@@ -217,4 +217,17 @@ public sealed class OptionTests
         result.ShouldBeOfType<Some<int>>();
         result.Unwrap().ShouldBe(42);
     }
+
+    [Fact]
+    public void GivenTheDefaultOfAValueType_WhenCreatingOption_ThenReturnSome()
+    {
+        int? zero = 0;
+        Option<int> result = Option.FromNullable(zero);
+        result.IsSome.ShouldBeTrue();
+        result.ShouldBeOfType<Some<int>>();
+        result.Unwrap().ShouldBe(0);
+
+        Guid? empty = Guid.Empty;
+        Option.FromNullable(empty).ShouldBe(Option.Some(Guid.Empty));
+    }
 }
