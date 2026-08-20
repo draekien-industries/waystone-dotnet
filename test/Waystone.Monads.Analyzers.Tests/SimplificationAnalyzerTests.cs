@@ -50,7 +50,7 @@ public class SimplificationAnalyzerTests
             """,
             Verify.Diagnostic(Rules.OrDefaultOnAValueType)
                .WithLocation(0)
-               .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull"));
+               .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull", "0"));
 
     [Fact]
     public Task FlagsUnwrapOrDefaultOnAResultWhoseOkIsAStruct() =>
@@ -61,7 +61,7 @@ public class SimplificationAnalyzerTests
             """,
             Verify.Diagnostic(Rules.OrDefaultOnAValueType)
                .WithLocation(0)
-               .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull"));
+               .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull", "0"));
 
     [Fact]
     public Task FlagsMapOrDefaultProducingAStruct() =>
@@ -72,7 +72,7 @@ public class SimplificationAnalyzerTests
             """,
             Verify.Diagnostic(Rules.OrDefaultOnAValueType)
                .WithLocation(0)
-               .WithArguments("MapOrDefault", "int", "MapOrNull"));
+               .WithArguments("MapOrDefault", "int", "MapOrNull", "0"));
 
     [Fact]
     public Task FlagsUnwrapOrDefaultAsyncBehindConfigureAwait() =>
@@ -87,7 +87,48 @@ public class SimplificationAnalyzerTests
                .WithArguments(
                     "UnwrapOrDefaultAsync",
                     "int",
-                    "UnwrapOrNullAsync"));
+                    "UnwrapOrNullAsync",
+                    "0"));
+
+    [Theory]
+    [InlineData("int", "0")]
+    [InlineData("bool", "false")]
+    [InlineData("char", "'\\0'")]
+    [InlineData("Guid", "Guid.Empty")]
+    [InlineData("TimeSpan", "TimeSpan.Zero")]
+    public Task RendersTheDefaultItHandsBack(string type, string @default) =>
+        Verify.AnalyzerAsync<SimplificationAnalyzer>(
+            $$"""
+              internal {{type}} Value(Option<{{type}}> option) =>
+                  option.{|#0:UnwrapOrDefault|}();
+              """,
+            Verify.Diagnostic(Rules.OrDefaultOnAValueType)
+               .WithLocation(0)
+               .WithMessage(
+                    $"'UnwrapOrDefault' hands back {@default}, the default of "
+                  + $"'{type}', when there is no value, and nothing "
+                  + $"distinguishes that from a real {@default}. "
+                  + "'UnwrapOrNull' returns null instead."));
+
+    [Fact]
+    public Task RendersTheZeroMemberOfAnEnumItHandsBack() =>
+        Verify.AnalyzerAsync<SimplificationAnalyzer>(
+            """
+            internal enum Colour { Red = 0, Green = 1 }
+
+            internal class Subject
+            {
+                internal Colour Chosen(Option<Colour> option) =>
+                    option.{|#0:UnwrapOrDefault|}();
+            }
+            """,
+            Verify.Diagnostic(Rules.OrDefaultOnAValueType)
+               .WithLocation(0)
+               .WithMessage(
+                    "'UnwrapOrDefault' hands back Colour.Red, the default of "
+                  + "'Colour', when there is no value, and nothing "
+                  + "distinguishes that from a real Colour.Red. "
+                  + "'UnwrapOrNull' returns null instead."));
 
     [Fact]
     public Task IgnoresUnwrapOrDefaultOnAnOptionOfAReferenceType() =>

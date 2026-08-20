@@ -13,8 +13,7 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             Rules.NullAssignedToMonad,
-            Rules.DefaultOfMonad,
-            Rules.DefaultValueConvertsToNone);
+            Rules.DefaultOfMonad);
 
     protected override void Register(
         CompilationStartAnalysisContext context,
@@ -28,10 +27,6 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
             node => AnalyzeDefault(node, symbols),
             SyntaxKind.DefaultLiteralExpression,
             SyntaxKind.DefaultExpression);
-
-        context.RegisterOperationAction(
-            operation => AnalyzeConversion(operation, symbols),
-            OperationKind.Conversion);
     }
 
     private static void AnalyzeNull(
@@ -90,38 +85,6 @@ public sealed class NullAndDefaultAnalyzer : MonadAnalyzer
                 Rules.DefaultOfMonad,
                 expression.GetLocation(),
                 Semantics.Display(type!)));
-    }
-
-    private static void AnalyzeConversion(
-        OperationAnalysisContext context,
-        MonadSymbols symbols)
-    {
-        var conversion = (IConversionOperation)context.Operation;
-
-        if (conversion.OperatorMethod is not { Name: "op_Implicit" } operatorMethod
-         || !SymbolEqualityComparer.Default.Equals(
-                operatorMethod.ContainingType.OriginalDefinition,
-                symbols.Option))
-        {
-            return;
-        }
-
-        var operand = conversion.Operand;
-
-        if (operand.ConstantValue is { HasValue: true, Value: null }
-         || !Semantics.IsDefaultValue(operand))
-        {
-            return;
-        }
-
-        var valueType = operatorMethod.ContainingType.TypeArguments[0];
-
-        context.ReportDiagnostic(
-            Diagnostic.Create(
-                Rules.DefaultValueConvertsToNone,
-                operand.Syntax.GetLocation(),
-                Semantics.Display(valueType),
-                operand.Syntax.ToString()));
     }
 
     private static bool IsNullTest(ExpressionSyntax expression) =>

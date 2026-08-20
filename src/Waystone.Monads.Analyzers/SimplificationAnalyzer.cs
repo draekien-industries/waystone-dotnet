@@ -84,7 +84,8 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
                 Semantics.NameLocationOf(invocation),
                 name,
                 Semantics.Display(produced),
-                name.Replace("Default", "Null")));
+                name.Replace("Default", "Null"),
+                Semantics.DefaultOf(produced)));
     }
 
     private static void AnalyzeFlatten(

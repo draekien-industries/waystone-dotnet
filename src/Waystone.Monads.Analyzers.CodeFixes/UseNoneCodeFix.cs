@@ -11,12 +11,7 @@ using System.Composition;
 public sealed class UseNoneCodeFix : MonadCodeFix
 {
     public override ImmutableArray<string> FixableDiagnosticIds =>
-        ImmutableArray.Create(
-            "WM1001",
-            "WM1002",
-            "WM1003",
-            "WM1004",
-            "WM1010");
+        ImmutableArray.Create("WM1001", "WM1002", "WM1003");
 
     protected override void Register(
         CodeFixContext context,
@@ -30,7 +25,7 @@ public sealed class UseNoneCodeFix : MonadCodeFix
             return;
         }
 
-        var target = diagnostic.Id is "WM1001" or "WM1010"
+        var target = diagnostic.Id is "WM1001"
             ? expression.FirstAncestorOrSelf<InvocationExpressionSyntax>()
             : expression;
 
@@ -41,9 +36,7 @@ public sealed class UseNoneCodeFix : MonadCodeFix
 
         var info = model.GetTypeInfo(target, context.CancellationToken);
 
-        var option = diagnostic.Id == "WM1004"
-            ? info.ConvertedType
-            : info.Type ?? info.ConvertedType;
+        var option = info.Type ?? info.ConvertedType;
 
         var arguments = symbols.TypeArgumentsOf(option);
 

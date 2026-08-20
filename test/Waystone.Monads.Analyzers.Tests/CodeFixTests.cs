@@ -6,15 +6,6 @@ using Xunit;
 public class CodeFixTests
 {
     [Fact]
-    public Task ReplacesSomeOfAValueTypeDefaultWithNone() =>
-        Verify.CodeFixAsync<OptionCreationAnalyzer, UseNoneCodeFix>(
-            "internal Option<int> Make() => Option.Some({|#0:0|});",
-            "internal Option<int> Make() => Option.None<int>();",
-            Verify.Diagnostic(Rules.DefaultOfValueTypeInOption)
-               .WithLocation(0)
-               .WithArguments("0", "int"));
-
-    [Fact]
     public Task ReplacesSomeOfANullWithNone() =>
         Verify.CodeFixAsync<OptionCreationAnalyzer, UseNoneCodeFix>(
             "internal Option<string> Make() => Option.Some({|#0:default(string)|}!);",
@@ -40,15 +31,6 @@ public class CodeFixTests
             Verify.Diagnostic(Rules.DefaultOfMonad)
                .WithLocation(0)
                .WithArguments("Option<int>"));
-
-    [Fact]
-    public Task MakesASilentNoneConversionExplicit() =>
-        Verify.CodeFixAsync<NullAndDefaultAnalyzer, UseNoneCodeFix>(
-            "internal Option<int> Make() => {|#0:0|};",
-            "internal Option<int> Make() => Option.None<int>();",
-            Verify.Diagnostic(Rules.DefaultValueConvertsToNone)
-               .WithLocation(0)
-               .WithArguments("int", "0"));
 
     [Fact]
     public Task QualifiesNoneWhenTheNamespaceIsNotImported() =>
@@ -121,7 +103,11 @@ public class CodeFixTests
             [
                 Verify.Diagnostic(Rules.OrDefaultOnAValueType)
                    .WithLocation(1)
-                   .WithArguments("UnwrapOrDefault", "int", "UnwrapOrNull"),
+                   .WithArguments(
+                        "UnwrapOrDefault",
+                        "int",
+                        "UnwrapOrNull",
+                        "0"),
             ]);
 
     [Fact]

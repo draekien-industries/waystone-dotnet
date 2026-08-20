@@ -9,17 +9,17 @@ public static class Rules
     private const string Design = nameof(Design);
 
     /// <remarks>
-    /// Narrowed to the null case. The value-type half moved to WM1010, which
-    /// forecasts the v6 relaxation, because no single messageFormat is true of
-    /// both: in v6 a null still throws and a value-type default becomes an
-    /// ordinary Some. This rule survives v6 with only its exception type
-    /// changing, so keep the message about null rather than about default(T).
+    /// The only survivor of the rules that encoded the pre-v6 default-value
+    /// invariant. It reports the null case alone, which is what Some still
+    /// rejects; the value-type half retired with the relaxation, because a
+    /// default is now an ordinary value. Keep the message about null rather
+    /// than about default(T).
     /// </remarks>
     public static readonly DiagnosticDescriptor SomeFromDefaultValue = Bug(
         "WM1001",
         "Do not pass null to Some",
         "'Option.Some' throws at runtime when the value is null. Use 'Option.None<{0}>()' to express the absence of a value.",
-        "The constructor of Some rejects null, so this call always throws an InvalidOperationException.");
+        "The constructor of Some rejects null, so this call always throws an ArgumentNullException.");
 
     /// <remarks>
     /// Warning survives the false-positive question, examined in DRA-77. The
@@ -61,26 +61,11 @@ public static class Rules
         "'default({0})' is null, not an empty value. Construct the absent or failed case explicitly.",
         "Option and Result are reference types, so their default is null rather than None or Err.");
 
-    /// <remarks>
-    /// Not narrowed alongside WM1001, because it never covered the null case in
-    /// the first place: <see cref="NullAndDefaultAnalyzer" /> returns early on a
-    /// null-constant operand, so this rule only ever fires on the default of a
-    /// value type. That is why the v6 forecast goes in this message rather than
-    /// into WM1010 as a second position — one sentence is true of everything the
-    /// rule reports. It follows that the rule becomes wholly false in v6 and is
-    /// retired there, rather than surviving narrowed as WM1001 does.
-    /// </remarks>
-    public static readonly DiagnosticDescriptor DefaultValueConvertsToNone = Bug(
-        "WM1004",
-        "Do not convert a default value to an Option implicitly",
-        "The implicit conversion maps the default of '{0}' to None, so this produces None rather than a Some holding {1} today. In v6 it produces a Some holding {1}.",
-        "Option<T>'s implicit conversion returns None when the value equals default(T), so a default value silently becomes an absent one. In v6 only null maps onto None, and this expression changes meaning rather than failing to compile.");
-
     public static readonly DiagnosticDescriptor PossiblyNullPassedToSome = Bug(
         "WM1005",
         "Prefer FromNullable over Some for a possibly null value",
         "'Option.Some' throws when this value is null. Use 'Option.FromNullable' to map null onto None.",
-        "Some rejects a value equal to default(T), and the default of a reference type is null.");
+        "Some rejects null, and a value the compiler cannot prove is non-null may be one.");
 
     public static readonly DiagnosticDescriptor ResultDiscarded = Bug(
         "WM1006",
@@ -100,41 +85,6 @@ public static class Rules
         "Do not declare an Option or Result as nullable",
         "'{0}?' has three states where two are meaningful. Drop the annotation — '{1}' already expresses the case you are reaching for.",
         "Option and Result are records, so the compiler accepts a nullable annotation on one. The annotation adds a third state to a type whose whole purpose is to have exactly two, and the null it admits throws on the next member access rather than being handled as an absence.");
-
-    /// <remarks>
-    /// Scoped to bool and enums with a zero member deliberately. The hazard is
-    /// general — <c>Option&lt;int&gt;</c> breaks on 0 and
-    /// <c>Option&lt;Guid&gt;</c> on <c>Guid.Empty</c> — but widening a
-    /// declaration rule to every value type would fire across code that works
-    /// today, and a Warning ships enabled to every consumer on upgrade. WM1001
-    /// and WM1004 already cover the call site that provably passes a default;
-    /// this rule covers the declaration.
-    /// </remarks>
-    public static readonly DiagnosticDescriptor OptionOfZeroValuedType = Bug(
-        "WM1009",
-        "Do not use Option over bool or a zero-member enum",
-        "'{0}' cannot hold the default of '{1}', because 'Option.Some' throws on it. {2}.",
-        "Option.Some rejects a value equal to default(T), so an Option over a type whose zero is a meaningful value cannot represent part of its own domain.");
-
-    /// <remarks>
-    /// Exists only to forecast the v6 relaxation, and is retired there rather
-    /// than reworded — see DRA-92. It is a separate id from WM1001 rather than a
-    /// reworded one because a descriptor has exactly one messageFormat and no
-    /// single sentence covers both a null and a value-type default once v6
-    /// treats them differently. It covers the Option.Some argument position
-    /// only: the implicit conversion is WM1004's, which never reported a null
-    /// and so carries its own forecast, and Option.FromNullable is deliberately
-    /// left out because the analyzer would only see a literal nobody writes.
-    /// Warning is earned on the present tense of the message — every span
-    /// reported throws today — and it is the severity these spans already
-    /// reported at under WM1001, so no consumer sees a new count.
-    /// </remarks>
-    public static readonly DiagnosticDescriptor DefaultOfValueTypeInOption =
-        Bug(
-            "WM1010",
-            "Do not use the default of a value type as an Option value",
-            "{0} is the default of '{1}', so 'Option.Some' throws today. In v6 it returns a Some holding {0}. Use 'Option.None<{1}>()' if you mean the absent case.",
-            "Option.Some rejects a value equal to default(T). That changes in v6, where only null is rejected and the default of a value type becomes an ordinary Some, so code relying on the current behaviour changes meaning on upgrade rather than failing to compile.");
 
     public static readonly DiagnosticDescriptor UnwrapUsed = Idiom(
         "WM2001",
@@ -233,7 +183,7 @@ public static class Rules
     public static readonly DiagnosticDescriptor OrDefaultOnAValueType = Idiom(
         "WM2015",
         "Prefer UnwrapOrNull over UnwrapOrDefault on a value type",
-        "'{0}' hands back the default of '{1}' when there is no value, which is indistinguishable from a real one. '{2}' returns null instead.",
+        "'{0}' hands back {3}, the default of '{1}', when there is no value, and nothing distinguishes that from a real {3}. '{2}' returns null instead.",
         "T? on a type parameter constrained only to notnull is an annotation rather than a Nullable<T>, so for a value type UnwrapOrDefault and MapOrDefault return 0, false or default(Guid) for the absent case. That is legitimate where the caller genuinely wants the default.");
 
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
