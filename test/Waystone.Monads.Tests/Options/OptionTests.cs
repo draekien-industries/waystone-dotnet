@@ -82,13 +82,13 @@ public sealed class OptionTests
     }
 
     [Fact]
-    public void GivenFactoryReturningDefault_WhenBinding_ThenReturnNone()
+    public void GivenFactoryReturningDefault_WhenBinding_ThenReturnSome()
     {
         using (LoggerScope())
         {
-            Option.Try(() => 0).ShouldBe(Option.None<int>());
-            Option.Try(() => false).ShouldBe(Option.None<bool>());
-            Option.Try(() => default(Guid)).ShouldBe(Option.None<Guid>());
+            Option.Try(() => 0).ShouldBe(Option.Some(0));
+            Option.Try(() => false).ShouldBe(Option.Some(false));
+            Option.Try(() => default(Guid)).ShouldBe(Option.Some(Guid.Empty));
 
             _callback.DidNotReceive()
                .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
@@ -126,14 +126,14 @@ public sealed class OptionTests
 
     [Fact]
     public async Task
-        GivenAsyncFactoryReturningDefault_WhenBinding_ThenReturnNone()
+        GivenAsyncFactoryReturningDefault_WhenBinding_ThenReturnSome()
     {
         using (LoggerScope())
         {
             Option<int> option =
                 await Option.TryAsync(() => Task.FromResult(0));
 
-            option.ShouldBe(Option.None<int>());
+            option.ShouldBe(Option.Some(0));
 
             _callback.DidNotReceive()
                .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
@@ -172,11 +172,11 @@ public sealed class OptionTests
 #pragma warning restore CS8604 // Possible null reference argument.
         Option<Guid> option6 = Guid.NewGuid();
 
-        option1.IsSome.ShouldBeFalse();
+        option1.IsSome.ShouldBeTrue();
         option2.IsSome.ShouldBeTrue();
         option3.IsSome.ShouldBeTrue();
         option4.IsSome.ShouldBeFalse();
-        option5.IsSome.ShouldBeFalse();
+        option5.IsSome.ShouldBeTrue();
         option6.IsSome.ShouldBeTrue();
     }
 

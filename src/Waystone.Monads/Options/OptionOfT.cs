@@ -358,12 +358,12 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="value">The value of the option</param>
     /// <returns>
-    /// A <see cref="Some{T}" /> when the value is not the default of its
-    /// type, otherwise a <see cref="None{T}" />
+    /// A <see cref="Some{T}" /> when the value is not null, otherwise a
+    /// <see cref="None{T}" />
     /// </returns>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
     public static implicit operator Option<T>(T value) =>
-        Equals(value, default(T)) ? new None<T>() : new Some<T>(value);
+        value is null ? new None<T>() : new Some<T>(value);
 }
