@@ -40,6 +40,30 @@
             result.ShouldBe((none, none));
         }
 
+        [Fact]
+        public void GivenSomeWithDefaultFirstComponent_WhenUnzip_ThenReturnSome()
+        {
+            Option<(int, string)> zipped = Option.Some((0, "x"));
+            (Option<int>, Option<string>) result = zipped.Unzip();
+            result.ShouldBe((Option.Some(0), Option.Some("x")));
+        }
+
+        [Fact]
+        public void GivenSomeWithDefaultSecondComponent_WhenUnzip_ThenReturnSome()
+        {
+            Option<(string, int)> zipped = Option.Some(("x", 0));
+            (Option<string>, Option<int>) result = zipped.Unzip();
+            result.ShouldBe((Option.Some("x"), Option.Some(0)));
+        }
+
+        [Fact]
+        public void GivenSomeWithBothComponentsDefault_WhenUnzip_ThenReturnSome()
+        {
+            Option<(int, bool)> zipped = Option.Some((0, false));
+            (Option<int>, Option<bool>) result = zipped.Unzip();
+            result.ShouldBe((Option.Some(0), Option.Some(false)));
+        }
+
         #endregion unzip
 
         #region flatten

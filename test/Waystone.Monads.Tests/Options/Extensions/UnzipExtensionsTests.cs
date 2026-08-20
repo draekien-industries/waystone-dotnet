@@ -29,6 +29,17 @@ public sealed class UnzipExtensionsTests
     }
 
     [Fact]
+    public async Task
+        GivenSomeTaskWithDefaultComponents_WhenUnzipAsync_ThenReturnTwoSome()
+    {
+        (Option<int> first, Option<bool> second) =
+            await Task.FromResult(Option.Some((0, false))).UnzipAsync();
+
+        first.ShouldBeSomeValue(0);
+        second.ShouldBeSomeValue(false);
+    }
+
+    [Fact]
     public async Task GivenSomeValueTask_WhenUnzipAsync_ThenReturnTwoSome()
     {
         (Option<int> first, Option<int> second) =
@@ -48,5 +59,17 @@ public sealed class UnzipExtensionsTests
 
         first.ShouldBeNone();
         second.ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task
+        GivenSomeValueTaskWithDefaultComponents_WhenUnzipAsync_ThenReturnTwoSome()
+    {
+        (Option<int> first, Option<bool> second) =
+            await new ValueTask<Option<(int, bool)>>(Option.Some((0, false)))
+               .UnzipAsync();
+
+        first.ShouldBeSomeValue(0);
+        second.ShouldBeSomeValue(false);
     }
 }
