@@ -17,7 +17,7 @@ public static class UnwrapExtensions
         /// Thrown when the awaited result is an
         /// <see cref="Err{TOk,TErr}" />
         /// </exception>
-        public async Task<TOk> UnwrapAsync()
+        public async ValueTask<TOk> UnwrapAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -32,7 +32,7 @@ public static class UnwrapExtensions
         /// Thrown when the awaited result is an
         /// <see cref="Ok{TOk,TErr}" />
         /// </exception>
-        public async Task<TErr> UnwrapErrAsync()
+        public async ValueTask<TErr> UnwrapErrAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -45,7 +45,7 @@ public static class UnwrapExtensions
         /// when it is an <see cref="Err{TOk,TErr}" />.
         /// </summary>
         /// <param name="default">The value to return when the result is an error.</param>
-        public async Task<TOk> UnwrapOrAsync(TOk @default)
+        public async ValueTask<TOk> UnwrapOrAsync(TOk @default)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -57,7 +57,7 @@ public static class UnwrapExtensions
         /// the contained <see cref="Ok{TOk,TErr}" /> value, or the default value of
         /// <typeparamref name="TOk" /> when it is an <see cref="Err{TOk,TErr}" />.
         /// </summary>
-        public async Task<TOk?> UnwrapOrDefaultAsync()
+        public async ValueTask<TOk?> UnwrapOrDefaultAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -77,7 +77,7 @@ public static class UnwrapExtensions
         /// Thrown when the awaited result is an
         /// <see cref="Err{TOk,TErr}" />
         /// </exception>
-        public async Task<TOk> UnwrapAsync()
+        public async ValueTask<TOk> UnwrapAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -92,7 +92,7 @@ public static class UnwrapExtensions
         /// Thrown when the awaited result is an
         /// <see cref="Ok{TOk,TErr}" />
         /// </exception>
-        public async Task<TErr> UnwrapErrAsync()
+        public async ValueTask<TErr> UnwrapErrAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -105,7 +105,7 @@ public static class UnwrapExtensions
         /// when it is an <see cref="Err{TOk,TErr}" />.
         /// </summary>
         /// <param name="default">The value to return when the result is an error.</param>
-        public async Task<TOk> UnwrapOrAsync(TOk @default)
+        public async ValueTask<TOk> UnwrapOrAsync(TOk @default)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -117,7 +117,7 @@ public static class UnwrapExtensions
         /// the contained <see cref="Ok{TOk,TErr}" /> value, or the default value of
         /// <typeparamref name="TOk" /> when it is an <see cref="Err{TOk,TErr}" />.
         /// </summary>
-        public async Task<TOk?> UnwrapOrDefaultAsync()
+        public async ValueTask<TOk?> UnwrapOrDefaultAsync()
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

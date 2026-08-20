@@ -53,7 +53,7 @@ public static class InspectExtensions
         /// The original <see cref="Result{TOk, TErr}" /> after executing the specified
         /// <paramref name="action" />, regardless of its state.
         /// </returns>
-        public async Task<Result<TOk, TErr>> InspectAsync(
+        public async ValueTask<Result<TOk, TErr>> InspectAsync(
             Func<TOk, Task> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -73,12 +73,12 @@ public static class InspectExtensions
         /// <see cref="Result{TOk, TErr}.IsOk" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> representing the asynchronous operation.
+        /// A <see cref="ValueTask{TResult}" /> representing the asynchronous operation.
         /// The task's result is the original <see cref="Result{TOk, TErr}" /> after
         /// executing the specified <paramref name="action" />,
         /// regardless of its state.
         /// </returns>
-        public async Task<Result<TOk, TErr>> InspectAsync(Action<TOk> action)
+        public async ValueTask<Result<TOk, TErr>> InspectAsync(Action<TOk> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -103,7 +103,7 @@ public static class InspectExtensions
         /// The original <see cref="Result{TOk, TErr}" /> after executing the specified
         /// <paramref name="action" />, regardless of its state.
         /// </returns>
-        public async Task<Result<TOk, TErr>> InspectAsync(
+        public async ValueTask<Result<TOk, TErr>> InspectAsync(
             Func<TOk, Task> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -123,12 +123,12 @@ public static class InspectExtensions
         /// <see cref="Result{TOk, TErr}.IsOk" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> representing the asynchronous operation.
+        /// A <see cref="ValueTask{TResult}" /> representing the asynchronous operation.
         /// The task's result is the original <see cref="Result{TOk, TErr}" /> after
         /// executing the specified <paramref name="action" />,
         /// regardless of its state.
         /// </returns>
-        public async Task<Result<TOk, TErr>> InspectAsync(Action<TOk> action)
+        public async ValueTask<Result<TOk, TErr>> InspectAsync(Action<TOk> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

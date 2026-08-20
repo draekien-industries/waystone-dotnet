@@ -48,11 +48,11 @@ public static class FilterExtensions
         /// value contained in the <see cref="Option{T}" /> satisfies the condition.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing an <see cref="Option{T}" /> of type
+        /// A <see cref="ValueTask{TResult}" /> containing an <see cref="Option{T}" /> of type
         /// <typeparamref name="T" /> that contains the initial value if it satisfies the
         /// predicate, or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
-        public async Task<Option<T>>
+        public async ValueTask<Option<T>>
             FilterAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -76,13 +76,13 @@ public static class FilterExtensions
         /// satisfies the condition.
         /// </param>
         /// <returns>
-        /// An asynchronous <see cref="Task{TResult}" /> containing an
+        /// An asynchronous <see cref="ValueTask{TResult}" /> containing an
         /// <see cref="Option{T}" /> of
         /// type <typeparamref name="T" /> that contains the initial value if it satisfies
         /// the
         /// predicate, or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
-        public async Task<Option<T>>
+        public async ValueTask<Option<T>>
             FilterAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -109,12 +109,12 @@ public static class FilterExtensions
         /// in the <see cref="Option{T}" /> satisfies the condition.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing an <see cref="Option{T}" /> of type
+        /// A <see cref="ValueTask{TResult}" /> containing an <see cref="Option{T}" /> of type
         /// <typeparamref name="T" /> that contains the initial value if it satisfies the
         /// predicate,
         /// or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
-        public async Task<Option<T>>
+        public async ValueTask<Option<T>>
             FilterAsync(Func<T, Task<bool>> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -138,11 +138,11 @@ public static class FilterExtensions
         /// satisfies the condition.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing an <see cref="Option{T}" /> of type
+        /// A <see cref="ValueTask{TResult}" /> containing an <see cref="Option{T}" /> of type
         /// <typeparamref name="T" /> that contains the initial value if it satisfies
         /// the predicate, or an empty <see cref="Option{T}" /> if it does not.
         /// </returns>
-        public async Task<Option<T>>
+        public async ValueTask<Option<T>>
             FilterAsync(Func<T, bool> predicate)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);

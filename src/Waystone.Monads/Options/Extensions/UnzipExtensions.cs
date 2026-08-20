@@ -12,11 +12,11 @@ public static class UnzipExtensions
         /// tuple into a tuple of two options.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing a pair of <see cref="Some{T}" />
+        /// A <see cref="ValueTask{TResult}" /> containing a pair of <see cref="Some{T}" />
         /// options carrying the two halves of the tuple if the awaited option was a
         /// <see cref="Some{T}" />, otherwise a pair of <see cref="None{T}" />.
         /// </returns>
-        public async Task<(Option<T1>, Option<T2>)> UnzipAsync()
+        public async ValueTask<(Option<T1>, Option<T2>)> UnzipAsync()
         {
             Option<(T1, T2)> option =
                 await optionTask.ConfigureAwait(false);
@@ -33,11 +33,11 @@ public static class UnzipExtensions
         /// a tuple into a tuple of two options.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing a pair of <see cref="Some{T}" />
+        /// A <see cref="ValueTask{TResult}" /> containing a pair of <see cref="Some{T}" />
         /// options carrying the two halves of the tuple if the awaited option was a
         /// <see cref="Some{T}" />, otherwise a pair of <see cref="None{T}" />.
         /// </returns>
-        public async Task<(Option<T1>, Option<T2>)> UnzipAsync()
+        public async ValueTask<(Option<T1>, Option<T2>)> UnzipAsync()
         {
             Option<(T1, T2)> option =
                 await optionTask.ConfigureAwait(false);

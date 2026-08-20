@@ -76,7 +76,7 @@ public static class AndThenExtensions
         /// If the original result is <see cref="Result{TOk, TErr}.IsErr" />, the error is
         /// propagated.
         /// </returns>
-        public async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
+        public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Task<Result<TOut, TErr>>> factory) where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -103,12 +103,12 @@ public static class AndThenExtensions
         /// <see cref="Result{TOut, TErr}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> that completes with a
+        /// A <see cref="ValueTask{TResult}" /> that completes with a
         /// <see cref="Result{TOut, TErr}" />.
         /// If the original result is <see cref="Result{TOk, TErr}.IsErr" />, the error is
         /// propagated.
         /// </returns>
-        public async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
+        public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -138,12 +138,12 @@ public static class AndThenExtensions
         /// <see cref="Result{TOut, TErr}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> that completes with a
+        /// A <see cref="ValueTask{TResult}" /> that completes with a
         /// <see cref="Result{TOut, TErr}" />.
         /// If the original result is <see cref="Result{TOk, TErr}.IsErr" />, the error is
         /// propagated.
         /// </returns>
-        public async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
+        public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Task<Result<TOut, TErr>>> factory) where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -168,11 +168,11 @@ public static class AndThenExtensions
         /// <see cref="Result{TOut, TErr}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> that completes with a
+        /// A <see cref="ValueTask{TResult}" /> that completes with a
         /// <see cref="Result{TOut, TErr}" />. If the original result is
         /// <see cref="Result{TOk, TErr}.IsErr" />, the error is propagated.
         /// </returns>
-        public async Task<Result<TOut, TErr>> AndThenAsync<TOut>(
+        public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);

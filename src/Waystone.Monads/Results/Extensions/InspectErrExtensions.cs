@@ -47,11 +47,11 @@ public static class InspectErrExtensions
         /// <see cref="Err{TOk, TErr}" /> value.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> that represents the asynchronous operation.
+        /// A <see cref="ValueTask{TResult}" /> that represents the asynchronous operation.
         /// The result of the task is the original <see cref="Result{TOk, TErr}" />
         /// instance, unmodified.
         /// </returns>
-        public async Task<Result<TOk, TErr>> InspectErrAsync(
+        public async ValueTask<Result<TOk, TErr>> InspectErrAsync(
             Func<TErr, Task> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -76,7 +76,7 @@ public static class InspectErrExtensions
         /// <see cref="Err{TOk, TErr}" /> value.
         /// </param>
         /// <returns>The original <see cref="Result{TOk, TErr}" /> instance, unmodified.</returns>
-        public async Task<Result<TOk, TErr>> InspectErrAsync(
+        public async ValueTask<Result<TOk, TErr>> InspectErrAsync(
             Action<TErr> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -109,7 +109,7 @@ public static class InspectErrExtensions
         /// A task that represents the asynchronous operation, returning the
         /// original <see cref="Result{TOk, TErr}" /> instance, unmodified.
         /// </returns>
-        public async Task<Result<TOk, TErr>> InspectErrAsync(
+        public async ValueTask<Result<TOk, TErr>> InspectErrAsync(
             Func<TErr, Task> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
@@ -135,7 +135,7 @@ public static class InspectErrExtensions
         /// <returns>
         /// The original <see cref="Result{TOk, TErr}" /> instance, unmodified.
         /// </returns>
-        public async Task<Result<TOk, TErr>> InspectErrAsync(
+        public async ValueTask<Result<TOk, TErr>> InspectErrAsync(
             Action<TErr> action)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);

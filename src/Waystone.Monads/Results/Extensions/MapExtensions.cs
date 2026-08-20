@@ -29,7 +29,7 @@ public static class MapExtensions
     extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
         where TOk : notnull where TErr : notnull
     {
-        public async Task<Result<TOut, TErr>> MapAsync<TOut>(
+        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
@@ -38,7 +38,7 @@ public static class MapExtensions
             return await result.MapAsync(map);
         }
 
-        public async Task<Result<TOut, TErr>> MapAsync<TOut>(
+        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
             Func<TOk, TOut> map)
             where TOut : notnull
         {

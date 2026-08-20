@@ -32,7 +32,7 @@ public class PanickingCallAnalyzerTests
     [Fact]
     public Task FlagsTheAsyncExtensionOverload() =>
         Verify.AnalyzerAsync<PanickingCallAnalyzer>(
-            "internal Task<int> Value(Task<Option<int>> option) => option.{|#0:UnwrapAsync|}();",
+            "internal ValueTask<int> Value(Task<Option<int>> option) => option.{|#0:UnwrapAsync|}();",
             Verify.Diagnostic(Rules.UnwrapUsed)
                .WithLocation(0)
                .WithArguments("UnwrapAsync"));

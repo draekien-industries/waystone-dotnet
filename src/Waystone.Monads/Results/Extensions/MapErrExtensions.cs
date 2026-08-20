@@ -31,7 +31,7 @@ public static class MapErrExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async Task<Result<TOk, TOut>> MapErrAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
             Func<TErr, Task<TOut>> map)
             where TOut : notnull
         {
@@ -40,7 +40,7 @@ public static class MapErrExtensions
             return await result.MapErrAsync(map).ConfigureAwait(false);
         }
 
-        public async Task<Result<TOk, TOut>> MapErrAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
             Func<TErr, TOut> map)
             where TOut : notnull
         {
@@ -54,7 +54,7 @@ public static class MapErrExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async Task<Result<TOk, TOut>> MapErrAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
             Func<TErr, Task<TOut>> map)
             where TOut : notnull
         {
@@ -63,7 +63,7 @@ public static class MapErrExtensions
             return await result.MapErrAsync(map).ConfigureAwait(false);
         }
 
-        public async Task<Result<TOk, TOut>> MapErrAsync<TOut>(
+        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
             Func<TErr, TOut> map)
             where TOut : notnull
         {

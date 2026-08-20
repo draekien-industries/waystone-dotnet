@@ -51,7 +51,7 @@ public sealed class SpecContext
 
     public void SetSlot<T>(T value, string slot) => slots[slot] = value;
 
-    public async Task CaptureAsync<T>(Func<Task<T>> operation)
+    public async Task CaptureAsync<T>(Func<ValueTask<T>> operation)
     {
         try
         {

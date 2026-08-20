@@ -15,7 +15,7 @@ public static class UnwrapExtensions
         /// Thrown when the awaited option is a
         /// <see cref="None{T}" />
         /// </exception>
-        public async Task<T> UnwrapAsync()
+        public async ValueTask<T> UnwrapAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -28,7 +28,7 @@ public static class UnwrapExtensions
         /// <see cref="None{T}" />.
         /// </summary>
         /// <param name="value">The value to return when the option is none.</param>
-        public async Task<T> UnwrapOrAsync(T value)
+        public async ValueTask<T> UnwrapOrAsync(T value)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -40,7 +40,7 @@ public static class UnwrapExtensions
         /// contained <see cref="Some{T}" /> value, or the default value of
         /// <typeparamref name="T" /> when it is a <see cref="None{T}" />.
         /// </summary>
-        public async Task<T?> UnwrapOrDefaultAsync()
+        public async ValueTask<T?> UnwrapOrDefaultAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -58,7 +58,7 @@ public static class UnwrapExtensions
         /// Thrown when the awaited option is a
         /// <see cref="None{T}" />
         /// </exception>
-        public async Task<T> UnwrapAsync()
+        public async ValueTask<T> UnwrapAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -71,7 +71,7 @@ public static class UnwrapExtensions
         /// <see cref="None{T}" />.
         /// </summary>
         /// <param name="value">The value to return when the option is none.</param>
-        public async Task<T> UnwrapOrAsync(T value)
+        public async ValueTask<T> UnwrapOrAsync(T value)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -83,7 +83,7 @@ public static class UnwrapExtensions
         /// contained <see cref="Some{T}" /> value, or the default value of
         /// <typeparamref name="T" /> when it is a <see cref="None{T}" />.
         /// </summary>
-        public async Task<T?> UnwrapOrDefaultAsync()
+        public async ValueTask<T?> UnwrapOrDefaultAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

@@ -49,11 +49,11 @@ public static class MapOrDefaultExtensions
         /// value.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// result was an <see cref="Ok{TOk,TErr}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(Func<TOk, TOut> map)
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(Func<TOk, TOut> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result =
@@ -74,11 +74,11 @@ public static class MapOrDefaultExtensions
         /// <see cref="Ok{TOk,TErr}" /> value.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// result was an <see cref="Ok{TOk,TErr}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
@@ -105,11 +105,11 @@ public static class MapOrDefaultExtensions
         /// value.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// result was an <see cref="Ok{TOk,TErr}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(Func<TOk, TOut> map)
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(Func<TOk, TOut> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result =
@@ -130,11 +130,11 @@ public static class MapOrDefaultExtensions
         /// <see cref="Ok{TOk,TErr}" /> value.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// result was an <see cref="Ok{TOk,TErr}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {

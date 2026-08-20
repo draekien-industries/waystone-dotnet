@@ -30,14 +30,14 @@ public static class UnwrapOrElseExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async Task<TOk> UnwrapOrElseAsync(Func<TErr, TOk> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> factory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return result.UnwrapOrElse(factory);
         }
 
-        public async Task<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> factory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -50,14 +50,14 @@ public static class UnwrapOrElseExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async Task<TOk> UnwrapOrElseAsync(Func<TErr, TOk> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> factory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
             return result.UnwrapOrElse(factory);
         }
 
-        public async Task<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> factory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

@@ -12,11 +12,11 @@ public static class AsEnumerableExtensions
         /// possibly contained value.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing a sequence that yields the
+        /// A <see cref="ValueTask{TResult}" /> containing a sequence that yields the
         /// contained value once if the awaited option was a <see cref="Some{T}" />,
         /// otherwise an empty sequence.
         /// </returns>
-        public async Task<IEnumerable<T>> AsEnumerableAsync()
+        public async ValueTask<IEnumerable<T>> AsEnumerableAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -31,11 +31,11 @@ public static class AsEnumerableExtensions
         /// possibly contained value.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing a sequence that yields the
+        /// A <see cref="ValueTask{TResult}" /> containing a sequence that yields the
         /// contained value once if the awaited option was a <see cref="Some{T}" />,
         /// otherwise an empty sequence.
         /// </returns>
-        public async Task<IEnumerable<T>> AsEnumerableAsync()
+        public async ValueTask<IEnumerable<T>> AsEnumerableAsync()
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

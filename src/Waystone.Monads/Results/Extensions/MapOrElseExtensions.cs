@@ -66,7 +66,7 @@ public static class MapOrElseExtensions
     extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
         where TOk : notnull where TErr : notnull
     {
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, Task<TOut>> factory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
@@ -77,7 +77,7 @@ public static class MapOrElseExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, TOut> factory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
@@ -88,7 +88,7 @@ public static class MapOrElseExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, Task<TOut>> factory,
             Func<TOk, TOut> map)
             where TOut : notnull
@@ -99,7 +99,7 @@ public static class MapOrElseExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, TOut> factory,
             Func<TOk, TOut> map)
             where TOut : notnull
@@ -113,7 +113,7 @@ public static class MapOrElseExtensions
     extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
         where TOk : notnull where TErr : notnull
     {
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, Task<TOut>> factory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
@@ -124,7 +124,7 @@ public static class MapOrElseExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, TOut> factory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
@@ -135,7 +135,7 @@ public static class MapOrElseExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, Task<TOut>> factory,
             Func<TOk, TOut> map)
             where TOut : notnull
@@ -146,7 +146,7 @@ public static class MapOrElseExtensions
                .ConfigureAwait(false);
         }
 
-        public async Task<TOut> MapOrElseAsync<TOut>(
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
             Func<TErr, TOut> factory,
             Func<TOk, TOut> map)
             where TOut : notnull

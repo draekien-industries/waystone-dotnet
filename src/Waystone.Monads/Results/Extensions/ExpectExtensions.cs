@@ -21,7 +21,7 @@ public static class ExpectExtensions
         /// Thrown when the awaited
         /// result is an <see cref="Err{TOk,TErr}" />
         /// </exception>
-        public async Task<TOk> ExpectAsync(string message)
+        public async ValueTask<TOk> ExpectAsync(string message)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -40,7 +40,7 @@ public static class ExpectExtensions
         /// Thrown when the awaited
         /// result is an <see cref="Ok{TOk,TErr}" />
         /// </exception>
-        public async Task<TErr> ExpectErrAsync(string message)
+        public async ValueTask<TErr> ExpectErrAsync(string message)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -64,7 +64,7 @@ public static class ExpectExtensions
         /// Thrown when the awaited
         /// result is an <see cref="Err{TOk,TErr}" />
         /// </exception>
-        public async Task<TOk> ExpectAsync(string message)
+        public async ValueTask<TOk> ExpectAsync(string message)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -83,7 +83,7 @@ public static class ExpectExtensions
         /// Thrown when the awaited
         /// result is an <see cref="Ok{TOk,TErr}" />
         /// </exception>
-        public async Task<TErr> ExpectErrAsync(string message)
+        public async ValueTask<TErr> ExpectErrAsync(string message)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

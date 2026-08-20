@@ -26,7 +26,7 @@ public static class ZipWithExtensions
 
     extension<TSelf>(Task<Option<TSelf>> optionTask) where TSelf : notnull
     {
-        public async Task<Option<TOut>> ZipWithAsync<TOther, TOut>(
+        public async ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
             Option<TOther> otherOption,
             Func<TSelf, TOther, Task<TOut>> zip)
             where TOther : notnull
@@ -44,7 +44,7 @@ public static class ZipWithExtensions
             return Option.Some(result);
         }
 
-        public async Task<Option<TOut>> ZipWithAsync<TOther, TOut>(
+        public async ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
             Task<Option<TOther>> otherOptionTask,
             Func<TSelf, TOther, Task<TOut>> zip)
             where TOther : notnull
@@ -68,7 +68,7 @@ public static class ZipWithExtensions
 
     extension<TSelf>(ValueTask<Option<TSelf>> optionTask) where TSelf : notnull
     {
-        public async Task<Option<TOut>> ZipWithAsync<TOther, TOut>(
+        public async ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
             Option<TOther> otherOption,
             Func<TSelf, TOther, Task<TOut>> zip)
             where TOther : notnull
@@ -86,7 +86,7 @@ public static class ZipWithExtensions
             return Option.Some(result);
         }
 
-        public async Task<Option<TOut>> ZipWithAsync<TOther, TOut>(
+        public async ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
             ValueTask<Option<TOther>> otherOptionTask,
             Func<TSelf, TOther, Task<TOut>> zip)
             where TOther : notnull

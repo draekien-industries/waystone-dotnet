@@ -15,7 +15,7 @@ public static class UnwrapOrElseExtensions
 
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
-        public async Task<T> UnwrapOrElseAsync(Func<T> elseFunc)
+        public async ValueTask<T> UnwrapOrElseAsync(Func<T> elseFunc)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -24,7 +24,7 @@ public static class UnwrapOrElseExtensions
                 : elseFunc.Invoke();
         }
 
-        public async Task<T> UnwrapOrElseAsync(Func<Task<T>> elseFunc)
+        public async ValueTask<T> UnwrapOrElseAsync(Func<Task<T>> elseFunc)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -36,7 +36,7 @@ public static class UnwrapOrElseExtensions
 
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
-        public async Task<T> UnwrapOrElseAsync(Func<T> elseFunc)
+        public async ValueTask<T> UnwrapOrElseAsync(Func<T> elseFunc)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -45,7 +45,7 @@ public static class UnwrapOrElseExtensions
                 : elseFunc.Invoke();
         }
 
-        public async Task<T> UnwrapOrElseAsync(Func<Task<T>> elseFunc)
+        public async ValueTask<T> UnwrapOrElseAsync(Func<Task<T>> elseFunc)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

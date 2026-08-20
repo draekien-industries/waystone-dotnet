@@ -47,11 +47,11 @@ public static class MapOrDefaultExtensions
         /// a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(Func<T, TOut> map)
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(Func<T, TOut> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -71,11 +71,11 @@ public static class MapOrDefaultExtensions
         /// option if it is a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
             Func<T, Task<TOut>> map)
             where TOut : notnull
         {
@@ -103,11 +103,11 @@ public static class MapOrDefaultExtensions
         /// a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(Func<T, TOut> map)
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(Func<T, TOut> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -127,11 +127,11 @@ public static class MapOrDefaultExtensions
         /// option if it is a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, or the <see langword="default" /> of
         /// <typeparamref name="TOut" /> otherwise.
         /// </returns>
-        public async Task<TOut?> MapOrDefaultAsync<TOut>(
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
             Func<T, Task<TOut>> map)
             where TOut : notnull
         {

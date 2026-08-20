@@ -50,12 +50,12 @@ public static class AndThenExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the <see cref="Option{TOut}" />, with
+        /// A <see cref="ValueTask{TResult}" /> containing the <see cref="Option{TOut}" />, with
         /// the mapped value if the original <see cref="Option{T}" /> was
         /// <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> AndThenAsync<TOut>(
+        public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
             Func<T, Task<Option<TOut>>> map)
             where TOut : notnull
         {
@@ -81,12 +81,12 @@ public static class AndThenExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" />, containing the
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" />, containing the
         /// mapped
         /// value if the original <see cref="Option{T}" /> was <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> AndThenAsync<TOut>(
+        public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
             Func<T, Option<TOut>> map)
             where TOut : notnull
         {
@@ -115,12 +115,12 @@ public static class AndThenExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" />, containing
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" />, containing
         /// the mapped value if the original <see cref="Option{T}" /> was
         /// <see cref="Some{T}" />, or
         /// <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> AndThenAsync<TOut>(
+        public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
             Func<T, Task<Option<TOut>>> map)
             where TOut : notnull
         {
@@ -146,12 +146,12 @@ public static class AndThenExtensions
         /// <see cref="Option{T}" /> to another <see cref="Option{TOut}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> of <see cref="Option{TOut}" />, containing
+        /// A <see cref="ValueTask{TResult}" /> of <see cref="Option{TOut}" />, containing
         /// the mapped value if the original <see cref="Option{T}" /> was
         /// <see cref="Some{T}" />,
         /// or <see cref="None{T}" /> otherwise.
         /// </returns>
-        public async Task<Option<TOut>> AndThenAsync<TOut>(
+        public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
             Func<T, Option<TOut>> map)
             where TOut : notnull
         {

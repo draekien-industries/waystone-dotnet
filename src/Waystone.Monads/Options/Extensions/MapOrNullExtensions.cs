@@ -67,10 +67,10 @@ public static class MapOrNullExtensions
         /// a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, otherwise <see langword="null" />.
         /// </returns>
-        public async Task<TOut?> MapOrNullAsync<TOut>(Func<T, TOut> map)
+        public async ValueTask<TOut?> MapOrNullAsync<TOut>(Func<T, TOut> map)
             where TOut : struct
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -89,10 +89,10 @@ public static class MapOrNullExtensions
         /// option if it is a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, otherwise <see langword="null" />.
         /// </returns>
-        public async Task<TOut?> MapOrNullAsync<TOut>(Func<T, Task<TOut>> map)
+        public async ValueTask<TOut?> MapOrNullAsync<TOut>(Func<T, Task<TOut>> map)
             where TOut : struct
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -118,10 +118,10 @@ public static class MapOrNullExtensions
         /// a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, otherwise <see langword="null" />.
         /// </returns>
-        public async Task<TOut?> MapOrNullAsync<TOut>(Func<T, TOut> map)
+        public async ValueTask<TOut?> MapOrNullAsync<TOut>(Func<T, TOut> map)
             where TOut : struct
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -140,10 +140,10 @@ public static class MapOrNullExtensions
         /// option if it is a <see cref="Some{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="Task{TResult}" /> containing the transformed value if the awaited
+        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the awaited
         /// option was a <see cref="Some{T}" />, otherwise <see langword="null" />.
         /// </returns>
-        public async Task<TOut?> MapOrNullAsync<TOut>(Func<T, Task<TOut>> map)
+        public async ValueTask<TOut?> MapOrNullAsync<TOut>(Func<T, Task<TOut>> map)
             where TOut : struct
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
