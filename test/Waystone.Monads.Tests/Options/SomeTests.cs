@@ -161,6 +161,16 @@ public sealed class SomeTests
     }
 
     [Fact]
+    public void WhenMapProducesADefault_ThenReturnSome()
+    {
+        Option<int> some = Option.Some(1);
+
+        Option<int> result = some.Map(x => x - x);
+
+        result.ShouldBeSomeValue(0);
+    }
+
+    [Fact]
     public void WhenMapOr_ThenReturnMappedValue()
     {
         Option<int> some = Option.Some(1);
@@ -579,6 +589,14 @@ public sealed class SomeTests
 
         some.Reduce(Option.None<int>(), (x, y) => x + y)
            .ShouldBeSomeValue(1);
+    }
+
+    [Fact]
+    public void WhenReduceProducesADefault_ThenReturnSome()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.Reduce(Option.Some(-1), (x, y) => x + y).ShouldBeSomeValue(0);
     }
 
     [Fact]

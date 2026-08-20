@@ -137,6 +137,14 @@ complains. When a step is not found, the folder is never the reason.
 Without one, an unmatched value runs no assertion and the scenario passes. This
 hid three no-op assertions in the Result specs.
 
+**A char literal written as a raw control character turns the file binary to
+git.** `SomeTests.cs` picked up two actual NUL bytes where the source meant the
+two-character escape, and git then refused to diff the file: the PR that
+introduced it showed `Bin 16307 -> 16743` instead of the change, and every later
+diff of that file would have shown the same. It compiles and the tests pass, so
+nothing else complains. Write the escape, and check `git diff --stat` for `Bin`
+on a file that is plainly text.
+
 **The library's extensions are C# 14 `extension` blocks, so `IsExtensionMethod`
 is not a reliable test in an analyzer.** The compiler emits a compatibility static
 method that older Roslyn sees as a classic extension, so a rule keyed on
