@@ -157,8 +157,9 @@ Public API is deprecated, never deleted:
    the members, move their entries into the release notes, and clear the
    Deprecations page for the next cycle.
 
-Note that `CS0618` is suppressed in `Waystone.Monads.csproj`, so the build will
-not flag call sites of your own obsoleted API. Search for them yourself.
+`CS0618` is not suppressed in `Waystone.Monads.csproj` and `src/**` builds with
+warnings as errors, so obsoleting a member the library still calls fails the
+build. Point those call sites at the replacement in the same change.
 
 Public members need XML doc comments. `CS1591` is suppressed, so nothing will
 tell you when they are missing. Comments elsewhere are unwelcome — if a method

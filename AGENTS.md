@@ -120,9 +120,12 @@ collections running in parallel; this produced a roughly 1-in-3 failure rate
 before it was diagnosed. Use `MonadOptions.BeginScope` in tests so the override
 is confined to the current asynchronous flow.
 
-**`CS0618` is suppressed** in `Waystone.Monads.csproj`, so calling your own
-obsoleted API raises no warning in this repository. The build will not find call
-sites for you after a deprecation — search for them.
+**`CS0618` is no longer suppressed** in `Waystone.Monads.csproj`. It was, until
+removing `FlatMap` in v6 left the library with no internal call sites of its own
+obsoleted API. `src/**` builds with `TreatWarningsAsErrors`, so obsoleting a
+member the library still calls now fails the build instead of passing silently.
+Point those call sites at the replacement in the same change, or the deprecation
+is not finished.
 
 **Reqnroll binds step definitions across the whole test assembly.** The
 `Specs/Options/Steps` and `Specs/Results/Steps` folders scope nothing, so step

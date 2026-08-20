@@ -138,36 +138,6 @@ public class CodeFixTests
             Verify.Diagnostic(Rules.MapThenFlatten).WithLocation(0));
 
     [Fact]
-    public Task RenamesFlatMapToAndThen() =>
-        Verify.CodeFixAsync<DeprecationAnalyzer, UseAndThenCodeFix>(
-            """
-            internal Option<int> Doubled(Option<int> option) =>
-                option.{|#0:FlatMap|}(value => Option.Some(value * 2));
-            """,
-            """
-            internal Option<int> Doubled(Option<int> option) =>
-                option.AndThen(value => Option.Some(value * 2));
-            """,
-            Verify.Diagnostic(Rules.RenamedToAndThen)
-               .WithLocation(0)
-               .WithArguments("FlatMap", "AndThen"));
-
-    [Fact]
-    public Task RenamesFlatMapAsyncToAndThenAsync() =>
-        Verify.CodeFixAsync<DeprecationAnalyzer, UseAndThenCodeFix>(
-            """
-            internal ValueTask<Option<int>> Doubled(Task<Option<int>> option) =>
-                option.{|#0:FlatMapAsync|}(value => Option.Some(value * 2));
-            """,
-            """
-            internal ValueTask<Option<int>> Doubled(Task<Option<int>> option) =>
-                option.AndThenAsync(value => Option.Some(value * 2));
-            """,
-            Verify.Diagnostic(Rules.RenamedToAndThen)
-               .WithLocation(0)
-               .WithArguments("FlatMapAsync", "AndThenAsync"));
-
-    [Fact]
     public Task ReplacesANullComparisonWithIsNone() =>
         Verify.CodeFixAsync<SimplificationAnalyzer, UseStateCheckCodeFix>(
             "internal bool Missing(Option<int> option) => {|#0:option == null|};",

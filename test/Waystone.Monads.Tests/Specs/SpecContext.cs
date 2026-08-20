@@ -9,7 +9,6 @@ public sealed class SpecContext
 {
     public const string MapSlot = "Map";
     public const string ElseSlot = "Else";
-    public const string FlatMapSlot = "FlatMap";
     public const string AsyncOkSlot = "AsyncOkDelegate";
     public const string SyncOkSlot = "SyncOkDelegate";
     public const string AsyncErrorSlot = "AsyncErrorDelegate";
