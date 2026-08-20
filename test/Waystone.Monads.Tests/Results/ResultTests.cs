@@ -54,20 +54,6 @@ public sealed class ResultTests
 
     [Fact]
     public async Task
-        GivenObsoleteAsyncTry_WhenBindingFactory_ThenReturnOk()
-    {
-        var callback = Substitute.For<Func<Exception, string>>();
-#pragma warning disable CS0618 // Type or member is obsolete
-        Result<int, string> result = await Result.Try(
-            () => Task.FromResult(1),
-            callback);
-#pragma warning restore CS0618 // Type or member is obsolete
-        result.ShouldBe(Result.Ok<int, string>(1));
-        callback.DidNotReceive().Invoke(Arg.Any<Exception>());
-    }
-
-    [Fact]
-    public async Task
         GivenAsyncFactoryThatFails_WhenBindingFactory_ThenReturnError()
     {
         var callback = Substitute.For<Func<Exception, string>>();

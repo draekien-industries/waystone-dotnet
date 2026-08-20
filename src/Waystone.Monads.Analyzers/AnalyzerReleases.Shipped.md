@@ -51,6 +51,12 @@ WM1010 | Reliability | Warning | The default of a value type is used as an Optio
 
 ## Release 6.0.0
 
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM1011 | Reliability | Warning | An async factory is passed to Try
+
 ### Removed Rules
 
 Rule ID | Category | Severity | Notes
