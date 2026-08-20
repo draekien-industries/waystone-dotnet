@@ -70,4 +70,31 @@ public class StateOverloadBenchmarks
     [Benchmark]
     public Result<int, string> ResultMapWithState() =>
         _ok.Map(_addend, static (value, addend) => value + addend);
+
+    [Benchmark]
+    public Option<int> TryWithClosure()
+    {
+        int addend = _addend;
+
+        return Option.Try(() => 42 + addend);
+    }
+
+    [Benchmark]
+    public Option<int> TryWithState() =>
+        Option.Try(_addend, static addend => 42 + addend);
+
+    [Benchmark]
+    public Result<int, string> ResultTryWithClosure()
+    {
+        int addend = _addend;
+
+        return Result.Try(() => 42 + addend, static ex => ex.Message);
+    }
+
+    [Benchmark]
+    public Result<int, string> ResultTryWithState() =>
+        Result.Try(
+            _addend,
+            static addend => 42 + addend,
+            static ex => ex.Message);
 }

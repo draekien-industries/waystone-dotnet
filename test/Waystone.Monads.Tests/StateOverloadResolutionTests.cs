@@ -1,9 +1,10 @@
-namespace Waystone.Monads;
+﻿namespace Waystone.Monads;
 
 using Options;
 using Results;
 using Shouldly;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 /// <remarks>
@@ -38,6 +39,13 @@ public sealed class StateOverloadResolutionTests
 
     private static readonly Func<int, int, Option<int>> SomeAdd = (x, state) =>
         Option.Some(x + state);
+
+    private static readonly Func<Exception, int> OnError = _ => -1;
+
+    private static readonly Func<Task<int>> TenAsync = () => Task.FromResult(10);
+
+    private static readonly Func<int, Task<int>> IdentityAsync = state =>
+        Task.FromResult(state);
 
     [Fact]
     public void StoredDelegatesBindToTheIntendedOptionOverload()
@@ -76,5 +84,41 @@ public sealed class StateOverloadResolutionTests
 
         ok.MapErr(Zero).ShouldBe(Result.Ok<int, int>(1));
         ok.MapErr(10, ErrorState).ShouldBe(Result.Ok<int, int>(1));
+    }
+
+    /// <remarks>
+    /// The factory pairs are the one place where arity does not separate the
+    /// overloads on its own: <c>Result.Try(factory, onError)</c> and
+    /// <c>Result.Try(state, factory)</c> both take two required arguments, and
+    /// only inference tells them apart. A stored delegate is the shape that
+    /// would collide.
+    /// </remarks>
+    [Fact]
+    public void StoredDelegatesBindToTheIntendedFactoryOverload()
+    {
+        Option.Try(Ten).ShouldBe(Option.Some(10));
+        Option.Try(10, Identity).ShouldBe(Option.Some(10));
+
+        Result.Try(Ten, OnError).ShouldBe(Result.Ok<int, int>(10));
+        Result.Try(10, Identity, OnError).ShouldBe(Result.Ok<int, int>(10));
+
+        Result.Try(Ten).IsOk.ShouldBeTrue();
+        Result.Try(10, Identity).IsOk.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task StoredDelegatesBindToTheIntendedAsyncFactoryOverload()
+    {
+        (await Option.TryAsync(TenAsync)).ShouldBe(Option.Some(10));
+        (await Option.TryAsync(10, IdentityAsync)).ShouldBe(Option.Some(10));
+
+        (await Result.TryAsync(TenAsync, OnError))
+           .ShouldBe(Result.Ok<int, int>(10));
+
+        (await Result.TryAsync(10, IdentityAsync, OnError))
+           .ShouldBe(Result.Ok<int, int>(10));
+
+        (await Result.TryAsync(TenAsync)).IsOk.ShouldBeTrue();
+        (await Result.TryAsync(10, IdentityAsync)).IsOk.ShouldBeTrue();
     }
 }

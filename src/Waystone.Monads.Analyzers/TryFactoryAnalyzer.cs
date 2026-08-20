@@ -26,13 +26,20 @@ public sealed class TryFactoryAnalyzer : MonadAnalyzer
         var method = invocation.TargetMethod;
 
         if (method.Name != "Try"
-         || method.TypeArguments.Length == 0
          || !IsFactory(method.ContainingType, symbols))
         {
             return;
         }
 
-        var valueType = method.TypeArguments[0];
+        ImmutableArray<ITypeSymbol> produced =
+            symbols.TypeArgumentsOf(invocation.Type);
+
+        if (produced.IsDefaultOrEmpty)
+        {
+            return;
+        }
+
+        var valueType = produced[0];
 
         if (!IsAwaitable(valueType, symbols))
         {

@@ -101,4 +101,30 @@ public class TryFactoryAnalyzerTests
                     Attempt.Try(() => Task.FromResult(42));
             }
             """);
+
+    /// <remarks>
+    /// The state overloads put <c>TState</c> at type argument zero, so a rule
+    /// that read the method's first type argument would test the state rather
+    /// than the value. These two pin both halves of that: a state that happens
+    /// to be a task is not the hazard, and a state factory that returns one
+    /// still is.
+    /// </remarks>
+    [Fact]
+    public Task IgnoresATaskPassedAsState() =>
+        Verify.NoDiagnosticAsync<TryFactoryAnalyzer>(
+            """
+            internal Option<int> Make(Task<int> pending) =>
+                Option.Try(pending, static task => task.Result);
+            """);
+
+    [Fact]
+    public Task FlagsAStateFactoryThatReturnsATask() =>
+        Verify.AnalyzerAsync<TryFactoryAnalyzer>(
+            """
+            internal Option<Task<int>> Make(int seed) =>
+                Option.{|#0:Try|}(seed, static value => Task.FromResult(value));
+            """,
+            Verify.Diagnostic(Rules.AsyncFactoryPassedToTry)
+               .WithLocation(0)
+               .WithArguments("Task<int>"));
 }
