@@ -8,3 +8,11 @@ docs/generated
 TestResults/
 
 out/
+
+# BenchmarkDotNet
+# Runs write to artifacts/<label>/. Keep the GitHub markdown reports so a v5
+# baseline can be diffed against a v6 run in review; drop the logs, csv and html.
+BenchmarkDotNet.Artifacts/
+artifacts/**
+!artifacts/**/
+!artifacts/**/*-report-github.md
