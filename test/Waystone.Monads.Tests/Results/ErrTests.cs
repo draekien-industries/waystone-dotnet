@@ -203,6 +203,40 @@ public class ErrTests
     }
 
     [Fact]
+    public void GivenState_WhenMap_ThenDoNothing()
+    {
+        Result<int, string> result = Result.Err<int, string>("error");
+
+        var map = Substitute.For<Func<int, int, int>>();
+
+        result.Map(10, map).ShouldBe(result);
+        map.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOr_ThenReturnOrValue()
+    {
+        Result<int, string> result = Result.Err<int, string>("error");
+
+        result.MapOr(100, 10, static (x, state) => x + state).ShouldBe(10);
+
+        result.MapOrElse(
+                  10,
+                  static (_, state) => state,
+                  static (x, state) => x + state)
+           .ShouldBe(10);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapErr_ThenReturnMappedErrValue()
+    {
+        Result<int, string> result = Result.Err<int, string>("error");
+
+        result.MapErr(1, static (x, state) => $"{x} {state}")
+           .ShouldBe(Result.Err<int, string>("error 1"));
+    }
+
+    [Fact]
     public void WhenGetOk_ThenReturnNone()
     {
         Result<int, string> result = Result.Err<int, string>("error");

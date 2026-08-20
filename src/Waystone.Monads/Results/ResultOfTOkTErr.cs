@@ -275,6 +275,25 @@ public abstract record Result<TOk, TErr>
         where TOut : notnull;
 
     /// <summary>
+    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
+    /// <c>Result&lt;TOut, TErr&gt;</c> by applying a function to a contained
+    /// <see cref="Ok{TOk,TErr}" /> value, leaving an <see cref="Err{TOk,TErr}" />
+    /// untouched.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="TOut">The output value type.</typeparam>
+    public abstract Result<TOut, TErr> Map<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> map) where TOut : notnull;
+
+    /// <summary>
     /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
     /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
     /// </summary>
@@ -284,6 +303,27 @@ public abstract record Result<TOk, TErr>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut MapOr<TOut>(TOut @default, Func<TOk, TOut> map);
+
+    /// <summary>
+    /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
+    /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="default">
+    /// The default value for an <see cref="Err{TOk,TErr}" />
+    /// </param>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
+    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    public abstract TOut MapOr<TState, TOut>(
+        TState state,
+        TOut @default,
+        Func<TOk, TState, TOut> map);
 
     /// <summary>
     /// Returns the <see langword="default" /> of <typeparamref name="TOut" /> (if
@@ -313,6 +353,30 @@ public abstract record Result<TOk, TErr>
         Func<TOk, TOut> map);
 
     /// <summary>
+    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
+    /// by applying fallback function <paramref name="createDefault" /> to a contained
+    /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
+    /// a contained <see cref="Ok{TOk,TErr}" /> value.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to both functions.</param>
+    /// <param name="createDefault">
+    /// A function to create the default value for an
+    /// <see cref="Err{TOk,TErr}" />
+    /// </param>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
+    /// <typeparam name="TState">The type of the state passed to both functions.</typeparam>
+    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    public abstract TOut MapOrElse<TState, TOut>(
+        TState state,
+        Func<TErr, TState, TOut> createDefault,
+        Func<TOk, TState, TOut> map);
+
+    /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
     /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
     /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
@@ -328,6 +392,27 @@ public abstract record Result<TOk, TErr>
     /// <typeparam name="TOut">The output error value type</typeparam>
     public abstract Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map)
         where TOut : notnull;
+
+    /// <summary>
+    /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
+    /// <c>Result&lt;TOk, TOut&gt;</c> by applying a function to a contained
+    /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
+    /// value untouched.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="map">
+    /// The map function to apply to the <see cref="Err{TOk,TErr}" />
+    /// </param>
+    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="TOut">The output error value type</typeparam>
+    public abstract Result<TOk, TOut> MapErr<TState, TOut>(
+        TState state,
+        Func<TErr, TState, TOut> map) where TOut : notnull;
 
     /// <summary>
     /// Converts from a <see cref="Result{TOk,TErr}" /> into an

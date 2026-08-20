@@ -85,8 +85,19 @@ public sealed record Some<T> : Option<T>
         map(Value);
 
     /// <inheritdoc />
+    public override Option<T2> Map<TState, T2>(
+        TState state,
+        Func<T, TState, T2> map) => map(Value, state);
+
+    /// <inheritdoc />
     public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
         map(Value);
+
+    /// <inheritdoc />
+    public override T2 MapOr<TState, T2>(
+        TState state,
+        T2 @default,
+        Func<T, TState, T2> map) => map(Value, state);
 
     /// <inheritdoc />
     public override T2 MapOrDefault<T2>(Func<T, T2> map) =>
@@ -98,6 +109,12 @@ public sealed record Some<T> : Option<T>
         Func<T, T2> map) => Match(map, createDefault);
 
     /// <inheritdoc />
+    public override T2 MapOrElse<TState, T2>(
+        TState state,
+        Func<TState, T2> createDefault,
+        Func<T, TState, T2> map) => map(Value, state);
+
+    /// <inheritdoc />
     public override Option<T> Inspect(Action<T> action)
     {
         action(Value);
@@ -107,6 +124,12 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> Filter(Func<T, bool> predicate) =>
         predicate(Value) ? this : Option.None<T>();
+
+    /// <inheritdoc />
+    public override Option<T> Filter<TState>(
+        TState state,
+        Func<T, TState, bool> predicate) =>
+        predicate(Value, state) ? this : Option.None<T>();
 
     /// <inheritdoc />
     public override Option<T> Or(Option<T> other) =>

@@ -191,6 +191,39 @@ public sealed class SomeTests
     }
 
     [Fact]
+    public void GivenState_WhenMap_ThenReturnMappedOption()
+    {
+        Option<int> some = Option.Some(1);
+
+        Option<int> result = some.Map(10, static (x, state) => x + state);
+
+        result.Unwrap().ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOr_ThenReturnMappedValue()
+    {
+        Option<int> some = Option.Some(1);
+
+        int result = some.MapOr(10, 100, static (x, state) => x + state);
+
+        result.ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOrElse_ThenReturnMappedValue()
+    {
+        Option<int> some = Option.Some(1);
+
+        int result = some.MapOrElse(
+            10,
+            static state => state * 100,
+            static (x, state) => x + state);
+
+        result.ShouldBe(11);
+    }
+
+    [Fact]
     public void WhenInspect_ThenInvokeAction()
     {
         Option<int> some = Option.Some(1);
@@ -213,6 +246,22 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         Option<int> result = some.Filter(x => x == 2);
+        result.ShouldBe(Option.None<int>());
+    }
+
+    [Fact]
+    public void GivenState_AndPredicateIsTrue_WhenFilter_ThenReturnSome()
+    {
+        Option<int> some = Option.Some(1);
+        Option<int> result = some.Filter(1, static (x, state) => x == state);
+        result.ShouldBe(some);
+    }
+
+    [Fact]
+    public void GivenState_AndPredicateIsFalse_WhenFilter_ThenReturnNone()
+    {
+        Option<int> some = Option.Some(1);
+        Option<int> result = some.Filter(2, static (x, state) => x == state);
         result.ShouldBe(Option.None<int>());
     }
 
@@ -411,6 +460,18 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
         Option<int> result = some.AndThen(x => Option.Some(x + 1));
         result.Unwrap().ShouldBe(2);
+    }
+
+    [Fact]
+    public void GivenState_WhenAndThen_ThenReturnMappedOption()
+    {
+        Option<int> some = Option.Some(1);
+
+        Option<int> result = some.AndThen(
+            10,
+            static (x, state) => Option.Some(x + state));
+
+        result.Unwrap().ShouldBe(11);
     }
 
     [Fact]

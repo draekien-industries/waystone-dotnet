@@ -82,6 +82,33 @@ public class NoneTest
     }
 
     [Fact]
+    public void GivenNone_AndState_WhenMap_ThenReturnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        var map = Substitute.For<Func<int, int, int>>();
+
+        Option<int> result = none.Map(10, map);
+
+        result.ShouldBe(none);
+        map.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenMapWithFallback_ThenReturnDefault()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.MapOr(100, 10, static (x, state) => x + state).ShouldBe(10);
+
+        none.MapOrElse(
+                10,
+                static state => state,
+                static (x, state) => x + state)
+           .ShouldBe(10);
+    }
+
+    [Fact]
     public void GivenNone_WhenInspect_ThenDoNothing()
     {
         Option<int> none = Option.None<int>();
@@ -105,6 +132,19 @@ public class NoneTest
 
         result.ShouldBe(none);
         filter.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenFilter_ThenDoNothing()
+    {
+        Option<int> none = Option.None<int>();
+
+        var filter = Substitute.For<Func<int, int, bool>>();
+
+        Option<int> result = none.Filter(10, filter);
+
+        result.ShouldBe(none);
+        filter.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
     }
 
     [Fact]
@@ -251,6 +291,18 @@ public class NoneTest
         Option<int> none = Option.None<int>();
 
         Option<int> result = none.AndThen(x => Option.Some(x + 1));
+
+        result.ShouldBe(none);
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenAndThen_ThenReturnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        Option<int> result = none.AndThen(
+            10,
+            static (x, state) => Option.Some(x + state));
 
         result.ShouldBe(none);
     }
