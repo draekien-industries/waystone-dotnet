@@ -234,12 +234,6 @@ public static class Rules
         "'{0}' returns '{1}' and the value is unused, so the call has no observable effect beyond its side effects",
         "Discarding an Option is less harmful than discarding a Result, but it is usually a sign the return value was meant to be handled.");
 
-    public static readonly DiagnosticDescriptor RenamedToAndThen = Idiom(
-        "WM2014",
-        "Prefer AndThen over the obsolete FlatMap",
-        "'{0}' is obsolete and will be removed in v6. Use '{1}'.",
-        "Rust names this operation and_then, and Result already spelled it AndThen. FlatMap remains only as a forwarding member until the next major version.");
-
     /// <remarks>
     /// Points the opposite way to WM2007 for a value type, deliberately: that
     /// rule removes a repeated type from UnwrapOr, this one asks whether the

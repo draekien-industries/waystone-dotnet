@@ -48,3 +48,11 @@ WM2015 | Usage | Info | OrDefault on a value type cannot express the absent case
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM1010 | Reliability | Warning | The default of a value type is used as an Option value
+
+## Release 6.0.0
+
+### Removed Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2014 | Usage | Info | FlatMap has been renamed to AndThen

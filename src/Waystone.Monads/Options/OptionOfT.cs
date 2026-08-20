@@ -172,28 +172,6 @@ public abstract record Option<T> where T : notnull
         Map(map).Flatten();
 
     /// <summary>
-    /// Projects the inner value of the <see cref="Option{T}" /> to another
-    /// <see cref="Option{T}" /> and flattens the result into a single
-    /// <see cref="Option{T}" />.
-    /// </summary>
-    /// <param name="map">
-    /// A transform function to apply to the inner value if the
-    /// option is a <see cref="Some{T}" />.
-    /// </param>
-    /// <typeparam name="T2">The type of the value contained in the resulting option.</typeparam>
-    /// <returns>
-    /// A flattened <see cref="Option{T2}" /> resulting from applying the
-    /// transform function and flattening the nested option.
-    /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    [Obsolete(
-        "Use AndThen instead. This method will be removed in v6 of Waystone.Monads.")]
-    public Option<T2> FlatMap<T2>(Func<T, Option<T2>> map) where T2 : notnull =>
-        AndThen(map);
-
-    /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
