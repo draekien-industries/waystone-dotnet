@@ -14,19 +14,35 @@ using Xunit;
 public sealed class SomeTests
 {
     [Fact]
-    public void GivenDefault_WhenCreatingSome_ThenThrow()
+    public void GivenNull_WhenCreatingSome_ThenThrow()
     {
-        Func<Option<int>> someDefaultNumber = () => Option.Some(0);
-
-        Func<Option<string>> someDefaultString =
+        Func<Option<string>> someNullString =
             () => Option.Some(default(string)!);
 
-        Func<Option<object>> someDefaultObject =
+        Func<Option<object>> someNullObject =
             () => Option.Some(default(object)!);
 
-        someDefaultNumber.ShouldThrow<InvalidOperationException>();
-        someDefaultString.ShouldThrow<InvalidOperationException>();
-        someDefaultObject.ShouldThrow<InvalidOperationException>();
+        someNullString.ShouldThrow<ArgumentNullException>();
+        someNullObject.ShouldThrow<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GivenTheDefaultOfAValueType_WhenCreatingSome_ThenReturnSome()
+    {
+        Option.Some(0).ShouldBe(Option.Some(0));
+        Option.Some(0).Unwrap().ShouldBe(0);
+        Option.Some(false).Unwrap().ShouldBeFalse();
+        Option.Some('\0').Unwrap().ShouldBe('\0');
+        Option.Some(default(Guid)).Unwrap().ShouldBe(Guid.Empty);
+        Option.Some(TimeSpan.Zero).Unwrap().ShouldBe(TimeSpan.Zero);
+        Option.Some(DateTime.MinValue).Unwrap().ShouldBe(DateTime.MinValue);
+    }
+
+    [Fact]
+    public void GivenTheDefaultOfAValueType_WhenCreatingSome_ThenItIsNotNone()
+    {
+        Option.Some(0).IsSome.ShouldBeTrue();
+        Option.Some(0).ShouldNotBe(Option.None<int>());
     }
 
     [Fact]

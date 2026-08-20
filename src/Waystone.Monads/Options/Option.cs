@@ -154,6 +154,10 @@ public static class Option
     /// <param name="value">The value of the <see cref="Some{T}" /></param>
     /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>An <see cref="Option{T}" />.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// The value is null. A <see cref="Some{T}" /> may hold the default of
+    /// its type, but never null.
+    /// </exception>
     public static Option<T> Some<T>(T value) where T : notnull =>
         new Some<T>(value);
 
@@ -169,14 +173,12 @@ public static class Option
     /// <see cref="Option{T}" />
     /// </param>
     /// <returns>
-    /// Returns a <see cref="Some{T}" /> if the value is not null and not
-    /// equal to the default value, otherwise it will return a <see cref="None{T}" />.
+    /// Returns a <see cref="Some{T}" /> if the value is not null, otherwise
+    /// returns a <see cref="None{T}" />.
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : struct =>
-        value.HasValue && !value.Value.Equals(default(T))
-            ? new Some<T>(value.Value)
-            : new None<T>();
+        value.HasValue ? new Some<T>(value.Value) : new None<T>();
 
     /// <summary>Creates an <see cref="Option{T}" /> from a nullable reference type.</summary>
     /// <typeparam name="T">The non-nullable value's type</typeparam>

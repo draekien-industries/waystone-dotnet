@@ -20,10 +20,11 @@ public sealed record Some<T> : Option<T>
 {
     internal Some(T value)
     {
-        if (Equals(value, default(T)))
+        if (value is null)
         {
-            throw new InvalidOperationException(
-                $"The value of a `Some` option cannot be it's default value `{default(T)}`");
+            throw new ArgumentNullException(
+                nameof(value),
+                "The value of a `Some` option cannot be null.");
         }
 
         Value = value;
