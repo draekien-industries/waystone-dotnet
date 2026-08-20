@@ -287,7 +287,8 @@ public static class Option
     /// <summary>Creates a <see cref="None{T}" /></summary>
     /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>An <see cref="Option{T}" />.</returns>
-    public static Option<T> None<T>() where T : notnull => new None<T>();
+    public static Option<T> None<T>() where T : notnull =>
+        Options.None<T>.Instance;
 
     /// <summary>Creates an <see cref="Option{T}" /> from a nullable value type.</summary>
     /// <typeparam name="T">The non-nullable value's type</typeparam>
@@ -301,7 +302,7 @@ public static class Option
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : struct =>
-        value.HasValue ? new Some<T>(value.Value) : new None<T>();
+        value.HasValue ? new Some<T>(value.Value) : None<T>();
 
     /// <summary>Creates an <see cref="Option{T}" /> from a nullable reference type.</summary>
     /// <typeparam name="T">The non-nullable value's type</typeparam>
@@ -315,5 +316,5 @@ public static class Option
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : class =>
-        value is null ? new None<T>() : new Some<T>(value);
+        value is null ? None<T>() : new Some<T>(value);
 }

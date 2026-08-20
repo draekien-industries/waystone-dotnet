@@ -53,6 +53,7 @@ the escape hatch for a throwaway run you do not want in the tree.
 | `OptionBenchmarks` | `Some`/`None` construction, the implicit conversion, `FromNullable`, `Match`, `Map`, `Filter`, `UnwrapOr`, each on both cases |
 | `ResultBenchmarks` | `Ok`/`Err` construction, `Match`, `Map`, `MapErr`, `UnwrapOr`, each on both cases |
 | `AsyncChainBenchmarks` | A single async link and a three-link chain off a synchronous receiver, on both cases |
+| `HotPathBenchmarks` | The paths that produce a `None` — the factory, a rejecting `Filter`, `Map`/`Zip` on a `None`, `Xor`, and an async short circuit |
 | `StateOverloadBenchmarks` | `Map`, `MapOr` and `Filter` on `Option`, `Map` on `Result`, and `Try` on both, each run twice — once with a capturing lambda and once with the state overload |
 
 `AsyncChainBenchmarks` is the one to watch across the v6 stack. A chain today
@@ -171,3 +172,33 @@ A `static` lambda is what makes this work. Passing a non-`static` lambda that
 happens not to capture gets the same result, but nothing stops a later edit
 from capturing again and silently putting the 88 B back — `static` makes that a
 compile error.
+
+## The None singleton
+
+`artifacts/dra-100-before/` and `artifacts/dra-100/` hold the two runs.
+`None<T>` is stateless, so `Option.None<T>()` was allocating a fresh 24 B
+record on every cold branch in the library. It now returns a
+`static readonly` instance the runtime builds once per closed generic.
+
+| Call | before | after |
+| -- | --: | --: |
+| `Option.None<int>()` | 24 B | 0 B |
+| `Filter` that rejects | 24 B | 0 B |
+| `Map` on a `None` | 24 B | 0 B |
+| `Zip` on a `None` | 24 B | 0 B |
+| `Xor` on two `Some` | 24 B | 0 B |
+| `MapAsync` short circuit | 24 B | 0 B |
+
+`Option.None<int>()` also drops from 1.65 ns to 0.18 ns, which is the
+allocation and nothing else — there was never any work to do.
+
+`Some` is untouched and still allocates its 24 B, because it holds a value.
+
+### What was measured and dropped
+
+Replacing the `IsNone`-then-`Expect` pair in the async extensions with a
+single `is not Some<T>` type test was measured on `MapAsync` over a `Some`
+before it was applied anywhere: 29.30 ns to 28.81 ns, with error bars of
+±0.44 and ±0.15, and no change in allocation. That is under two percent and
+inside the noise, against a diff touching 43 files. It was reverted rather
+than argued for.
