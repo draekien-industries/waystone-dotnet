@@ -214,6 +214,52 @@ public sealed class AwaitedReceiversGeneratorTests
     }
 
     [Fact]
+    public void LeavesAnExtensionBlockMembersOwnTypeArgumentsToInference()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : notnull
+                {
+                    /// <summary>Reshapes the value.</summary>
+                    /// <param name="shape">The shaper.</param>
+                    /// <typeparam name="TOut">The reshaped type.</typeparam>
+                    public ValueTask<TOut> ReshapeAsync<TOut>(Func<T, TOut> shape)
+                        where TOut : struct =>
+                        new(shape.Invoke(box.Get()));
+                }
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("public async global::System.Threading.Tasks.ValueTask<TOut> ReshapeAsync<TOut>(");
+        run.Source.ShouldContain("where TOut : struct");
+        run.Source.ShouldContain("return await box.ReshapeAsync(shape).ConfigureAwait(false);");
+    }
+
+    [Fact]
+    public void WritesAnInstanceMembersOwnTypeArgumentsOnTheCall()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember(nameof(Box<>.Map))]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("return box.Map<TOut>(map);");
+    }
+
+    [Fact]
     public void DoesNotWrapAnAlreadyAwaitedReceiverBlock()
     {
         GeneratorRun run = Verify.Run(

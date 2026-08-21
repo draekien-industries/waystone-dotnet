@@ -126,7 +126,7 @@ internal static class AwaitedReceiverWriter
     private static (string ReturnType, string Statement) Invocation(AwaitedMember member)
     {
         var call =
-            $"{Identifiers.Escape(member.ReceiverParameterName)}.{member.Source.Name}{TypeParameters.Render(member.MemberTypeParameters)}({RenderArguments(member.Parameters)})";
+            $"{Identifiers.Escape(member.ReceiverParameterName)}.{member.Source.Name}{CallTypeArguments(member)}({RenderArguments(member.Parameters)})";
 
         ITypeSymbol returns = member.Source.ReturnType;
 
@@ -145,6 +145,18 @@ internal static class AwaitedReceiverWriter
         return ($"{ValueTask}<{returns.ToDisplayString(Display.Format)}>",
             $"return {call};");
     }
+
+    /// <summary>
+    /// The type arguments to write on the forwarding call. A member read from an
+    /// <c>extension</c> block is seen as the compiler's compatibility static form,
+    /// whose type parameter list also carries the block's, so naming only the
+    /// member's own would be the wrong arity for the reduced call. Those are left to
+    /// inference; an instance method's are written out.
+    /// </summary>
+    private static string CallTypeArguments(AwaitedMember member) =>
+        member.Source.TypeParameters.Length == member.MemberTypeParameters.Length
+            ? TypeParameters.Render(member.MemberTypeParameters)
+            : string.Empty;
 
     private static string RenderParameters(ImmutableArray<IParameterSymbol> parameters) =>
         string.Join(", ", parameters.Select(RenderParameter));

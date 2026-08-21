@@ -219,6 +219,32 @@ dropping a family into `WSG0002`.
 for the cases where the source member's own wording does not read well after the await
 prefix.
 
+**A forwarding call must not name the type arguments of a member read from an
+`extension` block.** The generator sees that member as the compatibility static form,
+whose type parameter list is the block's followed by the member's — so
+`MapOrNull<TOut>` arrives as `MapOrNull<T, TOut>`, and writing the member's own
+`<TOut>` onto the reduced call is the wrong arity. The compiler reports that as
+`CS1061`, "no accessible extension method", which reads like a missing `using` and
+sends you looking in the wrong place. `AwaitedReceiverWriter.CallTypeArguments` leaves
+those to inference and writes them out only for a real instance method. The generator
+tests missed this until `MapOrNullExtensions` was converted, because no test double
+had a generic member inside an extension block — a member with no type parameters of
+its own renders identically either way.
+
+**The hand-written extension names drifted from the core members they forward to, and
+that is what limits how much of `Extensions` can be generated.** A generated shape
+takes its parameter and type parameter names from the core member, so a family only
+converts with an untouched baseline when the two already agree. They frequently do
+not: `Option<T>.OkOr(TErr error)` against `OkOrAsync(TErr err)`,
+`OrElse(Func<Option<T>> createElse)` against `OrElseAsync(Func<Option<T>> elseFunc)`,
+`UnwrapOrElse(Func<T> @else)` against `UnwrapOrElseAsync(Func<T> elseFunc)`,
+`ZipWith(Option<TOther> other, …)` against `ZipWithAsync(Option<TOther> otherOption, …)`,
+and `T2` on the core against `TOut` on every extension. Converging a *parameter* name
+is source-breaking through the compat-static form's named arguments and so needs a
+major; converging a *type parameter* name is not breaking but still rewrites baseline
+rows. Check both against `PublicAPI.Shipped.txt` before converting a family — the
+baseline is the instrument, and RS0016/RS0017 name the exact drift.
+
 **A C# 14 extension member's doc comment is an `<inheritdoc>` to an unspeakable type.**
 `GetDocumentationCommentXml()` on the compatibility static form returns
 ``<inheritdoc cref="M:...&lt;G&gt;$3141615614C05E25CF7F3D304921F5B1`1.Foo(...)" />`` — the
