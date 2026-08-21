@@ -174,10 +174,15 @@ merging, on the same rhythm as `AnalyzerReleases.*.md`, and let the analyzer's o
 fix write the entries rather than hand-editing the format. Only `Waystone.Monads` is
 baselined; the other packages are not.
 
-A C# 14 `extension` block produces **two** entries per member — the
-`extension<T>(Receiver).Member()` form and the compiler's compatibility
-`static Member<T>(this Receiver)` form. Both are in the baseline, so a change to an
-extension block needs both, and the count is not one line per member you wrote.
+One member in a C# 14 `extension` block produces **three** baseline entries: the
+`extension<T>(Receiver)` container, the member itself, and the compiler's
+compatibility `static Member<T>(this Receiver)` form. You author none of the extra
+ones — the compiler synthesizes them from the single declaration — so expect the
+baseline to grow by more lines than you wrote, and let the code fix add them.
+
+That makes the baseline a stricter check on an extension block than it looks: the
+compat-static entry records the receiver's nullability independently, so a block
+whose receiver is subtly wrong is caught there even when the member entry matches.
 
 **A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
 RS2008 fails the build without one, and `src/**` builds with
