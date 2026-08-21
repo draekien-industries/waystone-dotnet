@@ -1,0 +1,21 @@
+#!/bin/sh
+# Fails a commit whose staged text files contain NUL bytes. Git then treats the
+# file as binary and stops diffing it, and nothing else in the toolchain notices.
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACM -- \
+    '*.cs' '*.md' '*.csproj' '*.props' '*.targets' '*.yml' '*.json' '*.txt' '*.feature')
+
+[ -z "$staged" ] && exit 0
+
+offenders=$(printf '%s\n' "$staged" | while IFS= read -r file; do
+    git show ":$file" | perl -0777 -ne 'exit 1 if /\0/' || printf '%s\n' "$file"
+done)
+
+if [ -n "$offenders" ]; then
+    echo "pre-commit: NUL bytes in text sources, git will treat these as binary:" >&2
+    printf '%s\n' "$offenders" >&2
+    echo "Write the two-character escape rather than a raw control character." >&2
+    exit 1
+fi

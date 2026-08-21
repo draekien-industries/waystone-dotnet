@@ -18,6 +18,8 @@ on:
       - 'global.json'
       - 'GitVersion.yml'
       - '.github/workflows/pull-request.yml'
+      - '!**/*.md'
+      - 'src/**/AnalyzerReleases.*.md'
 
 jobs:
   calculate-version:
