@@ -184,6 +184,55 @@ That makes the baseline a stricter check on an extension block than it looks: th
 compat-static entry records the receiver's nullability independently, so a block
 whose receiver is subtly wrong is caught there even when the member entry matches.
 
+**The generated awaited receivers are deliberately not marked as generated code.**
+`Waystone.SourceGenerators` emits into hint names ending `.AwaitedReceivers.cs`, not
+`.g.cs`, and puts no `[GeneratedCode]` on the members. Both omissions are load-bearing:
+Roslyn suppresses analyzers on source it considers generated, and that would take
+`RS0016`/`RS0017` with it — which are the entire proof that the generated surface matches
+the hand-written one it replaced. Verified by building a marked class against the
+baseline and watching RS0016 fire on the emitted file. A side effect is that the coverage
+drop DRA-86 predicted does not happen: coverlet's default `ExcludeByAttribute` never
+matches, so the generated members stay in the denominator and the specs that cover them
+keep counting.
+
+**The generator writes only the `extension` block; the containing class must be
+`partial`.** Generated shapes land in the same static class as the hand-written ones so
+the baseline entries keep naming `MapExtensions` rather than some new class — a rename
+there would be a public API change. Two `extension<T>(Task<Option<T>> optionTask)` blocks
+in the same partial class across two files merge without complaint, so the generator can
+add to a class that already hand-writes a block of the same receiver shape. `WSG0001`
+catches a marked class that is not partial, because otherwise the failure is a CS0260
+pointing at generated source.
+
+**Which extension class a core member's async shape belongs in is not derivable.** The
+mapping is nearly `{Member}Extensions` — but `UnwrapOr` and `UnwrapOrDefault` live in
+`UnwrapExtensions`, and `Or`/`Xor` have no class at all because they have no async shape
+today. So the destination class carries `[GenerateAwaitedReceivers(typeof(Option<>))]`
+naming the receiver, then one `[GenerateAwaitedMember(nameof(Option<>.Unwrap))]` per
+member it wants, rather than the generator walking the receiver's whole surface. The
+emitted set is a written list, which is the strongest available form of "emit exactly
+today's set". Write the member as `nameof` rather than a bare string: C# 14 takes an
+unbound generic in `nameof`, so `nameof(Option<>.Unwrap)` compiles and matches the
+`typeof(Option<>)` above it, and a rename then fails the build instead of silently
+dropping a family into `WSG0002`.
+`GenerateAwaitedMember.Summary` gives a per-member override of the synthesised summary,
+for the cases where the source member's own wording does not read well after the await
+prefix.
+
+**A C# 14 extension member's doc comment is an `<inheritdoc>` to an unspeakable type.**
+`GetDocumentationCommentXml()` on the compatibility static form returns
+``<inheritdoc cref="M:...&lt;G&gt;$3141615614C05E25CF7F3D304921F5B1`1.Foo(...)" />`` — the
+hash is the compiler's synthesized extension container. Emitting that verbatim puts an
+unstable hash in generated source. `DocComments.Load` follows the cref with
+`DocumentationCommentId.GetFirstSymbolForDeclarationId` to reach the real text. The
+compat-static form is also how a Roslyn-4.8-built generator sees extension members at
+all, since `ExtensionBlockDeclarationSyntax` does not exist in its reference assembly.
+
+**`StringBuilder.AppendLine` writes CRLF on Windows, so emitted source varies by build
+platform.** `AwaitedReceiverWriter` normalises to `
+` before returning. The snapshot test
+normalises the expected literal too, since git may check the test file out either way.
+
 **A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
 RS2008 fails the build without one, and `src/**` builds with
 `TreatWarningsAsErrors`. Use severity `Disabled` in that table for a rule that
