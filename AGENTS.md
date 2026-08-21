@@ -164,6 +164,21 @@ it and a disabled rule fires in tests that do not expect it. Assert the default 
 the descriptor instead — `RulesTests` does — and keep a disabled-by-default rule in
 its own analyzer class so it does not pollute another rule's tests.
 
+**A public API change to `Waystone.Monads` needs a `PublicAPI.Unshipped.txt` entry in
+the same change.** `Microsoft.CodeAnalysis.PublicApiAnalyzers` runs on that project
+against `PublicAPI.Shipped.txt`, so an added member fails RS0016 and a removed one
+fails RS0017. `src/**` builds with `TreatWarningsAsErrors`, so both are build errors,
+not warnings — which is the point: it is what enforces **deprecate; never remove**,
+rather than review attention. Move rows from `Unshipped.md` to `Shipped.md` before
+merging, on the same rhythm as `AnalyzerReleases.*.md`, and let the analyzer's own code
+fix write the entries rather than hand-editing the format. Only `Waystone.Monads` is
+baselined; the other packages are not.
+
+A C# 14 `extension` block produces **two** entries per member — the
+`extension<T>(Receiver).Member()` form and the compiler's compatibility
+`static Member<T>(this Receiver)` form. Both are in the baseline, so a change to an
+extension block needs both, and the count is not one line per member you wrote.
+
 **A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
 RS2008 fails the build without one, and `src/**` builds with
 `TreatWarningsAsErrors`. Use severity `Disabled` in that table for a rule that

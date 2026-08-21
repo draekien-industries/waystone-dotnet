@@ -33,6 +33,15 @@
     </Target>
 
     <ItemGroup>
+        <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="PolySharp">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
