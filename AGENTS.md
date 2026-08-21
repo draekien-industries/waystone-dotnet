@@ -237,13 +237,26 @@ takes its parameter and type parameter names from the core member, so a family o
 converts with an untouched baseline when the two already agree. They frequently do
 not: `Option<T>.OkOr(TErr error)` against `OkOrAsync(TErr err)`,
 `OrElse(Func<Option<T>> createElse)` against `OrElseAsync(Func<Option<T>> elseFunc)`,
-`UnwrapOrElse(Func<T> @else)` against `UnwrapOrElseAsync(Func<T> elseFunc)`,
-`ZipWith(Option<TOther> other, …)` against `ZipWithAsync(Option<TOther> otherOption, …)`,
-and `T2` on the core against `TOut` on every extension. Converging a *parameter* name
-is source-breaking through the compat-static form's named arguments and so needs a
-major; converging a *type parameter* name is not breaking but still rewrites baseline
-rows. Check both against `PublicAPI.Shipped.txt` before converting a family — the
-baseline is the instrument, and RS0016/RS0017 name the exact drift.
+`UnwrapOrElse(Func<T> @else)` against `UnwrapOrElseAsync(Func<T> elseFunc)`, and
+`ZipWith(Option<TOther> other, …)` against `ZipWithAsync(Option<TOther> otherOption, …)`.
+Check against `PublicAPI.Shipped.txt` before converting a family — the baseline is the
+instrument, and RS0016/RS0017 name the exact drift.
+
+The two kinds of drift cost very different amounts, so do not lump them together. A
+**parameter** rename is source-breaking: named arguments work in reduced extension
+syntax, so `option.OkOrAsync(err: e)` compiles today and would stop, and a parameter
+name cannot be obsoleted, so there is no deprecate-then-remove path. Those wait for a
+major. A **type parameter** rename breaks nothing at all, because no call site can name
+one — which is why the `T2`/`TOut` drift that used to sit in this list is gone. The core
+now names the mapped output `TOut` everywhere, matching the extensions and the published
+documentation, and that landed as an ordinary non-breaking `refactor:`. What the baseline
+proves in that case is not that nothing moved but that nothing was *added or removed*:
+every RS0017 paired with an RS0016 differing only in the name.
+
+`Zip` is the exception that shows the rule is about roles, not spelling: it takes
+`TOther`, because its type parameter is the other input element rather than an output —
+the role `ZipWith` already spells that way. `Unzip<T1, T2>` keeps `T1` and `T2`, which
+are tuple positions. Do not sweep those into a `TOut` rename.
 
 **A C# 14 extension member's doc comment is an `<inheritdoc>` to an unspeakable type.**
 `GetDocumentationCommentXml()` on the compatibility static form returns

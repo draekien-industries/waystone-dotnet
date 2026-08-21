@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Options;
+namespace Waystone.Monads.Options;
 
 using System;
 using System.Collections.Generic;
@@ -71,42 +71,42 @@ public sealed record None<T> : Option<T>
         @else();
 
     /// <inheritdoc />
-    public override Option<T2> And<T2>(Option<T2> other) =>
-        Option.None<T2>();
+    public override Option<TOut> And<TOut>(Option<TOut> other) =>
+        Option.None<TOut>();
 
     /// <inheritdoc />
-    public override Option<T2> Map<T2>(Func<T, T2> map) =>
-        Option.None<T2>();
+    public override Option<TOut> Map<TOut>(Func<T, TOut> map) =>
+        Option.None<TOut>();
 
     /// <inheritdoc />
-    public override Option<T2> Map<TState, T2>(
+    public override Option<TOut> Map<TState, TOut>(
         TState state,
-        Func<T, TState, T2> map) => Option.None<T2>();
+        Func<T, TState, TOut> map) => Option.None<TOut>();
 
     /// <inheritdoc />
-    public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) =>
+    public override TOut MapOr<TOut>(TOut @default, Func<T, TOut> map) =>
         @default;
 
     /// <inheritdoc />
-    public override T2 MapOr<TState, T2>(
+    public override TOut MapOr<TState, TOut>(
         TState state,
-        T2 @default,
-        Func<T, TState, T2> map) => @default;
+        TOut @default,
+        Func<T, TState, TOut> map) => @default;
 
     /// <inheritdoc />
-    public override T2 MapOrDefault<T2>(Func<T, T2> map) =>
+    public override TOut MapOrDefault<TOut>(Func<T, TOut> map) =>
         default!;
 
     /// <inheritdoc />
-    public override T2 MapOrElse<T2>(
-        Func<T2> createDefault,
-        Func<T, T2> map) => createDefault();
+    public override TOut MapOrElse<TOut>(
+        Func<TOut> createDefault,
+        Func<T, TOut> map) => createDefault();
 
     /// <inheritdoc />
-    public override T2 MapOrElse<TState, T2>(
+    public override TOut MapOrElse<TState, TOut>(
         TState state,
-        Func<TState, T2> createDefault,
-        Func<T, TState, T2> map) => createDefault(state);
+        Func<TState, TOut> createDefault,
+        Func<T, TState, TOut> map) => createDefault(state);
 
     /// <inheritdoc />
     public override Option<T> Inspect(Action<T> action) =>
@@ -134,8 +134,8 @@ public sealed record None<T> : Option<T>
         other.IsSome ? other : this;
 
     /// <inheritdoc />
-    public override Option<(T, T2)> Zip<T2>(Option<T2> other) =>
-        Option.None<(T, T2)>();
+    public override Option<(T, TOther)> Zip<TOther>(Option<TOther> other) =>
+        Option.None<(T, TOther)>();
 
     /// <inheritdoc />
     public override Option<TOut> ZipWith<TOther, TOut>(

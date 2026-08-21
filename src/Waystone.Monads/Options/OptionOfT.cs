@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Options;
+namespace Waystone.Monads.Options;
 
 using System;
 using System.Collections.Generic;
@@ -127,16 +127,16 @@ public abstract record Option<T> where T : notnull
     public abstract T UnwrapOrElse(Func<T> @else);
 
     /// <summary>
-    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
+    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c> by
     /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
     /// <see cref="None{T}" /> (if <see cref="None{T}" />).
     /// </summary>
     /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract Option<T2> Map<T2>(Func<T, T2> map) where T2 : notnull;
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract Option<TOut> Map<TOut>(Func<T, TOut> map) where TOut : notnull;
 
     /// <summary>
-    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;T2&gt;</c> by
+    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c> by
     /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
     /// <see cref="None{T}" /> (if <see cref="None{T}" />).
     /// </summary>
@@ -148,10 +148,10 @@ public abstract record Option<T> where T : notnull
     /// <param name="state">The value passed to the map function.</param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract Option<T2> Map<TState, T2>(
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract Option<TOut> Map<TState, TOut>(
         TState state,
-        Func<T, TState, T2> map) where T2 : notnull;
+        Func<T, TState, TOut> map) where TOut : notnull;
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
@@ -159,12 +159,12 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <remarks>
     /// <paramref name="other" /> is eagerly evaluated. If you are passing the
-    /// result of a function call, prefer <see cref="AndThen{T2}" />, which is
+    /// result of a function call, prefer <see cref="AndThen{TOut}" />, which is
     /// lazily evaluated.
     /// </remarks>
     /// <param name="other">The option to return when this one is a <see cref="Some{T}" />.</param>
-    /// <typeparam name="T2">The type of the value contained in the other option.</typeparam>
-    public abstract Option<T2> And<T2>(Option<T2> other) where T2 : notnull;
+    /// <typeparam name="TOut">The type of the value contained in the other option.</typeparam>
+    public abstract Option<TOut> And<TOut>(Option<TOut> other) where TOut : notnull;
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
@@ -179,15 +179,15 @@ public abstract record Option<T> where T : notnull
     /// A transform function to apply to the inner value if the
     /// option is a <see cref="Some{T}" />.
     /// </param>
-    /// <typeparam name="T2">The type of the value contained in the resulting option.</typeparam>
+    /// <typeparam name="TOut">The type of the value contained in the resulting option.</typeparam>
     /// <returns>
-    /// A flattened <see cref="Option{T2}" /> resulting from applying the
+    /// A flattened <see cref="Option{TOut}" /> resulting from applying the
     /// transform function and flattening the nested option.
     /// </returns>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
-    public Option<T2> AndThen<T2>(Func<T, Option<T2>> map) where T2 : notnull =>
+    public Option<TOut> AndThen<TOut>(Func<T, Option<TOut>> map) where TOut : notnull =>
         Map(map).Flatten();
 
     /// <summary>
@@ -206,17 +206,17 @@ public abstract record Option<T> where T : notnull
     /// option is a <see cref="Some{T}" />.
     /// </param>
     /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
-    /// <typeparam name="T2">The type of the value contained in the resulting option.</typeparam>
+    /// <typeparam name="TOut">The type of the value contained in the resulting option.</typeparam>
     /// <returns>
-    /// A flattened <see cref="Option{T2}" /> resulting from applying the
+    /// A flattened <see cref="Option{TOut}" /> resulting from applying the
     /// transform function and flattening the nested option.
     /// </returns>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
-    public Option<T2> AndThen<TState, T2>(
+    public Option<TOut> AndThen<TState, TOut>(
         TState state,
-        Func<T, TState, Option<T2>> map) where T2 : notnull =>
+        Func<T, TState, Option<TOut>> map) where TOut : notnull =>
         Map(state, map).Flatten();
 
     /// <summary>
@@ -225,8 +225,8 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="default">The default value for a <see cref="None{T}" />.</param>
     /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract T2 MapOr<T2>(T2 @default, Func<T, T2> map);
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract TOut MapOr<TOut>(TOut @default, Func<T, TOut> map);
 
     /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
@@ -241,20 +241,20 @@ public abstract record Option<T> where T : notnull
     /// <param name="default">The default value for a <see cref="None{T}" />.</param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract T2 MapOr<TState, T2>(
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract TOut MapOr<TState, TOut>(
         TState state,
-        T2 @default,
-        Func<T, TState, T2> map);
+        TOut @default,
+        Func<T, TState, TOut> map);
 
     /// <summary>
-    /// Returns the <see langword="default" /> of <typeparamref name="T2" /> (if
+    /// Returns the <see langword="default" /> of <typeparamref name="TOut" /> (if
     /// <see cref="None{T}" />), or applies a function to the contained value (if
     /// <see cref="Some{T}" />).
     /// </summary>
     /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract T2? MapOrDefault<T2>(Func<T, T2> map) where T2 : notnull;
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract TOut? MapOrDefault<TOut>(Func<T, TOut> map) where TOut : notnull;
 
     /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
@@ -265,8 +265,8 @@ public abstract record Option<T> where T : notnull
     /// <see cref="None{T}" />.
     /// </param>
     /// <param name="map">The map function.</param>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map);
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract TOut MapOrElse<TOut>(Func<TOut> createDefault, Func<T, TOut> map);
 
     /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
@@ -284,11 +284,11 @@ public abstract record Option<T> where T : notnull
     /// </param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TState">The type of the state passed to both functions.</typeparam>
-    /// <typeparam name="T2">The return type of the map function.</typeparam>
-    public abstract T2 MapOrElse<TState, T2>(
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract TOut MapOrElse<TState, TOut>(
         TState state,
-        Func<TState, T2> createDefault,
-        Func<T, TState, T2> map);
+        Func<TState, TOut> createDefault,
+        Func<T, TState, TOut> map);
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
@@ -363,14 +363,14 @@ public abstract record Option<T> where T : notnull
     /// a tuple.
     /// </summary>
     /// <param name="other">The other option.</param>
-    /// <typeparam name="T2">The type of the value contained in the other option.</typeparam>
+    /// <typeparam name="TOther">The type of the value contained in the other option.</typeparam>
     /// <returns>
     /// If the current option is <see cref="Some{T}" /> and
     /// <paramref name="other" /> is <see cref="Some{T}" />, this method returns
-    /// <c>Some&lt;(T, T2)&gt;</c>. Otherwise, <c>None&lt;(T, T2)&gt;</c> is returned.
+    /// <c>Some&lt;(T, TOther)&gt;</c>. Otherwise, <c>None&lt;(T, TOther)&gt;</c> is returned.
     /// </returns>
-    public abstract Option<(T, T2)> Zip<T2>(Option<T2> other)
-        where T2 : notnull;
+    public abstract Option<(T, TOther)> Zip<TOther>(Option<TOther> other)
+        where TOther : notnull;
 
     /// <summary>
     /// Zips the current option with another option using the provided

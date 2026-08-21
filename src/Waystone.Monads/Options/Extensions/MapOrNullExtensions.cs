@@ -14,7 +14,7 @@ public static partial class MapOrNullExtensions
         /// <see cref="Some{T}" />, otherwise returns <see langword="null" />.
         /// </summary>
         /// <remarks>
-        /// Prefer this to <see cref="Option{T}.MapOrDefault{T2}" /> when
+        /// Prefer this to <see cref="Option{T}.MapOrDefault{TOut}" /> when
         /// <typeparamref name="TOut" /> is a value type. <c>MapOrDefault</c> returns the
         /// default of <typeparamref name="TOut" /> for a <see cref="None{T}" />, which is
         /// indistinguishable from a legitimate zero.
