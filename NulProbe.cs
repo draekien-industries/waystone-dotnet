@@ -1,1 +1,0 @@
-class A { char c = ; }
