@@ -268,7 +268,40 @@ public static class Rules
         "WM2018",
         "Do not reuse an error code across enums",
         "'{0}' and '{1}' both generate the error code '{2}', so the two errors are indistinguishable to anything reading the code",
-        "An [ErrorCodeProvider] enum generates one code per member from the enum's own name and the member's, so two enums sharing a name in different namespaces generate the same code for every member name they share. No two independent error taxonomies legitimately share a wire code, and consumers reading the code cannot tell which error occurred. Rename one of the enums or the colliding member.");
+        "An [ErrorCodeProvider] enum generates one code per member from the enum's own name and the member's, so two enums sharing a name in different namespaces generate the same code for every member name they share. No two independent error taxonomies legitimately share a wire code, and consumers reading the code cannot tell which error occurred. Rename one of the enums or the colliding member.",
+        WellKnownDiagnosticTags.CompilationEnd);
+
+    /// <remarks>
+    /// Reported on the enum member rather than on the registry, because the member is
+    /// the thing a reader can act on and the registry line does not exist yet. Reported
+    /// from a symbol action rather than from the compilation end action that WM2020
+    /// uses, even though the two read the same set: a diagnostic reported at the end of
+    /// a compilation is a non-local diagnostic, and neither Roslyn's code fix service
+    /// nor the analyzer testing library offers a fix for one. Reporting from the end
+    /// action would leave the fix unreachable.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor ErrorCodeMissingFromRegistry = Idiom(
+        "WM2019",
+        "Add a generated error code to the registry",
+        "'{0}' generates the error code '{1}', which '{2}' does not list",
+        "A project with an ErrorCodes.txt has opted into reviewing its error codes as a committed list, the way PublicAPI.Shipped.txt makes the public API reviewable. A code missing from the list is a wire contract that reached consumers without anyone reading the diff. Invoke the code fix, then read the added line before committing it.");
+
+    /// <remarks>
+    /// Reported at the registry's own line, which is an external file location rather
+    /// than a location in a syntax tree. That is what the public API analyzers do for
+    /// RS0017 and it is the only honest place to point: nothing in the source
+    /// corresponds to an entry no enum generates. Whether an entry is stale cannot be
+    /// known until every enum has been seen, so this has to come from the compilation
+    /// end action, and that makes it non-local and unfixable. The WM2019 fix rewrites
+    /// the whole file including the removals, so the two travel together in practice;
+    /// a project whose only divergence is a stale entry deletes the named line by hand.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor StaleErrorCodeRegistryEntry = Idiom(
+        "WM2020",
+        "Remove an error code the project no longer generates",
+        "'{1}' lists the error code '{0}', which no error code provider in this project generates",
+        "An entry left behind by a rename or a deletion claims a code the project no longer produces, so the list stops describing the project and the review it exists for stops being worth reading. Delete the line, or restore the member that generated it if the code was removed by mistake.",
+        WellKnownDiagnosticTags.CompilationEnd);
 
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",

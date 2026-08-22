@@ -59,11 +59,30 @@ public class RulesTests
            .Description.ToString()
            .ShouldStartWith("Disabled by default.");
 
+    /// <summary>
+    /// The two rules that report from a compilation end action, and the only two that
+    /// may carry the tag.
+    /// </summary>
+    /// <remarks>
+    /// Roslyn reads <c>CompilationEnd</c> to decide when to run an analyzer's end
+    /// action, so a rule that reports from one and does not carry it can go quiet in
+    /// the IDE. Nothing else in the build notices, which is why this is pinned.
+    /// </remarks>
+    [Fact]
+    public void OnlyTheAggregatingRulesAreTaggedCompilationEnd() =>
+        Descriptors
+           .Where(
+                rule => rule.CustomTags.Contains(
+                    WellKnownDiagnosticTags.CompilationEnd))
+           .Select(rule => rule.Id)
+           .OrderBy(id => id, StringComparer.Ordinal)
+           .ShouldBe(["WM2018", "WM2020"]);
+
     [Fact]
     public void EveryTierIsPopulated()
     {
         MisuseRules().Count.ShouldBe(7);
-        IdiomRules().Count.ShouldBe(17);
+        IdiomRules().Count.ShouldBe(19);
         MigrationRules().Count.ShouldBe(2);
     }
 

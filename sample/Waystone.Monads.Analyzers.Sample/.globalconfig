@@ -1,0 +1,9 @@
+# WM2019 and WM2020 ship as suggestions. A project that commits an ErrorCodes.txt
+# wants a divergence to be visible in CI, so raise them here.
+#
+# This has to be a global config rather than an .editorconfig section: WM2020 is
+# reported against ErrorCodes.txt, which has no syntax tree, and a path-matched
+# [*] section cannot set the severity of a diagnostic that has no tree.
+is_global = true
+dotnet_diagnostic.WM2019.severity = warning
+dotnet_diagnostic.WM2020.severity = warning

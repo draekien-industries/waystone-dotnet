@@ -53,6 +53,14 @@ actually put on a wire, and it is reached declaratively — no `ErrorCodeFactory
 subclass, and nothing to install at startup. The format is evaluated at build time, so
 `StatusCodeFor` still switches on constants.
 
+`ErrorCodes.txt` lists every code the project publishes, and the `AdditionalFiles` item
+in the csproj is what opts in. `WM2019` reports a generated code the file does not list
+and `WM2020` an entry nothing generates, so a rename cannot change a wire contract
+without showing up as a line in a diff. The `.globalconfig` raises both to warnings —
+and it has to be a global config rather than an `.editorconfig` section, because
+`WM2020` is reported against `ErrorCodes.txt`, which has no syntax tree for a
+path-matched section to apply to.
+
 Two details are pinned here on purpose, so a change to either breaks this build rather
 than only a snapshot test:
 

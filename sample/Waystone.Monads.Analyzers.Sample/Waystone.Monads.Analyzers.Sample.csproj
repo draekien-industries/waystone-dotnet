@@ -11,6 +11,10 @@
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 
+    <ItemGroup Label="Opts this project into the error code registry rules">
+        <AdditionalFiles Include="ErrorCodes.txt"/>
+    </ItemGroup>
+
     <Import Project="..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
     <Import Project="..\..\src\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
 

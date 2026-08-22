@@ -48,6 +48,70 @@ internal static class Verify
         return test.RunAsync();
     }
 
+    /// <summary>
+    /// Runs the analyzer over <paramref name="rawSource" /> with an
+    /// <c>ErrorCodes.txt</c> additional file, which is what opts a project into the
+    /// registry rules.
+    /// </summary>
+    public static Task RegistryAnalyzerAsync<TAnalyzer>(
+        string rawSource,
+        string registry,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        var test = new AnalyzerTest<TAnalyzer> { TestCode = rawSource };
+
+        test.TestState.AdditionalFiles.Add(
+            (ErrorCodeRegistry.FileName, registry));
+
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
+
+    /// <summary>
+    /// Applies the code fix and asserts on the resulting <c>ErrorCodes.txt</c> rather
+    /// than on the source, which the fix does not touch.
+    /// </summary>
+    public static Task RegistryCodeFixAsync<TAnalyzer, TCodeFix>(
+        string rawSource,
+        string registry,
+        string fixedRegistry,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+        where TCodeFix : CodeFixProvider, new()
+    {
+        var test = new CodeFixTest<TAnalyzer, TCodeFix>
+        {
+            TestCode = rawSource,
+            FixedCode = rawSource,
+        };
+
+        test.TestState.AdditionalFiles.Add(
+            (ErrorCodeRegistry.FileName, registry));
+
+        test.FixedState.AdditionalFiles.Add(
+            (ErrorCodeRegistry.FileName, fixedRegistry));
+
+        ExpectNothingAfterTheFix(test);
+
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
+
+    /// <summary>
+    /// The fixed state expects exactly the diagnostics passed to it and inherits none.
+    /// The default is to inherit every unfixable diagnostic from the test state, which
+    /// is wrong here: WM2020 has no fix of its own and the WM2019 fix removes the entry
+    /// it reports on anyway, so it does not survive into the fixed state.
+    /// </summary>
+    private static void ExpectNothingAfterTheFix<TAnalyzer, TCodeFix>(
+        CodeFixTest<TAnalyzer, TCodeFix> test)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+        where TCodeFix : CodeFixProvider, new() =>
+        test.FixedState.InheritanceMode = StateInheritanceMode.Explicit;
+
     public static Task CompilerDiagnosticsAsync(
         string rawSource,
         params DiagnosticResult[] expected)

@@ -1,0 +1,7 @@
+# Every error code this project publishes. WM2019 and WM2020 keep it honest;
+# the code fix on WM2019 rewrites it. Read the diff before committing one.
+order.address-incomplete
+order.already-shipped
+order.not-found
+order.out-of-stock
+order.payment-declined
