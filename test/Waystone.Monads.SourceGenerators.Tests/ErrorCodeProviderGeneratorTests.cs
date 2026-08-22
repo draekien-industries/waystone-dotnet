@@ -73,7 +73,7 @@ public sealed class ErrorCodeProviderGeneratorTests
 
                     /// <summary>Gets the error code string of a <c>global::Sample.OrderError</c> value.</summary>
                     /// <param name="value">The value to read the error code string of.</param>
-                    /// <returns>The error code string, or the runtime error code of a value that is not a declared member.</returns>
+                    /// <returns>The error code string. A value that is not a declared member gets the same scheme applied to its numeric value.</returns>
                     public static string ToErrorCodeString(this global::Sample.OrderError value)
                     {
                         switch (value)
@@ -83,13 +83,13 @@ public sealed class ErrorCodeProviderGeneratorTests
                             case global::Sample.OrderError.AlreadyShipped:
                                 return ErrorCodeStrings.AlreadyShipped;
                             default:
-                                return global::Waystone.Monads.Results.Errors.ErrorCode.FromEnum(value).Value;
+                                return "OrderError." + value.ToString();
                         }
                     }
 
                     /// <summary>Gets the error code of a <c>global::Sample.OrderError</c> value.</summary>
                     /// <param name="value">The value to read the error code of.</param>
-                    /// <returns>The error code, or the runtime error code of a value that is not a declared member.</returns>
+                    /// <returns>The error code. A value that is not a declared member gets the same scheme applied to its numeric value.</returns>
                     public static global::Waystone.Monads.Results.Errors.ErrorCode ToErrorCode(this global::Sample.OrderError value)
                     {
                         switch (value)
@@ -99,7 +99,7 @@ public sealed class ErrorCodeProviderGeneratorTests
                             case global::Sample.OrderError.AlreadyShipped:
                                 return ErrorCodes.AlreadyShipped;
                             default:
-                                return global::Waystone.Monads.Results.Errors.ErrorCode.FromEnum(value);
+                                return new global::Waystone.Monads.Results.Errors.ErrorCode("OrderError." + value.ToString());
                         }
                     }
 

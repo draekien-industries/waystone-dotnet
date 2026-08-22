@@ -1,6 +1,7 @@
 namespace Waystone.Monads.SourceGenerators.Fixtures;
 
 using Shouldly;
+using Waystone.Monads.Configs;
 using Waystone.Monads.Results.Errors;
 using Xunit;
 
@@ -46,15 +47,48 @@ public sealed class GeneratedErrorCodeTests
                               "already gone"));
     }
 
+    /// <summary>
+    /// The generated members never consult the configured
+    /// <see cref="Waystone.Monads.Configs.ErrorCodeFactory" />, including on the
+    /// fallback path. Under the default factory that is indistinguishable from
+    /// calling it, which is why this asserts against the literal string rather than
+    /// against <see cref="ErrorCode.FromEnum" />.
+    /// </summary>
     [Fact]
-    public void AnUndeclaredValueFallsThroughToTheRuntimeFactory()
+    public void AnUndeclaredValueGetsTheSameSchemeApplied()
     {
         var undeclared = (ShipmentError)99;
 
-        undeclared.ToErrorCode()
-                  .ShouldBe(ErrorCode.FromEnum(undeclared));
-
         undeclared.ToErrorCodeString().ShouldBe("ShipmentError.99");
+        undeclared.ToErrorCode().ShouldBe(new ErrorCode("ShipmentError.99"));
+    }
+
+    /// <summary>
+    /// Installing a custom factory changes nothing a generated member returns, on
+    /// either path. This is the test that would have caught the fallback arm
+    /// consulting the factory while the declared members did not.
+    /// </summary>
+    [Fact]
+    public void ACustomFactoryChangesNothingTheGeneratedMembersReturn()
+    {
+        using (MonadOptions.BeginScope(
+                   options => options.UseErrorCodeFactory(new PrefixingFactory())))
+        {
+            ShipmentError.NotFound.ToErrorCodeString()
+                         .ShouldBe("ShipmentError.NotFound");
+
+            ((ShipmentError)99).ToErrorCodeString()
+                               .ShouldBe("ShipmentError.99");
+
+            ErrorCode.FromEnum(ShipmentError.NotFound)
+                     .Value.ShouldBe("custom.ShipmentError.NotFound");
+        }
+    }
+
+    private sealed class PrefixingFactory : ErrorCodeFactory
+    {
+        public override ErrorCode FromEnum(System.Enum @enum) =>
+            new ErrorCode($"custom.{@enum.GetType().Name}.{@enum}");
     }
 }
 

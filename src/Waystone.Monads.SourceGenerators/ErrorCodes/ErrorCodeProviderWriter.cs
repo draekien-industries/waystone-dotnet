@@ -50,6 +50,8 @@ internal static class ErrorCodeProviderWriter
 
         writer.Line(depth, "{");
 
+        string undeclared = $"\"{enumType.Name}.\" + value.ToString()";
+
         WriteStrings(writer, depth + 1, qualified, enumType.Name, members);
         writer.Blank();
         WriteCodes(writer, depth + 1, qualified, members);
@@ -66,7 +68,7 @@ internal static class ErrorCodeProviderWriter
             "ToErrorCodeString",
             "error code string",
             member => $"{ErrorCodeStringsClass}.{member.Name}",
-            $"{ErrorCodeType}.FromEnum(value).Value");
+            undeclared);
 
         writer.Blank();
 
@@ -79,7 +81,7 @@ internal static class ErrorCodeProviderWriter
             "ToErrorCode",
             "error code",
             member => $"{ErrorCodesClass}.{member.Name}",
-            $"{ErrorCodeType}.FromEnum(value)");
+            $"new {ErrorCodeType}({undeclared})");
 
         writer.Blank();
         WriteToError(writer, depth + 1, qualified);
@@ -220,7 +222,7 @@ internal static class ErrorCodeProviderWriter
 
         writer.Line(
             depth,
-            $"/// <returns>The {noun}, or the runtime error code of a value that is not a declared member.</returns>");
+            $"/// <returns>The {noun}. A value that is not a declared member gets the same scheme applied to its numeric value.</returns>");
 
         writer.Line(
             depth,

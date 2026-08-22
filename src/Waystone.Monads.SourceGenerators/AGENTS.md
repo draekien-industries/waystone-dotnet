@@ -46,10 +46,18 @@ class and the members on the nested ones, so the two never share a container.
 like an oversight otherwise.
 
 **The three extensions must sit on the outer class**, because C# forbids extension
-methods in a nested static class. Their `default:` arm is not optional — a value cast
-from an arbitrary integer is a legal enum value, so the switch has to be exhaustive,
-and falling back to `ErrorCode.FromEnum` leaves an undeclared value behaving exactly
-as it does without the generator.
+methods in a nested static class. Their `default:` arm is not optional either — a value
+cast from an arbitrary integer is a legal enum value, so the switch has to be
+exhaustive.
+
+**No generated member ever consults the configured `ErrorCodeFactory`, including on
+that fallback path.** The arm builds the string itself rather than calling
+`ErrorCode.FromEnum`. It used to call it, which was wrong in a way no test could see:
+under the default factory the two are identical, so a declared member returning the
+baked constant while an undeclared value returned the factory's string looked correct
+until someone installed a custom factory, at which point one method disagreed with
+itself. `ACustomFactoryChangesNothingTheGeneratedMembersReturn` installs a factory that
+prefixes every code and asserts the generated members do not move.
 
 **A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
 RS2008 fails the build without one. `WMG` is its own id space with its own release
