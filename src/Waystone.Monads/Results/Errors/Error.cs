@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Results.Errors;
+namespace Waystone.Monads.Results.Errors;
 
 using System;
 using Configs;
@@ -56,7 +56,9 @@ public record Error
     /// </param>
     /// <returns>The created <see cref="Error" /></returns>
     public static Error FromEnum(Enum value, string message) => new(
+#pragma warning disable CS0618
         ErrorCode.FromEnum(value),
+#pragma warning restore CS0618
         message);
 
     /// <summary>Creates a new instance of <see cref="Error" /> from an exception.</summary>

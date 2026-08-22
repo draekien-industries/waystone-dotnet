@@ -148,8 +148,10 @@ public sealed class ErrorCodeProviderGeneratorTests
                     NotFound,
                 }
                 """)
+#pragma warning disable CS0618
               .Source.ShouldContain(
                    $"= \"{ErrorCode.FromEnum(Fixture.OrderError.NotFound).Value}\";");
+#pragma warning restore CS0618
     }
 
     [Fact]
