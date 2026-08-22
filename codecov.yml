@@ -1,0 +1,17 @@
+# patch stays strict at a zero threshold: a real test gap in the lines a PR adds
+# is worth blocking on, and it is a required check for that reason.
+#
+# project carries a small threshold because it is measured against the whole
+# repository, where rounding moves it by a hundredth of a percent on a PR that
+# adds no code at all. Without a threshold the default target of "auto" fails on
+# any decrease whatsoever, including that.
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0.5%
+    patch:
+      default:
+        target: auto
+        threshold: 0%
