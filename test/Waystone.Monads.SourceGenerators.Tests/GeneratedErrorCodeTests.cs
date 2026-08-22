@@ -12,6 +12,7 @@ using Xunit;
 /// </summary>
 public sealed class GeneratedErrorCodeTests
 {
+#pragma warning disable CS0618
     [Fact]
     public void TheConstantMatchesTheRuntimeFactory() =>
         ShipmentErrorProvider.ErrorCodeStrings.NotFound.ShouldBe(
@@ -21,6 +22,7 @@ public sealed class GeneratedErrorCodeTests
     public void TheErrorCodeMatchesTheRuntimeFactory() =>
         ShipmentErrorProvider.ErrorCodes.AlreadyShipped.ShouldBe(
             ErrorCode.FromEnum(ShipmentError.AlreadyShipped));
+#pragma warning restore CS0618
 
     [Fact]
     public void TheErrorFactoryCarriesTheCodeAndMessage()
@@ -80,14 +82,18 @@ public sealed class GeneratedErrorCodeTests
             ((ShipmentError)99).ToErrorCodeString()
                                .ShouldBe("ShipmentError.99");
 
+#pragma warning disable CS0618
             ErrorCode.FromEnum(ShipmentError.NotFound)
                      .Value.ShouldBe("custom.ShipmentError.NotFound");
+#pragma warning restore CS0618
         }
     }
 
     private sealed class PrefixingFactory : ErrorCodeFactory
     {
+#pragma warning disable CS0672
         public override ErrorCode FromEnum(System.Enum @enum) =>
+#pragma warning restore CS0672
             new ErrorCode($"custom.{@enum.GetType().Name}.{@enum}");
     }
 }

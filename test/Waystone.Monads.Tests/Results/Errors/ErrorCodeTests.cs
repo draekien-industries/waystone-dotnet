@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Results.Errors;
+namespace Waystone.Monads.Results.Errors;
 
 using System;
 using Shouldly;
@@ -39,7 +39,9 @@ public sealed class ErrorCodeTests
     [Fact]
     public void GivenEnum_WhenCreatingErrorCode_ThenReturnExpectedCode()
     {
+#pragma warning disable CS0618
         ErrorCode result = ErrorCode.FromEnum(TestErrorCodes.TestValue);
+#pragma warning restore CS0618
         result.Value.ShouldBe("TestErrorCodes.TestValue");
         result.ToString().ShouldBe("TestErrorCodes.TestValue");
     }

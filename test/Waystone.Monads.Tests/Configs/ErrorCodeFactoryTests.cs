@@ -21,7 +21,9 @@ public sealed class ErrorCodeFactoryTests
     [Fact]
     public void WhenInvokingFromEnum_ThenReturnExpectedCode()
     {
+#pragma warning disable CS0618
         var result = _sut.FromEnum(TestErrorCodes.Failure);
+#pragma warning restore CS0618
         result.Value.ShouldBe($"{nameof(TestErrorCodes)}.Failure");
     }
 

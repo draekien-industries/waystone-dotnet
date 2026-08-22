@@ -121,6 +121,7 @@ public sealed class MonadOptionsScopeTests
     }
 
     [Fact]
+#pragma warning disable CS0618
     public void GivenScope_WhenOverridingErrorCodeFactory_ThenUseScopedFactory()
     {
         string global = ErrorCode.FromEnum(TestErrorCodes.Failure).Value;
@@ -134,6 +135,7 @@ public sealed class MonadOptionsScopeTests
 
         ErrorCode.FromEnum(TestErrorCodes.Failure).Value.ShouldBe(global);
     }
+#pragma warning restore CS0618
 
     [Fact]
     public void
@@ -194,7 +196,9 @@ public sealed class MonadOptionsScopeTests
 
     private sealed class PrefixingErrorCodeFactory : ErrorCodeFactory
     {
+#pragma warning disable CS0672
         public override ErrorCode FromEnum(Enum @enum) =>
+#pragma warning restore CS0672
             new($"scoped.{@enum}");
     }
 }
