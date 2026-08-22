@@ -68,3 +68,11 @@ WM1007 | Reliability | Warning | A type derives from Option or Result
 WM1009 | Reliability | Warning | Option of bool or of an enum with a zero member
 WM1010 | Reliability | Warning | The default of a value type is used as an Option value
 WM2014 | Usage | Info | FlatMap has been renamed to AndThen
+
+## Release 6.2.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2018 | Usage | Info | An error code is reused across enums

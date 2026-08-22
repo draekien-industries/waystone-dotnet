@@ -254,6 +254,22 @@ public static class Rules
         "The delegate passed to '{0}' captures '{1}', so a closure is allocated on every call. Pass the value to the '{0}' overload that takes state instead.",
         "Map, MapErr, MapOr, MapOrElse, Filter, AndThen, Try and TryAsync each have an overload that takes a state argument and hands it to the delegate. A lambda that captures a local or a parameter allocates a display class every time the call site runs; passing the value as state lets the delegate close over nothing, so the compiler caches it. Where more than one value is captured, pass them as a tuple.");
 
+    /// <remarks>
+    /// Keyed on the generated code string rather than on the enum name, because
+    /// the name is only half of it: two enums called <c>OrderError</c> in
+    /// different namespaces collide on the members they share and on nothing
+    /// else, so reporting the type would name a pair that may generate no
+    /// overlapping code at all. Reported on the second declaration in ordinal
+    /// order rather than on both, so a concurrent compilation does not vary in
+    /// which one it blames. There is no code fix: the fix is a rename, and which
+    /// of the two enums should keep the code is not derivable from the source.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor ErrorCodeReusedAcrossEnums = Idiom(
+        "WM2018",
+        "Do not reuse an error code across enums",
+        "'{0}' and '{1}' both generate the error code '{2}', so the two errors are indistinguishable to anything reading the code",
+        "An [ErrorCodeProvider] enum generates one code per member from the enum's own name and the member's, so two enums sharing a name in different namespaces generate the same code for every member name they share. No two independent error taxonomies legitimately share a wire code, and consumers reading the code cannot tell which error occurred. Rename one of the enums or the colliding member.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",
