@@ -50,4 +50,14 @@ or a prose change under `src` would attempt a publish of a version that `docs:` 
 logic.** Stripping a nullable annotation across a dozen untested async overloads
 puts all of their untested lines in the patch, so a change that added no behaviour
 can fail it. It is a required check. Close the test gap rather than moving the
-threshold — the gap it found in 5.4.0 was real.
+threshold — the gap it found in 5.4.0 was real, and so was the one it found in the
+source generator, which sat at 91% because nothing exercised the equality the
+incremental pipeline caches through.
+
+**`codecov/project` is the one with a threshold, and only because it cannot be
+satisfied otherwise.** It measures the whole repository, so `target: auto` with
+codecov's default zero threshold fails on a decrease of a hundredth of a percent —
+including on a PR whose entire content is a `.txt` baseline and two markdown files,
+where there is no gap to close by definition. `codecov.yml` gives it 0.5% and
+leaves `patch` strict. Do not relax `patch` on the same reasoning; the two are
+measuring different things and only one of them is a required check.
