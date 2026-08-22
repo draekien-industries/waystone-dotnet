@@ -21,8 +21,8 @@ public sealed class MonadSymbols
         "Waystone.Monads.Results.Result";
     public const string ErrorMetadataName =
         "Waystone.Monads.Results.Errors.Error";
-    public const string ErrorCodeProviderAttributeMetadataName =
-        "Waystone.Monads.Results.Errors.ErrorCodeProviderAttribute";
+    public const string ErrorCodeCatalogAttributeMetadataName =
+        "Waystone.Monads.Results.Errors.ErrorCodeCatalogAttribute";
     public const string ErrorCodeFormatAttributeMetadataName =
         "Waystone.Monads.Results.Errors.ErrorCodeFormatAttribute";
 
@@ -36,7 +36,7 @@ public sealed class MonadSymbols
         INamedTypeSymbol err,
         INamedTypeSymbol resultFactory,
         INamedTypeSymbol? error,
-        INamedTypeSymbol? errorCodeProviderAttribute,
+        INamedTypeSymbol? errorCodeCatalogAttribute,
         INamedTypeSymbol? task,
         INamedTypeSymbol? valueTask)
     {
@@ -49,7 +49,7 @@ public sealed class MonadSymbols
         Err = err;
         ResultFactory = resultFactory;
         Error = error;
-        ErrorCodeProviderAttribute = errorCodeProviderAttribute;
+        ErrorCodeCatalogAttribute = errorCodeCatalogAttribute;
         Task = task;
         ValueTask = valueTask;
     }
@@ -72,7 +72,7 @@ public sealed class MonadSymbols
 
     public INamedTypeSymbol? Error { get; }
 
-    public INamedTypeSymbol? ErrorCodeProviderAttribute { get; }
+    public INamedTypeSymbol? ErrorCodeCatalogAttribute { get; }
 
     public INamedTypeSymbol? Task { get; }
 
@@ -114,7 +114,7 @@ public sealed class MonadSymbols
             resultFactory,
             compilation.GetTypeByMetadataName(ErrorMetadataName),
             compilation.GetTypeByMetadataName(
-                ErrorCodeProviderAttributeMetadataName),
+                ErrorCodeCatalogAttributeMetadataName),
             compilation.GetTypeByMetadataName(
                 "System.Threading.Tasks.Task`1"),
             compilation.GetTypeByMetadataName(

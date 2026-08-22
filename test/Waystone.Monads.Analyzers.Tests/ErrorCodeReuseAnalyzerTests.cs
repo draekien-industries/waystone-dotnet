@@ -13,7 +13,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     NotFound,
@@ -22,7 +22,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Shipping
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     {|#0:NotFound|},
@@ -44,7 +44,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     NotFound,
@@ -54,7 +54,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Shipping
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     {|#0:NotFound|},
@@ -83,7 +83,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     NotFound,
@@ -92,7 +92,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Shipping
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     AlreadyShipped,
@@ -108,7 +108,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     NotFound,
@@ -117,7 +117,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Shipping
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum ShipmentError
                 {
                     NotFound,
@@ -133,7 +133,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     NotFound,
@@ -157,7 +157,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     NotFound = 1,
@@ -179,7 +179,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider(Format = "order.{member:kebab}")]
+                [ErrorCodeCatalog(Format = "order.{member:kebab}")]
                 internal enum OrderError
                 {
                     NotFound,
@@ -188,7 +188,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Shipping
             {
-                [ErrorCodeProvider(Format = "order.{member:kebab}")]
+                [ErrorCodeCatalog(Format = "order.{member:kebab}")]
                 internal enum ShipmentError
                 {
                     {|#0:NotFound|},
@@ -214,7 +214,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider(Format = "order.{member}")]
+                [ErrorCodeCatalog(Format = "order.{member}")]
                 internal enum OrderError
                 {
                     NotFound,
@@ -223,7 +223,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Shipping
             {
-                [ErrorCodeProvider(Format = "shipping.{member}")]
+                [ErrorCodeCatalog(Format = "shipping.{member}")]
                 internal enum OrderError
                 {
                     NotFound,
@@ -241,7 +241,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Ordering
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum OrderError
                 {
                     NotFound,
@@ -250,7 +250,7 @@ public class ErrorCodeReuseAnalyzerTests
 
             namespace Shipping
             {
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 internal enum ShipmentError
                 {
                     {|#0:NotFound|},

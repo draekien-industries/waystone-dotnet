@@ -54,7 +54,7 @@ internal static class Verify
             namespace Waystone.Monads.Results.Errors
             {
                 [System.AttributeUsage(System.AttributeTargets.Enum)]
-                public sealed class ErrorCodeProviderAttribute : System.Attribute
+                public sealed class ErrorCodeCatalogAttribute : System.Attribute
                 {
                 }
             }
@@ -116,7 +116,7 @@ internal static class Verify
     }
 
     private static GeneratorDriver Driver() =>
-        CSharpGeneratorDriver.Create(new ErrorCodeProviderGenerator())
+        CSharpGeneratorDriver.Create(new ErrorCodeCatalogGenerator())
                              .WithUpdatedParseOptions(ParseOptions);
 
     private static CSharpParseOptions ParseOptions =>

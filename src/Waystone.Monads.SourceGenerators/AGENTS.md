@@ -1,7 +1,7 @@
 # Waystone.Monads.SourceGenerators
 
 Emits the error code members of an enum a consumer marked with
-`[ErrorCodeProvider]` — the code strings, the `ErrorCode` fields, the `Error`
+`[ErrorCodeCatalog]` — the code strings, the `ErrorCode` fields, the `Error`
 factories and the three extensions that map a value to each.
 
 ## Why this is not Waystone.SourceGenerators
@@ -20,7 +20,7 @@ every consumer gets it on upgrade with no opt-out beyond not applying the attrib
 ## The generator contract
 
 **The attribute is hand-written public API in `Waystone.Monads`, not emitted.**
-`ErrorCodeProviderAttribute` lives next to `ErrorCode` so it is discoverable in
+`ErrorCodeCatalogAttribute` lives next to `ErrorCode` so it is discoverable in
 IntelliSense and in the published API reference without knowing a generator exists.
 That puts it under deprecate-never-remove, and it needs a `PublicAPI` entry like any
 other public type. The generator still must not reference `Waystone.Monads`: it
@@ -54,7 +54,7 @@ literal**, so the `default:` arm is a concatenation of constants around one
 call: an undeclared value renders as digits, and all four casings are the identity on
 digits. `EveryCasingIsTheIdentityOnDigits` is what makes that safe to rely on.
 
-**The nesting is what makes member names safe.** `ErrorCodeStrings`, `ErrorCodes`
+**The nesting is what makes member names safe.** `Names`, `Codes`
 and `Errors` each hold one member per enum member, named verbatim, so an enum member
 called `NotFoundCode` cannot collide with the generated name for `NotFound`. The
 price is `WMG0003`, and only that: a member named after one of the three *nested
@@ -105,12 +105,14 @@ cref is CS1574, which is an error in any consumer with
 CS1591 is on by default in a consumer with a documentation file, and the generated
 surface is public.
 
-**Two enums can generate one class name.** `OrderError` and `OrderErrorCode` both
-dedupe to `OrderErrorProvider`. The hint name is keyed on the *enum* name, not the
-provider name, so the driver does not throw a duplicate-hint-name exception and the
-consumer sees a plain CS0101 naming both generated files.
+**The catalog name is the enum's name plus `Catalog`, and nothing is trimmed off
+it.** An earlier version deduplicated a trailing `Error` or `ErrorCode`, which gave
+`OrderError` and `OrderErrorCode` one class name and a CS0101 the generator never
+reported. Do not reintroduce trimming: the hint name is keyed on the *enum* name, so a
+collision here does not throw a duplicate-hint-name exception and surfaces only as a
+confusing error in the consumer.
 
-**`StringBuilder.AppendLine` writes CRLF on Windows.** `ErrorCodeProviderWriter`
+**`StringBuilder.AppendLine` writes CRLF on Windows.** `ErrorCodeCatalogWriter`
 appends `'\n'` directly and never calls `AppendLine`, so the emitted source does not
 vary by build platform. The snapshot test normalises its expected literal too, since
 git may check the test file out either way.
@@ -121,6 +123,6 @@ git may check the test file out either way.
 `Verify.Run` drives it over a synthetic compilation and asserts the emitted text and
 the diagnostics. `GeneratedErrorCodeTests` is the stronger one: the test project
 imports `Waystone.Monads.SourceGenerators.props`, so it declares a real
-`[ErrorCodeProvider]` enum and calls the generated members, which proves the emitted
+`[ErrorCodeCatalog]` enum and calls the generated members, which proves the emitted
 source compiles and agrees with `ErrorCode.FromEnum` at runtime rather than by
 inspection.

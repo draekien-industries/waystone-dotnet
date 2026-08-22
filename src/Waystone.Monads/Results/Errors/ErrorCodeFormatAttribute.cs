@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Sets the scheme every generated error code in this project follows, for each
 /// enum that does not set its own through
-/// <see cref="ErrorCodeProviderAttribute.Format" />.
+/// <see cref="ErrorCodeCatalogAttribute.Format" />.
 /// </summary>
 /// <remarks>
 /// <para>

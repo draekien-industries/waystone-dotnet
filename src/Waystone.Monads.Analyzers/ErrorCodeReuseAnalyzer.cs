@@ -18,47 +18,47 @@ public sealed class ErrorCodeReuseAnalyzer : MonadAnalyzer
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {
-        if (symbols.ErrorCodeProviderAttribute is null) return;
+        if (symbols.ErrorCodeCatalogAttribute is null) return;
 
-        var providers = new ConcurrentBag<ErrorCodeProviders.Provided>();
+        var declarations = new ConcurrentBag<ErrorCodeCatalogs.Declared>();
 
         string? assemblyFormat =
-            ErrorCodeProviders.AssemblyFormat(context.Compilation);
+            ErrorCodeCatalogs.AssemblyFormat(context.Compilation);
 
         context.RegisterSymbolAction(
             symbol =>
             {
-                foreach (ErrorCodeProviders.Provided provided in
-                         ErrorCodeProviders.Collect(
+                foreach (ErrorCodeCatalogs.Declared declared in
+                         ErrorCodeCatalogs.Collect(
                              (INamedTypeSymbol)symbol.Symbol,
                              symbols,
                              assemblyFormat))
                 {
-                    providers.Add(provided);
+                    declarations.Add(declared);
                 }
             },
             SymbolKind.NamedType);
 
-        context.RegisterCompilationEndAction(end => Report(end, providers));
+        context.RegisterCompilationEndAction(end => Report(end, declarations));
     }
 
     private static void Report(
         CompilationAnalysisContext context,
-        ConcurrentBag<ErrorCodeProviders.Provided> providers)
+        ConcurrentBag<ErrorCodeCatalogs.Declared> declarations)
     {
-        foreach (IGrouping<string, ErrorCodeProviders.Provided> collision in providers
-                    .GroupBy(provided => provided.Code, StringComparer.Ordinal)
+        foreach (IGrouping<string, ErrorCodeCatalogs.Declared> collision in declarations
+                    .GroupBy(declared => declared.Code, StringComparer.Ordinal)
                     .Where(group => group.Count() > 1))
         {
-            List<ErrorCodeProviders.Provided> ordered = collision
+            List<ErrorCodeCatalogs.Declared> ordered = collision
                .OrderBy(
-                    provided => provided.Member.ToDisplayString(),
+                    declared => declared.Member.ToDisplayString(),
                     StringComparer.Ordinal)
                .ToList();
 
-            ErrorCodeProviders.Provided first = ordered[0];
+            ErrorCodeCatalogs.Declared first = ordered[0];
 
-            foreach (ErrorCodeProviders.Provided later in ordered.Skip(1))
+            foreach (ErrorCodeCatalogs.Declared later in ordered.Skip(1))
             {
                 if (SymbolEqualityComparer.Default.Equals(
                         first.Member.ContainingType,

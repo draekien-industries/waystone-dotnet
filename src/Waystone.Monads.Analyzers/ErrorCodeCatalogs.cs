@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis;
 using Waystone.Monads.SourceGenerators.ErrorCodes;
 
 /// <summary>
-/// The error codes an <c>[ErrorCodeProvider]</c> enum generates, resolved the way the
+/// The error codes an <c>[ErrorCodeCatalog]</c> enum generates, resolved the way the
 /// generator resolves them.
 /// </summary>
 /// <remarks>
@@ -17,46 +17,46 @@ using Waystone.Monads.SourceGenerators.ErrorCodes;
 /// assembly as a linked source file, so the three cannot disagree about what an enum
 /// produces.
 /// </remarks>
-public static class ErrorCodeProviders
+public static class ErrorCodeCatalogs
 {
     /// <summary>
     /// One entry per member of <paramref name="type" /> when it is an attributed enum,
     /// and nothing at all when it is not.
     /// </summary>
-    public static ImmutableArray<Provided> Collect(
+    public static ImmutableArray<Declared> Collect(
         INamedTypeSymbol type,
         MonadSymbols symbols,
         string? assemblyFormat)
     {
-        if (type.TypeKind != TypeKind.Enum) return ImmutableArray<Provided>.Empty;
+        if (type.TypeKind != TypeKind.Enum) return ImmutableArray<Declared>.Empty;
 
-        AttributeData? provider = type.GetAttributes()
+        AttributeData? catalog = type.GetAttributes()
            .FirstOrDefault(
                 attribute => SymbolEqualityComparer.Default.Equals(
                     attribute.AttributeClass,
-                    symbols.ErrorCodeProviderAttribute));
+                    symbols.ErrorCodeCatalogAttribute));
 
-        if (provider is null) return ImmutableArray<Provided>.Empty;
+        if (catalog is null) return ImmutableArray<Declared>.Empty;
 
         if (!ErrorCodeFormat.TryParse(
-                DeclaredFormat(provider) ?? assemblyFormat ?? ErrorCodeFormat.Default,
+                DeclaredFormat(catalog) ?? assemblyFormat ?? ErrorCodeFormat.Default,
                 out ErrorCodeFormat? format,
                 out _))
         {
-            return ImmutableArray<Provided>.Empty;
+            return ImmutableArray<Declared>.Empty;
         }
 
-        ImmutableArray<Provided>.Builder provided =
-            ImmutableArray.CreateBuilder<Provided>();
+        ImmutableArray<Declared>.Builder declared =
+            ImmutableArray.CreateBuilder<Declared>();
 
         foreach (IFieldSymbol member in type.GetMembers().OfType<IFieldSymbol>())
         {
             if (!member.IsConst) continue;
 
-            provided.Add(new Provided(member, format!.Apply(type.Name, member.Name)));
+            declared.Add(new Declared(member, format!.Apply(type.Name, member.Name)));
         }
 
-        return provided.ToImmutable();
+        return declared.ToImmutable();
     }
 
     /// <summary>
@@ -78,9 +78,9 @@ public static class ErrorCodeProviders
 
         foreach (INamedTypeSymbol type in Types(compilation.GlobalNamespace))
         {
-            foreach (Provided provided in Collect(type, symbols, assemblyFormat))
+            foreach (Declared declared in Collect(type, symbols, assemblyFormat))
             {
-                codes.Add(provided.Code);
+                codes.Add(declared.Code);
             }
         }
 
@@ -138,10 +138,10 @@ public static class ErrorCodeProviders
         }
     }
 
-    private static string? DeclaredFormat(AttributeData provider)
+    private static string? DeclaredFormat(AttributeData catalog)
     {
         foreach (KeyValuePair<string, TypedConstant> argument in
-                 provider.NamedArguments)
+                 catalog.NamedArguments)
         {
             if (argument.Key == "Format" && argument.Value.Value is string declared)
             {
@@ -153,9 +153,9 @@ public static class ErrorCodeProviders
     }
 
     /// <summary>One enum member and the code it generates.</summary>
-    public readonly struct Provided
+    public readonly struct Declared
     {
-        public Provided(IFieldSymbol member, string code)
+        public Declared(IFieldSymbol member, string code)
         {
             Member = member;
             Code = code;

@@ -6,7 +6,7 @@ using Xunit;
 public sealed class ErrorCodeFormatGenerationTests
 {
     private const string Enum = """
-        [ErrorCodeProvider]
+        [ErrorCodeCatalog]
         public enum OrderError
         {
             NotFound,
@@ -28,7 +28,7 @@ public sealed class ErrorCodeFormatGenerationTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider(Format = "order.{member:kebab}")]
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
             public enum OrderError
             {
                 NotFound,
@@ -58,7 +58,7 @@ public sealed class ErrorCodeFormatGenerationTests
         GeneratorRun run = Verify.RunWithAssemblyAttributes(
             """[assembly: ErrorCodeFormat("{enum:kebab}/{member:snake}")]""",
             """
-            [ErrorCodeProvider(Format = "{member:upper}")]
+            [ErrorCodeCatalog(Format = "{member:upper}")]
             public enum OrderError
             {
                 NotFound,
@@ -74,7 +74,7 @@ public sealed class ErrorCodeFormatGenerationTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider(Format = "order.{member:kebab}")]
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
             public enum OrderError
             {
                 NotFound,
@@ -93,7 +93,7 @@ public sealed class ErrorCodeFormatGenerationTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider(Format = "{member:pascal}")]
+            [ErrorCodeCatalog(Format = "{member:pascal}")]
             public enum OrderError
             {
                 NotFound,
@@ -113,7 +113,7 @@ public sealed class ErrorCodeFormatGenerationTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider(Format = "{enum:kebab}")]
+            [ErrorCodeCatalog(Format = "{enum:kebab}")]
             public enum OrderError
             {
                 NotFound,
@@ -135,7 +135,7 @@ public sealed class ErrorCodeFormatGenerationTests
     {
         GeneratorRun first = Verify.Run(
             """
-            [ErrorCodeProvider(Format = "order.{member:kebab}")]
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
             public enum OrderError
             {
                 NotFound,
@@ -144,7 +144,7 @@ public sealed class ErrorCodeFormatGenerationTests
 
         GeneratorRun second = Verify.Run(
             """
-            [ErrorCodeProvider(Format = "order.{member:kebab}")]
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
             public enum ShipmentError
             {
                 NotFound,

@@ -32,7 +32,7 @@ public record ErrorCode
     /// <para>
     /// This works the code out by reflection at run time, so it cannot apply the
     /// format declared on the enum and nothing tells you when a rename changes the
-    /// code. Mark the enum with <c>[ErrorCodeProvider]</c> and use the generated
+    /// code. Mark the enum with <c>[ErrorCodeCatalog]</c> and use the generated
     /// <c>ToErrorCode()</c> extension, or the generated <c>ErrorCodes</c> constant
     /// where the member is known at the call site.
     /// </para>
@@ -40,7 +40,7 @@ public record ErrorCode
     /// <param name="value">The enum value to create the error code from.</param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
     [Obsolete(
-        "Mark the enum with [ErrorCodeProvider] and use the generated ToErrorCode() extension, or the generated ErrorCodes constants, instead of working the code out at run time. This member will be removed in 7.0.0.")]
+        "Mark the enum with [ErrorCodeCatalog] and use the generated ToErrorCode() extension, or the generated ErrorCodes constants, instead of working the code out at run time. This member will be removed in 7.0.0.")]
     public static ErrorCode FromEnum(Enum value) =>
 #pragma warning disable CS0618
         MonadOptions.Current.ErrorCodeFactory.FromEnum(value);

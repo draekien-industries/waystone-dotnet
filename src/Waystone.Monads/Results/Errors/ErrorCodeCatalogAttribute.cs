@@ -8,10 +8,11 @@ using System;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The generated class is named after the enum with a trailing <c>Error</c> or
-/// <c>ErrorCode</c> deduplicated — <c>OrderError</c> produces
-/// <c>OrderErrorProvider</c> — and is emitted in the enum's namespace at the
-/// enum's declared accessibility.
+/// The generated class is the enum's own name with <c>Catalog</c> appended —
+/// <c>OrderFailure</c> produces <c>OrderFailureCatalog</c> — and is emitted in the
+/// enum's namespace at the enum's declared accessibility. Nothing is trimmed off
+/// the name, so two enums whose names differ generate two classes whose names
+/// differ.
 /// </para>
 /// <para>
 /// The generated codes follow the same <c>{EnumTypeName}.{MemberName}</c>
@@ -28,7 +29,7 @@ using System;
 /// </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Enum)]
-public sealed class ErrorCodeProviderAttribute : Attribute
+public sealed class ErrorCodeCatalogAttribute : Attribute
 {
     /// <summary>
     /// The scheme the generated codes of this enum follow, overriding any
