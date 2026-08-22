@@ -28,12 +28,31 @@ resolves the attribute by metadata name through `ForAttributeWithMetadataName`, 
 `ErrorCode` and `Error` through `compilation.GetTypeByMetadataName`, reporting
 `WMG0004` rather than emitting source that cannot compile.
 
-**The generated codes are the default `ErrorCodeFactory` scheme, baked in.**
-`{EnumTypeName}.{MemberName}`, matching `ErrorCodeFactory.FromEnum`. A consumer who
+**The scheme is declarative and evaluated at compile time.** `ErrorCodeFormat` parses
+`{enum}` and `{member}` with an optional `kebab`, `snake`, `lower` or `upper` casing,
+and the default is `{enum}.{member}` so an enum that sets nothing gets exactly what
+`ErrorCodeFactory.FromEnum` produces. Precedence is the enum's `Format`, then the
+assembly's `[ErrorCodeFormat]`, then that default.
+
+This exists because the alternative does not work: a generator cannot execute a
+factory. `ErrorCodeFactory.FromEnum` is arbitrary C# that runs later, and the compiler
+has no facility to invoke user code and read the result back. So a consumer who
 installs a custom factory through `MonadOptions.UseErrorCodeFactory` changes the
-runtime string and not the generated one; that divergence is documented on the
-GitBook page rather than detected, because the factory is a runtime value the
-generator cannot see.
+runtime string and not the generated one, which is why the factory is being obsoleted
+in favour of the format — see DRA-112.
+
+**`ErrorCodeFormat.cs` is compiled into `Waystone.Monads.Analyzers` as well**, as a
+linked `Compile` item rather than a project reference, because `WM2018` keys on the
+generated code and has to resolve the format identically. Two copies of the parser
+would let the rule and the generator disagree about what code an enum produces, which
+is exactly the bug the rule exists to catch. The two assemblies cannot reference each
+other, so shared source is the only mechanism.
+
+**`ApplyToUndeclared` folds everything that does not depend on the member into a
+literal**, so the `default:` arm is a concatenation of constants around one
+`ToString()`. The member's own casing is dropped there rather than emitted as a runtime
+call: an undeclared value renders as digits, and all four casings are the identity on
+digits. `EveryCasingIsTheIdentityOnDigits` is what makes that safe to rely on.
 
 **The nesting is what makes member names safe.** `ErrorCodeStrings`, `ErrorCodes`
 and `Errors` each hold one member per enum member, named verbatim, so an enum member

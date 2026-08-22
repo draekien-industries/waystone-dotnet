@@ -25,7 +25,23 @@ internal static class Verify
     /// generated along with every diagnostic the run produced.
     /// </summary>
     public static GeneratorRun Run(string source) =>
-        Run(source, withMonadsReference: true);
+        Run(Preamble + source, withMonadsReference: true);
+
+    /// <summary>
+    /// Runs the generator with assembly-level attributes, which have to precede the
+    /// file-scoped namespace and so cannot be appended to the preamble.
+    /// </summary>
+    public static GeneratorRun RunWithAssemblyAttributes(
+        string attributes,
+        string source) =>
+        Run(
+            "using Waystone.Monads.Results.Errors;"
+          + Environment.NewLine
+          + attributes
+          + Environment.NewLine
+          + Preamble
+          + source,
+            withMonadsReference: true);
 
     /// <summary>
     /// Runs the generator over a compilation that does not reference
@@ -76,9 +92,7 @@ internal static class Verify
 
     private static GeneratorRun Run(string source, bool withMonadsReference)
     {
-        CSharpCompilation compilation = Compile(
-            withMonadsReference ? Preamble + source : source,
-            withMonadsReference);
+        CSharpCompilation compilation = Compile(source, withMonadsReference);
 
         GeneratorDriver driver = Driver()
            .RunGeneratorsAndUpdateCompilation(

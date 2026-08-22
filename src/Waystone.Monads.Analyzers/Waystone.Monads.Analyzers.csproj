@@ -21,6 +21,11 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup Label="Shared with the generator, which owns the format language">
+        <Compile Include="..\Waystone.Monads.SourceGenerators\ErrorCodes\ErrorCodeFormat.cs"
+                 Link="Shared\ErrorCodeFormat.cs"/>
+    </ItemGroup>
+
     <ItemGroup>
         <None Include="AnalyzerReleases.Shipped.md"/>
         <None Include="AnalyzerReleases.Unshipped.md"/>

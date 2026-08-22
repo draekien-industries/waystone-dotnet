@@ -28,6 +28,17 @@ rule. A *disabled* rule at warning severity fires nothing and so builds clean;
 
 ## Gotchas
 
+**`WM2018` shares source with the generator.** `ErrorCodeFormat.cs` is a linked
+`Compile` item from `Waystone.Monads.SourceGenerators`, not a project reference — the
+two analyzer assemblies cannot reference each other, and the rule keys on the
+*generated* code, so it has to resolve `[ErrorCodeProvider(Format = ...)]` and
+`[assembly: ErrorCodeFormat]` exactly as the generator does. A second copy of the
+parser would let the rule and the generator disagree about what code an enum produces,
+which is the one thing this rule cannot afford to be wrong about. Deriving the code
+from the enum name instead is wrong in both directions once anyone sets a format:
+`FlagsACollisionCausedByASharedFormat` and `IgnoresASharedNameWhenTheFormatsDiffer`
+pin both.
+
 **`WM2018` is the only rule that aggregates across declarations.** Every other
 analyzer decides from one node or one symbol; `ErrorCodeReuseAnalyzer` has to see two
 enums at once, so it collects into a `ConcurrentBag` under `RegisterSymbolAction` and

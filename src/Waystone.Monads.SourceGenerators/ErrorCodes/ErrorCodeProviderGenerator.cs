@@ -24,6 +24,9 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
     internal const string ErrorMetadataName =
         "Waystone.Monads.Results.Errors.Error";
 
+    internal const string FormatAttributeMetadataName =
+        "Waystone.Monads.Results.Errors.ErrorCodeFormatAttribute";
+
     private const string FlagsMetadataName = "System.FlagsAttribute";
 
     private static readonly string[] ReservedMemberNames =
@@ -101,6 +104,30 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
                 enumType.Name);
         }
 
+        string? requested = RequestedFormat(context.Attributes[0], compilation);
+
+        if (!ErrorCodeFormat.TryParse(
+                requested ?? ErrorCodeFormat.Default,
+                out ErrorCodeFormat? format,
+                out string? formatError))
+        {
+            return Failure(
+                hintName,
+                Rules.UnusableFormat,
+                location,
+                enumType.Name,
+                formatError!);
+        }
+
+        if (!format!.UsesMember)
+        {
+            return Failure(
+                hintName,
+                Rules.FormatOmitsMember,
+                location,
+                enumType.Name);
+        }
+
         List<IFieldSymbol> members = enumType.GetMembers()
                                              .OfType<IFieldSymbol>()
                                              .Where(
@@ -150,8 +177,47 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
             hintName,
             diagnostics.Count > 0
                 ? null
-                : ErrorCodeProviderWriter.Emit(enumType, providerName, members),
+                : ErrorCodeProviderWriter.Emit(
+                    enumType,
+                    providerName,
+                    members,
+                    format),
             new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
+    }
+
+    /// <summary>
+    /// The format the enum asks for, then the one the assembly asks for, then null
+    /// for the built-in default.
+    /// </summary>
+    private static string? RequestedFormat(
+        AttributeData provider,
+        Compilation compilation)
+    {
+        foreach (KeyValuePair<string, TypedConstant> argument in
+                 provider.NamedArguments)
+        {
+            if (argument.Key == "Format" && argument.Value.Value is string declared)
+            {
+                return declared;
+            }
+        }
+
+        foreach (AttributeData attribute in compilation.Assembly.GetAttributes())
+        {
+            if (attribute.AttributeClass?.ToDisplayString()
+             != FormatAttributeMetadataName)
+            {
+                continue;
+            }
+
+            if (attribute.ConstructorArguments.Length == 1
+             && attribute.ConstructorArguments[0].Value is string assemblyWide)
+            {
+                return assemblyWide;
+            }
+        }
+
+        return null;
     }
 
     private static string? MissingErrorType(Compilation compilation)
