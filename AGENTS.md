@@ -219,6 +219,17 @@ dropping a family into `WSG0002`.
 for the cases where the source member's own wording does not read well after the await
 prefix.
 
+**Merging the per-family extension classes into one cannot be staged, so it is a major or
+nothing.** Collapsing `UnwrapExtensions`, `MapExtensions` and the rest into a single
+partial static class would dissolve the "which class does this member's async shape belong
+in" problem above, but the obvious deprecation route does not exist: two static classes
+that each declare the same extension member for the same receiver make every reduced call
+site `CS0121` ambiguous, and `[Obsolete]` does not remove a member from overload
+resolution. Verified with two classes declaring `extension(Box box) { int Doubled(); }`
+and one `box.Doubled()` call site. So the old classes cannot sit obsoleted beside the new
+one during a transition — the move has to be atomic, and deleting a public class is
+exactly what **deprecate; never remove** forbids outside a major.
+
 **A forwarding call must not name the type arguments of a member read from an
 `extension` block.** The generator sees that member as the compatibility static form,
 whose type parameter list is the block's followed by the member's — so
@@ -241,6 +252,23 @@ not: `Option<T>.OkOr(TErr error)` against `OkOrAsync(TErr err)`,
 `ZipWith(Option<TOther> other, …)` against `ZipWithAsync(Option<TOther> otherOption, …)`.
 Check against `PublicAPI.Shipped.txt` before converting a family — the baseline is the
 instrument, and RS0016/RS0017 name the exact drift.
+
+The Results folder drifted the same way but in one word: five families spell the core's
+delegate parameter `factory` — `UnwrapOrElse(Func<TErr, TOk> onErr)` against
+`UnwrapOrElseAsync(Func<TErr, TOk> factory)`, and the same substitution on `OrElse` and
+`AndThen` (both `createOther`) and `MapOrElse` (`createDefault`), plus
+`MapOr(TOk @default)` against `MapOrAsync(TOut defaultValue)`. Results has *no* receiver
+drift, though — every family already names it `resultTask`, which is what the generator
+emits, so nothing there repeats the `IsSomeAnd` problem.
+
+**The baseline does not record generic constraints, so a `where` clause can change under
+it silently.** `MapOrExtensions` hand-writes `where TOut : notnull` on an awaited member
+whose core `MapOr<TOut>` has no such constraint; generating it would quietly relax the
+constraint with RS0016/RS0017 staying silent, because `PublicAPI.Shipped.txt` records
+names, types and nullability but not constraints. A relaxation is source-compatible, so
+this is not a break — but it is a hole in the instrument, and the instrument is the whole
+argument that a conversion changed nothing. Diff the `where` clauses by eye when a
+converted family had any.
 
 The two kinds of drift cost very different amounts, so do not lump them together. A
 **parameter** rename is source-breaking: named arguments work in reduced extension
