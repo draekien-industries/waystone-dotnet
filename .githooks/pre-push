@@ -1,0 +1,43 @@
+#!/bin/sh
+# Runs before a push, which is what opens or updates a PR. Two checks CI cannot
+# make: the release-tracking rows have to move to Shipped before the merge that
+# publishes them, and the framework matrix is five frameworks wide while CI tests
+# one.
+
+set -e
+
+deletions_only=1
+while read -r _local_ref local_sha _remote_ref _remote_sha; do
+    case "$local_sha" in
+        0000000000000000000000000000000000000000) ;;
+        *) deletions_only=0 ;;
+    esac
+done
+[ "$deletions_only" = 1 ] && exit 0
+
+status=0
+
+for file in $(git ls-files -- '*/PublicAPI.Unshipped.txt'); do
+    if grep -qvE '^(#|[[:space:]]*$)' "$file"; then
+        echo "pre-push: entries left in $file" >&2
+        echo "  Move them to PublicAPI.Shipped.txt under the version this PR title will compute." >&2
+        status=1
+    fi
+done
+
+for file in $(git ls-files -- '*/AnalyzerReleases.Unshipped.md'); do
+    if grep -qvE '^(;|[[:space:]]*$)' "$file"; then
+        echo "pre-push: entries left in $file" >&2
+        echo "  Move them to AnalyzerReleases.Shipped.md under the version this PR title will compute." >&2
+        status=1
+    fi
+done
+
+[ "$status" = 0 ] || exit 1
+
+echo "pre-push: testing every target framework..."
+
+if ! dotnet test --configuration Release --nologo; then
+    echo "pre-push: a target framework failed. CI only tests net8.0 and will not catch it." >&2
+    exit 1
+fi

@@ -11,6 +11,8 @@ on:
       - main
     paths:
       - 'src/**'
+      - '!**/*.md'
+      - 'src/**/AnalyzerReleases.*.md'
 
 jobs:
   calculate-version:
