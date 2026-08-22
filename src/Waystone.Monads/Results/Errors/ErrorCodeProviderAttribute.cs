@@ -30,4 +30,22 @@ using System;
 [AttributeUsage(AttributeTargets.Enum)]
 public sealed class ErrorCodeProviderAttribute : Attribute
 {
+    /// <summary>
+    /// The scheme the generated codes of this enum follow, overriding any
+    /// <see cref="ErrorCodeFormatAttribute" /> on the assembly.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Takes the placeholders <c>{enum}</c> and <c>{member}</c>, each optionally
+    /// followed by a casing: <c>kebab</c>, <c>snake</c>, <c>lower</c> or
+    /// <c>upper</c>. Write a literal brace as <c>{{</c> or <c>}}</c>. Defaults to
+    /// <c>"{enum}.{member}"</c>, which is the scheme the default
+    /// <see cref="Configs.ErrorCodeFactory" /> produces.
+    /// </para>
+    /// <para>
+    /// For example <c>"order.{member:kebab}"</c> gives the member
+    /// <c>NotFound</c> the code <c>order.not-found</c>.
+    /// </para>
+    /// </remarks>
+    public string? Format { get; set; }
 }

@@ -47,6 +47,12 @@ The point is where those errors come from. `OrderErrorCode` is marked
   written against `OrderErrorProvider.ErrorCodeStrings` and cannot be written against
   `ErrorCode.FromEnum` at all — that call works its string out at run time.
 
+The enum also declares a format, `order.{member:kebab}`, so the codes are
+`order.not-found` rather than `OrderErrorCode.NotFound`. That is the shape you would
+actually put on a wire, and it is reached declaratively — no `ErrorCodeFactory`
+subclass, and nothing to install at startup. The format is evaluated at build time, so
+`StatusCodeFor` still switches on constants.
+
 Two details are pinned here on purpose, so a change to either breaks this build rather
 than only a snapshot test:
 
@@ -54,7 +60,8 @@ than only a snapshot test:
   `OrderErrorCodeProvider`. The generator takes a trailing `Error` or `ErrorCode` off
   the enum's name before adding its own suffix.
 - The `case` labels are the generated constants, so a change to the code scheme stops
-  this file compiling.
+  this file compiling, and a change to the casing rules changes what they compare
+  against.
 
 This project imports `Waystone.Monads.SourceGenerators.props` to load the generator,
 the same way it imports the analyzer props. A consumer installing the NuGet package

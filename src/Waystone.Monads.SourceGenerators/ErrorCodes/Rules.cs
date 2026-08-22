@@ -35,4 +35,20 @@ internal static class Rules
         "Usage",
         DiagnosticSeverity.Error,
         true);
+
+    public static readonly DiagnosticDescriptor UnusableFormat = new(
+        "WMG0005",
+        "The error code format cannot be used",
+        "The error code format for '{0}' cannot be used: {1}",
+        "Usage",
+        DiagnosticSeverity.Error,
+        true);
+
+    public static readonly DiagnosticDescriptor FormatOmitsMember = new(
+        "WMG0006",
+        "The error code format does not distinguish members",
+        "The error code format for '{0}' has no '{{member}}' placeholder, so every member would get the same code",
+        "Usage",
+        DiagnosticSeverity.Error,
+        true);
 }

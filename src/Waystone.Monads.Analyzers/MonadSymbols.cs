@@ -23,6 +23,8 @@ public sealed class MonadSymbols
         "Waystone.Monads.Results.Errors.Error";
     public const string ErrorCodeProviderAttributeMetadataName =
         "Waystone.Monads.Results.Errors.ErrorCodeProviderAttribute";
+    public const string ErrorCodeFormatAttributeMetadataName =
+        "Waystone.Monads.Results.Errors.ErrorCodeFormatAttribute";
 
     private MonadSymbols(
         INamedTypeSymbol option,

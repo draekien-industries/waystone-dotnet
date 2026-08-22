@@ -165,4 +165,102 @@ public class ErrorCodeReuseAnalyzerTests
                 }
             }
             """);
+
+    /// <summary>
+    /// The rule keys on the generated code, not the enum name, so a shared format
+    /// makes differently named enums collide. This is the false negative the rule
+    /// would have had if it kept deriving the code from the enum name.
+    /// </summary>
+    [Fact]
+    public Task FlagsACollisionCausedByASharedFormat() =>
+        Verify.RawAnalyzerAsync<ErrorCodeReuseAnalyzer>(
+            """
+            using Waystone.Monads.Results.Errors;
+
+            namespace Ordering
+            {
+                [ErrorCodeProvider(Format = "order.{member:kebab}")]
+                internal enum OrderError
+                {
+                    NotFound,
+                }
+            }
+
+            namespace Shipping
+            {
+                [ErrorCodeProvider(Format = "order.{member:kebab}")]
+                internal enum ShipmentError
+                {
+                    {|#0:NotFound|},
+                }
+            }
+            """,
+            Verify.Diagnostic(Rules.ErrorCodeReusedAcrossEnums)
+                  .WithLocation(0)
+                  .WithArguments(
+                       "Ordering.OrderError.NotFound",
+                       "Shipping.ShipmentError.NotFound",
+                       "order.not-found"));
+
+    /// <summary>
+    /// And the false positive: two enums sharing a name no longer collide once their
+    /// formats differ.
+    /// </summary>
+    [Fact]
+    public Task IgnoresASharedNameWhenTheFormatsDiffer() =>
+        Verify.RawAnalyzerAsync<ErrorCodeReuseAnalyzer>(
+            """
+            using Waystone.Monads.Results.Errors;
+
+            namespace Ordering
+            {
+                [ErrorCodeProvider(Format = "order.{member}")]
+                internal enum OrderError
+                {
+                    NotFound,
+                }
+            }
+
+            namespace Shipping
+            {
+                [ErrorCodeProvider(Format = "shipping.{member}")]
+                internal enum OrderError
+                {
+                    NotFound,
+                }
+            }
+            """);
+
+    [Fact]
+    public Task AppliesTheAssemblyWideFormat() =>
+        Verify.RawAnalyzerAsync<ErrorCodeReuseAnalyzer>(
+            """
+            using Waystone.Monads.Results.Errors;
+
+            [assembly: ErrorCodeFormat("{member:kebab}")]
+
+            namespace Ordering
+            {
+                [ErrorCodeProvider]
+                internal enum OrderError
+                {
+                    NotFound,
+                }
+            }
+
+            namespace Shipping
+            {
+                [ErrorCodeProvider]
+                internal enum ShipmentError
+                {
+                    {|#0:NotFound|},
+                }
+            }
+            """,
+            Verify.Diagnostic(Rules.ErrorCodeReusedAcrossEnums)
+                  .WithLocation(0)
+                  .WithArguments(
+                       "Ordering.OrderError.NotFound",
+                       "Shipping.ShipmentError.NotFound",
+                       "not-found"));
 }

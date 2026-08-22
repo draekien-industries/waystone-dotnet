@@ -20,7 +20,8 @@ internal static class ErrorCodeProviderWriter
     public static string Emit(
         INamedTypeSymbol enumType,
         string providerName,
-        IReadOnlyList<IFieldSymbol> members)
+        IReadOnlyList<IFieldSymbol> members,
+        ErrorCodeFormat format)
     {
         string qualified =
             enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -50,9 +51,10 @@ internal static class ErrorCodeProviderWriter
 
         writer.Line(depth, "{");
 
-        string undeclared = $"\"{enumType.Name}.\" + value.ToString()";
+        string undeclared =
+            format.ApplyToUndeclared(enumType.Name, "value.ToString()");
 
-        WriteStrings(writer, depth + 1, qualified, enumType.Name, members);
+        WriteStrings(writer, depth + 1, qualified, enumType, members, format);
         writer.Blank();
         WriteCodes(writer, depth + 1, qualified, members);
         writer.Blank();
@@ -97,8 +99,9 @@ internal static class ErrorCodeProviderWriter
         Writer writer,
         int depth,
         string qualified,
-        string enumName,
-        IReadOnlyList<IFieldSymbol> members)
+        INamedTypeSymbol enumType,
+        IReadOnlyList<IFieldSymbol> members,
+        ErrorCodeFormat format)
     {
         writer.Line(
             depth,
@@ -119,7 +122,7 @@ internal static class ErrorCodeProviderWriter
 
             writer.Line(
                 depth + 1,
-                $"public const string {name} = \"{enumName}.{name}\";");
+                $"public const string {name} = {Quote(format.Apply(enumType.Name, name))};");
         }
 
         writer.Line(depth, "}");
@@ -272,6 +275,9 @@ internal static class ErrorCodeProviderWriter
 
         writer.Line(depth, "}");
     }
+
+    private static string Quote(string text) =>
+        "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
     private static string AccessibilityOf(INamedTypeSymbol enumType) =>
         enumType.DeclaredAccessibility == Accessibility.Public

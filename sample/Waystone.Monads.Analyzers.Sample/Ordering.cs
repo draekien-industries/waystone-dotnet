@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
 
-[ErrorCodeProvider]
+[ErrorCodeProvider(Format = "order.{member:kebab}")]
 internal enum OrderErrorCode
 {
     NotFound,
@@ -25,6 +25,10 @@ internal record Shipment(int OrderId, string TrackingNumber);
 /// <c>Result&lt;T, Error&gt;</c> and every failure carries a code the generator
 /// produced from <see cref="OrderErrorCode" />, so the codes the API returns are
 /// the same strings this file names.
+///
+/// The enum declares a format, so the codes are <c>order.not-found</c> rather than
+/// <c>OrderErrorCode.NotFound</c> — the shape you would want on a wire, without a
+/// runtime factory.
 /// </summary>
 internal class Ordering
 {
