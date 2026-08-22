@@ -21,7 +21,7 @@ public sealed class ErrorCodeRegistryAnalyzer : MonadAnalyzer
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {
-        if (symbols.ErrorCodeProviderAttribute is null) return;
+        if (symbols.ErrorCodeCatalogAttribute is null) return;
 
         AdditionalText? registry =
             ErrorCodeRegistry.Find(context.Options.AdditionalFiles);
@@ -42,7 +42,7 @@ public sealed class ErrorCodeRegistryAnalyzer : MonadAnalyzer
         var generated = new ConcurrentBag<string>();
 
         string? assemblyFormat =
-            ErrorCodeProviders.AssemblyFormat(context.Compilation);
+            ErrorCodeCatalogs.AssemblyFormat(context.Compilation);
 
         context.RegisterSymbolAction(
             symbol => Inspect(symbol, symbols, assemblyFormat, registered, generated),
@@ -71,22 +71,22 @@ public sealed class ErrorCodeRegistryAnalyzer : MonadAnalyzer
         HashSet<string> registered,
         ConcurrentBag<string> generated)
     {
-        foreach (ErrorCodeProviders.Provided provided in ErrorCodeProviders.Collect(
+        foreach (ErrorCodeCatalogs.Declared declared in ErrorCodeCatalogs.Collect(
                      (INamedTypeSymbol)context.Symbol,
                      symbols,
                      assemblyFormat))
         {
-            generated.Add(provided.Code);
+            generated.Add(declared.Code);
 
-            if (registered.Contains(provided.Code)) continue;
+            if (registered.Contains(declared.Code)) continue;
 
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     Rules.ErrorCodeMissingFromRegistry,
-                    provided.Member.Locations.FirstOrDefault(
+                    declared.Member.Locations.FirstOrDefault(
                         location => location.IsInSource),
-                    provided.Member.ToDisplayString(),
-                    provided.Code,
+                    declared.Member.ToDisplayString(),
+                    declared.Code,
                     ErrorCodeRegistry.FileName));
         }
     }

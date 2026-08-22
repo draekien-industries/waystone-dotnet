@@ -10,13 +10,13 @@ using Microsoft.CodeAnalysis.Text;
 
 /// <summary>
 /// Generates the error code constants, error codes and error factories of an enum
-/// marked with <c>[ErrorCodeProvider]</c>.
+/// marked with <c>[ErrorCodeCatalog]</c>.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
-public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
+public sealed class ErrorCodeCatalogGenerator : IIncrementalGenerator
 {
     internal const string AttributeMetadataName =
-        "Waystone.Monads.Results.Errors.ErrorCodeProviderAttribute";
+        "Waystone.Monads.Results.Errors.ErrorCodeCatalogAttribute";
 
     internal const string ErrorCodeMetadataName =
         "Waystone.Monads.Results.Errors.ErrorCode";
@@ -31,9 +31,9 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
 
     private static readonly string[] ReservedMemberNames =
     [
-        ErrorCodeProviderWriter.ErrorCodeStringsClass,
-        ErrorCodeProviderWriter.ErrorCodesClass,
-        ErrorCodeProviderWriter.ErrorsClass,
+        ErrorCodeCatalogWriter.NamesClass,
+        ErrorCodeCatalogWriter.CodesClass,
+        ErrorCodeCatalogWriter.ErrorsClass,
     ];
 
     /// <inheritdoc />
@@ -77,7 +77,7 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
             ((EnumDeclarationSyntax)context.TargetNode).Identifier.GetLocation();
 
         string hintName = HintNameFor(enumType);
-        string providerName = ProviderNameFor(enumType.Name);
+        string catalogName = CatalogNameFor(enumType.Name);
         Compilation compilation = context.SemanticModel.Compilation;
 
         string? missing = MissingErrorType(compilation);
@@ -148,7 +148,7 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
                     LocationOf(member, location),
                     enumType.Name,
                     member.Name,
-                    providerName));
+                    catalogName));
         }
 
         var seen = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
@@ -177,9 +177,9 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
             hintName,
             diagnostics.Count > 0
                 ? null
-                : ErrorCodeProviderWriter.Emit(
+                : ErrorCodeCatalogWriter.Emit(
                     enumType,
-                    providerName,
+                    catalogName,
                     members,
                     format),
             new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
@@ -190,11 +190,11 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
     /// for the built-in default.
     /// </summary>
     private static string? RequestedFormat(
-        AttributeData provider,
+        AttributeData catalog,
         Compilation compilation)
     {
         foreach (KeyValuePair<string, TypedConstant> argument in
-                 provider.NamedArguments)
+                 catalog.NamedArguments)
         {
             if (argument.Key == "Format" && argument.Value.Value is string declared)
             {
@@ -248,24 +248,17 @@ public sealed class ErrorCodeProviderGenerator : IIncrementalGenerator
      ?? fallback;
 
     /// <summary>
-    /// The generated class is named after the enum with a trailing <c>Error</c> or
-    /// <c>ErrorCode</c> deduplicated, so <c>OrderError</c> and <c>OrderErrorCode</c>
-    /// both produce <c>OrderErrorProvider</c>.
+    /// The generated class is the enum's own name with <c>Catalog</c> appended, so
+    /// <c>OrderFailure</c> produces <c>OrderFailureCatalog</c> and
+    /// <c>OrderError</c> produces <c>OrderErrorCatalog</c>.
     /// </summary>
-    internal static string ProviderNameFor(string enumName)
-    {
-        foreach (string suffix in new[] { "ErrorCode", "Error" })
-        {
-            if (enumName.Length > suffix.Length
-             && enumName.EndsWith(suffix, StringComparison.Ordinal))
-            {
-                return enumName.Substring(0, enumName.Length - suffix.Length)
-                     + "ErrorProvider";
-            }
-        }
-
-        return enumName + "ErrorProvider";
-    }
+    /// <remarks>
+    /// Nothing is trimmed off the enum's name. An earlier version deduplicated a
+    /// trailing <c>Error</c> or <c>ErrorCode</c>, which gave two different enums in
+    /// one namespace — <c>OrderError</c> and <c>OrderErrorCode</c> — the same
+    /// generated name and a collision the generator did not report.
+    /// </remarks>
+    internal static string CatalogNameFor(string enumName) => enumName + "Catalog";
 
     private static string HintNameFor(INamedTypeSymbol enumType) =>
         enumType.ContainingNamespace.IsGlobalNamespace

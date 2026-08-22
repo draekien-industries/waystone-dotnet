@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
 
-[ErrorCodeProvider(Format = "order.{member:kebab}")]
+[ErrorCodeCatalog(Format = "order.{member:kebab}")]
 internal enum OrderErrorCode
 {
     NotFound,
@@ -55,21 +55,21 @@ internal class Ordering
     /// what to do with a code rather than with an exception type. The
     /// <c>case</c> labels are what make this method possible at all — a label
     /// needs a compile-time constant, which is what
-    /// <c>ErrorCodeStrings</c> gives you and <c>ErrorCode.FromEnum</c> cannot.
+    /// <c>Names</c> gives you and <c>ErrorCode.FromEnum</c> cannot.
     /// </summary>
     internal int StatusCodeFor(Error error)
     {
         switch (error.Code.Value)
         {
-            case OrderErrorProvider.ErrorCodeStrings.NotFound:
+            case OrderErrorCodeCatalog.Names.NotFound:
                 return 404;
-            case OrderErrorProvider.ErrorCodeStrings.AlreadyShipped:
+            case OrderErrorCodeCatalog.Names.AlreadyShipped:
                 return 409;
-            case OrderErrorProvider.ErrorCodeStrings.AddressIncomplete:
+            case OrderErrorCodeCatalog.Names.AddressIncomplete:
                 return 422;
-            case OrderErrorProvider.ErrorCodeStrings.OutOfStock:
+            case OrderErrorCodeCatalog.Names.OutOfStock:
                 return 409;
-            case OrderErrorProvider.ErrorCodeStrings.PaymentDeclined:
+            case OrderErrorCodeCatalog.Names.PaymentDeclined:
                 return 402;
             default:
                 return 500;
@@ -80,20 +80,20 @@ internal class Ordering
         _orders.TryGetValue(orderId, out Order order)
             ? Result.Ok<Order>(order)
             : Result.Err<Order>(
-                OrderErrorProvider.Errors.NotFound(
+                OrderErrorCodeCatalog.Errors.NotFound(
                     $"no order with id {orderId}"));
 
     private Result<Order, Error> NotYetShipped(Order order) =>
         _shipped.Contains(order.Id)
             ? Result.Err<Order>(
-                OrderErrorProvider.Errors.AlreadyShipped(
+                OrderErrorCodeCatalog.Errors.AlreadyShipped(
                     $"order {order.Id} shipped already and cannot be placed again"))
             : Result.Ok<Order>(order);
 
     private Result<Order, Error> Deliverable(Order order) =>
         string.IsNullOrWhiteSpace(order.Postcode)
             ? Result.Err<Order>(
-                OrderErrorProvider.Errors.AddressIncomplete(
+                OrderErrorCodeCatalog.Errors.AddressIncomplete(
                     $"order {order.Id} has no postcode"))
             : Result.Ok<Order>(order);
 
@@ -122,7 +122,7 @@ internal class Ordering
     private Result<Reservation, Error> Charge(Reservation reservation) =>
         reservation.Order.Quantity > 3
             ? Result.Err<Reservation>(
-                OrderErrorProvider.Errors.PaymentDeclined(
+                OrderErrorCodeCatalog.Errors.PaymentDeclined(
                     $"the issuer declined the charge for order {reservation.Order.Id}"))
             : Result.Ok<Reservation>(reservation);
 

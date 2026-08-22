@@ -10,7 +10,7 @@ public sealed class ErrorCodeRegistryAnalyzerTests
 
         namespace Ordering;
 
-        [ErrorCodeProvider]
+        [ErrorCodeCatalog]
         public enum OrderErrorCode
         {
             NotFound,
@@ -96,7 +96,7 @@ public sealed class ErrorCodeRegistryAnalyzerTests
 
             namespace Ordering;
 
-            [ErrorCodeProvider(Format = "order.{member:kebab}")]
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
             public enum OrderErrorCode
             {
                 NotFound,
@@ -156,13 +156,13 @@ public sealed class ErrorCodeRegistryAnalyzerTests
 
             namespace Ordering;
 
-            [ErrorCodeProvider(Format = "order.{member:kebab}")]
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
             public enum OrderErrorCode
             {
                 NotFound,
             }
 
-            [ErrorCodeProvider(Format = "order.{member:kebab}")]
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
             public enum ShipmentErrorCode
             {
                 NotFound,

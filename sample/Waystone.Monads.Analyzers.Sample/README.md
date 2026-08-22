@@ -35,16 +35,16 @@ Every step returns a `Result<T, Error>` and they compose with `AndThen`, so the 
 failure short-circuits the rest and the caller gets one `Error`.
 
 The point is where those errors come from. `OrderErrorCode` is marked
-`[ErrorCodeProvider]`, and the generator turns it into everything the pipeline needs:
+`[ErrorCodeCatalog]`, and the generator turns it into everything the pipeline needs:
 
-- `OrderErrorProvider.Errors.NotFound(message)` builds the failed step's `Error` with
+- `OrderErrorCodeCatalog.Errors.NotFound(message)` builds the failed step's `Error` with
   the right code already attached, so no step has to name a code as a string.
 - `refusal.Value.ToError(message)` in `Reserve` handles the other direction. The
   warehouse hands back a bare `OrderErrorCode`, and the extension attaches a message
   at the boundary where one is worth writing.
 - `StatusCodeFor` switches on the code to pick an HTTP status. **This is the method
   the feature exists for.** A `case` label needs a compile-time constant, so it can be
-  written against `OrderErrorProvider.ErrorCodeStrings` and cannot be written against
+  written against `OrderErrorCodeCatalog.Names` and cannot be written against
   `ErrorCode.FromEnum` at all — that call works its string out at run time.
 
 The enum also declares a format, `order.{member:kebab}`, so the codes are
@@ -64,9 +64,9 @@ path-matched section to apply to.
 Two details are pinned here on purpose, so a change to either breaks this build rather
 than only a snapshot test:
 
-- The enum is `OrderErrorCode` and the generated class is `OrderErrorProvider`, not
-  `OrderErrorCodeProvider`. The generator takes a trailing `Error` or `ErrorCode` off
-  the enum's name before adding its own suffix.
+- The enum is `OrderErrorCode` and the generated class is `OrderErrorCodeCatalog`.
+  The generator appends `Catalog` to the enum's name and trims nothing off it, so the
+  repetition in the name here is the enum's to fix, not the generator's to hide.
 - The `case` labels are the generated constants, so a change to the code scheme stops
   this file compiling, and a change to the casing rules changes what they compare
   against.

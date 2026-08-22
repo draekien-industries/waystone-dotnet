@@ -7,7 +7,7 @@ using Xunit;
 
 /// <summary>
 /// Exercises the generated members as the consumer sees them: this project loads
-/// the generator as an analyzer, so <see cref="ShipmentErrorProvider" /> below is
+/// the generator as an analyzer, so <see cref="ShipmentErrorCatalog" /> below is
 /// emitted rather than written.
 /// </summary>
 public sealed class GeneratedErrorCodeTests
@@ -15,21 +15,21 @@ public sealed class GeneratedErrorCodeTests
 #pragma warning disable CS0618
     [Fact]
     public void TheConstantMatchesTheRuntimeFactory() =>
-        ShipmentErrorProvider.ErrorCodeStrings.NotFound.ShouldBe(
+        ShipmentErrorCatalog.Names.NotFound.ShouldBe(
             ErrorCode.FromEnum(ShipmentError.NotFound).Value);
 
     [Fact]
     public void TheErrorCodeMatchesTheRuntimeFactory() =>
-        ShipmentErrorProvider.ErrorCodes.AlreadyShipped.ShouldBe(
+        ShipmentErrorCatalog.Codes.AlreadyShipped.ShouldBe(
             ErrorCode.FromEnum(ShipmentError.AlreadyShipped));
 #pragma warning restore CS0618
 
     [Fact]
     public void TheErrorFactoryCarriesTheCodeAndMessage()
     {
-        Error error = ShipmentErrorProvider.Errors.NotFound("no such shipment");
+        Error error = ShipmentErrorCatalog.Errors.NotFound("no such shipment");
 
-        error.Code.ShouldBe(ShipmentErrorProvider.ErrorCodes.NotFound);
+        error.Code.ShouldBe(ShipmentErrorCatalog.Codes.NotFound);
         error.Message.ShouldBe("no such shipment");
     }
 
@@ -38,14 +38,14 @@ public sealed class GeneratedErrorCodeTests
     {
         ShipmentError.AlreadyShipped.ToErrorCodeString()
                      .ShouldBe(
-                          ShipmentErrorProvider.ErrorCodeStrings.AlreadyShipped);
+                          ShipmentErrorCatalog.Names.AlreadyShipped);
 
         ShipmentError.AlreadyShipped.ToErrorCode()
-                     .ShouldBe(ShipmentErrorProvider.ErrorCodes.AlreadyShipped);
+                     .ShouldBe(ShipmentErrorCatalog.Codes.AlreadyShipped);
 
         ShipmentError.AlreadyShipped.ToError("already gone")
                      .ShouldBe(
-                          ShipmentErrorProvider.Errors.AlreadyShipped(
+                          ShipmentErrorCatalog.Errors.AlreadyShipped(
                               "already gone"));
     }
 
@@ -98,7 +98,7 @@ public sealed class GeneratedErrorCodeTests
     }
 }
 
-[ErrorCodeProvider]
+[ErrorCodeCatalog]
 public enum ShipmentError
 {
     NotFound,

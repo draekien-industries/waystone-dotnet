@@ -10,7 +10,7 @@ public sealed class UpdateErrorCodeRegistryCodeFixTests
 
         namespace Ordering;
 
-        [ErrorCodeProvider]
+        [ErrorCodeCatalog]
         public enum OrderErrorCode
         {
             NotFound,

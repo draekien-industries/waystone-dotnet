@@ -65,7 +65,7 @@ public sealed class UpdateErrorCodeRegistryCodeFix : CodeFixProvider
 
         var symbols = MonadSymbols.TryCreate(compilation);
 
-        if (symbols?.ErrorCodeProviderAttribute is null) return project.Solution;
+        if (symbols?.ErrorCodeCatalogAttribute is null) return project.Solution;
 
         SourceText existing = await registry.GetTextAsync(cancellationToken)
                                             .ConfigureAwait(false);
@@ -75,6 +75,6 @@ public sealed class UpdateErrorCodeRegistryCodeFix : CodeFixProvider
             SourceText.From(
                 ErrorCodeRegistry.Render(
                     existing,
-                    ErrorCodeProviders.CodesIn(compilation, symbols))));
+                    ErrorCodeCatalogs.CodesIn(compilation, symbols))));
     }
 }

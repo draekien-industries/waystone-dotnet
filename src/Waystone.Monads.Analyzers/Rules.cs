@@ -268,7 +268,7 @@ public static class Rules
         "WM2018",
         "Do not reuse an error code across enums",
         "'{0}' and '{1}' both generate the error code '{2}', so the two errors are indistinguishable to anything reading the code",
-        "An [ErrorCodeProvider] enum generates one code per member from the enum's own name and the member's, so two enums sharing a name in different namespaces generate the same code for every member name they share. No two independent error taxonomies legitimately share a wire code, and consumers reading the code cannot tell which error occurred. Rename one of the enums or the colliding member.",
+        "An [ErrorCodeCatalog] enum generates one code per member from the enum's own name and the member's, so two enums sharing a name in different namespaces generate the same code for every member name they share. No two independent error taxonomies legitimately share a wire code, and consumers reading the code cannot tell which error occurred. Rename one of the enums or the colliding member.",
         WellKnownDiagnosticTags.CompilationEnd);
 
     /// <remarks>
@@ -299,7 +299,7 @@ public static class Rules
     public static readonly DiagnosticDescriptor StaleErrorCodeRegistryEntry = Idiom(
         "WM2020",
         "Remove an error code the project no longer generates",
-        "'{1}' lists the error code '{0}', which no error code provider in this project generates",
+        "'{1}' lists the error code '{0}', which no error code catalog in this project generates",
         "An entry left behind by a rename or a deletion claims a code the project no longer produces, so the list stops describing the project and the review it exists for stops being worth reading. Delete the line, or restore the member that generated it if the code was removed by mistake.",
         WellKnownDiagnosticTags.CompilationEnd);
 

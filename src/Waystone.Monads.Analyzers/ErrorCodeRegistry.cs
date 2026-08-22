@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 /// <summary>
-/// The committed list of every error code an <c>[ErrorCodeProvider]</c> enum in the
+/// The committed list of every error code an <c>[ErrorCodeCatalog]</c> enum in the
 /// project generates.
 /// </summary>
 /// <remarks>

@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
-internal static class ErrorCodeProviderWriter
+internal static class ErrorCodeCatalogWriter
 {
-    public const string ErrorCodeStringsClass = "ErrorCodeStrings";
-    public const string ErrorCodesClass = "ErrorCodes";
+    public const string NamesClass = "Names";
+    public const string CodesClass = "Codes";
     public const string ErrorsClass = "Errors";
 
     private const string ErrorCodeType =
@@ -19,7 +19,7 @@ internal static class ErrorCodeProviderWriter
 
     public static string Emit(
         INamedTypeSymbol enumType,
-        string providerName,
+        string catalogName,
         IReadOnlyList<IFieldSymbol> members,
         ErrorCodeFormat format)
     {
@@ -47,7 +47,7 @@ internal static class ErrorCodeProviderWriter
 
         writer.Line(
             depth,
-            $"{AccessibilityOf(enumType)} static partial class {providerName}");
+            $"{AccessibilityOf(enumType)} static partial class {catalogName}");
 
         writer.Line(depth, "{");
 
@@ -69,7 +69,7 @@ internal static class ErrorCodeProviderWriter
             "string",
             "ToErrorCodeString",
             "error code string",
-            member => $"{ErrorCodeStringsClass}.{member.Name}",
+            member => $"{NamesClass}.{member.Name}",
             undeclared);
 
         writer.Blank();
@@ -82,7 +82,7 @@ internal static class ErrorCodeProviderWriter
             ErrorCodeType,
             "ToErrorCode",
             "error code",
-            member => $"{ErrorCodesClass}.{member.Name}",
+            member => $"{CodesClass}.{member.Name}",
             $"new {ErrorCodeType}({undeclared})");
 
         writer.Blank();
@@ -107,7 +107,7 @@ internal static class ErrorCodeProviderWriter
             depth,
             $"/// <summary>The error code string of every <c>{qualified}</c> member.</summary>");
 
-        writer.Line(depth, $"public static class {ErrorCodeStringsClass}");
+        writer.Line(depth, $"public static class {NamesClass}");
         writer.Line(depth, "{");
 
         for (var i = 0; i < members.Count; i++)
@@ -138,7 +138,7 @@ internal static class ErrorCodeProviderWriter
             depth,
             $"/// <summary>The error code of every <c>{qualified}</c> member.</summary>");
 
-        writer.Line(depth, $"public static class {ErrorCodesClass}");
+        writer.Line(depth, $"public static class {CodesClass}");
         writer.Line(depth, "{");
 
         for (var i = 0; i < members.Count; i++)
@@ -153,7 +153,7 @@ internal static class ErrorCodeProviderWriter
 
             writer.Line(
                 depth + 1,
-                $"public static readonly {ErrorCodeType} {name} = new {ErrorCodeType}({ErrorCodeStringsClass}.{name});");
+                $"public static readonly {ErrorCodeType} {name} = new {ErrorCodeType}({NamesClass}.{name});");
         }
 
         writer.Line(depth, "}");
@@ -196,7 +196,7 @@ internal static class ErrorCodeProviderWriter
 
             writer.Line(
                 depth + 2,
-                $"return new {ErrorType}({ErrorCodesClass}.{name}, message);");
+                $"return new {ErrorType}({CodesClass}.{name}, message);");
 
             writer.Line(depth + 1, "}");
         }

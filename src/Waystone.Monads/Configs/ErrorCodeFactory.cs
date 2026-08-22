@@ -21,7 +21,7 @@ public class ErrorCodeFactory
     /// <remarks>
     /// Overriding this to shape your codes has been replaced by the declarative
     /// format on
-    /// <see cref="Results.Errors.ErrorCodeProviderAttribute.Format" />, or on
+    /// <see cref="Results.Errors.ErrorCodeCatalogAttribute.Format" />, or on
     /// <see cref="Results.Errors.ErrorCodeFormatAttribute" /> for a whole assembly.
     /// A format is read at compile time, so the generated constants, the analyzers
     /// and the error code registry all agree on what an enum produces; an override
@@ -30,7 +30,7 @@ public class ErrorCodeFactory
     /// <param name="enum">The enum value to convert into an Error Code.</param>
     /// <returns>The created <see cref="ErrorCode" />.</returns>
     [Obsolete(
-        "Shape error codes with [ErrorCodeProvider(Format = \"...\")] on the enum, or [assembly: ErrorCodeFormat(\"...\")] for every enum in the assembly. This member will be removed in 7.0.0.")]
+        "Shape error codes with [ErrorCodeCatalog(Format = \"...\")] on the enum, or [assembly: ErrorCodeFormat(\"...\")] for every enum in the assembly. This member will be removed in 7.0.0.")]
     public virtual ErrorCode FromEnum(Enum @enum)
     {
         Type enumType = @enum.GetType();

@@ -62,7 +62,7 @@ internal static class Verify
         var test = new AnalyzerTest<TAnalyzer> { TestCode = rawSource };
 
         test.TestState.AdditionalFiles.Add(
-            (ErrorCodeRegistry.FileName, registry));
+            (ErrorCodeRegistry.FileName, Lf(registry)));
 
         test.ExpectedDiagnostics.AddRange(expected);
 
@@ -88,10 +88,10 @@ internal static class Verify
         };
 
         test.TestState.AdditionalFiles.Add(
-            (ErrorCodeRegistry.FileName, registry));
+            (ErrorCodeRegistry.FileName, Lf(registry)));
 
         test.FixedState.AdditionalFiles.Add(
-            (ErrorCodeRegistry.FileName, fixedRegistry));
+            (ErrorCodeRegistry.FileName, Lf(fixedRegistry)));
 
         ExpectNothingAfterTheFix(test);
 
@@ -99,6 +99,18 @@ internal static class Verify
 
         return test.RunAsync();
     }
+
+    /// <summary>
+    /// Registry content with LF endings, whatever the test file was checked out with.
+    /// </summary>
+    /// <remarks>
+    /// These strings are raw string literals, so they carry the line ending of the
+    /// test file itself — CRLF on a clone with <c>core.autocrlf=true</c> and LF on one
+    /// without. <c>ErrorCodeRegistry.Render</c> keeps the ending of the file it
+    /// rewrites and defaults to LF for a file with no ending to keep, so an expected
+    /// value that varies by checkout fails on some machines and not others.
+    /// </remarks>
+    private static string Lf(string content) => content.Replace("\r\n", "\n");
 
     /// <summary>
     /// The fixed state expects exactly the diagnostics passed to it and inherits none.

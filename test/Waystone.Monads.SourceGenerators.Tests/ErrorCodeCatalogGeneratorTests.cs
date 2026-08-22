@@ -6,14 +6,14 @@ using Shouldly;
 using Waystone.Monads.Results.Errors;
 using Xunit;
 
-public sealed class ErrorCodeProviderGeneratorTests
+public sealed class ErrorCodeCatalogGeneratorTests
 {
     [Fact]
     public void GeneratesTheWholeProviderForATwoMemberEnum()
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound,
@@ -29,10 +29,10 @@ public sealed class ErrorCodeProviderGeneratorTests
             namespace Sample
             {
                 /// <summary>The error codes declared by <c>global::Sample.OrderError</c>.</summary>
-                public static partial class OrderErrorProvider
+                public static partial class OrderErrorCatalog
                 {
                     /// <summary>The error code string of every <c>global::Sample.OrderError</c> member.</summary>
-                    public static class ErrorCodeStrings
+                    public static class Names
                     {
                         /// <summary>The error code string of <c>global::Sample.OrderError.NotFound</c>.</summary>
                         public const string NotFound = "OrderError.NotFound";
@@ -42,13 +42,13 @@ public sealed class ErrorCodeProviderGeneratorTests
                     }
 
                     /// <summary>The error code of every <c>global::Sample.OrderError</c> member.</summary>
-                    public static class ErrorCodes
+                    public static class Codes
                     {
                         /// <summary>The error code of <c>global::Sample.OrderError.NotFound</c>.</summary>
-                        public static readonly global::Waystone.Monads.Results.Errors.ErrorCode NotFound = new global::Waystone.Monads.Results.Errors.ErrorCode(ErrorCodeStrings.NotFound);
+                        public static readonly global::Waystone.Monads.Results.Errors.ErrorCode NotFound = new global::Waystone.Monads.Results.Errors.ErrorCode(Names.NotFound);
 
                         /// <summary>The error code of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
-                        public static readonly global::Waystone.Monads.Results.Errors.ErrorCode AlreadyShipped = new global::Waystone.Monads.Results.Errors.ErrorCode(ErrorCodeStrings.AlreadyShipped);
+                        public static readonly global::Waystone.Monads.Results.Errors.ErrorCode AlreadyShipped = new global::Waystone.Monads.Results.Errors.ErrorCode(Names.AlreadyShipped);
                     }
 
                     /// <summary>Creates an error carrying the error code of a <c>global::Sample.OrderError</c> member.</summary>
@@ -59,7 +59,7 @@ public sealed class ErrorCodeProviderGeneratorTests
                         /// <returns>The created error.</returns>
                         public static global::Waystone.Monads.Results.Errors.Error NotFound(string message)
                         {
-                            return new global::Waystone.Monads.Results.Errors.Error(ErrorCodes.NotFound, message);
+                            return new global::Waystone.Monads.Results.Errors.Error(Codes.NotFound, message);
                         }
 
                         /// <summary>Creates an error carrying the error code of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
@@ -67,7 +67,7 @@ public sealed class ErrorCodeProviderGeneratorTests
                         /// <returns>The created error.</returns>
                         public static global::Waystone.Monads.Results.Errors.Error AlreadyShipped(string message)
                         {
-                            return new global::Waystone.Monads.Results.Errors.Error(ErrorCodes.AlreadyShipped, message);
+                            return new global::Waystone.Monads.Results.Errors.Error(Codes.AlreadyShipped, message);
                         }
                     }
 
@@ -79,9 +79,9 @@ public sealed class ErrorCodeProviderGeneratorTests
                         switch (value)
                         {
                             case global::Sample.OrderError.NotFound:
-                                return ErrorCodeStrings.NotFound;
+                                return Names.NotFound;
                             case global::Sample.OrderError.AlreadyShipped:
-                                return ErrorCodeStrings.AlreadyShipped;
+                                return Names.AlreadyShipped;
                             default:
                                 return "OrderError." + value.ToString();
                         }
@@ -95,9 +95,9 @@ public sealed class ErrorCodeProviderGeneratorTests
                         switch (value)
                         {
                             case global::Sample.OrderError.NotFound:
-                                return ErrorCodes.NotFound;
+                                return Codes.NotFound;
                             case global::Sample.OrderError.AlreadyShipped:
-                                return ErrorCodes.AlreadyShipped;
+                                return Codes.AlreadyShipped;
                             default:
                                 return new global::Waystone.Monads.Results.Errors.ErrorCode("OrderError." + value.ToString());
                         }
@@ -118,15 +118,15 @@ public sealed class ErrorCodeProviderGeneratorTests
     }
 
     [Theory]
-    [InlineData("OrderError", "OrderErrorProvider")]
-    [InlineData("OrderErrorCode", "OrderErrorProvider")]
-    [InlineData("PaymentFailure", "PaymentFailureErrorProvider")]
-    [InlineData("Error", "ErrorErrorProvider")]
-    public void DeduplicatesATrailingErrorOrErrorCode(string name, string expected)
+    [InlineData("OrderError", "OrderErrorCatalog")]
+    [InlineData("OrderErrorCode", "OrderErrorCodeCatalog")]
+    [InlineData("PaymentFailure", "PaymentFailureCatalog")]
+    [InlineData("Error", "ErrorCatalog")]
+    public void NamesTheCatalogAfterTheEnum(string name, string expected)
     {
         GeneratorRun run = Verify.Run(
             $$"""
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum {{name}}
             {
                 NotFound,
@@ -142,7 +142,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         Verify.Run(
                 """
-                [ErrorCodeProvider]
+                [ErrorCodeCatalog]
                 public enum OrderError
                 {
                     NotFound,
@@ -175,7 +175,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound,
@@ -197,13 +197,13 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         Verify.Run(
                   """
-                  [ErrorCodeProvider]
+                  [ErrorCodeCatalog]
                   internal enum OrderError
                   {
                       NotFound,
                   }
                   """)
-              .Source.ShouldContain("internal static partial class OrderErrorProvider");
+              .Source.ShouldContain("internal static partial class OrderErrorCatalog");
     }
 
     [Fact]
@@ -211,7 +211,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound,
@@ -226,7 +226,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         (string first, string second) = Verify.RunTwice(
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound,
@@ -234,7 +234,7 @@ public sealed class ErrorCodeProviderGeneratorTests
             """);
 
         second.ShouldBe(first);
-        first.ShouldContain("OrderErrorProvider");
+        first.ShouldContain("OrderErrorCatalog");
     }
 
     [Fact]
@@ -242,14 +242,14 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         (string first, string second) = Verify.RunTwice(
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound,
             }
             """,
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound,
@@ -266,7 +266,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             [Flags]
             public enum OrderError
             {
@@ -287,7 +287,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         GeneratorRun run = Verify.Run(
             """
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound = 1,
@@ -304,14 +304,14 @@ public sealed class ErrorCodeProviderGeneratorTests
     }
 
     [Theory]
-    [InlineData("ErrorCodeStrings")]
-    [InlineData("ErrorCodes")]
+    [InlineData("Names")]
+    [InlineData("Codes")]
     [InlineData("Errors")]
     public void ReportsAMemberNamedAfterAGeneratedType(string name)
     {
         GeneratorRun run = Verify.Run(
             $$"""
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 {{name}},
@@ -336,7 +336,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         GeneratorRun run = Verify.Run(
             $$"""
-            [ErrorCodeProvider]
+            [ErrorCodeCatalog]
             public enum OrderError
             {
                 {{name}},
@@ -353,7 +353,7 @@ public sealed class ErrorCodeProviderGeneratorTests
     {
         GeneratorRun run = Verify.RunWithoutMonads(
             """
-            [Waystone.Monads.Results.Errors.ErrorCodeProvider]
+            [Waystone.Monads.Results.Errors.ErrorCodeCatalog]
             public enum OrderError
             {
                 NotFound,
