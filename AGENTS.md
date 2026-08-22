@@ -16,6 +16,7 @@ working in — each is loaded when you touch files under it.
 | --- | --- |
 | [src/Waystone.Monads](src/Waystone.Monads/AGENTS.md) | The public API baseline, naming and breakage rules, the closed hierarchies |
 | [src/Waystone.Monads.Analyzers](src/Waystone.Monads.Analyzers/AGENTS.md) | Rule severity policy, Roslyn version targeting, analyzer testing |
+| [src/Waystone.Monads.SourceGenerators](src/Waystone.Monads.SourceGenerators/AGENTS.md) | The shipped error code generator contract and emission |
 | [src/Waystone.SourceGenerators](src/Waystone.SourceGenerators/AGENTS.md) | The awaited-receiver generator contract and emission |
 | [test](test/AGENTS.md) | Running the framework matrix, Reqnroll, shared mutable state |
 | [.github](.github/AGENTS.md) | Workflow triggers, required checks, coverage gates |
