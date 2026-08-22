@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Analyzers;
+namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -25,6 +25,23 @@ internal static class Verify
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         var test = new AnalyzerTest<TAnalyzer> { TestCode = Wrap(source) };
+
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
+
+    /// <summary>
+    /// Runs the analyzer over <paramref name="rawSource" /> without the usings and
+    /// the <c>Subject</c> wrapper, for a rule whose subject is a whole compilation
+    /// rather than a member.
+    /// </summary>
+    public static Task RawAnalyzerAsync<TAnalyzer>(
+        string rawSource,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        var test = new AnalyzerTest<TAnalyzer> { TestCode = rawSource };
 
         test.ExpectedDiagnostics.AddRange(expected);
 

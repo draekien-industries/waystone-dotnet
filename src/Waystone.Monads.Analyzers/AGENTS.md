@@ -28,6 +28,15 @@ rule. A *disabled* rule at warning severity fires nothing and so builds clean;
 
 ## Gotchas
 
+**`WM2018` is the only rule that aggregates across declarations.** Every other
+analyzer decides from one node or one symbol; `ErrorCodeReuseAnalyzer` has to see two
+enums at once, so it collects into a `ConcurrentBag` under `RegisterSymbolAction` and
+reports from `RegisterCompilationEndAction`. `Initialize` calls
+`EnableConcurrentExecution`, so the collection must be thread-safe and the *order*
+must not matter — it reports on the second member in ordinal order by display string
+rather than on whichever symbol arrived second, or the same source would blame a
+different declaration between runs.
+
 **`IsExtensionMethod` is not a reliable test.** The library's extensions are C# 14
 `extension` blocks, and the compiler emits a compatibility static method that
 older Roslyn sees as a classic extension. A rule keyed on `IsExtensionMethod`
