@@ -39,6 +39,33 @@ from the enum name instead is wrong in both directions once anyone sets a format
 `FlagsACollisionCausedByASharedFormat` and `IgnoresASharedNameWhenTheFormatsDiffer`
 pin both.
 
+**A diagnostic reported from a compilation end action cannot have a code fix.** It
+lands in `AnalysisResult.CompilationDiagnostics` and is a *non-local* diagnostic even
+when its location is an ordinary source span; Roslyn's code fix service will not offer
+a fix for one, and `CodeFixTest` fails with "Code fix is attempting to provide a fix for
+a non-local analyzer diagnostic" rather than letting you ship a fix nobody can reach.
+`CodeFixTestBehaviors.SkipLocalDiagnosticCheck` silences the test and changes nothing
+about the IDE, so do not reach for it. This is why `WM2019` reports from a symbol action
+and `WM2020` — which cannot know an entry is stale until every enum has been seen — has
+no fix at all. Both rules read the same two sets; the split is entirely about
+fixability.
+
+**A rule that reports from a compilation end action needs
+`WellKnownDiagnosticTags.CompilationEnd`.** Roslyn reads the tag to decide when to run
+the end action, so without it the rule can go quiet in the IDE while still firing on the
+command line. `WM2018` and `WM2020` are the only two, and
+`RulesTests.OnlyTheAggregatingRulesAreTaggedCompilationEnd` pins the pair, because
+nothing in the build notices a missing tag.
+
+**A path-based `.editorconfig` cannot set the severity of `WM2020`.** Roslyn resolves
+`dotnet_diagnostic.X.severity` per syntax tree, and `WM2020` is reported against
+`ErrorCodes.txt`, which has none — so a `[*]` section is simply not consulted and the
+rule stays at its default however the section is written. Escalating it takes a global
+analyzer config: `is_global = true` in a `.globalconfig`. `WM2019` is reported on the
+enum member and does respond to `.editorconfig`, so the two rules need different
+configuration to reach the same severity. The sample carries a `.globalconfig` that
+does it, which is the only executable statement of this anywhere.
+
 **`WM2018` is the only rule that aggregates across declarations.** Every other
 analyzer decides from one node or one symbol; `ErrorCodeReuseAnalyzer` has to see two
 enums at once, so it collects into a `ConcurrentBag` under `RegisterSymbolAction` and

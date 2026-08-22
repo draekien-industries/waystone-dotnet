@@ -76,3 +76,5 @@ WM2014 | Usage | Info | FlatMap has been renamed to AndThen
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2018 | Usage | Info | An error code is reused across enums
+WM2019 | Usage | Info | A generated error code is not in the error code registry
+WM2020 | Usage | Info | The error code registry lists a code nothing generates
