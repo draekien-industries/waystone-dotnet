@@ -36,7 +36,7 @@ public sealed class GeneratedErrorCodeTests
     [Fact]
     public void TheExtensionsAgreeWithTheNestedClasses()
     {
-        ShipmentError.AlreadyShipped.ToErrorCodeString()
+        ShipmentError.AlreadyShipped.ToErrorCodeName()
                      .ShouldBe(
                           ShipmentErrorCatalog.Names.AlreadyShipped);
 
@@ -61,7 +61,7 @@ public sealed class GeneratedErrorCodeTests
     {
         var undeclared = (ShipmentError)99;
 
-        undeclared.ToErrorCodeString().ShouldBe("ShipmentError.99");
+        undeclared.ToErrorCodeName().ShouldBe("ShipmentError.99");
         undeclared.ToErrorCode().ShouldBe(new ErrorCode("ShipmentError.99"));
     }
 
@@ -76,10 +76,10 @@ public sealed class GeneratedErrorCodeTests
         using (MonadOptions.BeginScope(
                    options => options.UseErrorCodeFactory(new PrefixingFactory())))
         {
-            ShipmentError.NotFound.ToErrorCodeString()
+            ShipmentError.NotFound.ToErrorCodeName()
                          .ShouldBe("ShipmentError.NotFound");
 
-            ((ShipmentError)99).ToErrorCodeString()
+            ((ShipmentError)99).ToErrorCodeName()
                                .ShouldBe("ShipmentError.99");
 
 #pragma warning disable CS0618

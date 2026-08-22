@@ -31,13 +31,13 @@ public sealed class ErrorCodeCatalogGeneratorTests
                 /// <summary>The error codes declared by <c>global::Sample.OrderError</c>.</summary>
                 public static partial class OrderErrorCatalog
                 {
-                    /// <summary>The error code string of every <c>global::Sample.OrderError</c> member.</summary>
+                    /// <summary>The error code name of every <c>global::Sample.OrderError</c> member.</summary>
                     public static class Names
                     {
-                        /// <summary>The error code string of <c>global::Sample.OrderError.NotFound</c>.</summary>
+                        /// <summary>The error code name of <c>global::Sample.OrderError.NotFound</c>.</summary>
                         public const string NotFound = "OrderError.NotFound";
 
-                        /// <summary>The error code string of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
+                        /// <summary>The error code name of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
                         public const string AlreadyShipped = "OrderError.AlreadyShipped";
                     }
 
@@ -71,10 +71,10 @@ public sealed class ErrorCodeCatalogGeneratorTests
                         }
                     }
 
-                    /// <summary>Gets the error code string of a <c>global::Sample.OrderError</c> value.</summary>
-                    /// <param name="value">The value to read the error code string of.</param>
-                    /// <returns>The error code string. A value that is not a declared member gets the same scheme applied to its numeric value.</returns>
-                    public static string ToErrorCodeString(this global::Sample.OrderError value)
+                    /// <summary>Gets the error code name of a <c>global::Sample.OrderError</c> value.</summary>
+                    /// <param name="value">The value to read the error code name of.</param>
+                    /// <returns>The error code name. A value that is not a declared member gets the same scheme applied to its numeric value.</returns>
+                    public static string ToErrorCodeName(this global::Sample.OrderError value)
                     {
                         switch (value)
                         {
@@ -329,7 +329,7 @@ public sealed class ErrorCodeCatalogGeneratorTests
     /// the three nested class names and not the three extension names.
     /// </summary>
     [Theory]
-    [InlineData("ToErrorCodeString")]
+    [InlineData("ToErrorCodeName")]
     [InlineData("ToErrorCode")]
     [InlineData("ToError")]
     public void AcceptsAMemberNamedAfterAnExtension(string name)

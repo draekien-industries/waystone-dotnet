@@ -67,8 +67,8 @@ internal static class ErrorCodeCatalogWriter
             qualified,
             members,
             "string",
-            "ToErrorCodeString",
-            "error code string",
+            "ToErrorCodeName",
+            "error code name",
             member => $"{NamesClass}.{member.Name}",
             undeclared);
 
@@ -105,7 +105,7 @@ internal static class ErrorCodeCatalogWriter
     {
         writer.Line(
             depth,
-            $"/// <summary>The error code string of every <c>{qualified}</c> member.</summary>");
+            $"/// <summary>The error code name of every <c>{qualified}</c> member.</summary>");
 
         writer.Line(depth, $"public static class {NamesClass}");
         writer.Line(depth, "{");
@@ -118,7 +118,7 @@ internal static class ErrorCodeCatalogWriter
 
             writer.Line(
                 depth + 1,
-                $"/// <summary>The error code string of <c>{qualified}.{name}</c>.</summary>");
+                $"/// <summary>The error code name of <c>{qualified}.{name}</c>.</summary>");
 
             writer.Line(
                 depth + 1,
