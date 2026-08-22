@@ -19,6 +19,13 @@ consumption of its analyzer a build cycle.
 RS2008 fails the build without one. Use severity `Disabled` in that table for a
 rule that ships off.
 
+The severity policy is checked two ways, and neither is redundant. An *enabled*
+rule promoted to warning breaks the library's own build immediately, because
+`src/**` is `TreatWarningsAsErrors` and the library trips its own idiom rules — but
+it fails as twenty errors in unrelated files rather than as a statement about the
+rule. A *disabled* rule at warning severity fires nothing and so builds clean;
+`RulesTests.OnlyMisuseRulesShipAtWarningOrAbove` is what catches that one.
+
 ## Gotchas
 
 **`IsExtensionMethod` is not a reliable test.** The library's extensions are C# 14

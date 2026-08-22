@@ -46,7 +46,10 @@ are the entire proof that the generated surface matches the hand-written one it
 replaced. Verified by marking a class and watching RS0016 fire on the emitted file.
 A side effect is that coverlet's default `ExcludeByAttribute` never matches, so the
 generated members stay in the coverage denominator and the specs covering them keep
-counting.
+counting. `DoesNotMarkTheEmittedSourceAsGeneratedCode` holds the line. Note the
+scope: the attribute file from `RegisterPostInitializationOutput` *is* `.g.cs`
+legitimately, since it is not part of the surface RS0016/RS0017 prove. Only the
+receiver files must stay `.AwaitedReceivers.cs`.
 
 **A forwarding call must not name the type arguments of a member read from an
 `extension` block.** The generator sees that member as the compatibility static

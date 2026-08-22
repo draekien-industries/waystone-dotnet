@@ -61,6 +61,7 @@ internal static class Verify
                                   .SingleOrDefault();
 
         return new GeneratorRun(
+            result.GeneratedTrees.Select(tree => tree.FilePath).ToImmutableArray(),
             generated,
             generatorDiagnostics,
             output.GetDiagnostics()
@@ -151,6 +152,7 @@ internal static class Verify
 }
 
 internal sealed record GeneratorRun(
+    ImmutableArray<string> HintNames,
     string? Generated,
     ImmutableArray<Diagnostic> GeneratorDiagnostics,
     ImmutableArray<Diagnostic> CompilationDiagnostics)

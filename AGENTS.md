@@ -29,7 +29,9 @@ Run this once per clone, or neither hook below fires:
 git config core.hooksPath .githooks
 ```
 
-`pre-commit` rejects NUL bytes in text sources — git treats such a file as binary
+`commit-msg` rejects a subject that is not a conventional commit, since GitVersion
+reads it and a misspelled type silently publishes the wrong version. `pre-commit`
+rejects NUL bytes in text sources — git treats such a file as binary
 and silently stops diffing it, and nothing in the build notices. `pre-push` runs
 the full framework matrix and checks that no release-tracking rows are still
 unshipped. Both are cheap; neither is a substitute for a required check, since a

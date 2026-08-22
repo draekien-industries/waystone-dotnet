@@ -68,6 +68,23 @@ public class RulesTests
     }
 
     [Fact]
+    public void OnlyMisuseRulesShipAtWarningOrAbove()
+    {
+        var offenders = Descriptors
+                       .Where(
+                            rule => rule.DefaultSeverity
+                                 >= DiagnosticSeverity.Warning)
+                       .Where(
+                            rule => !rule.Id.StartsWith(
+                                "WM1",
+                                StringComparison.Ordinal))
+                       .Select(rule => rule.Id)
+                       .ToList();
+
+        offenders.ShouldBeEmpty();
+    }
+
+    [Fact]
     public void RuleIdsAreUnique()
     {
         var ids = Descriptors.Select(rule => rule.Id).ToList();

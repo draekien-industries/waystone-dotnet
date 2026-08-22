@@ -1,0 +1,26 @@
+#!/bin/sh
+# The commit type determines the published version, and a squashed PR title is a
+# commit subject. A misspelled type is not an error anywhere else in the toolchain
+# -- it just silently produces no version bump.
+
+set -e
+
+subject=$(head -1 "$1")
+
+case "$subject" in
+    "Merge "*|"Revert "*|"fixup!"*|"squash!"*|"#"*) exit 0 ;;
+esac
+
+if ! printf '%s' "$subject" | grep -qE '^(feat|fix|perf|refactor|docs|test|build|ci|chore|style|revert)(\([a-z0-9._-]+\))?!?: .+'; then
+    echo "commit-msg: subject is not a conventional commit." >&2
+    echo "  got: $subject" >&2
+    echo "  want: type(optional-scope)!: description" >&2
+    echo "  type: feat fix perf refactor docs test build ci chore style revert" >&2
+    echo "  GitVersion reads this, so a wrong type publishes the wrong version." >&2
+    exit 1
+fi
+
+if [ "${#subject}" -gt 72 ]; then
+    echo "commit-msg: subject is ${#subject} characters; keep it under 72." >&2
+    exit 1
+fi
