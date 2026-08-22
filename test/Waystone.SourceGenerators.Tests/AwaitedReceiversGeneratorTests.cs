@@ -395,6 +395,310 @@ public sealed class AwaitedReceiversGeneratorTests
     }
 
 
+    [Fact]
+    public void RendersEveryKindOfTypeParameterConstraint()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                /// <summary>Constrains every way the language allows.</summary>
+                public abstract void Exotic<TStruct, TClass, TMaybe, TFace, TNew>()
+                    where TStruct : struct
+                    where TClass : class
+                    where TMaybe : class?
+                    where TFace : IDisposable
+                    where TNew : new();
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("Exotic")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("where TStruct : struct");
+        run.Source.ShouldContain("where TClass : class");
+        run.Source.ShouldContain("where TMaybe : class?");
+        run.Source.ShouldContain("where TFace : global::System.IDisposable");
+        run.Source.ShouldContain("where TNew : new()");
+    }
+
+    [Fact]
+    public void RendersAnUnmanagedConstraint()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                /// <summary>Takes an unmanaged type.</summary>
+                public abstract void Raw<TRaw>() where TRaw : unmanaged;
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("Raw")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("where TRaw : unmanaged");
+    }
+
+    [Fact]
+    public void FindsTypeParametersBehindAnArrayAndANestedGeneric()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                /// <summary>Takes the parameter through an array.</summary>
+                /// <param name="values">The values.</param>
+                public abstract void Many(T[] values);
+
+                /// <summary>Takes the parameter nested twice.</summary>
+                /// <param name="nested">The nested values.</param>
+                public abstract void Deep(Func<List<T[]>, int> nested);
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("Many")]
+            [GenerateAwaitedMember("Deep")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("ManyAsync(T[] values)");
+        run.Source.ShouldContain("crate.Many(values);");
+        run.Source.ShouldContain("global::System.Collections.Generic.List<T[]>");
+    }
+
+    [Fact]
+    public void EscapesAKeywordParameterAndWritesItsDefault()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                /// <summary>Names a parameter after a keyword.</summary>
+                /// <param name="else">The fallback.</param>
+                /// <param name="count">How many.</param>
+                /// <param name="label">The label.</param>
+                /// <param name="other">The other crate.</param>
+                public abstract void Fallback(
+                    T @else,
+                    int count = 3,
+                    string label = "x",
+                    Crate<T>? other = null);
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("Fallback")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("T @else");
+        run.Source.ShouldContain("int count = 3");
+        run.Source.ShouldContain("string label = \"x\"");
+        run.Source.ShouldContain("other = null");
+        run.Source.ShouldContain("crate.Fallback(@else, count, label, other);");
+    }
+
+    [Fact]
+    public void ReusesTheCachedOutputWhenTheDriverRunsTwiceOverTheSameInput()
+    {
+        (string first, string second) = Verify.RunTwice(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("Get")]
+            [GenerateAwaitedMember("Map")]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        second.ShouldBe(first);
+    }
+
+    [Fact]
+    public void ReusesTheCachedDiagnosticWhenTheDriverRunsTwice()
+    {
+        (string first, string second) = Verify.RunTwice(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("NoSuchMember")]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        second.ShouldBe(first);
+    }
+
+    [Fact]
+    public void RebuildsWhenTheSecondRunAsksForADifferentMember()
+    {
+        (string first, string second) = Verify.RunTwice(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("Get")]
+            public static partial class BoxExtensions
+            {
+            }
+            """,
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("Get")]
+            [GenerateAwaitedMember("Map")]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        first.ShouldContain("GetAsync()");
+        first.ShouldNotContain("MapAsync");
+
+        second.ShouldContain("GetAsync()");
+        second.ShouldContain("MapAsync");
+    }
+
+    [Fact]
+    public void RebuildsWhenTheSecondRunReportsADifferentDiagnostic()
+    {
+        (string first, string second) = Verify.RunTwice(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("NoSuchMember")]
+            public static partial class BoxExtensions
+            {
+            }
+            """,
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("StillMissing")]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        first.ShouldContain("NoSuchMember");
+        second.ShouldContain("StillMissing");
+        second.ShouldNotBe(first);
+    }
+
+    [Fact]
+    public void FindsTypeParametersInsideAnArrayReturnType()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                /// <summary>Returns every value.</summary>
+                public abstract T[] All();
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("All")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("AllAsync()");
+        run.Source.ShouldContain("ValueTask<T[]>");
+    }
+
+    [Fact]
+    public void UsesTheSummaryOverrideOnAnUndocumentedMember()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                public abstract T Bare();
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("Bare", Summary = "Written by hand.")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("Written by hand.");
+        run.Source.ShouldContain("BareAsync()");
+    }
+
+    [Fact]
+    public void EmitsNoDocumentationForAnUndocumentedMemberWithNoOverride()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                public abstract T Bare();
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("Bare")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("BareAsync()");
+        run.Source.ShouldNotContain("<summary>");
+    }
+
+    [Fact]
+    public void ForwardsDocumentationThatCarriesNoSummary()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class Crate<T> where T : notnull
+            {
+                /// <param name="value">The value.</param>
+                public abstract void Put(T value);
+            }
+
+            [GenerateAwaitedReceivers(typeof(Crate<>))]
+            [GenerateAwaitedMember("Put")]
+            public static partial class CrateExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("PutAsync(T value)");
+        run.Source.ShouldContain("<param name=\"value\">");
+        run.Source.ShouldNotContain("<summary>");
+    }
+
     private static string NormaliseNewlines(string text) =>
         text.Replace("\r\n", "\n");
 }

@@ -70,6 +70,71 @@ internal static class Verify
                   .ToImmutableArray());
     }
 
+    /// <summary>
+    /// Runs one driver over two separately parsed but identical compilations and
+    /// returns what each run generated. The second run makes Roslyn compare the
+    /// values its steps produced against the cached ones, which is the only thing
+    /// that exercises the equality the pipeline records depend on.
+    /// </summary>
+    public static (string First, string Second) RunTwice(string source) =>
+        RunTwice(source, source);
+
+    /// <summary>
+    /// Runs one driver over two different compilations, so the cached values the
+    /// second run compares against do not match and the pipeline has to rebuild.
+    /// </summary>
+    public static (string First, string Second) RunTwice(
+        string source,
+        string then)
+    {
+        GeneratorDriver driver = CSharpGeneratorDriver
+                                .Create(new AwaitedReceiversGenerator())
+                                .WithUpdatedParseOptions(
+                                     new CSharpParseOptions(LanguageVersion.Preview));
+
+        driver = driver.RunGenerators(Compile(source));
+
+        string first = Emitted(driver.GetRunResult());
+
+        driver = driver.RunGenerators(Compile(then));
+
+        return (first, Emitted(driver.GetRunResult()));
+    }
+
+    private static CSharpCompilation Compile(string source) =>
+        CSharpCompilation.Create(
+            "Waystone.SourceGenerators.Tests.Subject",
+            [
+                CSharpSyntaxTree.ParseText(
+                    Preamble + source,
+                    new CSharpParseOptions(LanguageVersion.Preview)),
+            ],
+            References,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+               .WithNullableContextOptions(NullableContextOptions.Enable));
+
+    private static string Emitted(GeneratorDriverRunResult result)
+    {
+        var emitted = string.Join(
+            "\n",
+            result.Results
+                  .SelectMany(run => run.Diagnostics)
+                  .Select(diagnostic => diagnostic.ToString())
+                  .OrderBy(text => text, StringComparer.Ordinal));
+
+        string? generated = result.GeneratedTrees
+                                  .Where(
+                                       tree => !tree.FilePath.EndsWith(
+                                           GeneratedAttributes.HintName,
+                                           StringComparison.Ordinal))
+                                  .Select(tree => tree.ToString())
+                                  .SingleOrDefault();
+
+        return ((generated ?? string.Empty) + emitted).Replace(
+            "\r\n",
+            "\n");
+    }
+
     private static IEnumerable<MetadataReference> References =>
         AppDomain.CurrentDomain.GetAssemblies()
                  .Where(
