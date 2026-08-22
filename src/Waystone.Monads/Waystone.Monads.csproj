@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
@@ -23,12 +23,13 @@
     </PropertyGroup>
 
     <Import Project="..\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
+    <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
     <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
 
     <Target Name="PackMonadAnalyzers" DependsOnTargets="ResolveProjectReferences">
         <ItemGroup>
             <TfmSpecificPackageFile Include="@(Analyzer)"
-                                    Condition="'%(Filename)' == 'Waystone.Monads.Analyzers' or '%(Filename)' == 'Waystone.Monads.Analyzers.CodeFixes'"
+                                    Condition="'%(Filename)' == 'Waystone.Monads.Analyzers' or '%(Filename)' == 'Waystone.Monads.Analyzers.CodeFixes' or '%(Filename)' == 'Waystone.Monads.SourceGenerators'"
                                     PackagePath="analyzers/dotnet/cs"/>
         </ItemGroup>
     </Target>

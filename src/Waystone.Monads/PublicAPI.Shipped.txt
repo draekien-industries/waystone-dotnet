@@ -246,6 +246,8 @@ Waystone.Monads.Results.Errors.ErrorCode
 Waystone.Monads.Results.Errors.ErrorCode.ErrorCode(Waystone.Monads.Results.Errors.ErrorCode! original) -> void
 Waystone.Monads.Results.Errors.ErrorCode.ErrorCode(string! value) -> void
 Waystone.Monads.Results.Errors.ErrorCode.Value.get -> string!
+Waystone.Monads.Results.Errors.ErrorCodeProviderAttribute
+Waystone.Monads.Results.Errors.ErrorCodeProviderAttribute.ErrorCodeProviderAttribute() -> void
 Waystone.Monads.Results.Extensions.AndThenExtensions
 Waystone.Monads.Results.Extensions.AndThenExtensions.extension<TOk, TErr>(System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>!)
 Waystone.Monads.Results.Extensions.AndThenExtensions.extension<TOk, TErr>(System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>!).AndThenAsync<TOut>(System.Func<TOk, System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOut, TErr>!>!>! factory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>

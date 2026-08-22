@@ -1,0 +1,376 @@
+namespace Waystone.Monads.SourceGenerators;
+
+using System;
+using System.Linq;
+using Shouldly;
+using Waystone.Monads.Results.Errors;
+using Xunit;
+
+public sealed class ErrorCodeProviderGeneratorTests
+{
+    [Fact]
+    public void GeneratesTheWholeProviderForATwoMemberEnum()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound,
+                AlreadyShipped,
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldBe(
+            """
+            namespace Sample
+            {
+                /// <summary>The error codes declared by <c>global::Sample.OrderError</c>.</summary>
+                public static partial class OrderErrorProvider
+                {
+                    /// <summary>The error code string of every <c>global::Sample.OrderError</c> member.</summary>
+                    public static class ErrorCodeStrings
+                    {
+                        /// <summary>The error code string of <c>global::Sample.OrderError.NotFound</c>.</summary>
+                        public const string NotFound = "OrderError.NotFound";
+
+                        /// <summary>The error code string of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
+                        public const string AlreadyShipped = "OrderError.AlreadyShipped";
+                    }
+
+                    /// <summary>The error code of every <c>global::Sample.OrderError</c> member.</summary>
+                    public static class ErrorCodes
+                    {
+                        /// <summary>The error code of <c>global::Sample.OrderError.NotFound</c>.</summary>
+                        public static readonly global::Waystone.Monads.Results.Errors.ErrorCode NotFound = new global::Waystone.Monads.Results.Errors.ErrorCode(ErrorCodeStrings.NotFound);
+
+                        /// <summary>The error code of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
+                        public static readonly global::Waystone.Monads.Results.Errors.ErrorCode AlreadyShipped = new global::Waystone.Monads.Results.Errors.ErrorCode(ErrorCodeStrings.AlreadyShipped);
+                    }
+
+                    /// <summary>Creates an error carrying the error code of a <c>global::Sample.OrderError</c> member.</summary>
+                    public static class Errors
+                    {
+                        /// <summary>Creates an error carrying the error code of <c>global::Sample.OrderError.NotFound</c>.</summary>
+                        /// <param name="message">The message describing this occurrence of the error.</param>
+                        /// <returns>The created error.</returns>
+                        public static global::Waystone.Monads.Results.Errors.Error NotFound(string message)
+                        {
+                            return new global::Waystone.Monads.Results.Errors.Error(ErrorCodes.NotFound, message);
+                        }
+
+                        /// <summary>Creates an error carrying the error code of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
+                        /// <param name="message">The message describing this occurrence of the error.</param>
+                        /// <returns>The created error.</returns>
+                        public static global::Waystone.Monads.Results.Errors.Error AlreadyShipped(string message)
+                        {
+                            return new global::Waystone.Monads.Results.Errors.Error(ErrorCodes.AlreadyShipped, message);
+                        }
+                    }
+
+                    /// <summary>Gets the error code string of a <c>global::Sample.OrderError</c> value.</summary>
+                    /// <param name="value">The value to read the error code string of.</param>
+                    /// <returns>The error code string. A value that is not a declared member gets the same scheme applied to its numeric value.</returns>
+                    public static string ToErrorCodeString(this global::Sample.OrderError value)
+                    {
+                        switch (value)
+                        {
+                            case global::Sample.OrderError.NotFound:
+                                return ErrorCodeStrings.NotFound;
+                            case global::Sample.OrderError.AlreadyShipped:
+                                return ErrorCodeStrings.AlreadyShipped;
+                            default:
+                                return "OrderError." + value.ToString();
+                        }
+                    }
+
+                    /// <summary>Gets the error code of a <c>global::Sample.OrderError</c> value.</summary>
+                    /// <param name="value">The value to read the error code of.</param>
+                    /// <returns>The error code. A value that is not a declared member gets the same scheme applied to its numeric value.</returns>
+                    public static global::Waystone.Monads.Results.Errors.ErrorCode ToErrorCode(this global::Sample.OrderError value)
+                    {
+                        switch (value)
+                        {
+                            case global::Sample.OrderError.NotFound:
+                                return ErrorCodes.NotFound;
+                            case global::Sample.OrderError.AlreadyShipped:
+                                return ErrorCodes.AlreadyShipped;
+                            default:
+                                return new global::Waystone.Monads.Results.Errors.ErrorCode("OrderError." + value.ToString());
+                        }
+                    }
+
+                    /// <summary>Creates an error carrying the error code of a <c>global::Sample.OrderError</c> value.</summary>
+                    /// <param name="value">The value to read the error code of.</param>
+                    /// <param name="message">The message describing this occurrence of the error.</param>
+                    /// <returns>The created error.</returns>
+                    public static global::Waystone.Monads.Results.Errors.Error ToError(this global::Sample.OrderError value, string message)
+                    {
+                        return new global::Waystone.Monads.Results.Errors.Error(ToErrorCode(value), message);
+                    }
+                }
+            }
+
+            """.Replace("\r\n", "\n"));
+    }
+
+    [Theory]
+    [InlineData("OrderError", "OrderErrorProvider")]
+    [InlineData("OrderErrorCode", "OrderErrorProvider")]
+    [InlineData("PaymentFailure", "PaymentFailureErrorProvider")]
+    [InlineData("Error", "ErrorErrorProvider")]
+    public void DeduplicatesATrailingErrorOrErrorCode(string name, string expected)
+    {
+        GeneratorRun run = Verify.Run(
+            $$"""
+            [ErrorCodeProvider]
+            public enum {{name}}
+            {
+                NotFound,
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+        run.Source.ShouldContain($"static partial class {expected}");
+    }
+
+    [Fact]
+    public void MatchesTheDefaultFactoryForEveryMember()
+    {
+        Verify.Run(
+                """
+                [ErrorCodeProvider]
+                public enum OrderError
+                {
+                    NotFound,
+                }
+                """)
+              .Source.ShouldContain(
+                   $"= \"{ErrorCode.FromEnum(Fixture.OrderError.NotFound).Value}\";");
+    }
+
+    [Fact]
+    public void GeneratesNothingWithoutTheAttribute()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public enum OrderError
+            {
+                NotFound,
+            }
+            """);
+
+        run.HintNames.ShouldBeEmpty();
+        run.Source.ShouldBeEmpty();
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void EmitsAHintNameThatIsNotTreatedAsGeneratedCode()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound,
+            }
+            """);
+
+        string hintName = run.HintNames.ShouldHaveSingleItem();
+
+        hintName.ShouldEndWith("Sample.OrderError.ErrorCodes.cs");
+        hintName.ShouldNotEndWith(".g.cs");
+
+        run.Source.ShouldNotContain("GeneratedCode");
+        run.Source.ShouldNotContain("autogenerated");
+        run.Source.ShouldNotContain("auto-generated");
+    }
+
+    [Fact]
+    public void CarriesTheEnumsNamespaceAndAccessibility()
+    {
+        Verify.Run(
+                  """
+                  [ErrorCodeProvider]
+                  internal enum OrderError
+                  {
+                      NotFound,
+                  }
+                  """)
+              .Source.ShouldContain("internal static partial class OrderErrorProvider");
+    }
+
+    [Fact]
+    public void EmitsNormalisedLineEndings()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound,
+            }
+            """);
+
+        run.Generated.ShouldNotBeNull().ShouldNotContain("\r\n");
+    }
+
+    [Fact]
+    public void ProducesTheSameSourceOnASecondRun()
+    {
+        (string first, string second) = Verify.RunTwice(
+            """
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound,
+            }
+            """);
+
+        second.ShouldBe(first);
+        first.ShouldContain("OrderErrorProvider");
+    }
+
+    [Fact]
+    public void RebuildsWhenTheEnumChanges()
+    {
+        (string first, string second) = Verify.RunTwice(
+            """
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound,
+            }
+            """,
+            """
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound,
+                AlreadyShipped,
+            }
+            """);
+
+        second.ShouldNotBe(first);
+        second.ShouldContain("AlreadyShipped");
+    }
+
+    [Fact]
+    public void ReportsAFlagsEnum()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            [ErrorCodeProvider]
+            [Flags]
+            public enum OrderError
+            {
+                NotFound = 1,
+                AlreadyShipped = 2,
+            }
+            """);
+
+        run.DiagnosticIds.ShouldBe(["WMG0001"]);
+        run.Source.ShouldBeEmpty();
+
+        run.GeneratorDiagnostics.Single()
+           .Severity.ShouldBe(Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+    }
+
+    [Fact]
+    public void ReportsAnAliasedValue()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound = 1,
+                Missing = 1,
+            }
+            """);
+
+        run.DiagnosticIds.ShouldBe(["WMG0002"]);
+        run.Source.ShouldBeEmpty();
+
+        run.GeneratorDiagnostics.Single()
+           .GetMessage()
+           .ShouldContain("'NotFound' and 'Missing' share the value 1");
+    }
+
+    [Theory]
+    [InlineData("ErrorCodeStrings")]
+    [InlineData("ErrorCodes")]
+    [InlineData("Errors")]
+    public void ReportsAMemberNamedAfterAGeneratedType(string name)
+    {
+        GeneratorRun run = Verify.Run(
+            $$"""
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                {{name}},
+            }
+            """);
+
+        run.DiagnosticIds.ShouldBe(["WMG0003"]);
+        run.Source.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// The extensions live on the outer class and the members on the nested ones, so
+    /// a member named after an extension is in a different container and does not
+    /// collide. Asserted rather than assumed, because it is the reason WMG0003 covers
+    /// the three nested class names and not the three extension names.
+    /// </summary>
+    [Theory]
+    [InlineData("ToErrorCodeString")]
+    [InlineData("ToErrorCode")]
+    [InlineData("ToError")]
+    public void AcceptsAMemberNamedAfterAnExtension(string name)
+    {
+        GeneratorRun run = Verify.Run(
+            $$"""
+            [ErrorCodeProvider]
+            public enum OrderError
+            {
+                {{name}},
+            }
+            """);
+
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+        run.CompilationDiagnostics.ShouldBeEmpty();
+        run.Source.ShouldContain($"public const string {name} =");
+    }
+
+    [Fact]
+    public void ReportsTheErrorTypesBeingUnresolvable()
+    {
+        GeneratorRun run = Verify.RunWithoutMonads(
+            """
+            [Waystone.Monads.Results.Errors.ErrorCodeProvider]
+            public enum OrderError
+            {
+                NotFound,
+            }
+            """);
+
+        run.DiagnosticIds.ShouldBe(["WMG0004"]);
+        run.Source.ShouldBeEmpty();
+
+        run.GeneratorDiagnostics.Single()
+           .GetMessage()
+           .ShouldContain("Waystone.Monads.Results.Errors.ErrorCode");
+    }
+
+    private static class Fixture
+    {
+        internal enum OrderError
+        {
+            NotFound,
+        }
+    }
+}

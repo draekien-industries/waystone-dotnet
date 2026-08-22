@@ -1,8 +1,12 @@
 # Waystone.Monads analyzer sample
 
-Every member in this project is deliberately wrong. The project exists so the
-analyzer has something to report, and so a change to a rule shows up as a change
-in build output rather than only in a unit test.
+Every member in `Misuse.cs` and `Idioms.cs` is deliberately wrong. Those two files
+exist so the analyzer has something to report, and so a change to a rule shows up
+as a change in build output rather than only in a unit test.
+
+`Ordering.cs` is the exception: it is code you would be happy to ship, and it is
+here for the same reason — it exercises the source generator, so a change to the
+emitted shape shows up as a build error here rather than only in a snapshot test.
 
 **Building it produces warnings, and that is the point.** `Misuse.cs` carries the
 `WM1xxx` rules, which ship at warning severity because the code they mark throws
@@ -23,9 +27,42 @@ consumer the compiler helps least: assigning `null` to an `Option<int>` there
 produces no compiler diagnostic at all, only `WM1002`. `Idioms.cs` enables
 nullable, which is what `WM1005` needs to see that a value may be null.
 
+## The generated error codes
+
+`Ordering.cs` is one pass of an ordering pipeline: find the order, check it has not
+shipped, check it can be delivered, reserve the stock, take the payment, dispatch it.
+Every step returns a `Result<T, Error>` and they compose with `AndThen`, so the first
+failure short-circuits the rest and the caller gets one `Error`.
+
+The point is where those errors come from. `OrderErrorCode` is marked
+`[ErrorCodeProvider]`, and the generator turns it into everything the pipeline needs:
+
+- `OrderErrorProvider.Errors.NotFound(message)` builds the failed step's `Error` with
+  the right code already attached, so no step has to name a code as a string.
+- `refusal.Value.ToError(message)` in `Reserve` handles the other direction. The
+  warehouse hands back a bare `OrderErrorCode`, and the extension attaches a message
+  at the boundary where one is worth writing.
+- `StatusCodeFor` switches on the code to pick an HTTP status. **This is the method
+  the feature exists for.** A `case` label needs a compile-time constant, so it can be
+  written against `OrderErrorProvider.ErrorCodeStrings` and cannot be written against
+  `ErrorCode.FromEnum` at all — that call works its string out at run time.
+
+Two details are pinned here on purpose, so a change to either breaks this build rather
+than only a snapshot test:
+
+- The enum is `OrderErrorCode` and the generated class is `OrderErrorProvider`, not
+  `OrderErrorCodeProvider`. The generator takes a trailing `Error` or `ErrorCode` off
+  the enum's name before adding its own suffix.
+- The `case` labels are the generated constants, so a change to the code scheme stops
+  this file compiling.
+
+This project imports `Waystone.Monads.SourceGenerators.props` to load the generator,
+the same way it imports the analyzer props. A consumer installing the NuGet package
+gets both without doing either.
+
 ## Trying the code fixes
 
-Open either file in an IDE and invoke the lightbulb. Thirteen of the twenty-six rules
-offer a fix; the rest are reported without one, either because the correction is
+Open `Misuse.cs` or `Idioms.cs` in an IDE and invoke the lightbulb. Thirteen of the
+twenty-six rules offer a fix; the rest are reported without one, either because the correction is
 ambiguous (`Ok` or `Err`?) or because it changes a signature and cascades to
 callers the fix cannot see.
