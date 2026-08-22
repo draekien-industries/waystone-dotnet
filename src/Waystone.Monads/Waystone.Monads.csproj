@@ -23,6 +23,7 @@
     </PropertyGroup>
 
     <Import Project="..\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
+    <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
 
     <Target Name="PackMonadAnalyzers" DependsOnTargets="ResolveProjectReferences">
         <ItemGroup>
