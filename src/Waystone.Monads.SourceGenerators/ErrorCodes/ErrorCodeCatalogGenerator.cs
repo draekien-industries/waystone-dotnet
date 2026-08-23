@@ -262,6 +262,6 @@ public sealed class ErrorCodeCatalogGenerator : IIncrementalGenerator
 
     private static string HintNameFor(INamedTypeSymbol enumType) =>
         enumType.ContainingNamespace.IsGlobalNamespace
-            ? $"{enumType.Name}.ErrorCodes.cs"
-            : $"{enumType.ContainingNamespace.ToDisplayString()}.{enumType.Name}.ErrorCodes.cs";
+            ? $"{enumType.Name}.ErrorCodes.g.cs"
+            : $"{enumType.ContainingNamespace.ToDisplayString()}.{enumType.Name}.ErrorCodes.g.cs";
 }
