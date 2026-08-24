@@ -16,3 +16,7 @@ BenchmarkDotNet.Artifacts/
 artifacts/**
 !artifacts/**/
 !artifacts/**/*-report-github.md
+
+# Claude
+CLAUDE.local.md
+settings.local.json
