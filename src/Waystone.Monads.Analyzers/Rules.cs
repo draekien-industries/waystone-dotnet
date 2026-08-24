@@ -242,13 +242,16 @@ public static class Rules
     /// than a display class, a smaller cost that would fire on most ordinary
     /// instance-method code and drown the signal.
     /// The overload set is discovered from the containing type rather than
-    /// listed here, because the two are not the same set — <c>ZipWith</c> and
-    /// <c>Reduce</c> take a delegate and carry no state overload, and DRA-108
-    /// declined them permanently — and a hardcoded list would name an overload
-    /// that does not exist. The set also moved twice while the rule shipped
-    /// unchanged, which is the argument for the lookup. No code fix ships: the
-    /// natural rewrite reuses the captured name as the new delegate parameter,
-    /// which shadows the enclosing local and is CS0136 before C# 8.
+    /// listed here. A hardcoded list would name an overload that does not
+    /// exist: <c>ZipWith</c> and <c>Reduce</c> take a delegate and have no
+    /// state overload, because their delegates already receive every operand as
+    /// an argument of the call, and DRA-108 declined them permanently on that
+    /// ground. The lookup has paid for itself twice — DRA-107 and DRA-108 both
+    /// moved the set without touching
+    /// <see cref="StateOverloadAnalyzer" />.
+    /// No code fix ships: the natural rewrite reuses the captured name as the
+    /// new delegate parameter, which shadows the enclosing local and is CS0136
+    /// before C# 8.
     /// </remarks>
     public static readonly DiagnosticDescriptor DelegateCapturesInsteadOfState = Idiom(
         "WM2017",
