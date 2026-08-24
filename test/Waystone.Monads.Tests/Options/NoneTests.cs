@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Options;
+namespace Waystone.Monads.Options;
 
 using System;
 using System.Threading.Tasks;
@@ -145,6 +145,108 @@ public class NoneTest
 
         result.ShouldBe(none);
         filter.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenIsSomeAnd_ThenReturnFalseWithoutInvoking()
+    {
+        Option<int> none = Option.None<int>();
+
+        var predicate = Substitute.For<Func<int, int, bool>>();
+        predicate.Invoke(Arg.Any<int>(), Arg.Any<int>()).Returns(true);
+
+        none.IsSomeAnd(10, predicate).ShouldBeFalse();
+        predicate.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenIsNoneOr_ThenReturnTrueWithoutInvoking()
+    {
+        Option<int> none = Option.None<int>();
+
+        var predicate = Substitute.For<Func<int, int, bool>>();
+
+        none.IsNoneOr(10, predicate).ShouldBeTrue();
+        predicate.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenMatchingWithFuncs_ThenInvokeOnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        int result = none.Match(
+            10,
+            static (x, state) => x + state,
+            static state => state * 100);
+
+        result.ShouldBe(1000);
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenMatchingWithActions_ThenInvokeOnNone()
+    {
+        Option<int> none = Option.None<int>();
+
+        var onSome = Substitute.For<Action<int, int>>();
+        var onNone = Substitute.For<Action<int>>();
+
+        none.Match(10, onSome, onNone);
+
+        onNone.Received().Invoke(10);
+        onSome.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenInspect_ThenDoNothing()
+    {
+        Option<int> none = Option.None<int>();
+
+        var action = Substitute.For<Action<int, int>>();
+
+        Option<int> result = none.Inspect(10, action);
+
+        result.ShouldBe(none);
+        action.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenMapOrDefault_ThenReturnDefault()
+    {
+        Option<int> none = Option.None<int>();
+
+        var map = Substitute.For<Func<int, int, int>>();
+
+        none.MapOrDefault(10, map).ShouldBe(0);
+        map.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenUnwrapOrElse_ThenComputeFromState()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.UnwrapOrElse(10, static state => state).ShouldBe(10);
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenOrElse_ThenReturnTheComputedOption()
+    {
+        Option<int> none = Option.None<int>();
+
+        none.OrElse(10, static state => Option.Some(state))
+            .ShouldBe(Option.Some(10));
+    }
+
+    [Fact]
+    public void GivenNone_AndState_WhenOkOrElse_ThenReturnErr()
+    {
+        Option<int> none = Option.None<int>();
+
+        Result<int, string> result =
+            none.OkOrElse("Error", static state => state);
+
+        result.ShouldBe(Result.Err<int, string>("Error"));
     }
 
     [Fact]

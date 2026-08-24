@@ -45,10 +45,42 @@ public abstract record Option<T> where T : notnull
 
     /// <summary>
     /// Returns <see langword="true" /> if the option is a
+    /// <see cref="Some{T}" /> and the value inside of it matches a predicate.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the predicate.</param>
+    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <typeparam name="TState">The type of the state passed to the predicate.</typeparam>
+    public abstract bool IsSomeAnd<TState>(
+        TState state,
+        Func<T, TState, bool> predicate);
+
+    /// <summary>
+    /// Returns <see langword="true" /> if the option is a
     /// <see cref="None{T}" /> or the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition to evaluate the option against</param>
     public abstract bool IsNoneOr(Func<T, bool> predicate);
+
+    /// <summary>
+    /// Returns <see langword="true" /> if the option is a
+    /// <see cref="None{T}" /> or the value inside of it matches a predicate.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the predicate.</param>
+    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <typeparam name="TState">The type of the state passed to the predicate.</typeparam>
+    public abstract bool IsNoneOr<TState>(
+        TState state,
+        Func<T, TState, bool> predicate);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the option, invoking the
@@ -69,9 +101,56 @@ public abstract record Option<T> where T : notnull
     /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
     /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
     /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to both delegates rather than
+    /// captured by them, so they can be <see langword="static" /> and the call
+    /// allocates no closure. A capturing <c>Match</c> is the most expensive
+    /// call in the library: the two branches share one display class but need a
+    /// delegate each.
+    /// </remarks>
+    /// <param name="state">The value passed to both callbacks.</param>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
+    /// <typeparam name="TState">The type of the state passed to both callbacks.</typeparam>
+    /// <typeparam name="TOut">The returned type.</typeparam>
+    /// <returns>
+    /// The output of either the <paramref name="onSome" /> or
+    /// <paramref name="onNone" /> callback.
+    /// </returns>
+    public abstract TOut Match<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> onSome,
+        Func<TState, TOut> onNone);
+
+    /// <summary>
+    /// Performs a <see langword="switch" /> on the option, invoking the
+    /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
+    /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
+    /// </summary>
     /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
     /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
     public abstract void Match(Action<T> onSome, Action onNone);
+
+    /// <summary>
+    /// Performs a <see langword="switch" /> on the option, invoking the
+    /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
+    /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to both delegates rather than
+    /// captured by them, so they can be <see langword="static" /> and the call
+    /// allocates no closure. A capturing <c>Match</c> is the most expensive
+    /// call in the library: the two branches share one display class but need a
+    /// delegate each.
+    /// </remarks>
+    /// <param name="state">The value passed to both callbacks.</param>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
+    /// <typeparam name="TState">The type of the state passed to both callbacks.</typeparam>
+    public abstract void Match<TState>(
+        TState state,
+        Action<T, TState> onSome,
+        Action<TState> onNone);
 
     /// <summary>
     /// Returns the contained <see cref="Some{T}" /> value, consuming the
@@ -125,6 +204,24 @@ public abstract record Option<T> where T : notnull
     /// value.
     /// </param>
     public abstract T UnwrapOrElse(Func<T> @else);
+
+    /// <summary>
+    /// Returns the contained <see cref="Some{T}" /> value or computes it from
+    /// a delegate.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure. On a <see cref="Some{T}" /> the delegate is
+    /// never invoked, so a capturing call pays for a closure it does not use.
+    /// </remarks>
+    /// <param name="state">The value passed to the delegate.</param>
+    /// <param name="else">
+    /// The delegate which computes the <see cref="None{T}" />
+    /// value.
+    /// </param>
+    /// <typeparam name="TState">The type of the state passed to the delegate.</typeparam>
+    public abstract T UnwrapOrElse<TState>(TState state, Func<TState, T> @else);
 
     /// <summary>
     /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c> by
@@ -257,6 +354,24 @@ public abstract record Option<T> where T : notnull
     public abstract TOut? MapOrDefault<TOut>(Func<T, TOut> map) where TOut : notnull;
 
     /// <summary>
+    /// Returns the <see langword="default" /> of <typeparamref name="TOut" /> (if
+    /// <see cref="None{T}" />), or applies a function to the contained value (if
+    /// <see cref="Some{T}" />).
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract TOut? MapOrDefault<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> map) where TOut : notnull;
+
+    /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
@@ -297,6 +412,23 @@ public abstract record Option<T> where T : notnull
     /// <param name="action">The function to execute against the value.</param>
     /// <returns>The original <see cref="Option{T}" /></returns>
     public abstract Option<T> Inspect(Action<T> action);
+
+    /// <summary>
+    /// Calls a function with a reference to the contained value if
+    /// <see cref="Some{T}" />
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure.
+    /// </remarks>
+    /// <param name="state">The value passed to the function.</param>
+    /// <param name="action">The function to execute against the value.</param>
+    /// <typeparam name="TState">The type of the state passed to the function.</typeparam>
+    /// <returns>The original <see cref="Option{T}" /></returns>
+    public abstract Option<T> Inspect<TState>(
+        TState state,
+        Action<T, TState> action);
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
@@ -349,6 +481,23 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="createElse">The function that will create the other option.</param>
     public abstract Option<T> OrElse(Func<Option<T>> createElse);
+
+    /// <summary>
+    /// Returns the option if it contains a value, otherwise invokes the
+    /// <paramref name="createElse" /> function and returns the result.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="state" /> is handed to the delegate rather than
+    /// captured by it, so the delegate can be <see langword="static" /> and the
+    /// call allocates no closure. On a <see cref="Some{T}" /> the delegate is
+    /// never invoked, so a capturing call pays for a closure it does not use.
+    /// </remarks>
+    /// <param name="state">The value passed to the function.</param>
+    /// <param name="createElse">The function that will create the other option.</param>
+    /// <typeparam name="TState">The type of the state passed to the function.</typeparam>
+    public abstract Option<T> OrElse<TState>(
+        TState state,
+        Func<TState, Option<T>> createElse);
 
     /// <summary>
     /// Returns <see cref="Some{T}" /> if exactly one of
@@ -458,6 +607,35 @@ public abstract record Option<T> where T : notnull
     /// </returns>
     public abstract Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory)
         where TErr : notnull;
+
+    /// <summary>
+    /// Transforms the <see cref="Option{T}" /> into a
+    /// <see cref="Result{TOk, TErr}" />, mapping <see cref="Some{T}" /> to an
+    /// <see cref="Ok{TOk, TErr}" /> and <see cref="None{T}" /> to an
+    /// <see cref="Err{TOk, TErr}" /> built by the factory.
+    /// </summary>
+    /// <remarks>
+    /// The <paramref name="errorFactory" /> is lazily evaluated, meaning it
+    /// will only be invoked if the current option is a <see cref="None{T}" />.
+    /// The <paramref name="state" /> is handed to it rather than captured by
+    /// it, so it can be <see langword="static" /> and the call allocates no
+    /// closure — which on a <see cref="Some{T}" /> is a closure that would
+    /// never have been used.
+    /// </remarks>
+    /// <param name="state">The value passed to the factory.</param>
+    /// <param name="errorFactory">
+    /// The function, which when invoked, will return the
+    /// error value.
+    /// </param>
+    /// <typeparam name="TState">The type of the state passed to the factory.</typeparam>
+    /// <typeparam name="TErr">The type of the error value returned by the factory.</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk, TErr}" /> if the current option is a
+    /// <see cref="Some{T}" />, otherwise an <see cref="Err{TOk, TErr}" />.
+    /// </returns>
+    public abstract Result<T, TErr> OkOrElse<TState, TErr>(
+        TState state,
+        Func<TState, TErr> errorFactory) where TErr : notnull;
 
     /// <summary>
     /// Implicitly converts a value of type <typeparamref name="T" /> into an

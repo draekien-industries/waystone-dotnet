@@ -43,8 +43,18 @@ public sealed record Some<T> : Option<T>
         predicate(Value);
 
     /// <inheritdoc />
+    public override bool IsSomeAnd<TState>(
+        TState state,
+        Func<T, TState, bool> predicate) => predicate(Value, state);
+
+    /// <inheritdoc />
     public override bool IsNoneOr(Func<T, bool> predicate) =>
         predicate(Value);
+
+    /// <inheritdoc />
+    public override bool IsNoneOr<TState>(
+        TState state,
+        Func<T, TState, bool> predicate) => predicate(Value, state);
 
     /// <inheritdoc />
     public override TOut Match<TOut>(
@@ -52,9 +62,24 @@ public sealed record Some<T> : Option<T>
         Func<TOut> onNone) => onSome(Value);
 
     /// <inheritdoc />
+    public override TOut Match<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> onSome,
+        Func<TState, TOut> onNone) => onSome(Value, state);
+
+    /// <inheritdoc />
     public override void Match(Action<T> onSome, Action onNone)
     {
         onSome(Value);
+    }
+
+    /// <inheritdoc />
+    public override void Match<TState>(
+        TState state,
+        Action<T, TState> onSome,
+        Action<TState> onNone)
+    {
+        onSome(Value, state);
     }
 
     /// <inheritdoc />
@@ -74,6 +99,10 @@ public sealed record Some<T> : Option<T>
 
     /// <inheritdoc />
     public override T UnwrapOrElse(Func<T> @else) =>
+        Value;
+
+    /// <inheritdoc />
+    public override T UnwrapOrElse<TState>(TState state, Func<TState, T> @else) =>
         Value;
 
     /// <inheritdoc />
@@ -104,6 +133,11 @@ public sealed record Some<T> : Option<T>
         map(Value);
 
     /// <inheritdoc />
+    public override TOut MapOrDefault<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> map) => map(Value, state);
+
+    /// <inheritdoc />
     public override TOut MapOrElse<TOut>(
         Func<TOut> createDefault,
         Func<T, TOut> map) => Match(map, createDefault);
@@ -118,6 +152,15 @@ public sealed record Some<T> : Option<T>
     public override Option<T> Inspect(Action<T> action)
     {
         action(Value);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public override Option<T> Inspect<TState>(
+        TState state,
+        Action<T, TState> action)
+    {
+        action(Value, state);
         return this;
     }
 
@@ -138,6 +181,11 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> OrElse(Func<Option<T>> createElse) =>
         this;
+
+    /// <inheritdoc />
+    public override Option<T> OrElse<TState>(
+        TState state,
+        Func<TState, Option<T>> createElse) => this;
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>
@@ -177,6 +225,11 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory) =>
         Result.Ok<T, TErr>(Value);
+
+    /// <inheritdoc />
+    public override Result<T, TErr> OkOrElse<TState, TErr>(
+        TState state,
+        Func<TState, TErr> errorFactory) => Result.Ok<T, TErr>(Value);
 
     internal override void OnlyThisAssemblyMayDerive()
     { }

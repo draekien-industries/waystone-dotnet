@@ -223,21 +223,45 @@ public class StateOverloadAnalyzerTests
                .WithArguments("AndThen", "offset"));
 
     /// <remarks>
-    /// Inspect takes a delegate on a type that carries state overloads on other
+    /// Match is the reach DRA-108 added, and the case worth the most: both
+    /// branches capture, so one display class and two delegates are allocated
+    /// where the other members allocate one of each. The captured names are
+    /// reported once each and in source order, not once per branch.
+    /// </remarks>
+    [Fact]
+    public Task FlagsMatchWhenBothBranchesCapture() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
+            """
+            internal int Fold(Option<int> option, int offset, int fallback) =>
+                option.{|#0:Match|}(
+                    value => value + offset,
+                    () => fallback);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Match", "offset', 'fallback"));
+
+    /// <remarks>
+    /// ZipWith takes a delegate on a type that carries state overloads on other
     /// methods, and has none of its own. This pins the containing-type lookup:
     /// a rule that fired because the receiver has state overloads somewhere
     /// would name an overload that does not exist.
+    /// ZipWith and Reduce are the pin because DRA-108 declined them
+    /// permanently — both delegates get every operand from the call, so there
+    /// is nothing to capture and a state parameter would be one callers pass
+    /// null to. Inspect held this test until DRA-108 gave it a state overload.
     /// </remarks>
     [Fact]
-    public Task IgnoresInspectWhichHasNoStateOverload() =>
+    public Task IgnoresZipWithWhichHasNoStateOverload() =>
         Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
             """
-            internal Option<int> Log(Option<int> option, int offset) =>
-                option.Inspect(value => Record(value + offset));
-
-            private static void Record(int value)
-            {
-            }
+            internal Option<int> Combine(
+                Option<int> option,
+                Option<int> other,
+                int offset) =>
+                option.ZipWith(
+                    other,
+                    (value, otherValue) => value + otherValue + offset);
             """);
 
     [Fact]

@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads;
+namespace Waystone.Monads;
 
 using Options;
 using Results;
@@ -53,6 +53,21 @@ public sealed class StateOverloadResolutionTests
     private static readonly Func<int, Task<int>> IdentityAsync = state =>
         Task.FromResult(state);
 
+    private static readonly Action<int> Record = _ => { };
+
+    private static readonly Action NoOp = () => { };
+
+    private static readonly Action<int, int> RecordWithState = (_, _) => { };
+
+    private static readonly Func<Option<int>> SomeTen = () => Option.Some(10);
+
+    private static readonly Func<int, Option<int>> SomeState = state =>
+        Option.Some(state);
+
+    private static readonly Func<string> Boom = () => "boom";
+
+    private static readonly Func<string, string> EchoError = state => state;
+
     [Fact]
     public void StoredDelegatesBindToTheIntendedOptionOverload()
     {
@@ -72,6 +87,46 @@ public sealed class StateOverloadResolutionTests
 
         some.AndThen(SomeIncrement).ShouldBe(Option.Some(2));
         some.AndThen(10, SomeAdd).ShouldBe(Option.Some(11));
+
+        some.IsSomeAnd(IsOne).ShouldBeTrue();
+        some.IsSomeAnd(1, Matches).ShouldBeTrue();
+
+        some.IsNoneOr(IsOne).ShouldBeTrue();
+        some.IsNoneOr(1, Matches).ShouldBeTrue();
+
+        some.MapOrDefault(Increment).ShouldBe(2);
+        some.MapOrDefault(10, Add).ShouldBe(11);
+
+        some.Inspect(Record).ShouldBe(some);
+        some.Inspect(10, RecordWithState).ShouldBe(some);
+
+        some.UnwrapOrElse(Ten).ShouldBe(1);
+        some.UnwrapOrElse(10, Identity).ShouldBe(1);
+
+        some.OrElse(SomeTen).ShouldBe(some);
+        some.OrElse(10, SomeState).ShouldBe(some);
+
+        some.OkOrElse(Boom).ShouldBe(Result.Ok<int, string>(1));
+        some.OkOrElse("boom", EchoError).ShouldBe(Result.Ok<int, string>(1));
+    }
+
+    /// <remarks>
+    /// Match is the one member with two overloads of the same arity on each
+    /// side of the state split: the Func pair and the Action pair both go from
+    /// two required arguments to three. Only the delegate types separate them,
+    /// and Record binds as the non-state onSome and as the state onNone, which
+    /// is the shape that would go wrong first.
+    /// </remarks>
+    [Fact]
+    public void StoredDelegatesBindToTheIntendedMatchOverload()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.Match(Increment, Ten).ShouldBe(2);
+        some.Match(10, Add, Identity).ShouldBe(11);
+
+        some.Match(Record, NoOp);
+        some.Match(10, RecordWithState, Record);
     }
 
     [Fact]

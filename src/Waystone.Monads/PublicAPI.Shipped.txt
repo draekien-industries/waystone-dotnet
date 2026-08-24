@@ -66,18 +66,22 @@ Waystone.Monads.Options.Extensions.InspectExtensions
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!)
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).InspectAsync(System.Action<T>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).InspectAsync(System.Func<T, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
+Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).InspectAsync<TState>(TState state, System.Action<T, TState>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>)
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).InspectAsync(System.Action<T>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).InspectAsync(System.Func<T, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
+Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).InspectAsync<TState>(TState state, System.Action<T, TState>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(Waystone.Monads.Options.Option<T>!)
 Waystone.Monads.Options.Extensions.InspectExtensions.extension<T>(Waystone.Monads.Options.Option<T>!).InspectAsync(System.Func<T, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!)
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).IsNoneOrAsync(System.Func<T, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).IsNoneOrAsync(System.Func<T, bool>! predicate) -> System.Threading.Tasks.ValueTask<bool>
+Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).IsNoneOrAsync<TState>(TState state, System.Func<T, TState, bool>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>)
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).IsNoneOrAsync(System.Func<T, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).IsNoneOrAsync(System.Func<T, bool>! predicate) -> System.Threading.Tasks.ValueTask<bool>
+Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).IsNoneOrAsync<TState>(TState state, System.Func<T, TState, bool>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(Waystone.Monads.Options.Option<T>!)
 Waystone.Monads.Options.Extensions.IsNoneOrExtensions.extension<T>(Waystone.Monads.Options.Option<T>!).IsNoneOrAsync(System.Func<T, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Options.Extensions.IsSomeAndExtensions
@@ -102,9 +106,11 @@ Waystone.Monads.Options.Extensions.MapOrDefaultExtensions
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!)
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).MapOrDefaultAsync<TOut>(System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).MapOrDefaultAsync<TOut>(System.Func<T, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut?>
+Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).MapOrDefaultAsync<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>)
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).MapOrDefaultAsync<TOut>(System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).MapOrDefaultAsync<TOut>(System.Func<T, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut?>
+Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).MapOrDefaultAsync<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(Waystone.Monads.Options.Option<T>!)
 Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.extension<T>(Waystone.Monads.Options.Option<T>!).MapOrDefaultAsync<TOut>(System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Extensions.MapOrElseExtensions
@@ -449,28 +455,37 @@ abstract Waystone.Monads.Options.Option<T>.Expect(string! message) -> T
 abstract Waystone.Monads.Options.Option<T>.Filter(System.Func<T, bool>! predicate) -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.Filter<TState>(TState state, System.Func<T, TState, bool>! predicate) -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.Inspect(System.Action<T>! action) -> Waystone.Monads.Options.Option<T>!
+abstract Waystone.Monads.Options.Option<T>.Inspect<TState>(TState state, System.Action<T, TState>! action) -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.IsNone.get -> bool
 abstract Waystone.Monads.Options.Option<T>.IsNoneOr(System.Func<T, bool>! predicate) -> bool
+abstract Waystone.Monads.Options.Option<T>.IsNoneOr<TState>(TState state, System.Func<T, TState, bool>! predicate) -> bool
 abstract Waystone.Monads.Options.Option<T>.IsSome.get -> bool
 abstract Waystone.Monads.Options.Option<T>.IsSomeAnd(System.Func<T, bool>! predicate) -> bool
+abstract Waystone.Monads.Options.Option<T>.IsSomeAnd<TState>(TState state, System.Func<T, TState, bool>! predicate) -> bool
 abstract Waystone.Monads.Options.Option<T>.Map<TOut>(System.Func<T, TOut>! map) -> Waystone.Monads.Options.Option<TOut>!
 abstract Waystone.Monads.Options.Option<T>.Map<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> Waystone.Monads.Options.Option<TOut>!
 abstract Waystone.Monads.Options.Option<T>.MapOr<TOut>(TOut default, System.Func<T, TOut>! map) -> TOut
 abstract Waystone.Monads.Options.Option<T>.MapOr<TState, TOut>(TState state, TOut default, System.Func<T, TState, TOut>! map) -> TOut
 abstract Waystone.Monads.Options.Option<T>.MapOrDefault<TOut>(System.Func<T, TOut>! map) -> TOut?
+abstract Waystone.Monads.Options.Option<T>.MapOrDefault<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> TOut?
 abstract Waystone.Monads.Options.Option<T>.MapOrElse<TOut>(System.Func<TOut>! createDefault, System.Func<T, TOut>! map) -> TOut
 abstract Waystone.Monads.Options.Option<T>.MapOrElse<TState, TOut>(TState state, System.Func<TState, TOut>! createDefault, System.Func<T, TState, TOut>! map) -> TOut
 abstract Waystone.Monads.Options.Option<T>.Match(System.Action<T>! onSome, System.Action! onNone) -> void
 abstract Waystone.Monads.Options.Option<T>.Match<TOut>(System.Func<T, TOut>! onSome, System.Func<TOut>! onNone) -> TOut
+abstract Waystone.Monads.Options.Option<T>.Match<TState, TOut>(TState state, System.Func<T, TState, TOut>! onSome, System.Func<TState, TOut>! onNone) -> TOut
+abstract Waystone.Monads.Options.Option<T>.Match<TState>(TState state, System.Action<T, TState>! onSome, System.Action<TState>! onNone) -> void
 abstract Waystone.Monads.Options.Option<T>.OkOr<TErr>(TErr error) -> Waystone.Monads.Results.Result<T, TErr>!
 abstract Waystone.Monads.Options.Option<T>.OkOrElse<TErr>(System.Func<TErr>! errorFactory) -> Waystone.Monads.Results.Result<T, TErr>!
+abstract Waystone.Monads.Options.Option<T>.OkOrElse<TState, TErr>(TState state, System.Func<TState, TErr>! errorFactory) -> Waystone.Monads.Results.Result<T, TErr>!
 abstract Waystone.Monads.Options.Option<T>.Or(Waystone.Monads.Options.Option<T>! other) -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.OrElse(System.Func<Waystone.Monads.Options.Option<T>!>! createElse) -> Waystone.Monads.Options.Option<T>!
+abstract Waystone.Monads.Options.Option<T>.OrElse<TState>(TState state, System.Func<TState, Waystone.Monads.Options.Option<T>!>! createElse) -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.Reduce(Waystone.Monads.Options.Option<T>! other, System.Func<T, T, T>! reduce) -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.Unwrap() -> T
 abstract Waystone.Monads.Options.Option<T>.UnwrapOr(T value) -> T
 abstract Waystone.Monads.Options.Option<T>.UnwrapOrDefault() -> T?
 abstract Waystone.Monads.Options.Option<T>.UnwrapOrElse(System.Func<T>! else) -> T
+abstract Waystone.Monads.Options.Option<T>.UnwrapOrElse<TState>(TState state, System.Func<TState, T>! else) -> T
 abstract Waystone.Monads.Options.Option<T>.Xor(Waystone.Monads.Options.Option<T>! other) -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.Zip<TOther>(Waystone.Monads.Options.Option<TOther>! other) -> Waystone.Monads.Options.Option<(T, TOther)>!
 abstract Waystone.Monads.Options.Option<T>.ZipWith<TOther, TOut>(Waystone.Monads.Options.Option<TOther>! other, System.Func<T, TOther, TOut>! zip) -> Waystone.Monads.Options.Option<TOut>!
@@ -518,29 +533,38 @@ override Waystone.Monads.Options.None<T>.Filter(System.Func<T, bool>! predicate)
 override Waystone.Monads.Options.None<T>.Filter<TState>(TState state, System.Func<T, TState, bool>! predicate) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.GetHashCode() -> int
 override Waystone.Monads.Options.None<T>.Inspect(System.Action<T>! action) -> Waystone.Monads.Options.Option<T>!
+override Waystone.Monads.Options.None<T>.Inspect<TState>(TState state, System.Action<T, TState>! action) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.IsNone.get -> bool
 override Waystone.Monads.Options.None<T>.IsNoneOr(System.Func<T, bool>! predicate) -> bool
+override Waystone.Monads.Options.None<T>.IsNoneOr<TState>(TState state, System.Func<T, TState, bool>! predicate) -> bool
 override Waystone.Monads.Options.None<T>.IsSome.get -> bool
 override Waystone.Monads.Options.None<T>.IsSomeAnd(System.Func<T, bool>! predicate) -> bool
+override Waystone.Monads.Options.None<T>.IsSomeAnd<TState>(TState state, System.Func<T, TState, bool>! predicate) -> bool
 override Waystone.Monads.Options.None<T>.Map<TOut>(System.Func<T, TOut>! map) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.None<T>.Map<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.None<T>.MapOr<TOut>(TOut default, System.Func<T, TOut>! map) -> TOut
 override Waystone.Monads.Options.None<T>.MapOr<TState, TOut>(TState state, TOut default, System.Func<T, TState, TOut>! map) -> TOut
 override Waystone.Monads.Options.None<T>.MapOrDefault<TOut>(System.Func<T, TOut>! map) -> TOut
+override Waystone.Monads.Options.None<T>.MapOrDefault<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> TOut
 override Waystone.Monads.Options.None<T>.MapOrElse<TOut>(System.Func<TOut>! createDefault, System.Func<T, TOut>! map) -> TOut
 override Waystone.Monads.Options.None<T>.MapOrElse<TState, TOut>(TState state, System.Func<TState, TOut>! createDefault, System.Func<T, TState, TOut>! map) -> TOut
 override Waystone.Monads.Options.None<T>.Match(System.Action<T>! onSome, System.Action! onNone) -> void
 override Waystone.Monads.Options.None<T>.Match<TOut>(System.Func<T, TOut>! onSome, System.Func<TOut>! onNone) -> TOut
+override Waystone.Monads.Options.None<T>.Match<TState, TOut>(TState state, System.Func<T, TState, TOut>! onSome, System.Func<TState, TOut>! onNone) -> TOut
+override Waystone.Monads.Options.None<T>.Match<TState>(TState state, System.Action<T, TState>! onSome, System.Action<TState>! onNone) -> void
 override Waystone.Monads.Options.None<T>.OkOr<TErr>(TErr error) -> Waystone.Monads.Results.Result<T, TErr>!
 override Waystone.Monads.Options.None<T>.OkOrElse<TErr>(System.Func<TErr>! errorFactory) -> Waystone.Monads.Results.Result<T, TErr>!
+override Waystone.Monads.Options.None<T>.OkOrElse<TState, TErr>(TState state, System.Func<TState, TErr>! errorFactory) -> Waystone.Monads.Results.Result<T, TErr>!
 override Waystone.Monads.Options.None<T>.Or(Waystone.Monads.Options.Option<T>! other) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.OrElse(System.Func<Waystone.Monads.Options.Option<T>!>! createElse) -> Waystone.Monads.Options.Option<T>!
+override Waystone.Monads.Options.None<T>.OrElse<TState>(TState state, System.Func<TState, Waystone.Monads.Options.Option<T>!>! createElse) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.Reduce(Waystone.Monads.Options.Option<T>! other, System.Func<T, T, T>! reduce) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.ToString() -> string!
 override Waystone.Monads.Options.None<T>.Unwrap() -> T
 override Waystone.Monads.Options.None<T>.UnwrapOr(T value) -> T
 override Waystone.Monads.Options.None<T>.UnwrapOrDefault() -> T?
 override Waystone.Monads.Options.None<T>.UnwrapOrElse(System.Func<T>! else) -> T
+override Waystone.Monads.Options.None<T>.UnwrapOrElse<TState>(TState state, System.Func<TState, T>! else) -> T
 override Waystone.Monads.Options.None<T>.Xor(Waystone.Monads.Options.Option<T>! other) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.Zip<TOther>(Waystone.Monads.Options.Option<TOther>! other) -> Waystone.Monads.Options.Option<(T, TOther)>!
 override Waystone.Monads.Options.None<T>.ZipWith<TOther, TOut>(Waystone.Monads.Options.Option<TOther>! other, System.Func<T, TOther, TOut>! zip) -> Waystone.Monads.Options.Option<TOut>!
@@ -556,29 +580,38 @@ override Waystone.Monads.Options.Some<T>.Filter(System.Func<T, bool>! predicate)
 override Waystone.Monads.Options.Some<T>.Filter<TState>(TState state, System.Func<T, TState, bool>! predicate) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.Some<T>.GetHashCode() -> int
 override Waystone.Monads.Options.Some<T>.Inspect(System.Action<T>! action) -> Waystone.Monads.Options.Option<T>!
+override Waystone.Monads.Options.Some<T>.Inspect<TState>(TState state, System.Action<T, TState>! action) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.Some<T>.IsNone.get -> bool
 override Waystone.Monads.Options.Some<T>.IsNoneOr(System.Func<T, bool>! predicate) -> bool
+override Waystone.Monads.Options.Some<T>.IsNoneOr<TState>(TState state, System.Func<T, TState, bool>! predicate) -> bool
 override Waystone.Monads.Options.Some<T>.IsSome.get -> bool
 override Waystone.Monads.Options.Some<T>.IsSomeAnd(System.Func<T, bool>! predicate) -> bool
+override Waystone.Monads.Options.Some<T>.IsSomeAnd<TState>(TState state, System.Func<T, TState, bool>! predicate) -> bool
 override Waystone.Monads.Options.Some<T>.Map<TOut>(System.Func<T, TOut>! map) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.Some<T>.Map<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.Some<T>.MapOr<TOut>(TOut default, System.Func<T, TOut>! map) -> TOut
 override Waystone.Monads.Options.Some<T>.MapOr<TState, TOut>(TState state, TOut default, System.Func<T, TState, TOut>! map) -> TOut
 override Waystone.Monads.Options.Some<T>.MapOrDefault<TOut>(System.Func<T, TOut>! map) -> TOut
+override Waystone.Monads.Options.Some<T>.MapOrDefault<TState, TOut>(TState state, System.Func<T, TState, TOut>! map) -> TOut
 override Waystone.Monads.Options.Some<T>.MapOrElse<TOut>(System.Func<TOut>! createDefault, System.Func<T, TOut>! map) -> TOut
 override Waystone.Monads.Options.Some<T>.MapOrElse<TState, TOut>(TState state, System.Func<TState, TOut>! createDefault, System.Func<T, TState, TOut>! map) -> TOut
 override Waystone.Monads.Options.Some<T>.Match(System.Action<T>! onSome, System.Action! onNone) -> void
 override Waystone.Monads.Options.Some<T>.Match<TOut>(System.Func<T, TOut>! onSome, System.Func<TOut>! onNone) -> TOut
+override Waystone.Monads.Options.Some<T>.Match<TState, TOut>(TState state, System.Func<T, TState, TOut>! onSome, System.Func<TState, TOut>! onNone) -> TOut
+override Waystone.Monads.Options.Some<T>.Match<TState>(TState state, System.Action<T, TState>! onSome, System.Action<TState>! onNone) -> void
 override Waystone.Monads.Options.Some<T>.OkOr<TErr>(TErr error) -> Waystone.Monads.Results.Result<T, TErr>!
 override Waystone.Monads.Options.Some<T>.OkOrElse<TErr>(System.Func<TErr>! errorFactory) -> Waystone.Monads.Results.Result<T, TErr>!
+override Waystone.Monads.Options.Some<T>.OkOrElse<TState, TErr>(TState state, System.Func<TState, TErr>! errorFactory) -> Waystone.Monads.Results.Result<T, TErr>!
 override Waystone.Monads.Options.Some<T>.Or(Waystone.Monads.Options.Option<T>! other) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.Some<T>.OrElse(System.Func<Waystone.Monads.Options.Option<T>!>! createElse) -> Waystone.Monads.Options.Option<T>!
+override Waystone.Monads.Options.Some<T>.OrElse<TState>(TState state, System.Func<TState, Waystone.Monads.Options.Option<T>!>! createElse) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.Some<T>.Reduce(Waystone.Monads.Options.Option<T>! other, System.Func<T, T, T>! reduce) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.Some<T>.ToString() -> string!
 override Waystone.Monads.Options.Some<T>.Unwrap() -> T
 override Waystone.Monads.Options.Some<T>.UnwrapOr(T value) -> T
 override Waystone.Monads.Options.Some<T>.UnwrapOrDefault() -> T
 override Waystone.Monads.Options.Some<T>.UnwrapOrElse(System.Func<T>! else) -> T
+override Waystone.Monads.Options.Some<T>.UnwrapOrElse<TState>(TState state, System.Func<TState, T>! else) -> T
 override Waystone.Monads.Options.Some<T>.Xor(Waystone.Monads.Options.Option<T>! other) -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.Some<T>.Zip<TOther>(Waystone.Monads.Options.Option<TOther>! other) -> Waystone.Monads.Options.Option<(T, TOther)>!
 override Waystone.Monads.Options.Some<T>.ZipWith<TOther, TOut>(Waystone.Monads.Options.Option<TOther>! other, System.Func<T, TOther, TOut>! zip) -> Waystone.Monads.Options.Option<TOut>!
@@ -687,11 +720,15 @@ static Waystone.Monads.Options.Extensions.FilterExtensions.FilterAsync<T>(this S
 static Waystone.Monads.Options.Extensions.FilterExtensions.FilterAsync<T>(this Waystone.Monads.Options.Option<T>! option, System.Func<T, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 static Waystone.Monads.Options.Extensions.FlattenExtensions.FlattenAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<Waystone.Monads.Options.Option<T>!>!>! nestedOptionTask) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 static Waystone.Monads.Options.Extensions.FlattenExtensions.FlattenAsync<T>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<Waystone.Monads.Options.Option<T>!>!> nestedOptionTask) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
+static Waystone.Monads.Options.Extensions.InspectExtensions.InspectAsync<T, TState>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, TState state, System.Action<T, TState>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
+static Waystone.Monads.Options.Extensions.InspectExtensions.InspectAsync<T, TState>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, TState state, System.Action<T, TState>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 static Waystone.Monads.Options.Extensions.InspectExtensions.InspectAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Action<T>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 static Waystone.Monads.Options.Extensions.InspectExtensions.InspectAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<T, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 static Waystone.Monads.Options.Extensions.InspectExtensions.InspectAsync<T>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, System.Action<T>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 static Waystone.Monads.Options.Extensions.InspectExtensions.InspectAsync<T>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, System.Func<T, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 static Waystone.Monads.Options.Extensions.InspectExtensions.InspectAsync<T>(this Waystone.Monads.Options.Option<T>! option, System.Func<T, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
+static Waystone.Monads.Options.Extensions.IsNoneOrExtensions.IsNoneOrAsync<T, TState>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, TState state, System.Func<T, TState, bool>! predicate) -> System.Threading.Tasks.ValueTask<bool>
+static Waystone.Monads.Options.Extensions.IsNoneOrExtensions.IsNoneOrAsync<T, TState>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, TState state, System.Func<T, TState, bool>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 static Waystone.Monads.Options.Extensions.IsNoneOrExtensions.IsNoneOrAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<T, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 static Waystone.Monads.Options.Extensions.IsNoneOrExtensions.IsNoneOrAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<T, bool>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 static Waystone.Monads.Options.Extensions.IsNoneOrExtensions.IsNoneOrAsync<T>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, System.Func<T, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
@@ -712,6 +749,8 @@ static Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.MapOrDefaultAsy
 static Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.MapOrDefaultAsync<T, TOut>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 static Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.MapOrDefaultAsync<T, TOut>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, System.Func<T, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 static Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.MapOrDefaultAsync<T, TOut>(this Waystone.Monads.Options.Option<T>! option, System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
+static Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.MapOrDefaultAsync<T, TState, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, TState state, System.Func<T, TState, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut?>
+static Waystone.Monads.Options.Extensions.MapOrDefaultExtensions.MapOrDefaultAsync<T, TState, TOut>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, TState state, System.Func<T, TState, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 static Waystone.Monads.Options.Extensions.MapOrElseExtensions.MapOrElseAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<System.Threading.Tasks.Task<TOut>!>! defaultFunc, System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut>
 static Waystone.Monads.Options.Extensions.MapOrElseExtensions.MapOrElseAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<System.Threading.Tasks.Task<TOut>!>! defaultFunc, System.Func<T, TOut>! map) -> System.Threading.Tasks.ValueTask<TOut>
 static Waystone.Monads.Options.Extensions.MapOrElseExtensions.MapOrElseAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<TOut>! defaultFunc, System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut>

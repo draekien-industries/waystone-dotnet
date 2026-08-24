@@ -269,3 +269,41 @@ the real member will not.
 Read the allocation column. The timing column shows the sign of the change, not
 its size. Re-running this class against the shipped overloads once they land is
 the honest way to get the timings, and the prototypes come out when they do.
+
+### What the prototypes got wrong
+
+The `Option<T>` overloads landed and their eight rows now call the real members.
+The prototypes stayed on the two `Result` rows until those land too, which makes
+the same run a controlled comparison of the two measurement styles.
+
+| `WithState` row | as a prototype | as the shipped member |
+| -- | --: | --: |
+| `IsSomeAnd` | 0.11× | 0.70× |
+| `MatchFunc` | 0.10× | 0.34× |
+| `MatchAction` | 0.05× | 0.38× |
+| `Inspect` | 0.11× | 0.77× |
+| `MapOrDefault` | 0.07× | 0.45× |
+| `UnwrapOrElse` | 0.07× | 0.88× |
+| `OrElse` | 0.08× | 0.75× |
+| `OkOrElse` | 0.14× | 0.55× |
+| `IsOkAnd` — *still a prototype* | 0.10× | 0.09× |
+| `ResultMatchFunc` — *still a prototype* | 0.06× | 0.05× |
+
+**The allocation column did not move at all.** Every byte the prototype run
+reported is a byte the shipped run reports.
+
+**The timing column moved by roughly an order of magnitude**, and the two rows
+still on prototypes did not move, which is what rules out drift between the runs.
+A `private static` the JIT inlines through is not a virtual call on a `record`,
+and the gap between 0.05× and 0.38× is the whole of that difference. The
+prototypes were never wrong about *whether* to add the overloads; they were
+wildly optimistic about how much time it would buy.
+
+The narrow rows are the ones worth reading twice. `UnwrapOrElse` at 0.88× and
+`Inspect` at 0.77× save almost no time — the delegate they avoid building was
+cheap to build. They still go from 88 B to zero, and that is the entire case for
+them. An argument for these overloads that leaned on the means would have been
+an argument the shipped members could not support.
+
+`Match` is the exception that keeps its headline either way: 0.34× and 0.38×
+against 152 B eliminated.
