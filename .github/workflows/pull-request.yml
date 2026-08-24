@@ -6,20 +6,13 @@ concurrency:
   group: pull-request-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+# No paths filter, and no job-level skipping. Both jobs feed required status
+# checks -- a workflow that never runs reports nothing, so a PR outside the old
+# filter sat BLOCKED with nothing pending to wait for. Skipping the jobs instead
+# would satisfy the two Actions checks but not codecov/patch, which Codecov only
+# posts once a coverage report is uploaded. See .github/AGENTS.md.
 on:
   pull_request:
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'sample/**'
-      - '.editorconfig'
-      - 'Directory.Packages.props'
-      - 'Waystone.Net.sln'
-      - 'global.json'
-      - 'GitVersion.yml'
-      - '.github/workflows/pull-request.yml'
-      - '!**/*.md'
-      - 'src/**/AnalyzerReleases.*.md'
 
 jobs:
   calculate-version:

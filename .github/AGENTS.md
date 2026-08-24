@@ -31,20 +31,35 @@ once, and a group that does not vary puts all of them together, so
 `cancel-in-progress` kills every run but the last to start. The group is keyed on
 `github.event.pull_request.number`.
 
-**The `paths` filter means a markdown-only PR cannot satisfy the required
-checks.** It matches nothing in the filter, the workflow never runs, the three
-checks never report, and the PR sits `BLOCKED` with nothing pending to wait for.
-Those land with `gh pr merge --admin` under the ruleset's `OrganizationAdmin`
-bypass. That is the accepted trade — widening the filter would run the build over
-prose. Do not wait on checks for a markdown-only PR; nothing is coming.
+**`pull-request.yml` has no `paths` filter, and must not be given one.** It
+carried one until a `chore:` PR touching only `bench/**` and `artifacts/**` sat
+`BLOCKED` forever: the workflow never ran, so none of the three required checks
+reported, and there was nothing pending to wait for. A check that never reports
+cannot be satisfied. `gh pr merge --admin` clears one such PR, but not a stack —
+`gh stack merge` is the only supported way to land one and it has no per-PR
+bypass, so a filtered-out PR at the bottom wedges every PR above it.
 
-`!**/*.md` does the excluding, and it has to be *after* the positive patterns,
-because a later pattern wins. It applies inside `src` and `test` too, which is what
-keeps the area `AGENTS.md` files from triggering a build. `AnalyzerReleases.*.md`
-is then re-included after it: RS2008 makes those files build-affecting, so a change
-touching only one of them must still run CI. `release.yml` carries the same pair,
-or a prose change under `src` would attempt a publish of a version that `docs:` and
-`chore:` subjects never bumped.
+**Skipping the jobs is not the alternative.** GitHub counts a skipped job as a
+passing required check, so `Calculate Version` and `Build and run tests` would be
+fine gated behind a `changes` job. `codecov/patch` would not: Codecov posts it
+only after a coverage report is uploaded for the head commit, and no upload
+happens if the job that runs `dotnet test` is skipped. The required check is
+pinned to Codecov's integration id, so nothing else can post that context in its
+place. Any scheme that skips the test job has to drop `codecov/patch` from the
+ruleset, which trades a real gate for runner minutes.
+
+The filter was also hiding a compile: `bench/Waystone.Monads.Benchmarks.csproj`
+is in `Waystone.Net.sln`, so `dotnet build` builds it, but `bench/**` was not in
+the filter. A benchmark that stopped compiling would have reached `main` without
+CI ever noticing.
+
+`release.yml` keeps its filter, and there the `!**/*.md` ordering still matters.
+The exclusion has to come *after* the positive patterns, because a later pattern
+wins, and it applies inside `src` and `test` too, which is what keeps the area
+`AGENTS.md` files from triggering a publish. `AnalyzerReleases.*.md` is then
+re-included after it: RS2008 makes those files build-affecting. Do not remove
+that filter to match `pull-request.yml` — without it a prose change under `src`
+attempts a publish of a version that `docs:` and `chore:` subjects never bumped.
 
 **`codecov/patch` counts every line the diff touches, not the lines that added
 logic.** Stripping a nullable annotation across a dozen untested async overloads
