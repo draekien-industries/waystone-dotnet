@@ -84,6 +84,17 @@ refactors, tests, CI, and build configuration.
 explanatory comments inside method bodies. `CS1591` is suppressed, so the build
 will not tell you when public docs are missing.
 
+**Write and audit those comments through the
+`engineering-skills:with-doc-comments` skill.** Nothing in the build checks that
+a doc comment says anything, so the default outcome is a slot-filled restatement
+of the signature. It applies to new comments and to existing ones alike. The two
+failures it catches most often here are an overload whose summary is copied from
+its sibling — doc generators index the first sentence alone, so the pair becomes
+indistinguishable — and a `<param>` that repeats the parameter's own type.
+Diagnostic descriptors are the exception and go through
+`writing-diagnostic-descriptors` instead; see
+[Waystone.Monads.Analyzers](src/Waystone.Monads.Analyzers/AGENTS.md).
+
 ## Branches and stacks
 
 **Work flows `feature/*` → `main`.** There is no `develop` branch and there will
@@ -100,6 +111,11 @@ PR; adopting a hand-built chain afterwards works but is a repair, not a route.
 
 `gh stack submit` opens an editor an agent cannot drive, so pass `--auto`. Note
 that `--auto` creates *new* PRs as drafts unless you add `--open`.
+
+**Run `gh stack add <branch>` before committing the next PR's work, not after.**
+It creates the branch and checks it out. Commit first and the work lands on the
+branch below, which then takes a `git branch`, a `reset --hard` and a
+cherry-pick to unpick.
 
 **A stack contributes every one of its PR titles.** `gh stack merge` squashes each
 PR separately, so an eleven-PR stack lands eleven commits and GitVersion reads all

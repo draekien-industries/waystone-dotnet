@@ -15,6 +15,16 @@ are resolved by metadata name through `MonadSymbols.TryCreate`, and the analyzer
 goes silent when they are absent. A project reference would make the library's own
 consumption of its analyzer a build cycle.
 
+**Write and change descriptors through the `writing-diagnostic-descriptors`
+skill**, including an edit to a shipped rule's strings. It owns the tier-to-factory
+mapping, the id allocation, the voice of each of the three strings, and the
+paired obligations further down this file — none of which the build checks in
+full. It also owns the split the descriptors get wrong most often: why a pattern
+is a problem belongs in the `description` a consumer sees, while why the rule is
+scoped as it is belongs in the XML doc on the field. Reasoning that lands in both
+is a duplicate, and reasoning that lands only in the `description` is design
+history in a tooltip.
+
 **A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
 RS2008 fails the build without one. Use severity `Disabled` in that table for a
 rule that ships off.

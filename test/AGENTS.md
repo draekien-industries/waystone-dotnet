@@ -24,6 +24,13 @@ folder. When a step is not found, the folder is never the reason.
 Without one an unmatched value runs no assertion and the scenario passes. This hid
 three no-op assertions in the Result specs.
 
+**A half-extracted reference-assembly cache fails every analyzer test at once.**
+`Microsoft.CodeAnalysis.Testing` unpacks into `%TEMP%\test-packages\`, and an
+interrupted run leaves the `.nupkg` there with no nuspec beside it. Every test
+then throws `PackagingException: The package is missing the required nuspec
+file`, which reads like a broken test rather than a broken download. Delete the
+offending package directory and it re-downloads.
+
 **`ClosedHierarchyTests` lives in the analyzer test project, not here.**
 `Waystone.Monads.Tests` has `InternalsVisibleTo`, so it would compile an
 out-of-assembly derived type happily and prove nothing.
