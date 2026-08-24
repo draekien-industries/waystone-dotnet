@@ -242,6 +242,28 @@ public class StateOverloadAnalyzerTests
                .WithArguments("Match", "offset', 'fallback"));
 
     /// <remarks>
+    /// The Result side of the reach DRA-108 added. Result.Match is worth its
+    /// own case because both of its branches receive a value, so neither
+    /// delegate is the argument-free shape the Option pair has, and a rule that
+    /// keyed on arity rather than on the state type parameter would miss it.
+    /// </remarks>
+    [Fact]
+    public Task FlagsResultMatchWhenBothBranchesCapture() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
+            """
+            internal int Fold(
+                Result<int, string> result,
+                int offset,
+                int fallback) =>
+                result.{|#0:Match|}(
+                    value => value + offset,
+                    error => fallback);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Match", "offset', 'fallback"));
+
+    /// <remarks>
     /// ZipWith takes a delegate on a type that carries state overloads on other
     /// methods, and has none of its own. This pins the containing-type lookup:
     /// a rule that fired because the receiver has state overloads somewhere

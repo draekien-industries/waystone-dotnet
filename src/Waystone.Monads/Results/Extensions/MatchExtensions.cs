@@ -2,8 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
-public static class MatchExtensions
+[GenerateAwaitedReceivers(typeof(Result<,>))]
+[GenerateAwaitedMember(nameof(Result<,>.Match))]
+public static partial class MatchExtensions
 {
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull where TErr : notnull
@@ -76,126 +79,6 @@ public static class MatchExtensions
             TErr err = result.ExpectErr("Expected Err but found Ok.");
 
             return await onErr.Invoke(err).ConfigureAwait(false);
-        }
-    }
-
-    extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask MatchAsync(
-            Func<TOk, Task> onOk,
-            Func<TErr, Task> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask MatchAsync(
-            Func<TOk, Task> onOk,
-            Action<TErr> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask MatchAsync(
-            Action<TOk> onOk,
-            Func<TErr, Task> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<TOk, Task<TOut>> onOk,
-            Func<TErr, Task<TOut>> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask MatchAsync(
-            Action<TOk> onOk,
-            Action<TErr> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            if (result.IsOk)
-            {
-                TOk ok = result.Expect("Expected Ok but found Err.");
-
-                onOk.Invoke(ok);
-
-                return;
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            onErr.Invoke(err);
-        }
-    }
-
-    extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask MatchAsync(
-            Func<TOk, Task> onOk,
-            Func<TErr, Task> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask MatchAsync(
-            Func<TOk, Task> onOk,
-            Action<TErr> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask MatchAsync(
-            Action<TOk> onOk,
-            Func<TErr, Task> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<TOk, Task<TOut>> onOk,
-            Func<TErr, Task<TOut>> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MatchAsync(onOk, onErr).ConfigureAwait(false);
-        }
-
-        public async ValueTask MatchAsync(
-            Action<TOk> onOk,
-            Action<TErr> onErr)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            if (result.IsOk)
-            {
-                TOk ok = result.Expect("Expected Ok but found Err.");
-
-                onOk.Invoke(ok);
-
-                return;
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            onErr.Invoke(err);
         }
     }
 }

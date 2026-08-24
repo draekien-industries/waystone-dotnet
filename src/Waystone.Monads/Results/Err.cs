@@ -42,8 +42,18 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     public override bool IsOkAnd(Func<TOk, bool> predicate) => false;
 
     /// <inheritdoc />
+    public override bool IsOkAnd<TState>(
+        TState state,
+        Func<TOk, TState, bool> predicate) => false;
+
+    /// <inheritdoc />
     public override bool IsErrAnd(Func<TErr, bool> predicate) =>
         predicate(Value);
+
+    /// <inheritdoc />
+    public override bool IsErrAnd<TState>(
+        TState state,
+        Func<TErr, TState, bool> predicate) => predicate(Value, state);
 
     /// <inheritdoc />
     public override TOut Match<TOut>(
@@ -52,9 +62,25 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         onErr(Value);
 
     /// <inheritdoc />
+    public override TOut Match<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> onOk,
+        Func<TErr, TState, TOut> onErr) =>
+        onErr(Value, state);
+
+    /// <inheritdoc />
     public override void Match(Action<TOk> onOk, Action<TErr> onErr)
     {
         onErr(Value);
+    }
+
+    /// <inheritdoc />
+    public override void Match<TState>(
+        TState state,
+        Action<TOk, TState> onOk,
+        Action<TErr, TState> onErr)
+    {
+        onErr(Value, state);
     }
 
     /// <inheritdoc />
@@ -74,6 +100,12 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     public override Result<TOk, TOut>
         OrElse<TOut>(Func<TErr, Result<TOk, TOut>> createOther) =>
         createOther(Value);
+
+    /// <inheritdoc />
+    public override Result<TOk, TOut> OrElse<TState, TOut>(
+        TState state,
+        Func<TErr, TState, Result<TOk, TOut>> createOther) =>
+        createOther(Value, state);
 
     /// <inheritdoc />
     public override TOk Expect(string message) =>
@@ -98,15 +130,34 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         onErr(Value);
 
     /// <inheritdoc />
+    public override TOk UnwrapOrElse<TState>(
+        TState state,
+        Func<TErr, TState, TOk> onErr) => onErr(Value, state);
+
+    /// <inheritdoc />
     public override TErr UnwrapErr() => Value;
 
     /// <inheritdoc />
     public override Result<TOk, TErr> Inspect(Action<TOk> action) => this;
 
     /// <inheritdoc />
+    public override Result<TOk, TErr> Inspect<TState>(
+        TState state,
+        Action<TOk, TState> action) => this;
+
+    /// <inheritdoc />
     public override Result<TOk, TErr> InspectErr(Action<TErr> action)
     {
         action(Value);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public override Result<TOk, TErr> InspectErr<TState>(
+        TState state,
+        Action<TErr, TState> action)
+    {
+        action(Value, state);
         return this;
     }
 
@@ -133,6 +184,11 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override TOut MapOrDefault<TOut>(Func<TOk, TOut> map) =>
         default!;
+
+    /// <inheritdoc />
+    public override TOut MapOrDefault<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> map) => default!;
 
     /// <inheritdoc />
     public override TOut MapOrElse<TOut>(

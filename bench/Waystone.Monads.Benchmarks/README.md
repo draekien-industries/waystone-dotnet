@@ -55,7 +55,7 @@ the escape hatch for a throwaway run you do not want in the tree.
 | `AsyncChainBenchmarks` | A single async link and a three-link chain off a synchronous receiver, on both cases |
 | `HotPathBenchmarks` | The paths that produce a `None` — the factory, a rejecting `Filter`, `Map`/`Zip` on a `None`, `Xor`, and an async short circuit |
 | `StateOverloadBenchmarks` | `Map`, `MapOr` and `Filter` on `Option`, `Map` on `Result`, and `Try` on both, each run twice — once with a capturing lambda and once with the state overload |
-| `StateOverloadCandidateBenchmarks` | The nine delegate *shapes* DRA-108 found without a state overload, each run twice — once with a capturing lambda against the shipped member, once against a `private static` prototype of the proposed signature |
+| `StateOverloadCandidateBenchmarks` | The nine delegate *shapes* DRA-108 found without a state overload, each run twice — once with a capturing lambda and once with the state overload. Both sides call shipped members; the `private static` prototypes the class was built on are gone |
 
 `AsyncChainBenchmarks` is the one to watch across the v6 stack. A chain today
 starts as `ValueTask` off an `Option<T>` receiver and degrades to `Task` at the
@@ -209,8 +209,11 @@ than argued for.
 `artifacts/dra-108/` holds the run, same machine and settings. DRA-84 and
 DRA-104 gave state overloads to the transforms and the factories; DRA-108
 audited what was left and found twenty delegate-taking members without one,
-across nine distinct shapes. This run is the evidence for adding them, taken
-before any of them was written.
+across nine distinct shapes. The run committed here is the final one, taken
+once every overload had landed. The evidence for adding them was an earlier run
+of the same class against prototypes, and the allocation column below is
+byte-identical between the two — which is the point of the postscript at the end
+of this section.
 
 | Shape | Members it decides | closure | state | Δ |
 | -- | -- | --: | --: | --: |
@@ -272,9 +275,11 @@ the honest way to get the timings, and the prototypes come out when they do.
 
 ### What the prototypes got wrong
 
-The `Option<T>` overloads landed and their eight rows now call the real members.
-The prototypes stayed on the two `Result` rows until those land too, which makes
-the same run a controlled comparison of the two measurement styles.
+Every row now calls a shipped member. The `Option<T>` overloads landed first
+and the two `Result` rows stayed on prototypes for one more run, which made that
+intermediate run a controlled comparison of the two measurement styles — the
+eight converted rows moved, the two held-back rows did not. Both columns below
+are from the runs that produced them.
 
 | `WithState` row | as a prototype | as the shipped member |
 | -- | --: | --: |
@@ -286,24 +291,31 @@ the same run a controlled comparison of the two measurement styles.
 | `UnwrapOrElse` | 0.07× | 0.88× |
 | `OrElse` | 0.08× | 0.75× |
 | `OkOrElse` | 0.14× | 0.55× |
-| `IsOkAnd` — *still a prototype* | 0.10× | 0.09× |
-| `ResultMatchFunc` — *still a prototype* | 0.06× | 0.05× |
+| `IsOkAnd` | 0.10× | 0.86× |
+| `ResultMatchFunc` | 0.06× | 0.45× |
 
 **The allocation column did not move at all.** Every byte the prototype run
 reported is a byte the shipped run reports.
 
-**The timing column moved by roughly an order of magnitude**, and the two rows
-still on prototypes did not move, which is what rules out drift between the runs.
-A `private static` the JIT inlines through is not a virtual call on a `record`,
-and the gap between 0.05× and 0.38× is the whole of that difference. The
-prototypes were never wrong about *whether* to add the overloads; they were
-wildly optimistic about how much time it would buy.
+**The timing column moved by roughly an order of magnitude, on every row.** In
+the intermediate run the two rows still on prototypes held their prototype
+figures while the eight converted ones moved, which is what rules out drift
+between runs rather than a real effect. Both then moved on conversion, by the
+same order as the rest. A `private static` the JIT inlines through is not a
+virtual call on a `record`, and the gap between 0.05× and 0.45× is the whole of
+that difference. The prototypes were never wrong about *whether* to add the
+overloads; they were wildly optimistic about how much time it would buy.
 
-The narrow rows are the ones worth reading twice. `UnwrapOrElse` at 0.88× and
-`Inspect` at 0.77× save almost no time — the delegate they avoid building was
-cheap to build. They still go from 88 B to zero, and that is the entire case for
-them. An argument for these overloads that leaned on the means would have been
-an argument the shipped members could not support.
+The narrow rows are the ones worth reading twice. `IsOkAnd` at 0.86× and
+`UnwrapOrElse` at 0.79× save almost no time — the delegate they avoid building
+was cheap to build. They still go from 88 B to zero, and that is the entire case
+for them. An argument for these overloads that leaned on the means would have
+been an argument the shipped members could not support.
 
-`Match` is the exception that keeps its headline either way: 0.34× and 0.38×
-against 152 B eliminated.
+The shipped-member ratios jitter by a few points between runs — `UnwrapOrElse`
+read 0.88× on the intermediate run and 0.79× here, on unchanged code. Read them
+as a band, not a figure. The allocation column does not jitter, which is the
+third time on this page that it is the column to read.
+
+`Match` is the exception that keeps its headline everywhere: 0.36×, 0.39× and
+0.45× across the three `Match` rows, against 152 B eliminated.

@@ -411,4 +411,99 @@ public class ErrTests
 
         err.AsEnumerable().ShouldBeEmpty();
     }
+    [Fact]
+    public void GivenState_WhenIsOkAnd_ThenReturnFalse()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+        var predicate = Substitute.For<Func<int, int, bool>>();
+
+        err.IsOkAnd(10, predicate).ShouldBeFalse();
+
+        predicate.DidNotReceiveWithAnyArgs().Invoke(default, default);
+    }
+
+    [Fact]
+    public void GivenState_WhenIsErrAnd_ThenReturnThePredicateResult()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        err.IsErrAnd("error", static (x, state) => x == state).ShouldBeTrue();
+        err.IsErrAnd("other", static (x, state) => x == state).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void GivenState_WhenMatchingWithFuncs_ThenInvokeOnErr()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        int result = err.Match(
+            10,
+            static (x, state) => x + state,
+            static (_, state) => state * 100);
+
+        result.ShouldBe(1000);
+    }
+
+    [Fact]
+    public void GivenState_WhenMatchingWithActions_ThenInvokeOnErr()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+        var onOk = Substitute.For<Action<int, int>>();
+        var onErr = Substitute.For<Action<string, int>>();
+
+        err.Match(10, onOk, onErr);
+
+        onErr.Received().Invoke("error", 10);
+        onOk.DidNotReceiveWithAnyArgs().Invoke(default, default);
+    }
+
+    [Fact]
+    public void GivenState_WhenOrElse_ThenReturnTheCreatedResult()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        Result<int, int> result = err.OrElse(
+            10,
+            static (_, state) => Result.Err<int, int>(state));
+
+        result.ShouldBe(Result.Err<int, int>(10));
+    }
+
+    [Fact]
+    public void GivenState_WhenUnwrapOrElse_ThenReturnTheComputedValue()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        err.UnwrapOrElse(10, static (_, state) => state).ShouldBe(10);
+    }
+
+    [Fact]
+    public void GivenState_WhenInspect_ThenDoNotInvokeTheAction()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+        var action = Substitute.For<Action<int, int>>();
+
+        err.Inspect(10, action).ShouldBe(err);
+
+        action.DidNotReceiveWithAnyArgs().Invoke(default, default);
+    }
+
+    [Fact]
+    public void GivenState_WhenInspectErr_ThenInvokeTheAction()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+        var action = Substitute.For<Action<string, int>>();
+
+        err.InspectErr(10, action).ShouldBe(err);
+
+        action.Received().Invoke("error", 10);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOrDefault_ThenReturnTheDefault()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        err.MapOrDefault(10, static (x, state) => x + state).ShouldBe(0);
+    }
 }
