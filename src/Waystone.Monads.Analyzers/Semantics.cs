@@ -245,7 +245,10 @@ public static class Semantics
 
         while (current.Parent is QualifiedNameSyntax
             or AliasQualifiedNameSyntax
-            or NullableTypeSyntax)
+            or NullableTypeSyntax
+            or TupleElementSyntax
+            or TupleTypeSyntax
+            or ArrayTypeSyntax)
         {
             current = current.Parent;
         }
