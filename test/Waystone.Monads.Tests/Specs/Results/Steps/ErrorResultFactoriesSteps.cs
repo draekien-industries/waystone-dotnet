@@ -47,8 +47,12 @@ public sealed class ErrorResultFactoriesSteps(SpecContext context)
     public void WhenCreatingAnErrResultFromTheNotFoundEnumValueAndMessage(
         string message)
     {
+        // Obsolete from 6.x, removed in 7.0.0. These two steps are the coverage
+        // for that path and are deleted with the members, not migrated.
+#pragma warning disable CS0618
         Result<int, Error> result =
             Result.Err<int>(TestErrorCodes.NotFound, message);
+#pragma warning restore CS0618
 
         context.SetOutcome(result);
     }
@@ -57,7 +61,9 @@ public sealed class ErrorResultFactoriesSteps(SpecContext context)
     public void WhenCreatingAnErrorFromTheNotFoundEnumValueAndMessage(
         string message)
     {
+#pragma warning disable CS0618
         context.Error = Error.FromEnum(TestErrorCodes.NotFound, message);
+#pragma warning restore CS0618
     }
 
     [When("trying a factory that returns {int}")]

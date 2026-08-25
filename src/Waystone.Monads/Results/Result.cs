@@ -700,8 +700,9 @@ public static class Result
     /// so it cannot apply the format declared on the enum and nothing tells you
     /// when a rename changes the code. Mark the enum with
     /// <c>[ErrorCodeCatalog]</c> and pass
-    /// <c>new Error(code.ToErrorCode(), message)</c> to
-    /// <see cref="Err{TOk}(Error)" /> instead.
+    /// <c>{EnumName}Catalog.Errors.{Member}(message)</c> to
+    /// <see cref="Err{TOk}(Error)" />, or <c>code.ToError(message)</c> where the
+    /// member is only known at run time.
     /// </remarks>
     /// <param name="code">The enum value to create the error code from.</param>
     /// <param name="message">
@@ -713,6 +714,8 @@ public static class Result
     /// A <see cref="Result{TOk,TErr}" /> that is always an
     /// <see cref="Err{TOk,TErr}" />.
     /// </returns>
+    [Obsolete(
+        "Mark the enum with [ErrorCodeCatalog] and pass {EnumName}Catalog.Errors.{Member}(message) to Result.Err, or code.ToError(message) where the member is only known at run time, instead of working the code out at run time. This member will be removed in 7.0.0.")]
     public static Result<TOk, Error> Err<TOk>(Enum code, string message)
         where TOk : notnull =>
         new Err<TOk, Error>(Error.FromEnum(code, message));
