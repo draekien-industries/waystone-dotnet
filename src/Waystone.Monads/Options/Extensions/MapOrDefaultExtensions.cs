@@ -4,6 +4,9 @@ using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Asynchronous <c>MapOrDefault</c> extensions for <see cref="Option{T}" />.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Option<>))]
 [GenerateAwaitedMember(nameof(Option<>.MapOrDefault))]
 public static partial class MapOrDefaultExtensions
@@ -15,10 +18,15 @@ public static partial class MapOrDefaultExtensions
         /// a <see cref="Some{T}" />, otherwise returns the <see langword="default" /> of
         /// <typeparamref name="TOut" />.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="map" /> is not invoked when the option is a
+        /// <see cref="None{T}" />. When <typeparamref name="TOut" /> is a value type
+        /// the returned default is indistinguishable from a mapped zero; use
+        /// <c>MapOrNullAsync</c> if the caller has to tell the two apart.
+        /// </remarks>
         /// <typeparam name="TOut">The type of the output value.</typeparam>
         /// <param name="map">
-        /// A function to asynchronously transform the value inside the
-        /// option if it is a <see cref="Some{T}" />.
+        /// Asynchronously transforms the contained value.
         /// </param>
         /// <returns>
         /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the

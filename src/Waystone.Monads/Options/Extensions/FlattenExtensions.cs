@@ -2,18 +2,23 @@
 
 using System.Threading.Tasks;
 
+/// <summary>
+/// Flattens a nested <see cref="Option{T}" /> that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
 public static class FlattenExtensions
 {
     extension<T>(Task<Option<Option<T>>> nestedOptionTask) where T : notnull
     {
         /// <summary>
-        /// Flattens a nested <see cref="Option{T}" /> instance wrapped in a
-        /// <see cref="Task{TResult}" /> into a single-level <see cref="Option{T}" />.
+        /// Awaits the <see cref="Task{TResult}" /> and flattens the nested
+        /// <see cref="Option{T}" /> into a single-level <see cref="Option{T}" />.
         /// </summary>
+        /// <remarks>Flattening only removes one level of nesting at a time.</remarks>
         /// <returns>
-        /// A task that represents the result of flattening the nested
-        /// <see cref="Option{T}" /> to a single-level
-        /// <see cref="Option{T}" />.
+        /// A <see cref="ValueTask{TResult}" /> containing the inner
+        /// <see cref="Option{T}" /> if the awaited option was a
+        /// <see cref="Some{T}" />, otherwise <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<Option<T>> FlattenAsync()
         {
@@ -28,13 +33,14 @@ public static class FlattenExtensions
         where T : notnull
     {
         /// <summary>
-        /// Flattens an asynchronous nested <see cref="Option{T}" /> instance wrapped in a
-        /// <see cref="ValueTask{TResult}" /> into a single-level <see cref="Option{T}" />.
+        /// Awaits the <see cref="ValueTask{TResult}" /> and flattens the nested
+        /// <see cref="Option{T}" /> into a single-level <see cref="Option{T}" />.
         /// </summary>
+        /// <remarks>Flattening only removes one level of nesting at a time.</remarks>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> that represents the result of flattening
-        /// the
-        /// nested <see cref="Option{T}" /> into a single-level <see cref="Option{T}" />.
+        /// A <see cref="ValueTask{TResult}" /> containing the inner
+        /// <see cref="Option{T}" /> if the awaited option was a
+        /// <see cref="Some{T}" />, otherwise <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<Option<T>> FlattenAsync()
         {
