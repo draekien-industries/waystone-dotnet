@@ -4,34 +4,30 @@ using System;
 using System.Threading.Tasks;
 
 /// <summary>
-/// Provides extension methods for asynchronous pattern matching on monadic types.
+/// Provides <c>MatchAsync</c> overloads for an <see cref="Option{T}" /> that is
+/// still inside a task.
 /// </summary>
 public static class MatchExtensions
 {
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Asynchronously performs a pattern match on the given <see cref="Option{T}" />
-        /// instance and produces a result
-        /// based on whether the option contains a value or is empty.
+        /// Awaits a task of <see cref="Option{T}" /> and switches on it, running
+        /// whichever of two asynchronous callbacks matches its case.
         /// </summary>
-        /// <typeparam name="TOut">
-        /// The type of the result produced by the match
-        /// expressions.
-        /// </typeparam>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. An exception
+        /// from the receiver task propagates before either callback is reached.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
         /// <param name="onSome">
-        /// A function to execute if the <see cref="Option{T}" /> instance contains a
-        /// value.
-        /// The function receives the contained value as a parameter.
+        /// An asynchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
         /// </param>
         /// <param name="onNone">
-        /// A function to execute if the <see cref="Option{T}" /> instance is empty.
+        /// An asynchronous callback for the <see cref="None{T}" /> case.
         /// </param>
-        /// <returns>
-        /// A task that represents the asynchronous operation. When completed, the task
-        /// contains the result of
-        /// either the <paramref name="onSome" /> or <paramref name="onNone" /> function.
-        /// </returns>
+        /// <returns>The awaited output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<Task<TOut>> onNone)
@@ -41,6 +37,25 @@ public static class MatchExtensions
             return await option.Match(onSome, onNone);
         }
 
+        /// <summary>
+        /// Awaits a task of <see cref="Option{T}" /> and switches on it with a
+        /// synchronous <see cref="Some{T}" /> callback and an asynchronous
+        /// <see cref="None{T}" /> callback.
+        /// </summary>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. Pick this
+        /// overload when only the <see cref="None{T}" /> branch needs to await, so
+        /// the <see cref="Some{T}" /> branch is not forced through a task.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
+        /// <param name="onSome">
+        /// A synchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
+        /// </param>
+        /// <param name="onNone">
+        /// An asynchronous callback for the <see cref="None{T}" /> case.
+        /// </param>
+        /// <returns>The output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<Task<TOut>> onNone)
@@ -54,6 +69,25 @@ public static class MatchExtensions
             return onSome(some);
         }
 
+        /// <summary>
+        /// Awaits a task of <see cref="Option{T}" /> and switches on it with an
+        /// asynchronous <see cref="Some{T}" /> callback and a synchronous
+        /// <see cref="None{T}" /> callback.
+        /// </summary>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. Pick this
+        /// overload when the fallback is a plain value and only the
+        /// <see cref="Some{T}" /> branch needs to await.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
+        /// <param name="onSome">
+        /// An asynchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
+        /// </param>
+        /// <param name="onNone">
+        /// A synchronous callback for the <see cref="None{T}" /> case.
+        /// </param>
+        /// <returns>The output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<TOut> onNone)
@@ -68,28 +102,23 @@ public static class MatchExtensions
         }
 
         /// <summary>
-        /// Asynchronously performs a pattern match on the provided
-        /// <see cref="Option{T}" />
-        /// instance contained within a <see cref="Task{TResult}" /> and produces a result
-        /// based on whether the option contains a value or is empty.
+        /// Awaits a task of <see cref="Option{T}" /> and switches on it, running
+        /// whichever of two synchronous callbacks matches its case.
         /// </summary>
-        /// <typeparam name="TOut">
-        /// The type of the result produced by the match expressions.
-        /// </typeparam>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. Only the
+        /// receiver is awaited, so pick this overload when neither branch does
+        /// asynchronous work.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
         /// <param name="onSome">
-        /// A function to execute if the <see cref="Option{T}" /> instance contains a
-        /// value.
-        /// The function receives the contained value as a parameter.
+        /// A synchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
         /// </param>
         /// <param name="onNone">
-        /// A function to execute if the <see cref="Option{T}" /> instance is empty.
+        /// A synchronous callback for the <see cref="None{T}" /> case.
         /// </param>
-        /// <returns>
-        /// A task that represents the asynchronous operation. When completed, the task
-        /// contains
-        /// the result of either the <paramref name="onSome" /> or
-        /// <paramref name="onNone" /> function.
-        /// </returns>
+        /// <returns>The output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<TOut> onNone)
@@ -103,29 +132,22 @@ public static class MatchExtensions
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Asynchronously performs a pattern match on the result of the given
-        /// asynchronous <see cref="Option{T}" /> operation and produces a result
-        /// based on whether the option contains a value or is empty.
+        /// Awaits a value task of <see cref="Option{T}" /> and switches on it,
+        /// running whichever of two asynchronous callbacks matches its case.
         /// </summary>
-        /// <typeparam name="TOut">
-        /// The type of the result produced by the match expressions.
-        /// </typeparam>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. An exception
+        /// from the receiver task propagates before either callback is reached.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
         /// <param name="onSome">
-        /// A function to execute if the <see cref="Option{T}" /> contains a value.
-        /// The function receives the contained value as a parameter and returns a result
-        /// asynchronously.
+        /// An asynchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
         /// </param>
         /// <param name="onNone">
-        /// A function to execute if the <see cref="Option{T}" /> is empty.
-        /// This function does not receive any parameters and returns a result
-        /// asynchronously.
+        /// An asynchronous callback for the <see cref="None{T}" /> case.
         /// </param>
-        /// <returns>
-        /// A task that represents the asynchronous operation. When completed, the task
-        /// contains
-        /// the result of either the <paramref name="onSome" /> or
-        /// <paramref name="onNone" /> function.
-        /// </returns>
+        /// <returns>The awaited output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<Task<TOut>> onNone)
@@ -135,6 +157,25 @@ public static class MatchExtensions
             return await option.Match(onSome, onNone);
         }
 
+        /// <summary>
+        /// Awaits a value task of <see cref="Option{T}" /> and switches on it with
+        /// a synchronous <see cref="Some{T}" /> callback and an asynchronous
+        /// <see cref="None{T}" /> callback.
+        /// </summary>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. Pick this
+        /// overload when only the <see cref="None{T}" /> branch needs to await, so
+        /// the <see cref="Some{T}" /> branch is not forced through a task.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
+        /// <param name="onSome">
+        /// A synchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
+        /// </param>
+        /// <param name="onNone">
+        /// An asynchronous callback for the <see cref="None{T}" /> case.
+        /// </param>
+        /// <returns>The output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<Task<TOut>> onNone)
@@ -148,6 +189,25 @@ public static class MatchExtensions
             return onSome(some);
         }
 
+        /// <summary>
+        /// Awaits a value task of <see cref="Option{T}" /> and switches on it with
+        /// an asynchronous <see cref="Some{T}" /> callback and a synchronous
+        /// <see cref="None{T}" /> callback.
+        /// </summary>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. Pick this
+        /// overload when the fallback is a plain value and only the
+        /// <see cref="Some{T}" /> branch needs to await.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
+        /// <param name="onSome">
+        /// An asynchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
+        /// </param>
+        /// <param name="onNone">
+        /// A synchronous callback for the <see cref="None{T}" /> case.
+        /// </param>
+        /// <returns>The output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
             Func<TOut> onNone)
@@ -162,28 +222,23 @@ public static class MatchExtensions
         }
 
         /// <summary>
-        /// Asynchronously performs a pattern match on the result of a
-        /// <see cref="ValueTask{T}" /> containing an <see cref="Option{T}" /> instance.
-        /// Produces a result based on whether the option contains a value or is empty.
+        /// Awaits a value task of <see cref="Option{T}" /> and switches on it,
+        /// running whichever of two synchronous callbacks matches its case.
         /// </summary>
-        /// <typeparam name="TOut">
-        /// The type of the result produced by the match expressions.
-        /// </typeparam>
+        /// <remarks>
+        /// Exactly one callback runs; the other is never invoked. Only the
+        /// receiver is awaited, so pick this overload when neither branch does
+        /// asynchronous work.
+        /// </remarks>
+        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
         /// <param name="onSome">
-        /// A function to execute if the <see cref="Option{T}" /> instance contains a
-        /// value.
-        /// The function receives the contained value as a parameter and returns a task
-        /// containing the result.
+        /// A synchronous callback for the <see cref="Some{T}" /> case, given the
+        /// contained value.
         /// </param>
         /// <param name="onNone">
-        /// A function to execute if the <see cref="Option{T}" /> instance is empty.
-        /// The function returns a task containing the result.
+        /// A synchronous callback for the <see cref="None{T}" /> case.
         /// </param>
-        /// <returns>
-        /// A task that represents the asynchronous operation. When completed, the task
-        /// contains the result of either the <paramref name="onSome" /> or
-        /// <paramref name="onNone" /> function.
-        /// </returns>
+        /// <returns>The output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, TOut> onSome,
             Func<TOut> onNone)

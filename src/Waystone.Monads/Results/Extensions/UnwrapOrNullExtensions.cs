@@ -2,6 +2,11 @@ namespace Waystone.Monads.Results.Extensions;
 
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Unwraps a <see cref="Result{TOk,TErr}" /> with a value-type ok value to a
+/// nullable, using <see langword="null" /> rather than
+/// <see langword="default" /> for the error case.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 public static partial class UnwrapOrNullExtensions
 {

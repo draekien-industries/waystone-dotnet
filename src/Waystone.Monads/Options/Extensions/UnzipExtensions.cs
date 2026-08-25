@@ -2,6 +2,10 @@ namespace Waystone.Monads.Options.Extensions;
 
 using System.Threading.Tasks;
 
+/// <summary>
+/// Unzips an <see cref="Option{T}" /> of a tuple that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
 public static class UnzipExtensions
 {
     extension<T1, T2>(Task<Option<(T1, T2)>> optionTask)

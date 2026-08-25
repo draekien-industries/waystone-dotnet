@@ -23,10 +23,22 @@ internal static class GeneratedAttributes
             /// member.
             /// </summary>
             /// <remarks>
-            /// Every extension block the class declares over an unawaited receiver is
-            /// generated in both awaited shapes. To also generate a shape for one of the
-            /// receiver type's own instance methods, add a
-            /// <see cref="GenerateAwaitedMemberAttribute" /> naming it.
+            /// Every public extension member the class declares over a non-awaitable
+            /// receiver is generated in both awaited shapes, whatever that receiver's
+            /// type is — the constructor's type filters nothing here. Each generated
+            /// member takes the source member's name with <c>Async</c> appended, unless
+            /// it already ends in <c>Async</c>, and always returns <c>ValueTask</c> or
+            /// <c>ValueTask&lt;T&gt;</c>, including inside the <c>Task</c> block.
+            /// <para>
+            /// To also generate shapes for one of the receiver type's own instance
+            /// methods, add a <see cref="GenerateAwaitedMemberAttribute" /> naming it.
+            /// Those lookups are the only use of the constructor's type.
+            /// </para>
+            /// <para>
+            /// The class must be declared <c>partial</c>; the generator reports
+            /// <c>WSG0001</c> and emits nothing otherwise. Apply this once per class —
+            /// it is not <c>AllowMultiple</c>, so a class has exactly one receiver type.
+            /// </para>
             /// </remarks>
             [System.AttributeUsage(System.AttributeTargets.Class)]
             [System.CodeDom.Compiler.GeneratedCode("Waystone.SourceGenerators", null)]
@@ -37,15 +49,20 @@ internal static class GeneratedAttributes
                 /// receiver shapes.
                 /// </summary>
                 /// <param name="receiver">
-                /// The unbound receiver type whose awaited shapes are generated, for
-                /// example <c>typeof(Option&lt;&gt;)</c>.
+                /// The unbound receiver type that
+                /// <see cref="GenerateAwaitedMemberAttribute" /> names are resolved
+                /// against, for example <c>typeof(Option&lt;&gt;)</c>.
                 /// </param>
                 public GenerateAwaitedReceiversAttribute(System.Type receiver)
                 {
                     Receiver = receiver;
                 }
 
-                /// <summary>The unbound receiver type whose awaited shapes are generated.</summary>
+                /// <summary>
+                /// The unbound receiver type that
+                /// <see cref="GenerateAwaitedMemberAttribute" /> names are resolved
+                /// against, for example <c>typeof(Option&lt;&gt;)</c>.
+                /// </summary>
                 public System.Type Receiver { get; }
             }
 
@@ -54,6 +71,14 @@ internal static class GeneratedAttributes
             /// methods. Apply once per method; every overload of the named method is
             /// covered.
             /// </summary>
+            /// <remarks>
+            /// Only public, non-static, ordinary methods match, so properties, operators
+            /// and static factories cannot be named. A name that matches none of them
+            /// reports <c>WSG0002</c>. This attribute is read only on a class that also
+            /// carries <see cref="GenerateAwaitedReceiversAttribute" />; on its own it
+            /// does nothing. Write the name with <c>nameof</c> so a rename fails the
+            /// build.
+            /// </remarks>
             [System.AttributeUsage(
                 System.AttributeTargets.Class,
                 AllowMultiple = true)]
@@ -76,11 +101,17 @@ internal static class GeneratedAttributes
                 public string Member { get; }
 
                 /// <summary>
-                /// Replaces the generated <c>&lt;summary&gt;</c> instead of prefixing the
-                /// source member's summary with the await phrasing. Every other
-                /// documentation tag is still forwarded from the source member. Applies to
-                /// every overload of <see cref="Member" />.
+                /// The summary to write on the generated members, in place of the source
+                /// member's own summary prefixed with the await phrasing.
                 /// </summary>
+                /// <remarks>
+                /// Every other documentation tag is still forwarded from the source
+                /// member, and this applies to every overload of
+                /// <see cref="Member" />. Setting it is also the only way to document a
+                /// generated member whose source member carries no doc comment. Default:
+                /// <see langword="null" />, meaning the source member's own summary is
+                /// used.
+                /// </remarks>
                 public string? Summary { get; set; }
             }
         }

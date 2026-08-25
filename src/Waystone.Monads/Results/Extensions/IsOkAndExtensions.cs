@@ -4,6 +4,9 @@ using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Asynchronous <c>IsOkAnd</c> extensions for <see cref="Result{TOk,TErr}" />.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.IsOkAnd))]
 public static partial class IsOkAndExtensions
@@ -12,19 +15,21 @@ public static partial class IsOkAndExtensions
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Determines whether the current <see cref="Result{TOk, TErr}" /> is an <c>Ok</c>
-        /// value
-        /// and satisfies the given asynchronous <paramref name="predicate" />.
+        /// Checks whether the result is an <see cref="Ok{TOk,TErr}" /> whose value
+        /// satisfies an asynchronous <paramref name="predicate" />.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="predicate" /> is not invoked for an
+        /// <see cref="Err{TOk,TErr}" />, so any side effect it carries does not run
+        /// in that case.
+        /// </remarks>
         /// <param name="predicate">
-        /// A <see cref="Func{T, TResult}" /> that represents the asynchronous predicate
-        /// to evaluate the <c>Ok</c> value against.
+        /// The asynchronous condition to evaluate against the contained ok value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing <c>true</c> if the current result is
-        /// an
-        /// <c>Ok</c> value and the <paramref name="predicate" /> returns <c>true</c>;
-        /// otherwise, <c>false</c>.
+        /// A <see cref="ValueTask{TResult}" /> completing with true if the result is
+        /// an <see cref="Ok{TOk,TErr}" /> and <paramref name="predicate" /> returns
+        /// true; false otherwise.
         /// </returns>
         public async ValueTask<bool> IsOkAndAsync(
             Func<TOk, Task<bool>> predicate)

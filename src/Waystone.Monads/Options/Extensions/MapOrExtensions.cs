@@ -3,10 +3,38 @@
 using System;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Provides <c>MapOrAsync</c> overloads for an <see cref="Option{T}" />, for the
+/// cases the synchronous <see cref="Option{T}.MapOr{TOut}" /> cannot cover: an
+/// asynchronous map function, a receiver still inside a task, or both.
+/// </summary>
 public static class MapOrExtensions
 {
     extension<T>(Option<T> option) where T : notnull
     {
+        /// <summary>
+        /// Applies an asynchronous map function to the contained
+        /// <see cref="Some{T}" /> value, or returns a default without awaiting
+        /// anything when the option is a <see cref="None{T}" />.
+        /// </summary>
+        /// <remarks>
+        /// The map function is not invoked on a <see cref="None{T}" />. This is the
+        /// overload to pick over <see cref="Option{T}.MapOr{TOut}" /> when the map
+        /// itself is asynchronous; the receiver is already available, so nothing is
+        /// awaited on the <see cref="None{T}" /> path.
+        /// </remarks>
+        /// <typeparam name="TOut">The type of the output value.</typeparam>
+        /// <param name="defaultValue">
+        /// The value to return when the option is a <see cref="None{T}" />.
+        /// </param>
+        /// <param name="map">
+        /// The asynchronous transform applied to the <see cref="Some{T}" /> value.
+        /// </param>
+        /// <returns>
+        /// The awaited result of <paramref name="map" /> on a
+        /// <see cref="Some{T}" />, or <paramref name="defaultValue" /> on a
+        /// <see cref="None{T}" />.
+        /// </returns>
         public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
             Func<T, Task<TOut>> map)
@@ -22,27 +50,24 @@ public static class MapOrExtensions
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Maps an <see cref="Option{T}" /> to a value of type
-        /// <typeparamref name="TOut" />
-        /// by applying the given mapping function if the option is
-        /// <see cref="Option{T}.IsSome" />,
-        /// or returns a specified default value if the option is
-        /// <see cref="Option{T}.IsNone" />.
+        /// Awaits a task of <see cref="Option{T}" />, then applies a synchronous
+        /// map function to a <see cref="Some{T}" /> value or returns a default for
+        /// a <see cref="None{T}" />.
         /// </summary>
+        /// <remarks>
+        /// The map function is not invoked on a <see cref="None{T}" />. Only the
+        /// receiver is awaited.
+        /// </remarks>
         /// <typeparam name="TOut">The type of the output value.</typeparam>
         /// <param name="defaultValue">
-        /// The default value to return if the option is
-        /// <see cref="None{T}" />
+        /// The value to return when the option is a <see cref="None{T}" />.
         /// </param>
         /// <param name="map">
-        /// A function to transform the value inside the option if it is
-        /// <see cref="Option{T}.IsSome" />.
+        /// The transform applied to the <see cref="Some{T}" /> value.
         /// </param>
         /// <returns>
-        /// A task representing the operation. The task result is either the transformed
-        /// value
-        /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
-        /// or the provided default value if the option is <see cref="None{T}" />
+        /// The result of <paramref name="map" /> on a <see cref="Some{T}" />, or
+        /// <paramref name="defaultValue" /> on a <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
@@ -58,27 +83,25 @@ public static class MapOrExtensions
         }
 
         /// <summary>
-        /// Maps an <see cref="Option{T}" /> wrapped in a task to a value of type
-        /// <typeparamref name="TOut" />
-        /// by applying the given mapping function asynchronously if the option is
-        /// <see cref="Option{T}.IsSome" />,
-        /// or returns a specified default value if the option is
-        /// <see cref="Option{T}.IsNone" />.
+        /// Awaits a task of <see cref="Option{T}" />, then applies an asynchronous
+        /// map function to a <see cref="Some{T}" /> value or returns a default for
+        /// a <see cref="None{T}" />.
         /// </summary>
+        /// <remarks>
+        /// The map function is not invoked on a <see cref="None{T}" />, so that
+        /// path awaits the receiver only.
+        /// </remarks>
         /// <typeparam name="TOut">The type of the output value.</typeparam>
         /// <param name="defaultValue">
-        /// The default value to return if the option is
-        /// <see cref="None{T}" />
+        /// The value to return when the option is a <see cref="None{T}" />.
         /// </param>
         /// <param name="map">
-        /// A function to asynchronously transform the value inside the option if it is
-        /// <see cref="Option{T}.IsSome" />.
+        /// The asynchronous transform applied to the <see cref="Some{T}" /> value.
         /// </param>
         /// <returns>
-        /// A task representing the operation. The task result is either the asynchronously
-        /// transformed value
-        /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
-        /// or the provided default value if the option is <see cref="None{T}" />
+        /// The awaited result of <paramref name="map" /> on a
+        /// <see cref="Some{T}" />, or <paramref name="defaultValue" /> on a
+        /// <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
@@ -97,27 +120,24 @@ public static class MapOrExtensions
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Maps an awaited <see cref="Option{T}" /> to a value of type
-        /// <typeparamref name="TOut" />
-        /// by applying the given mapping function if the option is
-        /// <see cref="Option{T}.IsSome" />,
-        /// or returns a specified default value if the option is
-        /// <see cref="Option{T}.IsNone" />.
+        /// Awaits a value task of <see cref="Option{T}" />, then applies a
+        /// synchronous map function to a <see cref="Some{T}" /> value or returns a
+        /// default for a <see cref="None{T}" />.
         /// </summary>
+        /// <remarks>
+        /// The map function is not invoked on a <see cref="None{T}" />. Only the
+        /// receiver is awaited.
+        /// </remarks>
         /// <typeparam name="TOut">The type of the output value.</typeparam>
         /// <param name="defaultValue">
-        /// The default value to return if the option is
-        /// <see cref="None{T}" />
+        /// The value to return when the option is a <see cref="None{T}" />.
         /// </param>
         /// <param name="map">
-        /// A function to transform the value inside the option if it is
-        /// <see cref="Option{T}.IsSome" />.
+        /// The transform applied to the <see cref="Some{T}" /> value.
         /// </param>
         /// <returns>
-        /// A task representing the operation. The task result is either the transformed
-        /// value
-        /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
-        /// or the provided default value if the option is <see cref="None{T}" />.
+        /// The result of <paramref name="map" /> on a <see cref="Some{T}" />, or
+        /// <paramref name="defaultValue" /> on a <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
@@ -133,27 +153,25 @@ public static class MapOrExtensions
         }
 
         /// <summary>
-        /// Maps an <see cref="Option{T}" /> to a value of type
-        /// <typeparamref name="TOut" />
-        /// by applying the given mapping function if the option is
-        /// <see cref="Option{T}.IsSome" />,
-        /// or returns a specified default value if the option is
-        /// <see cref="Option{T}.IsNone" />.
+        /// Awaits a value task of <see cref="Option{T}" />, then applies an
+        /// asynchronous map function to a <see cref="Some{T}" /> value or returns a
+        /// default for a <see cref="None{T}" />.
         /// </summary>
+        /// <remarks>
+        /// The map function is not invoked on a <see cref="None{T}" />, so that
+        /// path awaits the receiver only.
+        /// </remarks>
         /// <typeparam name="TOut">The type of the output value.</typeparam>
         /// <param name="defaultValue">
-        /// The default value to return if the option is
-        /// <see cref="None{T}" />
+        /// The value to return when the option is a <see cref="None{T}" />.
         /// </param>
         /// <param name="map">
-        /// A function to transform the value inside the option if it is
-        /// <see cref="Option{T}.IsSome" />.
+        /// The asynchronous transform applied to the <see cref="Some{T}" /> value.
         /// </param>
         /// <returns>
-        /// A task representing the operation. The task result is either the transformed
-        /// value
-        /// of type <typeparamref name="TOut" /> if the option is <see cref="Some{T}" />,
-        /// or the provided default value if the option is <see cref="None{T}" />
+        /// The awaited result of <paramref name="map" /> on a
+        /// <see cref="Some{T}" />, or <paramref name="defaultValue" /> on a
+        /// <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,

@@ -34,29 +34,38 @@ public static class OptionOfTExtensions
     /// <remarks>Flattening only removes one level of nesting at a time.</remarks>
     /// <param name="option">The option that needs to be flattened.</param>
     /// <typeparam name="T">The option value's type.</typeparam>
+    /// <returns>
+    /// The inner option if <paramref name="option" /> is a <see cref="Some{T}" />,
+    /// otherwise <see cref="None{T}" />.
+    /// </returns>
     public static Option<T> Flatten<T>(this Option<Option<T>> option)
         where T : notnull =>
         option.Match(innerOption => innerOption, None<T>);
 
     /// <summary>
-    /// Transposes an <see cref="Option{T}" /> of a <see cref="Result" /> into
-    /// a <see cref="Result{TOk,TErr}" /> of an <see cref="Option{T}" />.
+    /// Transposes an <see cref="Option{T}" /> of a
+    /// <see cref="Result{TOk,TErr}" /> into a <see cref="Result{TOk,TErr}" /> of
+    /// an <see cref="Option{T}" />.
     /// </summary>
-    /// <list type="bullet">
-    /// <item>
-    /// <see cref="None{T}" /> will be mapped to <see cref="Ok{TOk,TErr}" /> of
-    /// <see cref="None{T}" />
-    /// </item>
-    /// <item>
-    /// <see cref="Some{T}" /> of <see cref="Ok{TOk,TErr}" /> and
-    /// <see cref="Some{T}" /> of <see cref="None{T}" /> will be mapped to
-    /// <see cref="Ok{TOk,TErr}" /> of <see cref="Some{T}" /> and
-    /// <see cref="Err{TOk,TErr}" />
-    /// </item>
-    /// </list>
     /// <param name="option">The option to transpose into a result</param>
     /// <typeparam name="TOk">The ok result value type</typeparam>
     /// <typeparam name="TErr">The error result value type</typeparam>
+    /// <returns>
+    /// <list type="bullet">
+    /// <item>
+    /// <see cref="None{T}" /> maps to <see cref="Ok{TOk,TErr}" /> of
+    /// <see cref="None{T}" />
+    /// </item>
+    /// <item>
+    /// <see cref="Some{T}" /> of <see cref="Ok{TOk,TErr}" /> maps to
+    /// <see cref="Ok{TOk,TErr}" /> of <see cref="Some{T}" />
+    /// </item>
+    /// <item>
+    /// <see cref="Some{T}" /> of <see cref="Err{TOk,TErr}" /> maps to
+    /// <see cref="Err{TOk,TErr}" />, discarding the option
+    /// </item>
+    /// </list>
+    /// </returns>
     public static Result<Option<TOk>, TErr> Transpose<TOk, TErr>(
         this Option<Result<TOk, TErr>> option)
         where TOk : notnull where TErr : notnull =>

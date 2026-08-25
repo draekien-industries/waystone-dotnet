@@ -4,25 +4,27 @@ using System;
 using System.Threading.Tasks;
 
 /// <summary>
-/// Provides a set of extension methods for filtering and processing asynchronous
-/// operations.
+/// Filters an <see cref="Option{T}" /> with an asynchronous predicate, and filters
+/// an <see cref="Option{T}" /> that is still inside a <see cref="Task{TResult}" />
+/// or <see cref="ValueTask{TResult}" />.
 /// </summary>
 public static class FilterExtensions
 {
     extension<T>(Option<T> option) where T : notnull
     {
         /// <summary>
-        /// Filters the current <see cref="Option{T}" /> instance based on the
-        /// provided asynchronous predicate.
+        /// Awaits <paramref name="predicate" /> against the contained value if the
+        /// option is a <see cref="Some{T}" />, keeping the option when it passes.
         /// </summary>
         /// <param name="predicate">
-        /// An asynchronous function that determines whether the
-        /// value contained in the <see cref="Option{T}" /> satisfies the condition.
+        /// The asynchronous condition the contained value must satisfy.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing an <see cref="Option{T}" /> of
-        /// type <typeparamref name="T" /> that contains the initial value if it satisfies
-        /// the predicate, or an empty <see cref="Option{T}" /> if it does not.
+        /// A <see cref="ValueTask{TResult}" /> containing the original option if it
+        /// was a <see cref="Some{T}" /> whose value satisfies
+        /// <paramref name="predicate" />, otherwise <see cref="None{T}" />. A
+        /// <see cref="None{T}" /> passes through unchanged and the predicate is not
+        /// invoked.
         /// </returns>
         public async ValueTask<Option<T>>
             FilterAsync(Func<T, Task<bool>> predicate)
@@ -40,17 +42,19 @@ public static class FilterExtensions
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Filters the current asynchronous <see cref="Option{T}" /> instance based on
-        /// the provided asynchronous predicate.
+        /// Awaits the <see cref="Task{TResult}" />, then awaits
+        /// <paramref name="predicate" /> against the contained value if the option is
+        /// a <see cref="Some{T}" />, keeping the option when it passes.
         /// </summary>
         /// <param name="predicate">
-        /// An asynchronous function that determines whether the
-        /// value contained in the <see cref="Option{T}" /> satisfies the condition.
+        /// The asynchronous condition the contained value must satisfy.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing an <see cref="Option{T}" /> of type
-        /// <typeparamref name="T" /> that contains the initial value if it satisfies the
-        /// predicate, or an empty <see cref="Option{T}" /> if it does not.
+        /// A <see cref="ValueTask{TResult}" /> containing the original option if it
+        /// was a <see cref="Some{T}" /> whose value satisfies
+        /// <paramref name="predicate" />, otherwise <see cref="None{T}" />. A
+        /// <see cref="None{T}" /> passes through unchanged and the predicate is not
+        /// invoked.
         /// </returns>
         public async ValueTask<Option<T>>
             FilterAsync(Func<T, Task<bool>> predicate)
@@ -67,20 +71,19 @@ public static class FilterExtensions
         }
 
         /// <summary>
-        /// Filters the current <see cref="Option{T}" /> instance based on the
-        /// provided predicate.
+        /// Awaits the <see cref="Task{TResult}" />, then tests the contained value
+        /// with a synchronous <paramref name="predicate" /> if the option is a
+        /// <see cref="Some{T}" />, keeping the option when it passes.
         /// </summary>
         /// <param name="predicate">
-        /// A function that determines whether the value contained in the
-        /// <see cref="Option{T}" />
-        /// satisfies the condition.
+        /// The condition the contained value must satisfy.
         /// </param>
         /// <returns>
-        /// An asynchronous <see cref="ValueTask{TResult}" /> containing an
-        /// <see cref="Option{T}" /> of
-        /// type <typeparamref name="T" /> that contains the initial value if it satisfies
-        /// the
-        /// predicate, or an empty <see cref="Option{T}" /> if it does not.
+        /// A <see cref="ValueTask{TResult}" /> containing the original option if it
+        /// was a <see cref="Some{T}" /> whose value satisfies
+        /// <paramref name="predicate" />, otherwise <see cref="None{T}" />. A
+        /// <see cref="None{T}" /> passes through unchanged and the predicate is not
+        /// invoked.
         /// </returns>
         public async ValueTask<Option<T>>
             FilterAsync(Func<T, bool> predicate)
@@ -100,19 +103,19 @@ public static class FilterExtensions
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Filters the current <see cref="Option{T}" /> instance represented by
-        /// the <see cref="ValueTask{TResult}" />, based on the provided asynchronous
-        /// predicate.
+        /// Awaits the <see cref="ValueTask{TResult}" />, then awaits
+        /// <paramref name="predicate" /> against the contained value if the option is
+        /// a <see cref="Some{T}" />, keeping the option when it passes.
         /// </summary>
         /// <param name="predicate">
-        /// An asynchronous function that determines whether the value contained
-        /// in the <see cref="Option{T}" /> satisfies the condition.
+        /// The asynchronous condition the contained value must satisfy.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing an <see cref="Option{T}" /> of type
-        /// <typeparamref name="T" /> that contains the initial value if it satisfies the
-        /// predicate,
-        /// or an empty <see cref="Option{T}" /> if it does not.
+        /// A <see cref="ValueTask{TResult}" /> containing the original option if it
+        /// was a <see cref="Some{T}" /> whose value satisfies
+        /// <paramref name="predicate" />, otherwise <see cref="None{T}" />. A
+        /// <see cref="None{T}" /> passes through unchanged and the predicate is not
+        /// invoked.
         /// </returns>
         public async ValueTask<Option<T>>
             FilterAsync(Func<T, Task<bool>> predicate)
@@ -129,18 +132,19 @@ public static class FilterExtensions
         }
 
         /// <summary>
-        /// Filters the result of the asynchronous <see cref="Option{T}" /> operation
-        /// using the provided synchronous predicate.
+        /// Awaits the <see cref="ValueTask{TResult}" />, then tests the contained
+        /// value with a synchronous <paramref name="predicate" /> if the option is a
+        /// <see cref="Some{T}" />, keeping the option when it passes.
         /// </summary>
         /// <param name="predicate">
-        /// A function that determines whether the value contained in the
-        /// <see cref="Option{T}" />
-        /// satisfies the condition.
+        /// The condition the contained value must satisfy.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing an <see cref="Option{T}" /> of type
-        /// <typeparamref name="T" /> that contains the initial value if it satisfies
-        /// the predicate, or an empty <see cref="Option{T}" /> if it does not.
+        /// A <see cref="ValueTask{TResult}" /> containing the original option if it
+        /// was a <see cref="Some{T}" /> whose value satisfies
+        /// <paramref name="predicate" />, otherwise <see cref="None{T}" />. A
+        /// <see cref="None{T}" /> passes through unchanged and the predicate is not
+        /// invoked.
         /// </returns>
         public async ValueTask<Option<T>>
             FilterAsync(Func<T, bool> predicate)

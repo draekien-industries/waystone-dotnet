@@ -4,10 +4,23 @@
 using System.Diagnostics;
 #endif
 
-/// <summary>Represents information about the caller of a Try method.</summary>
-/// <param name="MemberName">The caller member name</param>
-/// <param name="ArgumentExpression">The caller argument expression</param>
-/// <param name="LineNumber">The caller line number</param>
+/// <summary>Describes the call site whose exception a <c>Try</c> method caught.</summary>
+/// <remarks>
+/// The library builds this from the compiler-supplied
+/// <see cref="System.Runtime.CompilerServices.CallerMemberNameAttribute" />,
+/// <see cref="System.Runtime.CompilerServices.CallerArgumentExpressionAttribute" />
+/// and <see cref="System.Runtime.CompilerServices.CallerLineNumberAttribute" />
+/// values at the <c>Try</c> or <c>TryAsync</c> call, then hands it to the logger
+/// registered through <see cref="MonadOptions.UseExceptionLogger" />. Do not
+/// supply these values yourself.
+/// </remarks>
+/// <param name="MemberName">The member that called <c>Try</c>.</param>
+/// <param name="ArgumentExpression">
+/// The source text of the delegate argument passed to <c>Try</c>.
+/// </param>
+/// <param name="LineNumber">
+/// The line in the caller's file where the <c>Try</c> call appears.
+/// </param>
 #if !DEBUG
 [DebuggerStepThrough]
 #endif

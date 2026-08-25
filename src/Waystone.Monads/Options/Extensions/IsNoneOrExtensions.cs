@@ -4,6 +4,9 @@ using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Asynchronous <c>IsNoneOr</c> extensions for <see cref="Option{T}" />.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Option<>))]
 [GenerateAwaitedMember(nameof(Option<>.IsNoneOr))]
 public static partial class IsNoneOrExtensions
@@ -11,19 +14,18 @@ public static partial class IsNoneOrExtensions
     extension<T>(Option<T> option) where T : notnull
     {
         /// <summary>
-        /// Evaluates whether the current <see cref="Option{T}" /> instance is in a "None"
-        /// state or
-        /// satisfies the provided asynchronous predicate if it is in a "Some" state.
+        /// Checks whether the option is a <see cref="None{T}" />, or awaits
+        /// <paramref name="predicate" /> against the contained value if it is a
+        /// <see cref="Some{T}" />.
         /// </summary>
         /// <param name="predicate">
-        /// An asynchronous function to test the value contained in the
-        /// <see cref="Option{T}" /> if it is in a "Some" state.
+        /// An asynchronous condition to evaluate the contained value against. It is
+        /// not invoked when the option is a <see cref="None{T}" />.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
-        /// <see cref="Option{T}" /> is in a "None" state,
-        /// or the predicate evaluates to <see langword="true" /> for the contained value
-        /// if it is in a "Some" state; otherwise, <see langword="false" />.
+        /// A <see cref="ValueTask{TResult}" /> containing true if the option is a
+        /// <see cref="None{T}" /> or the predicate passes for the contained value;
+        /// false otherwise.
         /// </returns>
         public async ValueTask<bool> IsNoneOrAsync(
             Func<T, Task<bool>> predicate)

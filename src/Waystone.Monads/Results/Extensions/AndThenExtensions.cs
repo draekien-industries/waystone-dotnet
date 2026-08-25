@@ -3,34 +3,35 @@
 using System;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Asynchronous <c>AndThen</c> extensions for <see cref="Result{TOk,TErr}" />
+/// and for tasks producing one.
+/// </summary>
 public static class AndThenExtensions
 {
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Executes the provided asynchronous function if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />,
-        /// and returns the resulting <see cref="Result{TOut, TErr}" />.
-        /// If the result is <see cref="Result{TOk, TErr}.IsErr" />, it propagates the
+        /// Calls <paramref name="factory" /> with the contained value if the result
+        /// is an <see cref="Ok{TOk,TErr}" /> and awaits it, otherwise propagates the
         /// error.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="factory" /> is not invoked for an
+        /// <see cref="Err{TOk,TErr}" />. Any exception the returned task faults with
+        /// surfaces to the caller unchanged.
+        /// </remarks>
         /// <typeparam name="TOut">
-        /// The type of the success value in the resulting
-        /// <see cref="Result{TOut, TErr}" />.
+        /// The ok value type of the result produced by <paramref name="factory" />.
         /// </typeparam>
         /// <param name="factory">
-        /// A function to be executed if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />.
-        /// It takes the success value of the original result as input and returns a
-        /// <see cref="Task{TResult}" />
-        /// that completes with a <see cref="Result{TOut, TErr}" />.
+        /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> that completes with a
-        /// <see cref="Result{TOut, TErr}" />.
-        /// If the original result is <see cref="Result{TOk, TErr}.IsErr" />, the error is
-        /// propagated.
+        /// The result <paramref name="factory" /> produced, or the original error
+        /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
+        /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>>
             AndThenAsync<TOut>(Func<TOk, Task<Result<TOut, TErr>>> factory)
@@ -53,28 +54,25 @@ public static class AndThenExtensions
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Executes the provided asynchronous function if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />, and returns the resulting
-        /// <see cref="Result{TOut, TErr}" />.
-        /// If the result is <see cref="Result{TOk, TErr}.IsErr" />, it propagates the
-        /// error.
+        /// Awaits the receiver, then calls the asynchronous
+        /// <paramref name="factory" /> with the contained value if the result is an
+        /// <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="factory" /> is not invoked for an
+        /// <see cref="Err{TOk,TErr}" />. The receiver is awaited first, so a faulted
+        /// receiver task throws before <paramref name="factory" /> is reached.
+        /// </remarks>
         /// <typeparam name="TOut">
-        /// The type of the success value in the resulting
-        /// <see cref="Result{TOut, TErr}" />.
+        /// The ok value type of the result produced by <paramref name="factory" />.
         /// </typeparam>
         /// <param name="factory">
-        /// A function to be executed if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />.
-        /// It takes the success value of the original result as input and returns a
-        /// <see cref="Task{TResult}" /> that completes with a
-        /// <see cref="Result{TOut, TErr}" />.
+        /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> that completes with a
-        /// <see cref="Result{TOut, TErr}" />.
-        /// If the original result is <see cref="Result{TOk, TErr}.IsErr" />, the error is
-        /// propagated.
+        /// The result <paramref name="factory" /> produced, or the original error
+        /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
+        /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Task<Result<TOut, TErr>>> factory) where TOut : notnull
@@ -85,28 +83,26 @@ public static class AndThenExtensions
         }
 
         /// <summary>
-        /// Invokes the provided synchronous function if the result of the asynchronous
-        /// operation
-        /// is <see cref="Result{TOk, TErr}.IsOk" />, and returns the resulting
-        /// <see cref="Result{TOut, TErr}" />.
-        /// If the result is <see cref="Result{TOk, TErr}.IsErr" />, it propagates the
-        /// error.
+        /// Awaits the receiver, then calls the synchronous
+        /// <paramref name="factory" /> with the contained value if the result is an
+        /// <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
+        /// <remarks>
+        /// Pick this over the sibling taking a <see cref="Task{TResult}" />-returning
+        /// factory when the continuation does no I/O; it avoids a second await.
+        /// <paramref name="factory" /> is not invoked for an
+        /// <see cref="Err{TOk,TErr}" />.
+        /// </remarks>
         /// <typeparam name="TOut">
-        /// The type of the success value in the resulting
-        /// <see cref="Result{TOut, TErr}" />.
+        /// The ok value type of the result produced by <paramref name="factory" />.
         /// </typeparam>
         /// <param name="factory">
-        /// A function to be executed if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />.
-        /// It takes the success value of the original result as input and returns a
-        /// <see cref="Result{TOut, TErr}" />.
+        /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> that completes with a
-        /// <see cref="Result{TOut, TErr}" />.
-        /// If the original result is <see cref="Result{TOk, TErr}.IsErr" />, the error is
-        /// propagated.
+        /// The result <paramref name="factory" /> produced, or the original error
+        /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
+        /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull
@@ -121,27 +117,25 @@ public static class AndThenExtensions
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Executes the provided asynchronous function if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />, and returns the resulting
-        /// <see cref="Result{TOut, TErr}" />. If the result is
-        /// <see cref="Result{TOk, TErr}.IsErr" />, it propagates the error.
+        /// Awaits the <see cref="ValueTask{TResult}" /> receiver, then calls the
+        /// asynchronous <paramref name="factory" /> with the contained value if the
+        /// result is an <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
+        /// <remarks>
+        /// The receiver is awaited once, so it must not have been awaited already.
+        /// <paramref name="factory" /> is not invoked for an
+        /// <see cref="Err{TOk,TErr}" />.
+        /// </remarks>
         /// <typeparam name="TOut">
-        /// The type of the success value in the resulting
-        /// <see cref="Result{TOut, TErr}" />.
+        /// The ok value type of the result produced by <paramref name="factory" />.
         /// </typeparam>
         /// <param name="factory">
-        /// A function to be executed if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />.
-        /// It takes the success value of the original result as input and returns a
-        /// <see cref="Task{TResult}" /> that completes with a
-        /// <see cref="Result{TOut, TErr}" />.
+        /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> that completes with a
-        /// <see cref="Result{TOut, TErr}" />.
-        /// If the original result is <see cref="Result{TOk, TErr}.IsErr" />, the error is
-        /// propagated.
+        /// The result <paramref name="factory" /> produced, or the original error
+        /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
+        /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Task<Result<TOut, TErr>>> factory) where TOut : notnull
@@ -152,25 +146,25 @@ public static class AndThenExtensions
         }
 
         /// <summary>
-        /// Executes the provided asynchronous function if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />, and returns the resulting
-        /// <see cref="Result{TOut, TErr}" />. If the result is
-        /// <see cref="Result{TOk, TErr}.IsErr" />, it propagates the error.
+        /// Awaits the <see cref="ValueTask{TResult}" /> receiver, then calls the
+        /// synchronous <paramref name="factory" /> with the contained value if the
+        /// result is an <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
+        /// <remarks>
+        /// The receiver is awaited once, so it must not have been awaited already.
+        /// <paramref name="factory" /> is not invoked for an
+        /// <see cref="Err{TOk,TErr}" />.
+        /// </remarks>
         /// <typeparam name="TOut">
-        /// The type of the success value in the resulting
-        /// <see cref="Result{TOut, TErr}" />.
+        /// The ok value type of the result produced by <paramref name="factory" />.
         /// </typeparam>
         /// <param name="factory">
-        /// A function to be executed if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />. It takes the success value
-        /// of the original result as input and returns a
-        /// <see cref="Result{TOut, TErr}" />.
+        /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> that completes with a
-        /// <see cref="Result{TOut, TErr}" />. If the original result is
-        /// <see cref="Result{TOk, TErr}.IsErr" />, the error is propagated.
+        /// The result <paramref name="factory" /> produced, or the original error
+        /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
+        /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull

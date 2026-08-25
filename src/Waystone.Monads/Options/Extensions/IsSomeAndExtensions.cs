@@ -4,26 +4,28 @@ using System;
 using System.Threading.Tasks;
 
 /// <summary>
-/// Provides extension methods for handling asynchronous control flow with
-/// instances of <see cref="Option{T}" />.
+/// Provides <c>IsSomeAndAsync</c> overloads for testing an
+/// <see cref="Option{T}" /> with an asynchronous predicate, a receiver still
+/// inside a task, or both.
 /// </summary>
 public static class IsSomeAndExtensions
 {
     extension<T>(Option<T> option) where T : notnull
     {
         /// <summary>
-        /// Evaluates whether the current <see cref="Option{T}" /> instance is in a "Some"
-        /// state and satisfies the provided asynchronous predicate.
+        /// Checks whether an <see cref="Option{T}" /> is a <see cref="Some{T}" />
+        /// whose value satisfies an asynchronous predicate.
         /// </summary>
+        /// <remarks>
+        /// The predicate is not invoked when the option is a
+        /// <see cref="None{T}" />.
+        /// </remarks>
         /// <param name="predicate">
-        /// An asynchronous function to test the value contained in the
-        /// <see cref="Option{T}" /> if it is in a "Some" state.
+        /// The asynchronous condition to evaluate against the contained value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
-        /// <see cref="Option{T}" /> is in a "Some" state
-        /// and the predicate evaluates to <see langword="true" /> for the contained value;
-        /// otherwise, <see langword="false" />.
+        /// True if the option is a <see cref="Some{T}" /> and the predicate returns
+        /// true; false otherwise.
         /// </returns>
         public async ValueTask<bool> IsSomeAndAsync(
             Func<T, Task<bool>> predicate)
@@ -39,18 +41,19 @@ public static class IsSomeAndExtensions
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Asynchronously evaluates whether the <see cref="Option{T}" /> produced by the
-        /// task is in a "Some" state and satisfies the provided asynchronous predicate.
+        /// Awaits a task of <see cref="Option{T}" /> and checks whether it is a
+        /// <see cref="Some{T}" /> whose value satisfies an asynchronous predicate.
         /// </summary>
+        /// <remarks>
+        /// The predicate is not invoked when the option is a
+        /// <see cref="None{T}" />.
+        /// </remarks>
         /// <param name="predicate">
-        /// An asynchronous function to test the value contained in the
-        /// <see cref="Option{T}" /> if it is in a "Some" state.
+        /// The asynchronous condition to evaluate against the contained value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
-        /// <see cref="Option{T}" /> is in a "Some" state
-        /// and the predicate evaluates to <see langword="true" /> for the contained value;
-        /// otherwise, <see langword="false" />.
+        /// True if the option is a <see cref="Some{T}" /> and the predicate returns
+        /// true; false otherwise.
         /// </returns>
         public async ValueTask<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
         {
@@ -60,19 +63,20 @@ public static class IsSomeAndExtensions
         }
 
         /// <summary>
-        /// Evaluates whether the current <see cref="Option{T}" /> instance, awaited from
-        /// the <see cref="Task{TResult}" />, is in a "Some" state and satisfies the
-        /// provided predicate.
+        /// Awaits a task of <see cref="Option{T}" /> and checks whether it is a
+        /// <see cref="Some{T}" /> whose value satisfies a synchronous predicate.
         /// </summary>
+        /// <remarks>
+        /// The predicate is not invoked when the option is a
+        /// <see cref="None{T}" />. Only the receiver is awaited, so pick this
+        /// overload when the test itself does no asynchronous work.
+        /// </remarks>
         /// <param name="predicate">
-        /// A function to test the value contained in the <see cref="Option{T}" /> if it is
-        /// in a "Some" state.
+        /// The condition to evaluate against the contained value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
-        /// <see cref="Option{T}" /> is in a "Some" state and the predicate evaluates to
-        /// <see langword="true" /> for the contained value; otherwise,
-        /// <see langword="false" />.
+        /// True if the option is a <see cref="Some{T}" /> and the predicate returns
+        /// true; false otherwise.
         /// </returns>
         public async ValueTask<bool> IsSomeAndAsync(Func<T, bool> predicate)
         {
@@ -85,19 +89,19 @@ public static class IsSomeAndExtensions
     extension<T>(ValueTask<Option<T>> optionValueTask) where T : notnull
     {
         /// <summary>
-        /// Asynchronously evaluates whether the <see cref="Option{T}" /> produced by the
-        /// ValueTask is in a "Some" state and satisfies the provided asynchronous
-        /// predicate.
+        /// Awaits a value task of <see cref="Option{T}" /> and checks whether it is
+        /// a <see cref="Some{T}" /> whose value satisfies an asynchronous predicate.
         /// </summary>
+        /// <remarks>
+        /// The predicate is not invoked when the option is a
+        /// <see cref="None{T}" />.
+        /// </remarks>
         /// <param name="predicate">
-        /// An asynchronous function to test the value contained in the
-        /// <see cref="Option{T}" /> if it is in a "Some" state.
+        /// The asynchronous condition to evaluate against the contained value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
-        /// <see cref="Option{T}" /> is in a "Some" state
-        /// and the predicate evaluates to <see langword="true" /> for the contained value;
-        /// otherwise, <see langword="false" />.
+        /// True if the option is a <see cref="Some{T}" /> and the predicate returns
+        /// true; false otherwise.
         /// </returns>
         public async ValueTask<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
         {
@@ -107,19 +111,20 @@ public static class IsSomeAndExtensions
         }
 
         /// <summary>
-        /// Evaluates whether the current <see cref="Option{T}" /> instance, obtained
-        /// from the asynchronous <see cref="ValueTask{T}" />, is in a "Some" state
-        /// and satisfies the provided predicate.
+        /// Awaits a value task of <see cref="Option{T}" /> and checks whether it is
+        /// a <see cref="Some{T}" /> whose value satisfies a synchronous predicate.
         /// </summary>
+        /// <remarks>
+        /// The predicate is not invoked when the option is a
+        /// <see cref="None{T}" />. Only the receiver is awaited, so pick this
+        /// overload when the test itself does no asynchronous work.
+        /// </remarks>
         /// <param name="predicate">
-        /// A function to test the value contained in the <see cref="Option{T}" />
-        /// if it is in a "Some" state.
+        /// The condition to evaluate against the contained value.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing <see langword="true" /> if the
-        /// <see cref="Option{T}" /> is in a "Some" state and the predicate evaluates
-        /// to <see langword="true" /> for the contained value; otherwise,
-        /// <see langword="false" />.
+        /// True if the option is a <see cref="Some{T}" /> and the predicate returns
+        /// true; false otherwise.
         /// </returns>
         public async ValueTask<bool> IsSomeAndAsync(Func<T, bool> predicate)
         {

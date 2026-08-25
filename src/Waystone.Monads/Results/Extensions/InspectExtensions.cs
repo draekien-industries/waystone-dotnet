@@ -4,6 +4,9 @@ using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Asynchronous <c>Inspect</c> extensions for <see cref="Result{TOk,TErr}" />.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.Inspect))]
 public static partial class InspectExtensions
@@ -12,19 +15,22 @@ public static partial class InspectExtensions
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Asynchronously inspects the <see cref="Result{TOk, TErr}" /> if it is
-        /// <see cref="Result{TOk, TErr}.IsOk" />
-        /// by executing the specified action on the <typeparamref name="TOk" /> value.
+        /// Awaits <paramref name="action" /> against the contained value if the
+        /// result is an <see cref="Ok{TOk,TErr}" />, then returns the result
+        /// unchanged.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="action" /> is not invoked for an
+        /// <see cref="Err{TOk,TErr}" />. Use this to observe an ok value — logging or
+        /// metrics — without altering the pipeline; any exception the action faults
+        /// with surfaces to the caller.
+        /// </remarks>
         /// <param name="action">
-        /// A function that represents the asynchronous operation to be performed
-        /// on the <typeparamref name="TOk" /> value if the result is
-        /// <see cref="Result{TOk, TErr}.IsOk" />.
+        /// The asynchronous side effect to run against the contained ok value.
         /// </param>
         /// <returns>
-        /// The original <see cref="Result{TOk, TErr}" /> after executing the specified
-        /// <paramref name="action" />,
-        /// regardless of its state.
+        /// A <see cref="ValueTask{TResult}" /> completing with the receiver, never a
+        /// new instance.
         /// </returns>
         public async ValueTask<Result<TOk, TErr>>
             InspectAsync(Func<TOk, Task> action)

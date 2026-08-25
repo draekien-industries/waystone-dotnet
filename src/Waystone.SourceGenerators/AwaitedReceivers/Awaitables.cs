@@ -22,7 +22,10 @@ internal static class Awaitables
 
     /// <summary>
     /// The type an <c>await</c> of <paramref name="type" /> produces, or
-    /// <see langword="null" /> when <paramref name="type" /> is not awaitable.
+    /// <see langword="null" /> when there is none — either because
+    /// <paramref name="type" /> is not awaitable, or because it is a non-generic
+    /// <c>Task</c> or <c>ValueTask</c>, whose await yields no value. Call
+    /// <see cref="IsAwaitable" /> to tell those two apart.
     /// </summary>
     public static ITypeSymbol? Unwrap(ITypeSymbol type)
     {

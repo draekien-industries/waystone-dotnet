@@ -11,20 +11,20 @@ public static class ResultsCollectionExtensions
     /// sequence, skipping the <see cref="Err{TOk,TErr}" /> ones.
     /// </summary>
     /// <remarks>
-    /// This is the sequence counterpart of Rust's <c>iter().flatten()</c>, which
-    /// works because <c>Result</c> is itself iterable. It is lazy and streams.
-    /// Unlike collecting into a single result, it does not stop at the first
-    /// failure.
+    /// Execution is deferred: the source is enumerated as the returned sequence is,
+    /// and re-enumerating the result re-enumerates the source. Every error is
+    /// dropped rather than stopping the sequence, so a caller who needs the failures
+    /// wants <see cref="Partition{TOk,TErr}" /> instead.
     /// </remarks>
     /// <param name="results">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Result{TOk,TErr}" />
+    /// The sequence to read ok values from. Not enumerated until the returned
+    /// sequence is.
     /// </param>
     /// <typeparam name="TOk">The result's ok value type</typeparam>
     /// <typeparam name="TErr">The result's error value type</typeparam>
     /// <returns>
-    /// An <see cref="IEnumerable{T}" /> yielding the value of every
-    /// <see cref="Ok{TOk,TErr}" /> in the source, in order
+    /// The value of every <see cref="Ok{TOk,TErr}" /> in the source, in source
+    /// order.
     /// </returns>
     public static IEnumerable<TOk> Flatten<TOk, TErr>(
         this IEnumerable<Result<TOk, TErr>> results)
@@ -36,19 +36,18 @@ public static class ResultsCollectionExtensions
     /// a sequence, skipping the <see cref="Ok{TOk,TErr}" /> ones.
     /// </summary>
     /// <remarks>
-    /// Rust has no name for this direction. The <c>Err</c> suffix follows
-    /// <c>MapErr</c>, <c>InspectErr</c>, <c>ExpectErr</c> and <c>UnwrapErr</c>. It is
-    /// lazy and streams.
+    /// Execution is deferred: the source is enumerated as the returned sequence is,
+    /// and re-enumerating the result re-enumerates the source.
     /// </remarks>
     /// <param name="results">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Result{TOk,TErr}" />
+    /// The sequence to read errors from. Not enumerated until the returned sequence
+    /// is.
     /// </param>
     /// <typeparam name="TOk">The result's ok value type</typeparam>
     /// <typeparam name="TErr">The result's error value type</typeparam>
     /// <returns>
-    /// An <see cref="IEnumerable{T}" /> yielding the error of every
-    /// <see cref="Err{TOk,TErr}" /> in the source, in order
+    /// The error of every <see cref="Err{TOk,TErr}" /> in the source, in source
+    /// order.
     /// </returns>
     public static IEnumerable<TErr> FlattenErr<TOk, TErr>(
         this IEnumerable<Result<TOk, TErr>> results)
@@ -63,18 +62,16 @@ public static class ResultsCollectionExtensions
     /// the source exactly once.
     /// </summary>
     /// <remarks>
-    /// Deliberately not the all-or-nothing shape: this reports every failure rather
-    /// than stopping at the first one.
+    /// Enumerates the source immediately and in full, so it does not stop at the
+    /// first <see cref="Err{TOk,TErr}" /> — both lists are complete when the call
+    /// returns. Both are empty for an empty source; neither is ever
+    /// <see langword="null" />.
     /// </remarks>
-    /// <param name="results">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Result{TOk,TErr}" />
-    /// </param>
+    /// <param name="results">The sequence to split. Enumerated once, immediately.</param>
     /// <typeparam name="TOk">The result's ok value type</typeparam>
     /// <typeparam name="TErr">The result's error value type</typeparam>
     /// <returns>
-    /// A tuple of the ok values and the errors, each in the order they appeared
-    /// in the source
+    /// The ok values and the errors as two lists, each in source order.
     /// </returns>
     public static (IReadOnlyList<TOk> Oks, IReadOnlyList<TErr> Errs)
         Partition<TOk, TErr>(this IEnumerable<Result<TOk, TErr>> results)

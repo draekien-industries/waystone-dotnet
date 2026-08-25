@@ -3,10 +3,29 @@
 using System;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Applies an asynchronous map to an <see cref="Option{T}" />, and applies
+/// <c>MapAsync</c> to an <see cref="Option{T}" /> that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
 public static class MapExtensions
 {
     extension<T>(Option<T> option) where T : notnull
     {
+        /// <summary>
+        /// Awaits <paramref name="map" /> against the contained value if the option
+        /// is a <see cref="Some{T}" />.
+        /// </summary>
+        /// <typeparam name="TOut">The type of the mapped value.</typeparam>
+        /// <param name="map">
+        /// A function that asynchronously transforms the contained value. It is not
+        /// invoked when the option is a <see cref="None{T}" />.
+        /// </param>
+        /// <returns>
+        /// A <see cref="ValueTask{TResult}" /> containing <see cref="Some{T}" /> of
+        /// the mapped value if the option was a <see cref="Some{T}" />, otherwise
+        /// <see cref="None{T}" /> of <typeparamref name="TOut" />.
+        /// </returns>
         public async ValueTask<Option<TOut>> MapAsync<TOut>(
             Func<T, Task<TOut>> map)
             where TOut : notnull
@@ -24,17 +43,19 @@ public static class MapExtensions
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Asynchronously transforms the value contained in the <see cref="Option{T}" />
-        /// instance using the provided mapping function.
+        /// Awaits the <see cref="Task{TResult}" />, then awaits
+        /// <paramref name="map" /> against the contained value if the option is a
+        /// <see cref="Some{T}" />.
         /// </summary>
         /// <typeparam name="TOut">The type of the value in the resulting option.</typeparam>
         /// <param name="map">
-        /// A function that takes the value inside the option and returns
-        /// a task containing the transformed value.
+        /// A function that asynchronously transforms the contained value. It is not
+        /// invoked when the awaited option is a <see cref="None{T}" />.
         /// </param>
         /// <returns>
-        /// A task containing an <see cref="Option{TOut}" /> with the transformed value if
-        /// the original option was in a "Some" state; otherwise, an empty option.
+        /// A <see cref="ValueTask{TResult}" /> containing <see cref="Some{T}" /> of
+        /// the mapped value if the awaited option was a <see cref="Some{T}" />,
+        /// otherwise <see cref="None{T}" /> of <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, Task<TOut>> map)
             where TOut : notnull
@@ -51,20 +72,22 @@ public static class MapExtensions
         }
 
         /// <summary>
-        /// Asynchronously transforms the value contained in the <see cref="Option{T}" />
-        /// instance using the provided mapping function.
+        /// Awaits the <see cref="Task{TResult}" />, then applies a synchronous
+        /// <paramref name="map" /> to the contained value if the option is a
+        /// <see cref="Some{T}" />.
         /// </summary>
         /// <typeparam name="TOut">
         /// The type of the value in the resulting
         /// <see cref="Option{TOut}" />.
         /// </typeparam>
         /// <param name="map">
-        /// A function that takes the value inside the option and returns a task containing
-        /// the transformed value.
+        /// A function that transforms the contained value. It is not invoked when
+        /// the awaited option is a <see cref="None{T}" />.
         /// </param>
         /// <returns>
-        /// A task containing an <see cref="Option{TOut}" /> with the transformed value if
-        /// the original option was in a "Some" state; otherwise, an empty option.
+        /// A <see cref="ValueTask{TResult}" /> containing <see cref="Some{T}" /> of
+        /// the mapped value if the awaited option was a <see cref="Some{T}" />,
+        /// otherwise <see cref="None{T}" /> of <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, TOut> map)
             where TOut : notnull
@@ -84,18 +107,19 @@ public static class MapExtensions
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
-        /// Asynchronously transforms the value contained in the <see cref="Option{T}" />
-        /// instance using the provided mapping function.
+        /// Awaits the <see cref="ValueTask{TResult}" />, then awaits
+        /// <paramref name="map" /> against the contained value if the option is a
+        /// <see cref="Some{T}" />.
         /// </summary>
         /// <typeparam name="TOut">The type of the value in the resulting option.</typeparam>
         /// <param name="map">
-        /// A function that takes the value inside the option and returns
-        /// a task containing the transformed value.
+        /// A function that asynchronously transforms the contained value. It is not
+        /// invoked when the awaited option is a <see cref="None{T}" />.
         /// </param>
         /// <returns>
-        /// A task containing an <see cref="Option{TOut}" /> with the transformed value if
-        /// the original <see cref="Option{T}" /> was in a "Some" state; otherwise, an
-        /// empty option.
+        /// A <see cref="ValueTask{TResult}" /> containing <see cref="Some{T}" /> of
+        /// the mapped value if the awaited option was a <see cref="Some{T}" />,
+        /// otherwise <see cref="None{T}" /> of <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, Task<TOut>> map)
             where TOut : notnull
@@ -112,19 +136,19 @@ public static class MapExtensions
         }
 
         /// <summary>
-        /// Asynchronously transforms the value contained within the
-        /// <see cref="Option{T}" />
-        /// returned by the <see cref="ValueTask{T}" /> using the provided mapping
-        /// function.
+        /// Awaits the <see cref="ValueTask{TResult}" />, then applies a synchronous
+        /// <paramref name="map" /> to the contained value if the option is a
+        /// <see cref="Some{T}" />.
         /// </summary>
         /// <typeparam name="TOut">The type of the value in the resulting option.</typeparam>
         /// <param name="map">
-        /// A function that takes the value inside the option and maps it to a new value.
+        /// A function that transforms the contained value. It is not invoked when
+        /// the awaited option is a <see cref="None{T}" />.
         /// </param>
         /// <returns>
-        /// A task that, when completed, contains an <see cref="Option{TOut}" /> with the
-        /// transformed value
-        /// if the original option was in a "Some" state; otherwise, an empty option.
+        /// A <see cref="ValueTask{TResult}" /> containing <see cref="Some{T}" /> of
+        /// the mapped value if the awaited option was a <see cref="Some{T}" />,
+        /// otherwise <see cref="None{T}" /> of <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Option<TOut>> MapAsync<TOut>(Func<T, TOut> map)
             where TOut : notnull

@@ -4,6 +4,11 @@ using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Maps an <see cref="Option{T}" /> to a nullable value type, using
+/// <see langword="null" /> rather than <see langword="default" /> for the
+/// <see cref="None{T}" /> case.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Option<>))]
 public static partial class MapOrNullExtensions
 {
@@ -14,10 +19,10 @@ public static partial class MapOrNullExtensions
         /// <see cref="Some{T}" />, otherwise returns <see langword="null" />.
         /// </summary>
         /// <remarks>
-        /// Prefer this to <see cref="Option{T}.MapOrDefault{TOut}" /> when
-        /// <typeparamref name="TOut" /> is a value type. <c>MapOrDefault</c> returns the
-        /// default of <typeparamref name="TOut" /> for a <see cref="None{T}" />, which is
-        /// indistinguishable from a legitimate zero.
+        /// Prefer this to <see cref="Option{T}.MapOrDefault{TOut}" />, which returns
+        /// the default of <typeparamref name="TOut" /> for a
+        /// <see cref="None{T}" /> — for a value type that is indistinguishable from
+        /// a legitimate zero.
         /// </remarks>
         /// <typeparam name="TOut">The type of the output value.</typeparam>
         /// <param name="map">
@@ -35,10 +40,15 @@ public static partial class MapOrNullExtensions
         /// Awaits <paramref name="map" /> against the contained value if the option is
         /// a <see cref="Some{T}" />, otherwise returns <see langword="null" />.
         /// </summary>
+        /// <remarks>
+        /// Prefer this to <c>MapOrDefaultAsync</c>, which returns the default of
+        /// <typeparamref name="TOut" /> for a <see cref="None{T}" /> — for a value
+        /// type that is indistinguishable from a legitimate zero.
+        /// </remarks>
         /// <typeparam name="TOut">The type of the output value.</typeparam>
         /// <param name="map">
-        /// A function to asynchronously transform the value inside the
-        /// option if it is a <see cref="Some{T}" />.
+        /// Asynchronously transforms the contained value. Not invoked when the
+        /// option is a <see cref="None{T}" />.
         /// </param>
         /// <returns>
         /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the

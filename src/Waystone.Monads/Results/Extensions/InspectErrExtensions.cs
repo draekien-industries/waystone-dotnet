@@ -4,6 +4,10 @@ using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Asynchronous <c>InspectErr</c> extensions for
+/// <see cref="Result{TOk,TErr}" />.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.InspectErr))]
 public static partial class InspectErrExtensions
@@ -13,16 +17,22 @@ public static partial class InspectErrExtensions
         where TErr : notnull
     {
         /// <summary>
-        /// Asynchronously invokes the specified action on the
-        /// <see cref="Err{TOk, TErr}" /> value,
-        /// if the <see cref="Result{TOk, TErr}" /> represents an error.
-        /// Does nothing if the result is <see cref="Ok{TOk, TErr}" />.
+        /// Awaits <paramref name="action" /> against the contained error if the
+        /// result is an <see cref="Err{TOk,TErr}" />, then returns the result
+        /// unchanged.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="action" /> is not invoked for an
+        /// <see cref="Ok{TOk,TErr}" />. Use this to observe a failure — logging or
+        /// metrics — without handling it; the error is still carried forward.
+        /// </remarks>
         /// <param name="action">
-        /// The asynchronous action to invoke with the
-        /// <see cref="Err{TOk, TErr}" /> value.
+        /// The asynchronous side effect to run against the contained error.
         /// </param>
-        /// <returns>The original <see cref="Result{TOk, TErr}" /> instance, unmodified.</returns>
+        /// <returns>
+        /// A <see cref="ValueTask{TResult}" /> completing with the receiver, never a
+        /// new instance.
+        /// </returns>
         public async ValueTask<Result<TOk, TErr>> InspectErrAsync(
             Func<TErr, Task> action)
         {
