@@ -23,15 +23,19 @@ using System;
 /// per project. An enum in a referenced assembly keeps the scheme that assembly
 /// was built with.
 /// </para>
+/// <para>
+/// A format the generator cannot parse is a build error (WMG0005) on every enum
+/// that falls back to it, as is one with no <c>{member}</c> placeholder
+/// (WMG0006). Neither generates a catalog.
+/// </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Assembly)]
 public sealed class ErrorCodeFormatAttribute : Attribute
 {
-    /// <summary>
-    /// Sets the scheme every generated error code in this project follows.
-    /// </summary>
+    /// <summary>Creates the attribute carrying the scheme to apply.</summary>
     /// <param name="format">
-    /// The scheme, for example <c>"{enum:kebab}.{member:kebab}"</c>.
+    /// The scheme, for example <c>"{enum:kebab}.{member:kebab}"</c>. Must contain a
+    /// <c>{member}</c> placeholder or the build fails.
     /// </param>
     public ErrorCodeFormatAttribute(string format)
     {

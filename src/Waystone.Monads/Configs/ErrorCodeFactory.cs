@@ -19,9 +19,10 @@ public class ErrorCodeFactory
 
     /// <summary>Creates a new instance of <see cref="ErrorCode" /> from an Enum value.</summary>
     /// <remarks>
-    /// Overriding this to shape your codes has been replaced by the declarative
-    /// format on
-    /// <see cref="Results.Errors.ErrorCodeCatalogAttribute.Format" />, or on
+    /// Produces <c>{EnumTypeName}.{MemberName}</c>, worked out by reflection at run
+    /// time, so it cannot apply the format declared on the enum and nothing tells
+    /// you when a rename changes the code. Shape codes with
+    /// <see cref="Results.Errors.ErrorCodeCatalogAttribute.Format" />, or with
     /// <see cref="Results.Errors.ErrorCodeFormatAttribute" /> for a whole assembly.
     /// A format is read at compile time, so the generated constants, the analyzers
     /// and the error code registry all agree on what an enum produces; an override
@@ -41,6 +42,14 @@ public class ErrorCodeFactory
     /// Creates a new instance of <see cref="ErrorCode" /> from an Exception
     /// value.
     /// </summary>
+    /// <remarks>
+    /// Produces the exception's type name with a trailing <c>Exception</c>
+    /// removed, matched without regard to case —
+    /// <see cref="InvalidOperationException" /> gives <c>InvalidOperation</c>.
+    /// <see cref="Exception" /> itself is left whole rather than reduced to an
+    /// empty code. The exception's message is never read, so nothing from its text
+    /// reaches the code.
+    /// </remarks>
     /// <param name="exception">The exception value to convert into an Error Code.</param>
     /// <returns>The created <see cref="ErrorCode" />.</returns>
     public virtual ErrorCode FromException(Exception exception)

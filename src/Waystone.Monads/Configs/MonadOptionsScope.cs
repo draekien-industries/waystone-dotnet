@@ -29,6 +29,14 @@ public readonly struct MonadOptionsScope : IDisposable
     }
 
     /// <summary>Restores the options that were in effect before this scope.</summary>
+    /// <remarks>
+    /// Safe to call more than once: each call assigns the same saved options back.
+    /// Dispose scopes in the reverse of the order you created them — disposing an
+    /// outer scope while an inner one is still live restores the outer scope's
+    /// predecessor and silently discards the inner. Disposing a default-constructed
+    /// scope clears the scoped options, falling the flow back to the globally
+    /// configured ones.
+    /// </remarks>
     public void Dispose()
     {
         MonadOptions.ScopedOptions.Value = _previous;
