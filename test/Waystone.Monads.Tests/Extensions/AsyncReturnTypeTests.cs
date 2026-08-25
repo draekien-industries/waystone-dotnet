@@ -21,7 +21,8 @@ public sealed class AsyncReturnTypeTests
     ];
 
     [Fact]
-    public void GivenAnAsyncExtension_ThenItShouldNotReturnTask()
+    public void
+        GivenAnAsyncExtensionThatMayCompleteSynchronously_ThenItShouldNotReturnTask()
     {
         List<string> offenders =
             typeof(Option<>).Assembly.GetTypes()
@@ -37,6 +38,7 @@ public sealed class AsyncReturnTypeTests
                                  method => method.Name.EndsWith(
                                      "Async",
                                      StringComparison.Ordinal))
+                            .Where(method => !CannotCompleteSynchronously(method))
                             .Where(method => ReturnsTask(method.ReturnType))
                             .Select(
                                  method =>
@@ -131,6 +133,16 @@ public sealed class AsyncReturnTypeTests
                       .FilterAsync(value => Task.FromResult(value > 0));
 
         (await chain).ShouldBe(Option.Some(3));
+    }
+
+    private static bool CannotCompleteSynchronously(MethodInfo method)
+    {
+        ParameterInfo[] parameters = method.GetParameters();
+
+        return parameters.Length > 0
+            && parameters[0].ParameterType.IsGenericType
+            && parameters[0].ParameterType.GetGenericTypeDefinition()
+            == typeof(IAsyncEnumerable<>);
     }
 
     private static bool ReturnsTask(Type returnType) =>

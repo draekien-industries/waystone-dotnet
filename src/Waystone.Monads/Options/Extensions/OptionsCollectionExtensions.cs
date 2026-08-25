@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>Extensions for <see cref="Option{T}" /> collections.</summary>
 public static class OptionsCollectionExtensions
@@ -83,6 +85,107 @@ public static class OptionsCollectionExtensions
     public static IEnumerable<T> Flatten<T>(
         this IEnumerable<Option<T>> options) where T : notnull =>
         options.SelectMany(option => option.AsEnumerable());
+
+    /// <summary>
+    /// Gathers a sequence of options into one option holding every value, or
+    /// <see cref="None{T}" /> if any element is absent.
+    /// </summary>
+    /// <remarks>
+    /// This is the all-or-nothing counterpart to <see cref="Flatten{T}" />, which
+    /// drops the absent elements instead of failing on them. It is the port of
+    /// Rust's <c>collect::&lt;Option&lt;Vec&lt;T&gt;&gt;&gt;()</c> and short-circuits
+    /// the same way: enumeration stops at the first <see cref="None{T}" />, so the
+    /// tail of <paramref name="options" /> is never visited and a side-effecting
+    /// source is left partly consumed. Enumerates when it is called rather than
+    /// when its result is read, and builds a list as it goes, so do not call it on
+    /// an unbounded sequence.
+    /// </remarks>
+    /// <param name="options">The sequence to gather. Enumerated immediately.</param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// A <see cref="Some{T}" /> holding one value per element, in source order,
+    /// when every element is a <see cref="Some{T}" /> — including when
+    /// <paramref name="options" /> is empty, which yields a
+    /// <see cref="Some{T}" /> of an empty list rather than a
+    /// <see cref="None{T}" />. Otherwise a <see cref="None{T}" />, which carries no
+    /// indication of which element was absent.
+    /// </returns>
+    public static Option<IReadOnlyList<T>> Collect<T>(
+        this IEnumerable<Option<T>> options) where T : notnull
+    {
+        List<T> values = new List<T>();
+
+        foreach (Option<T> option in options)
+        {
+            bool collected = option.Match(
+                values,
+                static (value, collecting) =>
+                {
+                    collecting.Add(value);
+                    return true;
+                },
+                static _ => false);
+
+            if (!collected)
+            {
+                return Option.None<IReadOnlyList<T>>();
+            }
+        }
+
+        return Option.Some<IReadOnlyList<T>>(values);
+    }
+
+    /// <summary>
+    /// Gathers an asynchronous sequence of options into one option holding every
+    /// value, or <see cref="None{T}" /> if any element is absent.
+    /// </summary>
+    /// <remarks>
+    /// The asynchronous counterpart of <see cref="Collect{T}" />, and it
+    /// short-circuits for real: the stream stops being pulled at the first
+    /// <see cref="None{T}" />, so whatever would have produced the later elements
+    /// never runs. That is the reason to reach for this over materialising the
+    /// stream and calling <see cref="Collect{T}" /> on the result.
+    /// </remarks>
+    /// <param name="options">
+    /// The stream to gather. Pulled from until it ends or an element is absent.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Passed to the stream's enumerator, so a source that honours it stops
+    /// producing when cancellation is requested.
+    /// </param>
+    /// <typeparam name="T">The option value's type</typeparam>
+    /// <returns>
+    /// A <see cref="Some{T}" /> holding one value per element, in stream order,
+    /// when every element is a <see cref="Some{T}" /> — including for an empty
+    /// stream. Otherwise a <see cref="None{T}" />.
+    /// </returns>
+    public static async Task<Option<IReadOnlyList<T>>> CollectAsync<T>(
+        this IAsyncEnumerable<Option<T>> options,
+        CancellationToken cancellationToken = default) where T : notnull
+    {
+        List<T> values = new List<T>();
+
+        await foreach (Option<T> option in options
+                                          .WithCancellation(cancellationToken)
+                                          .ConfigureAwait(false))
+        {
+            bool collected = option.Match(
+                values,
+                static (value, collecting) =>
+                {
+                    collecting.Add(value);
+                    return true;
+                },
+                static _ => false);
+
+            if (!collected)
+            {
+                return Option.None<IReadOnlyList<T>>();
+            }
+        }
+
+        return Option.Some<IReadOnlyList<T>>(values);
+    }
 
     /// <summary>
     /// Returns the first <see cref="Some{T}" /> in a sequence whose value

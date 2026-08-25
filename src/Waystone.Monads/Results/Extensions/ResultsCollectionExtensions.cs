@@ -2,6 +2,9 @@ namespace Waystone.Monads.Results.Extensions;
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Options;
 
 /// <summary>Extensions for <see cref="Result{TOk,TErr}" /> collections.</summary>
 public static class ResultsCollectionExtensions
@@ -56,6 +59,122 @@ public static class ResultsCollectionExtensions
             result => result.Match(
                 _ => Enumerable.Empty<TErr>(),
                 error => new[] { error }.AsEnumerable()));
+
+    /// <summary>
+    /// Gathers a sequence of results into one result holding every ok value, or the
+    /// first error encountered.
+    /// </summary>
+    /// <remarks>
+    /// The all-or-nothing counterpart to <see cref="Partition{TOk,TErr}" />, which
+    /// reports every failure and always succeeds. This is the port of Rust's
+    /// <c>collect::&lt;Result&lt;Vec&lt;T&gt;, E&gt;&gt;()</c> and short-circuits the
+    /// same way: enumeration stops at the first <see cref="Err{TOk,TErr}" />, so
+    /// later elements are never visited, later errors are never seen, and a
+    /// side-effecting source is left partly consumed. Reach for
+    /// <see cref="Partition{TOk,TErr}" /> when the caller needs to report all of the
+    /// failures rather than fail on one. Enumerates when it is called rather than
+    /// when its result is read, so do not call it on an unbounded sequence.
+    /// </remarks>
+    /// <param name="results">The sequence to gather. Enumerated immediately.</param>
+    /// <typeparam name="TOk">The result's ok value type</typeparam>
+    /// <typeparam name="TErr">The result's error value type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> holding one value per element, in source
+    /// order, when every element is an <see cref="Ok{TOk,TErr}" /> — including when
+    /// <paramref name="results" /> is empty, which succeeds with an empty list.
+    /// Otherwise an <see cref="Err{TOk,TErr}" /> carrying the first error, with the
+    /// ok values that preceded it discarded.
+    /// </returns>
+    public static Result<IReadOnlyList<TOk>, TErr> Collect<TOk, TErr>(
+        this IEnumerable<Result<TOk, TErr>> results)
+        where TOk : notnull where TErr : notnull
+    {
+        List<TOk> oks = new List<TOk>();
+        Option<TErr> failure = Option.None<TErr>();
+
+        foreach (Result<TOk, TErr> result in results)
+        {
+            failure = result.Match(
+                oks,
+                static (ok, collecting) =>
+                {
+                    collecting.Add(ok);
+                    return Option.None<TErr>();
+                },
+                static (error, _) => Option.Some(error));
+
+            if (failure.IsSome)
+            {
+                break;
+            }
+        }
+
+        return failure.Match(
+            oks,
+            static (error, _) => Result.Err<IReadOnlyList<TOk>, TErr>(error),
+            static collected => Result.Ok<IReadOnlyList<TOk>, TErr>(collected));
+    }
+
+    /// <summary>
+    /// Gathers an asynchronous sequence of results into one result holding every ok
+    /// value, or the first error encountered.
+    /// </summary>
+    /// <remarks>
+    /// The asynchronous counterpart of <see cref="Collect{TOk,TErr}" />, and it
+    /// short-circuits for real: the stream stops being pulled at the first
+    /// <see cref="Err{TOk,TErr}" />, so whatever would have produced the later
+    /// elements never runs. That is the reason to reach for this over materialising
+    /// the stream and calling <see cref="Collect{TOk,TErr}" /> on the result.
+    /// </remarks>
+    /// <param name="results">
+    /// The stream to gather. Pulled from until it ends or an element fails.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Passed to the stream's enumerator, so a source that honours it stops
+    /// producing when cancellation is requested.
+    /// </param>
+    /// <typeparam name="TOk">The result's ok value type</typeparam>
+    /// <typeparam name="TErr">The result's error value type</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk,TErr}" /> holding one value per element, in stream
+    /// order, when every element is an <see cref="Ok{TOk,TErr}" /> — including for
+    /// an empty stream. Otherwise an <see cref="Err{TOk,TErr}" /> carrying the first
+    /// error.
+    /// </returns>
+    public static async Task<Result<IReadOnlyList<TOk>, TErr>>
+        CollectAsync<TOk, TErr>(
+            this IAsyncEnumerable<Result<TOk, TErr>> results,
+            CancellationToken cancellationToken = default)
+        where TOk : notnull where TErr : notnull
+    {
+        List<TOk> oks = new List<TOk>();
+        Option<TErr> failure = Option.None<TErr>();
+
+        await foreach (Result<TOk, TErr> result in results
+                                                  .WithCancellation(
+                                                       cancellationToken)
+                                                  .ConfigureAwait(false))
+        {
+            failure = result.Match(
+                oks,
+                static (ok, collecting) =>
+                {
+                    collecting.Add(ok);
+                    return Option.None<TErr>();
+                },
+                static (error, _) => Option.Some(error));
+
+            if (failure.IsSome)
+            {
+                break;
+            }
+        }
+
+        return failure.Match(
+            oks,
+            static (error, _) => Result.Err<IReadOnlyList<TOk>, TErr>(error),
+            static collected => Result.Ok<IReadOnlyList<TOk>, TErr>(collected));
+    }
 
     /// <summary>
     /// Splits a sequence of results into its ok values and its errors, enumerating
