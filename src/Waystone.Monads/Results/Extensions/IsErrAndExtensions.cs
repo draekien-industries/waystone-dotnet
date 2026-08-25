@@ -4,6 +4,9 @@ using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Asynchronous <c>IsErrAnd</c> extensions for <see cref="Result{TOk,TErr}" />.
+/// </summary>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.IsErrAnd))]
 public static partial class IsErrAndExtensions
@@ -12,18 +15,21 @@ public static partial class IsErrAndExtensions
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Determines whether the result is an Err value and satisfies the specified
-        /// predicate.
+        /// Checks whether the result is an <see cref="Err{TOk,TErr}" /> whose error
+        /// satisfies an asynchronous <paramref name="predicate" />.
         /// </summary>
+        /// <remarks>
+        /// <paramref name="predicate" /> is not invoked for an
+        /// <see cref="Ok{TOk,TErr}" />, so any side effect it carries does not run in
+        /// that case.
+        /// </remarks>
         /// <param name="predicate">
-        /// A function that defines the condition to check against the Err value.
+        /// The asynchronous condition to evaluate against the contained error.
         /// </param>
         /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> that represents the asynchronous operation,
-        /// containing
-        /// <see langword="true" /> if the result is an Err value and satisfies the
-        /// specified predicate;
-        /// otherwise, <see langword="false" />.
+        /// A <see cref="ValueTask{TResult}" /> completing with true if the result is
+        /// an <see cref="Err{TOk,TErr}" /> and <paramref name="predicate" /> returns
+        /// true; false otherwise.
         /// </returns>
         public async ValueTask<bool> IsErrAndAsync(
             Func<TErr, Task<bool>> predicate)

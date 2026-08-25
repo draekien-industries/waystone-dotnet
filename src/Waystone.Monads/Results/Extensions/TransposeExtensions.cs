@@ -2,28 +2,26 @@
 
 using Options;
 
-/// <summary>Extension methods for <see cref="Result{TOk,TErr}" /></summary>
+/// <summary>
+/// Turns a <see cref="Result{TOk,TErr}" /> of an <see cref="Option{T}" /> inside
+/// out.
+/// </summary>
 public static class TransposeExtensions
 {
     extension<TOk, TErr>(Result<Option<TOk>, TErr> result)
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Transposes a <c>result</c> of an <c>option</c> into an <c>option</c>
-        /// of a <c>result</c>
+        /// Turns a result of an option into an option of a result.
         /// </summary>
-        /// <list type="bullet">
-        /// <item>
-        /// <see cref="Ok{TOk,TErr}" /> of <see cref="None{T}" /> will be mapped to
-        /// <see cref="None{T}" />.
-        /// </item>
-        /// <item>
-        /// <see cref="Ok{TOk,TErr}" /> of <see cref="Some{T}" /> and
-        /// <see cref="Err{TOk,TErr}" /> will be mapped to <see cref="Some{T}" /> of
-        /// <see cref="Ok{TOk,TErr}" /> and <see cref="Some{T}" /> of
-        /// <see cref="Err{TOk,TErr}" />
-        /// </item>
-        /// </list>
+        /// <returns>
+        /// <see cref="None{T}" /> if the result is an <see cref="Ok{TOk,TErr}" /> of
+        /// <see cref="None{T}" />; <see cref="Some{T}" /> of an
+        /// <see cref="Ok{TOk,TErr}" /> if it is an <see cref="Ok{TOk,TErr}" /> of
+        /// <see cref="Some{T}" />; and <see cref="Some{T}" /> of an
+        /// <see cref="Err{TOk,TErr}" /> if it is an <see cref="Err{TOk,TErr}" />. An
+        /// error is never discarded.
+        /// </returns>
         public Option<Result<TOk, TErr>> Transpose()
         {
             if (result.IsErr)
