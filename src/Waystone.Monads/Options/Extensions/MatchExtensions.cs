@@ -34,7 +34,7 @@ public static class MatchExtensions
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
-            return await option.Match(onSome, onNone);
+            return await option.Match(onSome, onNone).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ public static class MatchExtensions
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
-            return await option.Match(onSome, onNone);
+            return await option.Match(onSome, onNone).ConfigureAwait(false);
         }
 
         /// <summary>
