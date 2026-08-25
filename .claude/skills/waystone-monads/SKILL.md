@@ -258,7 +258,7 @@ mechanics — are pointed to above, where the situation that needs them arises.
 | [references/async.md](references/async.md) | The chain crosses an `await`, or `Try`/`TryAsync` is involved. The `*Async` members extend `Task<Option<T>>`, so a chain need not be broken into locals — and an async delegate handed to a synchronous member compiles silently while catching nothing |
 | [references/sequences.md](references/sequences.md) | Working over an `IEnumerable` of monads — `Collect`, `Partition`, `Flatten` — or combining two with `Zip`, `Reduce` or `Xor`, several of which invert the obvious expectation |
 | [references/nesting.md](references/nesting.md) | A monad has ended up inside another. Which shape to reach for, what `Transpose` maps to what in both directions, and when the nesting should be resolved with `OkOr` instead of preserved |
-| [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants; the runtime `FromEnum` factories are obsolete |
+| [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension, and never through the obsolete `FromEnum` factories |
 | [references/rust-to-csharp.md](references/rust-to-csharp.md) | Porting Rust, or a Rust idiom has no obvious C# spelling |
 
 Most of the surface — every `*Async` member and every collection operation — is

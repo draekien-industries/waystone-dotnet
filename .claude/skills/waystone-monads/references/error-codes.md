@@ -28,22 +28,45 @@ Three nested classes hold one member per enum member, named verbatim:
 | `…Catalog.Codes.NotFound` | An `ErrorCode` field | Comparing or passing a code without a message |
 | `…Catalog.Errors.NotFound(message)` | An `Error` factory | Constructing the failure to return |
 
-Three extensions handle the case where the member is only known at run time:
-`value.ToErrorCodeName()`, `value.ToErrorCode()` and `value.ToError(message)`.
-Reach for these at a boundary that receives a bare enum — not as the default way
-to build an error, since the nested factories are direct.
+## Build errors through the generated factory
+
+`{EnumName}Catalog.Errors.{Member}(message)` is the default way to construct a
+failure. Use it wherever you know the member as you write the line:
 
 ```csharp
-// The member is known here — use the factory
+// Good
 return Result.Err<Order>(
     OrderErrorCodeCatalog.Errors.NotFound($"no order with id {id}"));
 
-// The member arrived from elsewhere — attach a message with ToError
-OrderErrorCode? refusal = AskWarehouse(order);
-return refusal.HasValue
-    ? Result.Err<Reservation>(refusal.Value.ToError($"cannot reserve {order.Sku}"))
-    : Result.Ok<Reservation>(reservation);
+// Poor — names the same member, then routes it through a runtime switch
+return Result.Err<Order>(
+    OrderErrorCode.NotFound.ToError($"no order with id {id}"));
 ```
+
+Three extensions exist for the case the factory cannot cover, where the member
+arrives as a value rather than as something you type: `value.ToErrorCodeName()`,
+`value.ToErrorCode()` and `value.ToError(message)`. Reach for one only at a
+boundary that hands you a bare enum.
+
+```csharp
+// The member arrived from elsewhere — this is what ToError is for
+OrderErrorCode refusal = AskWarehouse(order);
+
+return Result.Err<Reservation>(
+    refusal.ToError($"cannot reserve {order.Sku}"));
+```
+
+The reason to keep them to that case is what happens to a value that is not a
+declared member. `ToErrorCode` is a generated switch whose default arm applies
+the catalog's format to the value's `ToString()`, so `((OrderErrorCode)99)`
+yields the code `order.99` rather than throwing. Nothing catches it: the code
+was never generated, so `ErrorCodes.txt` never lists it and `WM2019` never
+reports it. A cast, a deserialised value or a stale integer in a database
+becomes a wire contract no catalog declares.
+
+The factory has no such arm — it takes no value, so there is nothing to be out
+of range. Prefer it whenever you have the choice, and validate the enum before
+calling `ToError` when you do not.
 
 ## Shape the code string
 
