@@ -34,7 +34,7 @@ public abstract record Result<TOk, TErr>
 
     /// <summary>
     /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" /> .
+    /// <see cref="Err{TOk,TErr}" />.
     /// </summary>
     public abstract bool IsErr { get; }
 
@@ -51,11 +51,10 @@ public abstract record Result<TOk, TErr>
     /// that takes state instead of capturing it.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -83,11 +82,10 @@ public abstract record Result<TOk, TErr>
     /// predicate that takes state instead of capturing it.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -127,11 +125,10 @@ public abstract record Result<TOk, TErr>
     /// rather than captured by them.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegates rather than letting them close over one
-    /// and they can be <see langword="static" />, which captures nothing, so the
-    /// compiler caches a single instance of each and the call allocates no
-    /// display class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload. A capturing <c>Match</c> allocates more than the
+    /// Handing the <paramref name="state" /> to the delegates rather than
+    /// capturing it lets them be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. A capturing <c>Match</c> allocates more than the
     /// single-delegate members do, because its two branches share one display
     /// class but need a delegate each.
     /// </remarks>
@@ -178,11 +175,10 @@ public abstract record Result<TOk, TErr>
     /// with state passed to the callbacks rather than captured by them.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegates rather than letting them close over one
-    /// and they can be <see langword="static" />, which captures nothing, so the
-    /// compiler caches a single instance of each and the call allocates no
-    /// display class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload. A capturing <c>Match</c> allocates more than the
+    /// Handing the <paramref name="state" /> to the delegates rather than
+    /// capturing it lets them be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. A capturing <c>Match</c> allocates more than the
     /// single-delegate members do, because its two branches share one display
     /// class but need a delegate each.
     /// </remarks>
@@ -267,13 +263,20 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" /> value of <see langword="this" /> instance.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the function rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
-    /// <param name="state">The value passed to the <paramref name="createOther" /> function.</param>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
     /// <param name="createOther">A function that creates the other result.</param>
-    /// <typeparam name="TState">The type of the state passed to the function.</typeparam>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOut">
     /// The <see cref="Ok{TOk,TErr}" /> value's type of the
     /// other result.
@@ -302,7 +305,11 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
     /// value of this result instance.
     /// </summary>
-    /// <remarks>This function can be used for control flow based on result values.</remarks>
+    /// <remarks>
+    /// The delegate is not invoked on an <see cref="Ok{TOk,TErr}" />, so it is
+    /// the lazy counterpart to <see cref="Or{TOut}" />, which evaluates its
+    /// argument either way.
+    /// </remarks>
     /// <param name="createOther">A function which creates the other result.</param>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
     public abstract Result<TOk, TOut> OrElse<TOut>(
@@ -314,11 +321,12 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" /> value of this result instance.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. The delegate is not invoked on an
+    /// <see cref="Ok{TOk,TErr}" />, so a capturing call allocates a closure it
+    /// then discards.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -340,11 +348,13 @@ public abstract record Result<TOk, TErr>
     /// result instance.
     /// </summary>
     /// <remarks>
-    /// Because this function may throw an
-    /// <see cref="UnmetExpectationException" />, its use is generally discouraged.
-    /// Instead, prefer to use the <code>Match</code> function and handling the
-    /// <see cref="Err{TOk,TErr}" /> case explicitly, or call <code>UnwrapOr</code>,
-    /// <code>UnwrapOrElse</code>, or <code>UnwrapOrDefault</code>.
+    /// Throws on an <see cref="Err{TOk,TErr}" />, differing from
+    /// <see cref="Unwrap" /> only in that the thrown message leads with
+    /// <paramref name="message" />. Prefer a member that cannot throw:
+    /// <see cref="Match{TOut}(Func{TOk,TOut},Func{TErr,TOut})" /> to handle both
+    /// cases explicitly, or <see cref="UnwrapOr" />,
+    /// <see cref="UnwrapOrElse(Func{TErr,TOk})" /> or
+    /// <see cref="UnwrapOrDefault" /> to supply a fallback.
     /// </remarks>
     /// <exception cref="UnmetExpectationException">
     /// Throws if the value is an
@@ -372,11 +382,11 @@ public abstract record Result<TOk, TErr>
     /// result instance.
     /// </summary>
     /// <remarks>
-    /// Because this function may throw an <see cref="UnwrapException" />, its
-    /// use is generally discouraged. Instead, prefer to use the <code>Match</code>
-    /// function and handling the <see cref="Err{TOk,TErr}" /> case explicitly, or call
-    /// <code>UnwrapOr</code>, <code>UnwrapOrElse</code>, or
-    /// <code>UnwrapOrDefault</code>.
+    /// Throws on an <see cref="Err{TOk,TErr}" />, so prefer a member that
+    /// cannot: <see cref="Match{TOut}(Func{TOk,TOut},Func{TErr,TOut})" /> to
+    /// handle both cases explicitly, or <see cref="UnwrapOr" />,
+    /// <see cref="UnwrapOrElse(Func{TErr,TOk})" /> or
+    /// <see cref="UnwrapOrDefault" /> to supply a fallback.
     /// </remarks>
     /// <exception cref="UnwrapException">
     /// Throws if the value is an
@@ -416,11 +426,12 @@ public abstract record Result<TOk, TErr>
     /// from a callback that takes state instead of capturing it.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. The delegate is not invoked on an
+    /// <see cref="Ok{TOk,TErr}" />, so a capturing call allocates a closure it
+    /// then discards.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -442,10 +453,15 @@ public abstract record Result<TOk, TErr>
     /// Returns the contained <see cref="Err{TOk,TErr}" /> value, consuming
     /// the result instance.
     /// </summary>
+    /// <remarks>
+    /// Throws on an <see cref="Ok{TOk,TErr}" />, so reach for it only where the
+    /// result is already known to be an <see cref="Err{TOk,TErr}" />. Prefer
+    /// <see cref="GetErr" />, which returns a <see cref="None{T}" /> instead of
+    /// throwing.
+    /// </remarks>
     /// <exception cref="UnwrapException">
-    /// Throws if the value is an
-    /// <see cref="Err{TOk,TErr}" />, with a custom exception message provided by the
-    /// <see cref="Ok{TOk,TErr}" />'s value.
+    /// Throws if the result is an <see cref="Ok{TOk,TErr}" />, with an exception
+    /// message provided by the <see cref="Ok{TOk,TErr}" />'s value.
     /// </exception>
     public abstract TErr UnwrapErr();
 
@@ -454,6 +470,7 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
+    /// <returns>The original <see cref="Result{TOk,TErr}" />, unchanged.</returns>
     public abstract Result<TOk, TErr> Inspect(Action<TOk> action);
 
     /// <summary>
@@ -461,11 +478,10 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" />, so the function need not capture.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -486,6 +502,7 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
+    /// <returns>The original <see cref="Result{TOk,TErr}" />, unchanged.</returns>
     public abstract Result<TOk, TErr> InspectErr(Action<TErr> action);
 
     /// <summary>
@@ -493,11 +510,10 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" />, so the function need not capture.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -519,7 +535,6 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" /> value, leaving an <see cref="Err{TOk,TErr}" />
     /// untouched.
     /// </summary>
-    /// <remarks>This function can be used to compose the results of two functions.</remarks>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TOut">The output value type.</typeparam>
     public abstract Result<TOut, TErr> Map<TOut>(Func<TOk, TOut> map)
@@ -532,13 +547,20 @@ public abstract record Result<TOk, TErr>
     /// untouched.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
-    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
     /// <param name="map">The map function.</param>
-    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the map function. It is unconstrained,
+    /// so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOut">The output value type.</typeparam>
     public abstract Result<TOut, TErr> Map<TState, TOut>(
         TState state,
@@ -560,16 +582,23 @@ public abstract record Result<TOk, TErr>
     /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
-    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
     /// <param name="default">
     /// The default value for an <see cref="Err{TOk,TErr}" />
     /// </param>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the map function. It is unconstrained,
+    /// so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut MapOr<TState, TOut>(
         TState state,
@@ -593,11 +622,10 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Ok{TOk,TErr}" />).
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -625,7 +653,11 @@ public abstract record Result<TOk, TErr>
     /// </param>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
-    /// <returns></returns>
+    /// <returns>
+    /// What <paramref name="map" /> produces from the contained value on an
+    /// <see cref="Ok{TOk,TErr}" />, otherwise what
+    /// <paramref name="createDefault" /> produces from the contained error.
+    /// </returns>
     public abstract TOut MapOrElse<TOut>(
         Func<TErr, TOut> createDefault,
         Func<TOk, TOut> map);
@@ -637,17 +669,24 @@ public abstract record Result<TOk, TErr>
     /// a contained <see cref="Ok{TOk,TErr}" /> value.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegates rather than
+    /// capturing it lets them be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
-    /// <param name="state">The value passed to both functions.</param>
+    /// <param name="state">
+    /// The value the delegates would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
     /// <param name="createDefault">
     /// A function to create the default value for an
     /// <see cref="Err{TOk,TErr}" />
     /// </param>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TState">The type of the state passed to both functions.</typeparam>
+    /// <typeparam name="TState">
+    /// The type of the state passed to both functions. It is unconstrained, so
+    /// a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut MapOrElse<TState, TOut>(
         TState state,
@@ -660,10 +699,6 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" /> value, leaving an <see cref="Ok{TOk,TErr}" />
     /// value untouched.
     /// </summary>
-    /// <remarks>
-    /// This function can be used to pass through a successful result while
-    /// handling an error.
-    /// </remarks>
     /// <param name="map">
     /// The map function to apply to the <see cref="Err{TOk,TErr}" />
     /// </param>
@@ -678,15 +713,22 @@ public abstract record Result<TOk, TErr>
     /// value untouched.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
-    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
     /// <param name="map">
     /// The map function to apply to the <see cref="Err{TOk,TErr}" />
     /// </param>
-    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the map function. It is unconstrained,
+    /// so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOut">The output error value type</typeparam>
     public abstract Result<TOk, TOut> MapErr<TState, TOut>(
         TState state,
@@ -696,20 +738,23 @@ public abstract record Result<TOk, TErr>
     /// Converts from a <see cref="Result{TOk,TErr}" /> into an
     /// <c>Option&lt;TOk&gt;</c>
     /// </summary>
-    /// <remarks>
-    /// Converts the result instance into an <see cref="Option" />, consuming
-    /// the result instance, and discarding the error, if any.
-    /// </remarks>
+    /// <returns>
+    /// A <see cref="Some{T}" /> holding the success value on an
+    /// <see cref="Ok{TOk,TErr}" />, otherwise a <see cref="None{T}" />. The
+    /// error is discarded, so call <see cref="GetErr" /> first if you need it.
+    /// </returns>
     public abstract Option<TOk> GetOk();
 
     /// <summary>
     /// Converts from a <see cref="Result{TOk,TErr}" /> to
     /// <c>Option&lt;TErr&gt;</c>
     /// </summary>
-    /// <remarks>
-    /// Converts this result instance into an <see cref="Option{T}" />,
-    /// consuming the result instance, and discarding the success value, if any.
-    /// </remarks>
+    /// <returns>
+    /// A <see cref="Some{T}" /> holding the error on an
+    /// <see cref="Err{TOk,TErr}" />, otherwise a <see cref="None{T}" />. The
+    /// success value is discarded, so call <see cref="GetOk" /> first if you
+    /// need it.
+    /// </returns>
     public abstract Option<TErr> GetErr();
 
     /// <summary>

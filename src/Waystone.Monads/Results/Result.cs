@@ -9,7 +9,12 @@ using Errors;
 using System.Diagnostics;
 #endif
 
-/// <summary>Static methods for <see cref="Result{TOk,TErr}" /></summary>
+/// <summary>Creates <see cref="Result{TOk,TErr}" /> values</summary>
+/// <remarks>
+/// The <see cref="Ok{TOk,TErr}" /> and <see cref="Err{TOk,TErr}" />
+/// constructors are both internal, so this class is the only way to build a
+/// <see cref="Result{TOk,TErr}" /> from outside the library.
+/// </remarks>
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
@@ -28,11 +33,14 @@ public static class Result
     /// A callback method that will be invoked for any exceptions
     /// thrown by the <paramref name="factory" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
@@ -41,30 +49,24 @@ public static class Result
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// An <see cref="Err{TOk,TErr}" /> is returned both when the factory throws
     /// and when it returns null, and <paramref name="onError" /> is invoked in
     /// either case. A factory that returns null is handed an
     /// <see cref="ArgumentNullException" /> that was never thrown, so it carries
-    /// no stack trace, and only the thrown case is reported to the exception
-    /// logger configured on <see cref="MonadOptions" />.
-    /// </remarks>
-    /// <remarks>
-    /// The null test is made here rather than left to
-    /// <see cref="Ok{TOk,TErr}" />'s own guard, which would throw. This method
-    /// exists so a caller learns whether a workable value came back without
-    /// having to guard the call, so the guard's exception has to become an
-    /// <see cref="Err{TOk,TErr}" /> instead. That is the opposite of
-    /// <c>Option.Try</c>, which delegates because the conversion it
-    /// delegates to returns a <see cref="Options.None{T}" /> rather than
-    /// throwing.
-    /// </remarks>
-    /// <remarks>
+    /// no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. It leaves
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static Result<TOk, TErr> Try<TOk, TErr>(
         Func<TOk> factory,
@@ -109,11 +111,14 @@ public static class Result
     /// A callback method that will be invoked for any exceptions
     /// thrown by the <paramref name="asyncFactory" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
@@ -122,30 +127,24 @@ public static class Result
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// An <see cref="Err{TOk,TErr}" /> is returned both when the factory throws
     /// and when it returns null, and <paramref name="onError" /> is invoked in
     /// either case. A factory that returns null is handed an
     /// <see cref="ArgumentNullException" /> that was never thrown, so it carries
-    /// no stack trace, and only the thrown case is reported to the exception
-    /// logger configured on <see cref="MonadOptions" />.
-    /// </remarks>
-    /// <remarks>
-    /// The null test is made here rather than left to
-    /// <see cref="Ok{TOk,TErr}" />'s own guard, which would throw. This method
-    /// exists so a caller learns whether a workable value came back without
-    /// having to guard the call, so the guard's exception has to become an
-    /// <see cref="Err{TOk,TErr}" /> instead. That is the opposite of
-    /// <c>Option.Try</c>, which delegates because the conversion it
-    /// delegates to returns a <see cref="Options.None{T}" /> rather than
-    /// throwing.
-    /// </remarks>
-    /// <remarks>
+    /// no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. It leaves
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static async Task<Result<TOk, TErr>> TryAsync<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
@@ -184,7 +183,10 @@ public static class Result
     /// <paramref name="state" /> and invoking <paramref name="onError" /> if the
     /// factory throws an exception.
     /// </summary>
-    /// <param name="state">The value handed to the <paramref name="factory" />.</param>
+    /// <param name="state">
+    /// The value the factory would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
     /// <param name="factory">
     /// A method which when executed will return the value
     /// contained in the <see cref="Result{TOk,TErr}" />
@@ -193,13 +195,18 @@ public static class Result
     /// A callback method that will be invoked for any exceptions
     /// thrown by the <paramref name="factory" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
-    /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerArgumentExpression">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The state's type. It is unconstrained, so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
     /// <returns>
@@ -207,19 +214,32 @@ public static class Result
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
     /// captured by it, so the factory can be <c>static</c> and the call
-    /// allocates no closure. The <paramref name="onError" /> callback is not
-    /// handed the state, because it receives the exception and a handler that
-    /// needs more than that is not on the hot path this exists for.
-    /// </remarks>
-    /// <remarks>
+    /// allocates no closure. A
+    /// <see cref="System.Threading.CancellationToken" /> is the state this
+    /// exists for. The <paramref name="onError" /> callback is not handed the
+    /// state, so a handler that needs it still captures.
+    /// </para>
+    /// <para>
+    /// An <see cref="Err{TOk,TErr}" /> is returned both when the factory throws
+    /// and when it returns null, and <paramref name="onError" /> is invoked in
+    /// either case. A factory that returns null is handed an
+    /// <see cref="ArgumentNullException" /> that was never thrown, so it carries
+    /// no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. It leaves
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static Result<TOk, TErr> Try<TState, TOk, TErr>(
         TState state,
@@ -259,7 +279,8 @@ public static class Result
     /// factory throws an exception.
     /// </summary>
     /// <param name="state">
-    /// The value handed to the <paramref name="asyncFactory" />.
+    /// The value the factory would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
     /// </param>
     /// <param name="asyncFactory">
     /// An asynchronous method which when executed will
@@ -269,13 +290,18 @@ public static class Result
     /// A callback method that will be invoked for any exceptions
     /// thrown by the <paramref name="asyncFactory" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
-    /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerArgumentExpression">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The state's type. It is unconstrained, so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <typeparam name="TErr">The error handler return value's type</typeparam>
     /// <returns>
@@ -283,18 +309,32 @@ public static class Result
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
     /// captured by it, so the factory can be <c>static</c> and the call
-    /// allocates no closure. A <see cref="System.Threading.CancellationToken" />
-    /// is the state this exists for.
-    /// </remarks>
-    /// <remarks>
+    /// allocates no closure. A
+    /// <see cref="System.Threading.CancellationToken" /> is the state this
+    /// exists for. The <paramref name="onError" /> callback is not handed the
+    /// state, so a handler that needs it still captures.
+    /// </para>
+    /// <para>
+    /// An <see cref="Err{TOk,TErr}" /> is returned both when the factory throws
+    /// and when it returns null, and <paramref name="onError" /> is invoked in
+    /// either case. A factory that returns null is handed an
+    /// <see cref="ArgumentNullException" /> that was never thrown, so it carries
+    /// no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. It leaves
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static async Task<Result<TOk, TErr>> TryAsync<TState, TOk, TErr>(
         TState state,
@@ -336,7 +376,14 @@ public static class Result
     /// Creates an <see cref="Ok{TOk,TErr}" /> result containing the provided
     /// value.
     /// </summary>
-    /// <param name="value">The value of the result type.</param>
+    /// <param name="value">The success value the result will hold.</param>
+    /// <typeparam name="TOk">The ok result value's type</typeparam>
+    /// <typeparam name="TErr">The error result value's type</typeparam>
+    /// <returns>
+    /// A <see cref="Result{TOk,TErr}" /> that is always an
+    /// <see cref="Ok{TOk,TErr}" />. The static type is
+    /// <see cref="Result{TOk,TErr}" />, so match on it to reach the value.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="value" /> is null. An <see cref="Ok{TOk,TErr}" /> cannot
     /// hold null, matching the <c>notnull</c> constraint on
@@ -351,7 +398,14 @@ public static class Result
     /// Creates an <see cref="Err{TOk,TErr}" /> result containing the provided
     /// value.
     /// </summary>
-    /// <param name="value">The value of the result type.</param>
+    /// <param name="value">The error value the result will hold.</param>
+    /// <typeparam name="TOk">The ok result value's type</typeparam>
+    /// <typeparam name="TErr">The error result value's type</typeparam>
+    /// <returns>
+    /// A <see cref="Result{TOk,TErr}" /> that is always an
+    /// <see cref="Err{TOk,TErr}" />. The static type is
+    /// <see cref="Result{TOk,TErr}" />, so match on it to reach the error.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="value" /> is null. An <see cref="Err{TOk,TErr}" /> cannot
     /// hold null, matching the <c>notnull</c> constraint on
@@ -372,11 +426,14 @@ public static class Result
     /// A method which when executed will return the value
     /// contained in the <see cref="Result{TOk,TErr}" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <returns>
@@ -384,9 +441,20 @@ public static class Result
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
+    /// A factory that returns null also produces an
+    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// from an <see cref="ArgumentNullException" /> that was never thrown and so
+    /// has no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static Result<TOk, Error> Try<TOk>(
         Func<TOk> factory,
@@ -412,11 +480,14 @@ public static class Result
     /// An asynchronous method which when executed will
     /// produce the value of the <see cref="Result{TOk,TErr}" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <returns>
@@ -424,9 +495,20 @@ public static class Result
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
+    /// A factory that returns null also produces an
+    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// from an <see cref="ArgumentNullException" /> that was never thrown and so
+    /// has no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static Task<Result<TOk, Error>> TryAsync<TOk>(
         Func<Task<TOk>> asyncFactory,
@@ -448,32 +530,53 @@ public static class Result
     /// type, handing the factory the provided <paramref name="state" /> and
     /// converting any thrown exception using <see cref="Error.FromException" />.
     /// </summary>
-    /// <param name="state">The value handed to the <paramref name="factory" />.</param>
+    /// <param name="state">
+    /// The value the factory would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
     /// <param name="factory">
     /// A method which when executed will return the value
     /// contained in the <see cref="Result{TOk,TErr}" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
-    /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerArgumentExpression">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The state's type. It is unconstrained, so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
     /// captured by it, so the factory can be <c>static</c> and the call
-    /// allocates no closure.
-    /// </remarks>
-    /// <remarks>
+    /// allocates no closure. A
+    /// <see cref="System.Threading.CancellationToken" /> is the state this
+    /// exists for.
+    /// </para>
+    /// <para>
+    /// A factory that returns null also produces an
+    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// from an <see cref="ArgumentNullException" /> that was never thrown and so
+    /// has no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static Result<TOk, Error> Try<TState, TOk>(
         TState state,
@@ -498,34 +601,52 @@ public static class Result
     /// converting any thrown exception using <see cref="Error.FromException" />.
     /// </summary>
     /// <param name="state">
-    /// The value handed to the <paramref name="asyncFactory" />.
+    /// The value the factory would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
     /// </param>
     /// <param name="asyncFactory">
     /// An asynchronous method which when executed will
     /// produce the value of the <see cref="Result{TOk,TErr}" />
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
-    /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerArgumentExpression">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The state's type. It is unconstrained, so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOk">The factory method return value's type</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
     /// captured by it, so the factory can be <c>static</c> and the call
-    /// allocates no closure. A <see cref="System.Threading.CancellationToken" />
-    /// is the state this exists for.
-    /// </remarks>
-    /// <remarks>
+    /// allocates no closure. A
+    /// <see cref="System.Threading.CancellationToken" /> is the state this
+    /// exists for.
+    /// </para>
+    /// <para>
+    /// A factory that returns null also produces an
+    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// from an <see cref="ArgumentNullException" /> that was never thrown and so
+    /// has no stack trace. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured.
+    /// </para>
+    /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static Task<Result<TOk, Error>> TryAsync<TState, TOk>(
         TState state,
@@ -547,7 +668,7 @@ public static class Result
     /// Creates an <see cref="Ok{TOk,TErr}" /> result containing the provided
     /// value, using <see cref="Error" /> as the error type.
     /// </summary>
-    /// <param name="value">The value of the result type.</param>
+    /// <param name="value">The success value the result will hold.</param>
     /// <typeparam name="TOk">The ok result value's type</typeparam>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="value" /> is null.
@@ -574,8 +695,13 @@ public static class Result
     /// <see cref="Error" /> whose code is derived from the provided enum value.
     /// </summary>
     /// <remarks>
-    /// Uses the <see cref="ErrorCodeFactory" /> configured in
-    /// <see cref="MonadOptions" /> to create the error code.
+    /// The <see cref="ErrorCodeFactory" /> configured on
+    /// <see cref="MonadOptions" /> works the code out by reflection at run time,
+    /// so it cannot apply the format declared on the enum and nothing tells you
+    /// when a rename changes the code. Mark the enum with
+    /// <c>[ErrorCodeCatalog]</c> and pass
+    /// <c>new Error(code.ToErrorCode(), message)</c> to
+    /// <see cref="Err{TOk}(Error)" /> instead.
     /// </remarks>
     /// <param name="code">The enum value to create the error code from.</param>
     /// <param name="message">
@@ -583,6 +709,10 @@ public static class Result
     /// about the error.
     /// </param>
     /// <typeparam name="TOk">The ok result value's type</typeparam>
+    /// <returns>
+    /// A <see cref="Result{TOk,TErr}" /> that is always an
+    /// <see cref="Err{TOk,TErr}" />.
+    /// </returns>
     public static Result<TOk, Error> Err<TOk>(Enum code, string message)
         where TOk : notnull =>
         new Err<TOk, Error>(Error.FromEnum(code, message));
