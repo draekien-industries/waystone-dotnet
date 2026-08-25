@@ -7,7 +7,13 @@ using Results;
 using System.Diagnostics;
 #endif
 
-/// <summary>Some value of type <typeparamref name="T" /></summary>
+/// <summary>An <see cref="Option{T}" /> holding a value.</summary>
+/// <remarks>
+/// One of the two cases of <see cref="Option{T}" />, so matching both is
+/// exhaustive and no third case can be added from outside the library. Build
+/// one with <see cref="Option.Some{T}" />. The value is never null, though it
+/// may be the default of <typeparamref name="T" />.
+/// </remarks>
 /// <typeparam name="T">
 /// The type belonging to the value inside the
 /// <see cref="Some{T}" />
