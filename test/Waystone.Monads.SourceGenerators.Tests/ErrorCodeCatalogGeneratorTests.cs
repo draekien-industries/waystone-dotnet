@@ -30,34 +30,34 @@ public sealed class ErrorCodeCatalogGeneratorTests
 
             namespace Sample
             {
-                /// <summary>The error codes declared by <c>global::Sample.OrderError</c>.</summary>
+                /// <summary>The error code names, error codes and error factories of <c>global::Sample.OrderError</c>.</summary>
                 public static partial class OrderErrorCatalog
                 {
                     /// <summary>The error code name of every <c>global::Sample.OrderError</c> member.</summary>
                     public static class Names
                     {
-                        /// <summary>The error code name of <c>global::Sample.OrderError.NotFound</c>.</summary>
+                        /// <summary>The error code name of <c>global::Sample.OrderError.NotFound</c>: <c>OrderError.NotFound</c>.</summary>
                         public const string NotFound = "OrderError.NotFound";
 
-                        /// <summary>The error code name of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
+                        /// <summary>The error code name of <c>global::Sample.OrderError.AlreadyShipped</c>: <c>OrderError.AlreadyShipped</c>.</summary>
                         public const string AlreadyShipped = "OrderError.AlreadyShipped";
                     }
 
                     /// <summary>The error code of every <c>global::Sample.OrderError</c> member.</summary>
                     public static class Codes
                     {
-                        /// <summary>The error code of <c>global::Sample.OrderError.NotFound</c>.</summary>
+                        /// <summary>The error code of <c>global::Sample.OrderError.NotFound</c>: <c>OrderError.NotFound</c>.</summary>
                         public static readonly global::Waystone.Monads.Results.Errors.ErrorCode NotFound = new global::Waystone.Monads.Results.Errors.ErrorCode(Names.NotFound);
 
-                        /// <summary>The error code of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
+                        /// <summary>The error code of <c>global::Sample.OrderError.AlreadyShipped</c>: <c>OrderError.AlreadyShipped</c>.</summary>
                         public static readonly global::Waystone.Monads.Results.Errors.ErrorCode AlreadyShipped = new global::Waystone.Monads.Results.Errors.ErrorCode(Names.AlreadyShipped);
                     }
 
-                    /// <summary>Creates an error carrying the error code of a <c>global::Sample.OrderError</c> member.</summary>
+                    /// <summary>The error factory of every <c>global::Sample.OrderError</c> member.</summary>
                     public static class Errors
                     {
                         /// <summary>Creates an error carrying the error code of <c>global::Sample.OrderError.NotFound</c>.</summary>
-                        /// <param name="message">The message describing this occurrence of the error.</param>
+                        /// <param name="message">The message describing this occurrence of the error. Trimmed of surrounding whitespace; a message that is null, empty or whitespace is replaced by the fallback configured through <c>MonadOptions.UseFallbackErrorMessage</c> rather than rejected.</param>
                         /// <returns>The created error.</returns>
                         public static global::Waystone.Monads.Results.Errors.Error NotFound(string message)
                         {
@@ -65,7 +65,7 @@ public sealed class ErrorCodeCatalogGeneratorTests
                         }
 
                         /// <summary>Creates an error carrying the error code of <c>global::Sample.OrderError.AlreadyShipped</c>.</summary>
-                        /// <param name="message">The message describing this occurrence of the error.</param>
+                        /// <param name="message">The message describing this occurrence of the error. Trimmed of surrounding whitespace; a message that is null, empty or whitespace is replaced by the fallback configured through <c>MonadOptions.UseFallbackErrorMessage</c> rather than rejected.</param>
                         /// <returns>The created error.</returns>
                         public static global::Waystone.Monads.Results.Errors.Error AlreadyShipped(string message)
                         {
@@ -107,7 +107,7 @@ public sealed class ErrorCodeCatalogGeneratorTests
 
                     /// <summary>Creates an error carrying the error code of a <c>global::Sample.OrderError</c> value.</summary>
                     /// <param name="value">The value to read the error code of.</param>
-                    /// <param name="message">The message describing this occurrence of the error.</param>
+                    /// <param name="message">The message describing this occurrence of the error. Trimmed of surrounding whitespace; a message that is null, empty or whitespace is replaced by the fallback configured through <c>MonadOptions.UseFallbackErrorMessage</c> rather than rejected.</param>
                     /// <returns>The created error.</returns>
                     public static global::Waystone.Monads.Results.Errors.Error ToError(this global::Sample.OrderError value, string message)
                     {
