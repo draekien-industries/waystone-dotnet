@@ -28,6 +28,13 @@ remove** rather than review attention. Only this project is baselined.
 
 Let the analyzer's own code fix write the entries; do not hand-edit the format.
 
+Without an IDE, harvest them from the build rather than typing them. Each RS0016
+reads ``Symbol '<row>' is not part of the declared public API``, and `<row>` is
+the baseline line verbatim. Regex them out of `dotnet build`, merge into
+`PublicAPI.Shipped.txt` and re-sort — the file is ordinal-sorted (`LC_ALL=C`)
+below the `#nullable enable` header. A clean rebuild is the check that the
+format came out right.
+
 Move rows from `PublicAPI.Unshipped.txt` to `PublicAPI.Shipped.txt` **before**
 merging, filed under the version GitVersion will compute from the PR title. Merging
 publishes, and there is no later release step that would move them, so a row left
@@ -40,6 +47,14 @@ expect the baseline to grow by more lines than you wrote. That makes it a strict
 check than it looks: the compat-static entry records the receiver's nullability
 independently, so a block whose receiver is subtly wrong is caught there even when
 the member entry matches.
+
+**A core member addition can grow the async surface too.** Adding an overload to
+`Option<T>` or `Result<TOk, TErr>` makes the awaited-receiver generator emit the
+matching `…Async` shapes for every family already converted to
+`[GenerateAwaitedReceivers]`, and those land in the baseline as well — nine
+members on `Option<T>` produced 39 rows. Families still hand-written get
+nothing, so the async surface goes asymmetric until they are converted. That is
+fine inside a stack that lands as one release and wrong to ship on its own.
 
 **The baseline does not record generic constraints.** It records names, types and
 nullability, so a `where` clause can be added or relaxed with RS0016/RS0017
@@ -82,6 +97,10 @@ cannot see, so it fails CS0534 with no way out. The regression cases live in
 `ClosedHierarchyTests` in the *analyzer* test project, because
 `Waystone.Monads.Tests` has `InternalsVisibleTo` and would compile a derived type
 happily, proving nothing.
+Adding a public abstract member to either type means adding an override to that
+test's probe record in the same change. The probe implements every public
+abstract member so that exactly one CS0534 — `OnlyThisAssemblyMayDerive` — is
+left; skip it and the test still fails, but for the wrong reason.
 
 **Merging the per-family extension classes into one cannot be staged.** Two static
 classes that each declare the same extension member for the same receiver make

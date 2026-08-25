@@ -22,27 +22,35 @@ public class ClosedHierarchyTests
                 public override bool IsSome => false;
                 public override bool IsNone => true;
                 public override bool IsSomeAnd(Func<T, bool> predicate) => false;
+                public override bool IsSomeAnd<TState>(TState state, Func<T, TState, bool> predicate) => false;
                 public override bool IsNoneOr(Func<T, bool> predicate) => true;
+                public override bool IsNoneOr<TState>(TState state, Func<T, TState, bool> predicate) => true;
                 public override TOut Match<TOut>(Func<T, TOut> onSome, Func<TOut> onNone) => onNone();
+                public override TOut Match<TState, TOut>(TState state, Func<T, TState, TOut> onSome, Func<TState, TOut> onNone) => onNone(state);
                 public override void Match(Action<T> onSome, Action onNone) => onNone();
+                public override void Match<TState>(TState state, Action<T, TState> onSome, Action<TState> onNone) => onNone(state);
                 public override T Expect(string message) => throw new Exception();
                 public override T Unwrap() => throw new Exception();
                 public override T UnwrapOr(T value) => value;
                 public override T? UnwrapOrDefault() => default;
                 public override T UnwrapOrElse(Func<T> @else) => @else();
+                public override T UnwrapOrElse<TState>(TState state, Func<TState, T> @else) => @else(state);
                 public override Option<T2> And<T2>(Option<T2> other) => Option.None<T2>();
                 public override Option<T2> Map<T2>(Func<T, T2> map) => Option.None<T2>();
                 public override Option<T2> Map<TState, T2>(TState state, Func<T, TState, T2> map) => Option.None<T2>();
                 public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) => @default;
                 public override T2 MapOr<TState, T2>(TState state, T2 @default, Func<T, TState, T2> map) => @default;
                 public override T2 MapOrDefault<T2>(Func<T, T2> map) => default!;
+                public override T2 MapOrDefault<TState, T2>(TState state, Func<T, TState, T2> map) => default!;
                 public override T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map) => createDefault();
                 public override T2 MapOrElse<TState, T2>(TState state, Func<TState, T2> createDefault, Func<T, TState, T2> map) => createDefault(state);
                 public override Option<T> Inspect(Action<T> action) => this;
+                public override Option<T> Inspect<TState>(TState state, Action<T, TState> action) => this;
                 public override Option<T> Filter(Func<T, bool> predicate) => this;
                 public override Option<T> Filter<TState>(TState state, Func<T, TState, bool> predicate) => this;
                 public override Option<T> Or(Option<T> other) => other;
                 public override Option<T> OrElse(Func<Option<T>> createElse) => createElse();
+                public override Option<T> OrElse<TState>(TState state, Func<TState, Option<T>> createElse) => createElse(state);
                 public override Option<T> Xor(Option<T> other) => other;
                 public override Option<(T, T2)> Zip<T2>(Option<T2> other) => Option.None<(T, T2)>();
                 public override Option<TOut> ZipWith<TOther, TOut>(Option<TOther> other, Func<T, TOther, TOut> zip) => Option.None<TOut>();
@@ -50,6 +58,7 @@ public class ClosedHierarchyTests
                 public override IEnumerable<T> AsEnumerable() => Array.Empty<T>();
                 public override Result<T, TErr> OkOr<TErr>(TErr error) => Result.Err<T, TErr>(error);
                 public override Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory) => Result.Err<T, TErr>(errorFactory());
+                public override Result<T, TErr> OkOrElse<TState, TErr>(TState state, Func<TState, TErr> errorFactory) => Result.Err<T, TErr>(errorFactory(state));
             }
             """,
             DiagnosticResult.CompilerError("CS0534").WithLocation(0));

@@ -41,8 +41,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("Predicate")]
     public bool IsSomeAndWithState() =>
-        IsSomeAnd(
-            _some,
+        _some.IsSomeAnd(
             _threshold,
             static (value, threshold) => value > threshold);
 
@@ -58,8 +57,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("MatchFunc")]
     public int MatchFuncWithState() =>
-        Match(
-            _some,
+        _some.Match(
             _addend,
             static (value, addend) => value + addend,
             static addend => addend);
@@ -76,8 +74,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("MatchAction")]
     public void MatchActionWithState() =>
-        Match(
-            _some,
+        _some.Match(
             _addend,
             static (value, addend) => Consume(value + addend),
             static addend => Consume(addend));
@@ -94,8 +91,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("Inspect")]
     public Option<int> InspectWithState() =>
-        Inspect(
-            _some,
+        _some.Inspect(
             _addend,
             static (value, addend) => Consume(value + addend));
 
@@ -111,8 +107,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("MapOrDefault")]
     public int MapOrDefaultWithState() =>
-        MapOrDefault(
-            _some,
+        _some.MapOrDefault(
             _addend,
             static (value, addend) => value + addend);
 
@@ -128,7 +123,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("UnwrapOrElse")]
     public int UnwrapOrElseWithState() =>
-        UnwrapOrElse(_some, _fallback, static fallback => fallback);
+        _some.UnwrapOrElse(_fallback, static fallback => fallback);
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("OrElse")]
@@ -142,7 +137,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("OrElse")]
     public Option<int> OrElseWithState() =>
-        OrElse(_some, _fallback, static fallback => Option.Some(fallback));
+        _some.OrElse(_fallback, static fallback => Option.Some(fallback));
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("OkOrElse")]
@@ -156,8 +151,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("OkOrElse")]
     public Result<int, string> OkOrElseWithState() =>
-        OkOrElse(
-            _some,
+        _some.OkOrElse(
             _fallbackError,
             static fallbackError => fallbackError);
 
@@ -197,82 +191,6 @@ public class StateOverloadCandidateBenchmarks
             static (string _, int addend) => addend);
 
     private static int Consume(int value) => value;
-
-    private static bool IsSomeAnd<T, TState>(
-        Option<T> option,
-        TState state,
-        Func<T, TState, bool> predicate)
-        where T : notnull =>
-        option is Some<T> some && predicate(some.Unwrap(), state);
-
-    private static TOut Match<T, TState, TOut>(
-        Option<T> option,
-        TState state,
-        Func<T, TState, TOut> onSome,
-        Func<TState, TOut> onNone)
-        where T : notnull =>
-        option is Some<T> some ? onSome(some.Unwrap(), state) : onNone(state);
-
-    private static void Match<T, TState>(
-        Option<T> option,
-        TState state,
-        Action<T, TState> onSome,
-        Action<TState> onNone)
-        where T : notnull
-    {
-        if (option is Some<T> some)
-        {
-            onSome(some.Unwrap(), state);
-        }
-        else
-        {
-            onNone(state);
-        }
-    }
-
-    private static Option<T> Inspect<T, TState>(
-        Option<T> option,
-        TState state,
-        Action<T, TState> action)
-        where T : notnull
-    {
-        if (option is Some<T> some)
-        {
-            action(some.Unwrap(), state);
-        }
-
-        return option;
-    }
-
-    private static TOut? MapOrDefault<T, TState, TOut>(
-        Option<T> option,
-        TState state,
-        Func<T, TState, TOut> map)
-        where T : notnull where TOut : notnull =>
-        option is Some<T> some ? map(some.Unwrap(), state) : default;
-
-    private static T UnwrapOrElse<T, TState>(
-        Option<T> option,
-        TState state,
-        Func<TState, T> valueFactory)
-        where T : notnull =>
-        option is Some<T> some ? some.Unwrap() : valueFactory(state);
-
-    private static Option<T> OrElse<T, TState>(
-        Option<T> option,
-        TState state,
-        Func<TState, Option<T>> optionFactory)
-        where T : notnull =>
-        option is Some<T> ? option : optionFactory(state);
-
-    private static Result<T, TErr> OkOrElse<T, TState, TErr>(
-        Option<T> option,
-        TState state,
-        Func<TState, TErr> errorFactory)
-        where T : notnull where TErr : notnull =>
-        option is Some<T> some
-            ? Result.Ok<T, TErr>(some.Unwrap())
-            : Result.Err<T, TErr>(errorFactory(state));
 
     private static bool IsOkAnd<TOk, TErr, TState>(
         Result<TOk, TErr> result,

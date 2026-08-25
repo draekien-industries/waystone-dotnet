@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Options;
+namespace Waystone.Monads.Options;
 
 using System;
 using System.Threading.Tasks;
@@ -263,6 +263,98 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
         Option<int> result = some.Filter(2, static (x, state) => x == state);
         result.ShouldBe(Option.None<int>());
+    }
+
+    [Fact]
+    public void GivenState_WhenIsSomeAnd_ThenReturnThePredicateResult()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.IsSomeAnd(1, static (x, state) => x == state).ShouldBeTrue();
+        some.IsSomeAnd(2, static (x, state) => x == state).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void GivenState_WhenIsNoneOr_ThenReturnThePredicateResult()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.IsNoneOr(1, static (x, state) => x == state).ShouldBeTrue();
+        some.IsNoneOr(2, static (x, state) => x == state).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void GivenState_WhenMatchingWithFuncs_ThenInvokeOnSome()
+    {
+        Option<int> some = Option.Some(1);
+
+        int result = some.Match(
+            10,
+            static (x, state) => x + state,
+            static state => state * 100);
+
+        result.ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMatchingWithActions_ThenInvokeOnSome()
+    {
+        Option<int> some = Option.Some(1);
+        var onSome = Substitute.For<Action<int, int>>();
+        var onNone = Substitute.For<Action<int>>();
+
+        some.Match(10, onSome, onNone);
+
+        onSome.Received().Invoke(1, 10);
+        onNone.DidNotReceiveWithAnyArgs().Invoke(default);
+    }
+
+    [Fact]
+    public void GivenState_WhenInspect_ThenInvokeAction()
+    {
+        Option<int> some = Option.Some(1);
+        var action = Substitute.For<Action<int, int>>();
+
+        some.Inspect(10, action).ShouldBe(some);
+
+        action.Received().Invoke(1, 10);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOrDefault_ThenReturnMappedValue()
+    {
+        Option<int> some = Option.Some(1);
+
+        int result = some.MapOrDefault(10, static (x, state) => x + state);
+
+        result.ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenUnwrapOrElse_ThenReturnTheContainedValue()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.UnwrapOrElse(10, static state => state).ShouldBe(1);
+    }
+
+    [Fact]
+    public void GivenState_WhenOrElse_ThenReturnTheOriginalOption()
+    {
+        Option<int> some = Option.Some(1);
+
+        some.OrElse(10, static state => Option.Some(state)).ShouldBe(some);
+    }
+
+    [Fact]
+    public void GivenState_WhenOkOrElse_ThenReturnOk()
+    {
+        Option<int> some = Option.Some(1);
+
+        Result<int, string> result =
+            some.OkOrElse("boom", static state => state);
+
+        result.ShouldBe(Result.Ok<int, string>(1));
     }
 
     [Fact]

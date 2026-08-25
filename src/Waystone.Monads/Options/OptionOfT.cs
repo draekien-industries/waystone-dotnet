@@ -45,10 +45,60 @@ public abstract record Option<T> where T : notnull
 
     /// <summary>
     /// Returns <see langword="true" /> if the option is a
+    /// <see cref="Some{T}" /> and the value inside of it matches a predicate
+    /// that takes state instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the predicate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract bool IsSomeAnd<TState>(
+        TState state,
+        Func<T, TState, bool> predicate);
+
+    /// <summary>
+    /// Returns <see langword="true" /> if the option is a
     /// <see cref="None{T}" /> or the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition to evaluate the option against</param>
     public abstract bool IsNoneOr(Func<T, bool> predicate);
+
+    /// <summary>
+    /// Returns <see langword="true" /> if the option is a
+    /// <see cref="None{T}" /> or the value inside of it matches a predicate
+    /// that takes state instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the predicate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract bool IsNoneOr<TState>(
+        TState state,
+        Func<T, TState, bool> predicate);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the option, invoking the
@@ -65,6 +115,40 @@ public abstract record Option<T> where T : notnull
     public abstract TOut Match<TOut>(Func<T, TOut> onSome, Func<TOut> onNone);
 
     /// <summary>
+    /// Performs a <see langword="switch" /> on the option and returns what the
+    /// callback for its case produces, with state passed to the callbacks
+    /// rather than captured by them.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegates rather than letting them close over one
+    /// and they can be <see langword="static" />, which captures nothing, so the
+    /// compiler caches a single instance of each and the call allocates no
+    /// display class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload. A capturing <c>Match</c> allocates more than the
+    /// single-delegate members do, because its two branches share one display
+    /// class but need a delegate each.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the callbacks. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOut">The returned type.</typeparam>
+    /// <returns>
+    /// The output of either the <paramref name="onSome" /> or
+    /// <paramref name="onNone" /> callback.
+    /// </returns>
+    public abstract TOut Match<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> onSome,
+        Func<TState, TOut> onNone);
+
+    /// <summary>
     /// Performs a <see langword="switch" /> on the option, invoking the
     /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
     /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
@@ -72,6 +156,34 @@ public abstract record Option<T> where T : notnull
     /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
     /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
     public abstract void Match(Action<T> onSome, Action onNone);
+
+    /// <summary>
+    /// Performs a <see langword="switch" /> on the option for its side effect,
+    /// with state passed to the callbacks rather than captured by them.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegates rather than letting them close over one
+    /// and they can be <see langword="static" />, which captures nothing, so the
+    /// compiler caches a single instance of each and the call allocates no
+    /// display class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload. A capturing <c>Match</c> allocates more than the
+    /// single-delegate members do, because its two branches share one display
+    /// class but need a delegate each.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
+    /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the callbacks. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract void Match<TState>(
+        TState state,
+        Action<T, TState> onSome,
+        Action<TState> onNone);
 
     /// <summary>
     /// Returns the contained <see cref="Some{T}" /> value, consuming the
@@ -125,6 +237,32 @@ public abstract record Option<T> where T : notnull
     /// value.
     /// </param>
     public abstract T UnwrapOrElse(Func<T> @else);
+
+    /// <summary>
+    /// Returns the contained <see cref="Some{T}" /> value, or computes it from
+    /// a delegate that takes state instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload. The delegate is not invoked on a <see cref="Some{T}" />, so a
+    /// capturing call allocates a closure it then discards.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="else">
+    /// The delegate which computes the <see cref="None{T}" /> value from the
+    /// state.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the delegate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract T UnwrapOrElse<TState>(TState state, Func<TState, T> @else);
 
     /// <summary>
     /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c> by
@@ -257,6 +395,33 @@ public abstract record Option<T> where T : notnull
     public abstract TOut? MapOrDefault<TOut>(Func<T, TOut> map) where TOut : notnull;
 
     /// <summary>
+    /// Returns the <see langword="default" /> of <typeparamref name="TOut" /> (if
+    /// <see cref="None{T}" />), or applies to the contained value a map
+    /// function that takes state instead of capturing it (if
+    /// <see cref="Some{T}" />).
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="map">The map function.</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the map function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    public abstract TOut? MapOrDefault<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> map) where TOut : notnull;
+
+    /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
@@ -297,6 +462,31 @@ public abstract record Option<T> where T : notnull
     /// <param name="action">The function to execute against the value.</param>
     /// <returns>The original <see cref="Option{T}" /></returns>
     public abstract Option<T> Inspect(Action<T> action);
+
+    /// <summary>
+    /// Calls a function with the contained value and the state if
+    /// <see cref="Some{T}" />, so the function need not capture.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="action">The function to execute against the value.</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <returns>The original <see cref="Option{T}" />, unchanged.</returns>
+    public abstract Option<T> Inspect<TState>(
+        TState state,
+        Action<T, TState> action);
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
@@ -349,6 +539,33 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="createElse">The function that will create the other option.</param>
     public abstract Option<T> OrElse(Func<Option<T>> createElse);
+
+    /// <summary>
+    /// Returns the option if it contains a value, otherwise invokes a function
+    /// that takes state instead of capturing it and returns the result.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload. The delegate is not invoked on a <see cref="Some{T}" />, so a
+    /// capturing call allocates a closure it then discards.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="createElse">
+    /// The function that will create the other option from the state.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract Option<T> OrElse<TState>(
+        TState state,
+        Func<TState, Option<T>> createElse);
 
     /// <summary>
     /// Returns <see cref="Some{T}" /> if exactly one of
@@ -458,6 +675,42 @@ public abstract record Option<T> where T : notnull
     /// </returns>
     public abstract Result<T, TErr> OkOrElse<TErr>(Func<TErr> errorFactory)
         where TErr : notnull;
+
+    /// <summary>
+    /// Transforms the current <see cref="Option{T}" /> into a
+    /// <see cref="Result{TOk, TErr}" />, mapping <see cref="Some{T}" /> to
+    /// <see cref="Ok{TOk, TErr}" /> and <see cref="None{T}" /> to an
+    /// <see cref="Err{TOk, TErr}" /> built by a factory that takes state
+    /// instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload. The delegate is not invoked on a <see cref="Some{T}" />, so a
+    /// capturing call allocates a closure it then discards.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="errorFactory">
+    /// The function, which when invoked with the state, will return the error
+    /// value.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the factory. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TErr">The type of the error value returned by the factory.</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk, TErr}" /> if the current option is a
+    /// <see cref="Some{T}" />, otherwise an <see cref="Err{TOk, TErr}" />.
+    /// </returns>
+    public abstract Result<T, TErr> OkOrElse<TState, TErr>(
+        TState state,
+        Func<TState, TErr> errorFactory) where TErr : notnull;
 
     /// <summary>
     /// Implicitly converts a value of type <typeparamref name="T" /> into an

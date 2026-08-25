@@ -242,17 +242,22 @@ public static class Rules
     /// than a display class, a smaller cost that would fire on most ordinary
     /// instance-method code and drown the signal.
     /// The overload set is discovered from the containing type rather than
-    /// listed here, because the two are not the same set — <c>Inspect</c> and
-    /// <c>Match</c> take a delegate and carry no state overload — and a
-    /// hardcoded list would name an overload that does not exist. No code fix ships: the natural rewrite reuses the captured
-    /// name as the new delegate parameter, which shadows the enclosing local
-    /// and is CS0136 before C# 8.
+    /// listed here. A hardcoded list would name an overload that does not
+    /// exist: <c>ZipWith</c> and <c>Reduce</c> take a delegate and have no
+    /// state overload, because their delegates already receive every operand as
+    /// an argument of the call, and DRA-108 declined them permanently on that
+    /// ground. The lookup has paid for itself twice — DRA-107 and DRA-108 both
+    /// moved the set without touching
+    /// <see cref="StateOverloadAnalyzer" />.
+    /// No code fix ships: the natural rewrite reuses the captured name as the
+    /// new delegate parameter, which shadows the enclosing local and is CS0136
+    /// before C# 8.
     /// </remarks>
     public static readonly DiagnosticDescriptor DelegateCapturesInsteadOfState = Idiom(
         "WM2017",
         "Prefer the state overload when the delegate captures",
         "The delegate passed to '{0}' captures '{1}', so a closure is allocated on every call. Pass the value to the '{0}' overload that takes state instead.",
-        "Map, MapErr, MapOr, MapOrElse, Filter, AndThen, Try and TryAsync each have an overload that takes a state argument and hands it to the delegate. A lambda that captures a local or a parameter allocates a display class every time the call site runs; passing the value as state lets the delegate close over nothing, so the compiler caches it. Where more than one value is captured, pass them as a tuple.");
+        "Nearly every delegate-taking member of Option and Result has an overload that takes a state argument and hands it to the delegate. A lambda that captures a local or a parameter allocates a display class every time the call site runs; passing the value as state lets the delegate close over nothing, so the compiler caches it. Match is the most expensive of them to call with a closure, because its two branches share one display class but need a delegate each. Where more than one value is captured, pass them as a tuple.");
 
     /// <remarks>
     /// Keyed on the generated code string rather than on the enum name, because
