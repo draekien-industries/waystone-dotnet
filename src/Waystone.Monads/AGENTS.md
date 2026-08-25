@@ -18,6 +18,10 @@ rules on upgrade with no opt-out beyond `.editorconfig`.
 `TreatWarningsAsErrors`. Obsoleting a member the library still calls fails the
 build. Point those call sites at the replacement in the same change, or the
 deprecation is not finished.
+The exception is a member that is *itself* obsolete: the compiler does not report
+obsolete usage inside an obsolete context, so obsoleting a wrapper silences its
+calls to what it wraps and leaves any `#pragma warning disable CS0618` around them
+dead.
 
 ## The public API baseline
 
