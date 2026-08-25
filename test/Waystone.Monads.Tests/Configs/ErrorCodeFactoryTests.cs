@@ -52,4 +52,11 @@ public sealed class ErrorCodeFactoryTests
         var result = _sut.FromException(exception);
         result.Value.ShouldBe(nameof(NonConforming));
     }
+
+    [Fact]
+    public void GivenNullException_WhenInvokingFromException_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(() => _sut.FromException(null!))
+              .ParamName.ShouldBe("exception");
+    }
 }

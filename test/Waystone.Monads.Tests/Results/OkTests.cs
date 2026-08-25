@@ -156,6 +156,20 @@ public class OkTests
            .Unwrap());
     }
 
+    /// <summary>
+    /// The message has to name the method the caller actually called. Only
+    /// UnwrapErr reaches this exception from an Ok, so a message saying "Unwrap"
+    /// sent readers looking for a call that was not there.
+    /// </summary>
+    [Fact]
+    public void WhenUnwrapErr_ThenTheMessageNamesUnwrapErr()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Should.Throw<UnwrapException>(() => ok.UnwrapErr())
+              .Message.ShouldBe("UnwrapErr called on an `Ok` result.");
+    }
+
     [Fact]
     public void WhenInspect_ThenInvokeInspect()
     {

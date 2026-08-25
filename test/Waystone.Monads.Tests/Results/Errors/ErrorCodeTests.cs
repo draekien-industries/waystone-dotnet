@@ -55,6 +55,31 @@ public sealed class ErrorCodeTests
         result.ToString().ShouldBe("Test");
     }
 
+    [Fact]
+    public void GivenErrorCode_WhenConvertingToString_ThenReturnItsValue()
+    {
+        var code = new ErrorCode("bob");
+
+        string converted = code;
+
+        converted.ShouldBe("bob");
+    }
+
+    /// <summary>
+    /// The conversion is implicit, so this fires on a line that names no cast. It
+    /// throws rather than dereferencing null, which is what it used to do.
+    /// </summary>
+    [Fact]
+    public void GivenNullErrorCode_WhenConvertingToString_ThenThrow()
+    {
+        ErrorCode? code = null;
+
+        Should.Throw<ArgumentNullException>(() =>
+        {
+            string _ = code!;
+        }).ParamName.ShouldBe("value");
+    }
+
     private enum TestErrorCodes
     {
         TestValue,
