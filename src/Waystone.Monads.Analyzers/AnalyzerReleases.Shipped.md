@@ -78,3 +78,11 @@ Rule ID | Category | Severity | Notes
 WM2018 | Usage | Info | An error code is reused across enums
 WM2019 | Usage | Info | A generated error code is not in the error code registry
 WM2020 | Usage | Info | The error code registry lists a code nothing generates
+
+## Release 6.5.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2021 | Usage | Info | Option or Result state is tested through a property pattern
