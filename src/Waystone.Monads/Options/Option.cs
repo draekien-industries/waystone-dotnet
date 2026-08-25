@@ -8,25 +8,30 @@ using Configs;
 using System.Diagnostics;
 #endif
 
-/// <summary>Static functions for <see cref="Option{T}" /></summary>
+/// <summary>Creates <see cref="Option{T}" /> values</summary>
+/// <remarks>
+/// The <see cref="Some{T}" /> constructor and the <see cref="None{T}" />
+/// instance are both internal, so this class is the only way to build an
+/// <see cref="Option{T}" /> from outside the library.
+/// </remarks>
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
 public static class Option
 {
     /// <summary>
-    /// Tries to store the result of a <paramref name="factory" /> into an
-    /// <see cref="Option{T}" />
+    /// Runs a <paramref name="factory" /> and stores its result in an
+    /// <see cref="Option{T}" />, turning a throw into a <see cref="None{T}" />.
     /// </summary>
-    /// <param name="factory">
-    /// A method which when executed will produce the value of
-    /// the <see cref="Option{T}" />
+    /// <param name="factory">The method whose result the option will hold.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
     /// <typeparam name="T">The factory return value's type</typeparam>
     /// <returns>
@@ -35,21 +40,15 @@ public static class Option
     /// </returns>
     /// <remarks>
     /// A <see cref="None{T}" /> is returned both when the factory throws and
-    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
-    /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />, because the implicit conversion to
-    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
-    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
-    /// conversion is applied inside the try, so the two cannot disagree and
-    /// nothing it throws escapes.
-    /// </remarks>
-    /// <remarks>
-    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
-    /// this method untouched, so it is neither logged nor turned into a
-    /// <see cref="None{T}" />, and the caller observes the cancellation it
-    /// asked for. Call
+    /// when it returns null. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured. An <see cref="OperationCanceledException" /> is not caught
+    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// turned into a <see cref="None{T}" />, and the caller observes the
+    /// cancellation it asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
     /// </remarks>
     public static Option<T> Try<T>(
         Func<T> factory,
@@ -75,18 +74,20 @@ public static class Option
     }
 
     /// <summary>
-    /// Tries to store the result of an <paramref name="asyncFactory" /> into
-    /// an <see cref="Option{T}" />
+    /// Awaits an <paramref name="asyncFactory" /> and stores its result in an
+    /// <see cref="Option{T}" />, turning a throw into a <see cref="None{T}" />.
     /// </summary>
     /// <param name="asyncFactory">
-    /// An asynchronous method which when awaited will
-    /// produce the value for the <see cref="Option{T}" />
+    /// The asynchronous method whose result the option will hold.
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
@@ -95,21 +96,15 @@ public static class Option
     /// </returns>
     /// <remarks>
     /// A <see cref="None{T}" /> is returned both when the factory throws and
-    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
-    /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />, because the implicit conversion to
-    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
-    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
-    /// conversion is applied inside the try, so the two cannot disagree and
-    /// nothing it throws escapes.
-    /// </remarks>
-    /// <remarks>
-    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
-    /// this method untouched, so it is neither logged nor turned into a
-    /// <see cref="None{T}" />, and the caller observes the cancellation it
-    /// asked for. Call
+    /// when it returns null. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured. An <see cref="OperationCanceledException" /> is not caught
+    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// turned into a <see cref="None{T}" />, and the caller observes the
+    /// cancellation it asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
     /// </remarks>
     public static async Task<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
@@ -134,49 +129,52 @@ public static class Option
     }
 
     /// <summary>
-    /// Tries to store the result of a <paramref name="factory" /> into an
-    /// <see cref="Option{T}" />, handing it the provided
-    /// <paramref name="state" />.
+    /// Runs a <paramref name="factory" /> over a <paramref name="state" /> and
+    /// stores its result in an <see cref="Option{T}" />, turning a throw into a
+    /// <see cref="None{T}" />.
     /// </summary>
-    /// <param name="state">The value handed to the <paramref name="factory" />.</param>
-    /// <param name="factory">
-    /// A method which when executed will produce the value of
-    /// the <see cref="Option{T}" />
+    /// <param name="state">
+    /// The value the factory would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="factory">The method whose result the option will hold.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <typeparam name="TState">
+    /// The state's type. It is unconstrained, so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="T">The factory return value's type</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory produces a value that a
     /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
     /// captured by it, so the factory can be <c>static</c> and the call
-    /// allocates no closure.
-    /// </remarks>
-    /// <remarks>
+    /// allocates no closure. A
+    /// <see cref="System.Threading.CancellationToken" /> is the state this
+    /// exists for.
+    /// </para>
+    /// <para>
     /// A <see cref="None{T}" /> is returned both when the factory throws and
-    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
-    /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />, because the implicit conversion to
-    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
-    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
-    /// conversion is applied inside the try, so the two cannot disagree and
-    /// nothing it throws escapes.
-    /// </remarks>
-    /// <remarks>
-    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
-    /// this method untouched, so it is neither logged nor turned into a
-    /// <see cref="None{T}" />, and the caller observes the cancellation it
-    /// asked for. Call
+    /// when it returns null. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured. An <see cref="OperationCanceledException" /> is not caught
+    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// turned into a <see cref="None{T}" />, and the caller observes the
+    /// cancellation it asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static Option<T> Try<TState, T>(
         TState state,
@@ -203,52 +201,54 @@ public static class Option
     }
 
     /// <summary>
-    /// Tries to store the result of an <paramref name="asyncFactory" /> into
-    /// an <see cref="Option{T}" />, handing it the provided
-    /// <paramref name="state" />.
+    /// Awaits an <paramref name="asyncFactory" /> over a
+    /// <paramref name="state" /> and stores its result in an
+    /// <see cref="Option{T}" />, turning a throw into a <see cref="None{T}" />.
     /// </summary>
     /// <param name="state">
-    /// The value handed to the <paramref name="asyncFactory" />.
+    /// The value the factory would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
     /// </param>
     /// <param name="asyncFactory">
-    /// An asynchronous method which when awaited will
-    /// produce the value for the <see cref="Option{T}" />
+    /// The asynchronous method whose result the option will hold.
     /// </param>
-    /// <param name="callerMemberName">The method name of the caller.</param>
-    /// <param name="callerLineNumber">The line number of the caller.</param>
+    /// <param name="callerMemberName">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
+    /// <param name="callerLineNumber">
+    /// Compiler-supplied for the exception logger. Do not pass it.
+    /// </param>
     /// <param name="callerArgumentExpression">
-    /// The argument expression used as the
-    /// factory.
+    /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TState">The state's type.</typeparam>
+    /// <typeparam name="TState">
+    /// The state's type. It is unconstrained, so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="T">The async factory return type</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory produces a value that a
     /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
     /// captured by it, so the factory can be <c>static</c> and the call
-    /// allocates no closure. A <see cref="System.Threading.CancellationToken" />
-    /// is the state this exists for.
-    /// </remarks>
-    /// <remarks>
+    /// allocates no closure. A
+    /// <see cref="System.Threading.CancellationToken" /> is the state this
+    /// exists for.
+    /// </para>
+    /// <para>
     /// A <see cref="None{T}" /> is returned both when the factory throws and
-    /// when it returns a value a <see cref="Some{T}" /> cannot hold. Only the
-    /// thrown case is reported to the exception logger configured on
-    /// <see cref="MonadOptions" />, because the implicit conversion to
-    /// <see cref="Option{T}" /> decides which values a <see cref="Some{T}" />
-    /// can hold and returns <see cref="None{T}" /> rather than throwing. That
-    /// conversion is applied inside the try, so the two cannot disagree and
-    /// nothing it throws escapes.
-    /// </remarks>
-    /// <remarks>
-    /// An <see cref="OperationCanceledException" /> is not caught. It leaves
-    /// this method untouched, so it is neither logged nor turned into a
-    /// <see cref="None{T}" />, and the caller observes the cancellation it
-    /// asked for. Call
+    /// when it returns null. Only the thrown case reaches the exception logger
+    /// configured on <see cref="MonadOptions" />, which also writes to the
+    /// console while a debugger is attached, whether or not a logger is
+    /// configured. An <see cref="OperationCanceledException" /> is not caught
+    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// turned into a <see cref="None{T}" />, and the caller observes the
+    /// cancellation it asked for. Call
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
-    /// any other exception, as versions before 6.0.0 did.
+    /// any other exception.
+    /// </para>
     /// </remarks>
     public static async Task<Option<T>> TryAsync<TState, T>(
         TState state,
@@ -274,45 +274,64 @@ public static class Option
     }
 
     /// <summary>Creates a <see cref="Some{T}" /></summary>
-    /// <param name="value">The value of the <see cref="Some{T}" /></param>
+    /// <param name="value">The value the option will hold.</param>
     /// <typeparam name="T">The option value's type.</typeparam>
-    /// <returns>An <see cref="Option{T}" />.</returns>
+    /// <returns>
+    /// An <see cref="Option{T}" /> that is always a <see cref="Some{T}" />. The
+    /// static type is <see cref="Option{T}" />, so match on it to reach the
+    /// value.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
-    /// The value is null. A <see cref="Some{T}" /> may hold the default of
-    /// its type, but never null.
+    /// <paramref name="value" /> is null. A <see cref="Some{T}" /> may hold the
+    /// default of its type, but never null. The <c>notnull</c> constraint makes
+    /// this hard to reach rather than impossible, since <c>default!</c> and an
+    /// unconstrained caller both get through. Use the implicit conversion on
+    /// <see cref="Option{T}" /> instead to turn null into a
+    /// <see cref="None{T}" /> rather than a throw.
     /// </exception>
     public static Option<T> Some<T>(T value) where T : notnull =>
         new Some<T>(value);
 
-    /// <summary>Creates a <see cref="None{T}" /></summary>
+    /// <summary>Gets the <see cref="None{T}" /> for <typeparamref name="T" /></summary>
     /// <typeparam name="T">The option value's type.</typeparam>
-    /// <returns>An <see cref="Option{T}" />.</returns>
+    /// <returns>An <see cref="Option{T}" /> that holds no value.</returns>
+    /// <remarks>
+    /// A <see cref="None{T}" /> holds nothing, so every call for a given
+    /// <typeparamref name="T" /> returns the same cached instance rather than
+    /// creating one. Two <see cref="None{T}" /> values compare equal, and
+    /// <c>ReferenceEquals</c> answers true.
+    /// </remarks>
     public static Option<T> None<T>() where T : notnull =>
         Options.None<T>.Instance;
 
     /// <summary>Creates an <see cref="Option{T}" /> from a nullable value type.</summary>
-    /// <typeparam name="T">The non-nullable value's type</typeparam>
+    /// <typeparam name="T">
+    /// The underlying value type. The parameter is its
+    /// <see cref="Nullable{T}" /> form, and the constraint is what selects this
+    /// overload over the reference type one.
+    /// </typeparam>
     /// <param name="value">
-    /// The nullable value to convert into an
-    /// <see cref="Option{T}" />
+    /// The nullable value to lift into an <see cref="Option{T}" />.
     /// </param>
     /// <returns>
-    /// Returns a <see cref="Some{T}" /> if the value is not null, otherwise
-    /// returns a <see cref="None{T}" />.
+    /// A <see cref="Some{T}" /> holding the value when it has one, otherwise a
+    /// <see cref="None{T}" />.
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : struct =>
         value.HasValue ? new Some<T>(value.Value) : None<T>();
 
     /// <summary>Creates an <see cref="Option{T}" /> from a nullable reference type.</summary>
-    /// <typeparam name="T">The non-nullable value's type</typeparam>
+    /// <typeparam name="T">
+    /// The reference type. The parameter is its nullable annotation, and the
+    /// constraint is what selects this overload over the value type one.
+    /// </typeparam>
     /// <param name="value">
-    /// The nullable value to convert into an
-    /// <see cref="Option{T}" />
+    /// The nullable reference to lift into an <see cref="Option{T}" />.
     /// </param>
     /// <returns>
-    /// Returns a <see cref="Some{T}" /> if the value is not null, otherwise
-    /// returns a <see cref="None{T}" />.
+    /// A <see cref="Some{T}" /> holding the value when it is not null,
+    /// otherwise a <see cref="None{T}" />.
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : class =>
