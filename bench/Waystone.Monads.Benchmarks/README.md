@@ -55,6 +55,7 @@ the escape hatch for a throwaway run you do not want in the tree.
 | `AsyncChainBenchmarks` | A single async link and a three-link chain off a synchronous receiver, on both cases |
 | `HotPathBenchmarks` | The paths that produce a `None` — the factory, a rejecting `Filter`, `Map`/`Zip` on a `None`, `Xor`, and an async short circuit |
 | `StateOverloadBenchmarks` | `Map`, `MapOr` and `Filter` on `Option`, `Map` on `Result`, and `Try` on both, each run twice — once with a capturing lambda and once with the state overload |
+| `StateOverloadCandidateBenchmarks` | The nine delegate *shapes* DRA-108 found without a state overload, each run twice — once with a capturing lambda against the shipped member, once against a `private static` prototype of the proposed signature |
 
 `AsyncChainBenchmarks` is the one to watch across the v6 stack. A chain today
 starts as `ValueTask` off an `Option<T>` receiver and degrades to `Task` at the
@@ -202,3 +203,69 @@ before it was applied anywhere: 29.30 ns to 28.81 ns, with error bars of
 ±0.44 and ±0.15, and no change in allocation. That is under two percent and
 inside the noise, against a diff touching 43 files. It was reverted rather
 than argued for.
+
+## The remaining delegate shapes
+
+`artifacts/dra-108/` holds the run, same machine and settings. DRA-84 and
+DRA-104 gave state overloads to the transforms and the factories; DRA-108
+audited what was left and found twenty delegate-taking members without one,
+across nine distinct shapes. This run is the evidence for adding them, taken
+before any of them was written.
+
+| Shape | Members it decides | closure | state | Δ |
+| -- | -- | --: | --: | --: |
+| `Func<T, bool>` | `IsSomeAnd`, `IsNoneOr`, `IsOkAnd`, `IsErrAnd` | 88 B | 0 B | −88 B |
+| `Action<T>` | `Option.Inspect`, `Result.Inspect`, `InspectErr` | 88 B | 0 B | −88 B |
+| `Func<T, TOut>` | `Option.MapOrDefault`, `Result.MapOrDefault` | 88 B | 0 B | −88 B |
+| value factory | `Option.UnwrapOrElse`, `Result.UnwrapOrElse` | 88 B | 0 B | −88 B |
+| monad factory | `Option.OrElse`, `Result.OrElse` | 88 B | 0 B | −88 B |
+| error factory | `Option.OkOrElse` | 112 B | 24 B | −88 B |
+| two `Func` branches | `Option.Match<TOut>` | 152 B | 0 B | −152 B |
+| two `Func` branches | `Result.Match<TOut>` | 152 B | 0 B | −152 B |
+| two `Action` branches | `Option.Match`, `Result.Match` | 152 B | 0 B | −152 B |
+
+Nothing failed. Every shape clears the bar DRA-84 set, and two findings go
+beyond simply repeating it.
+
+**A two-branch `Match` costs 152 B, not 88 B.** One display class is shared
+between the branches at 24 B, but each branch gets its own delegate over it at
+64 B, so a second lambda adds 64 B rather than another 88 B. `Match` is the
+most-called member on both types and it is the most expensive one to call with
+a closure. It is the strongest row in the table.
+
+**The factory family pays for a delegate it never invokes.** `UnwrapOrElse`,
+`OrElse` and `OkOrElse` are benchmarked on a `Some`, so the fallback delegate is
+built at the call site and then thrown away unused. The 88 B is not the price of
+the fallback — it is the price of *having* a fallback on the path that does not
+need one. Those three are the closest analogue to the `Try` rows above, which
+DRA-104 called the ones worth reaching for.
+
+`OkOrElse` is the only row that does not reach zero. Its 24 B is the
+`Ok<int, string>` it returns, which no overload can avoid — the same 24 B the
+`Map` and `Try` rows keep above. The delta is −88 B, identical to the rest.
+
+`Reduce` and `ZipWith` are the two of the twenty that are not in this table, and
+they were declined without measuring. Both take a delegate whose every operand
+already arrives as a parameter of the call, so there is nothing for a lambda to
+capture and a `TState` form would add a parameter callers pass `null` to. That
+is a signature argument, not a performance one, and no benchmark would have
+settled it either way.
+
+### Measuring an overload that does not exist yet
+
+There is nothing to call on the `WithState` side of these pairs, so each one
+calls a `private static` prototype in the benchmark file that takes the proposed
+signature and does what the real override will do — type-test the receiver, then
+invoke the delegate with the value and the state.
+
+The prototype is faithful on allocation, which is the column this decision turns
+on: the call site builds exactly the delegate the real overload would, and the
+prototype adds nothing to the heap. It is *not* faithful on timing. A prototype
+is a `private static` the JIT can inline through; the shipped member will be a
+virtual call on a `record`. The `WithState` means are a floor, not a prediction
+— `OrElseWithState` tripped BenchmarkDotNet's `ZeroMeasurement` warning, which
+the real member will not.
+
+Read the allocation column. The timing column shows the sign of the change, not
+its size. Re-running this class against the shipped overloads once they land is
+the honest way to get the timings, and the prototypes come out when they do.
