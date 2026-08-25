@@ -183,7 +183,8 @@ public class CodeFixTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("Or", "Option<int>", "OrElse"));
+               .WithArguments("Or", "Option<int>", "OrElse",
+                    "and computing it may be expensive"));
 
     /// <remarks>
     /// <c>AndThen</c> is the only replacement whose delegate takes the
@@ -207,7 +208,8 @@ public class CodeFixTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("And", "Option<int>", "AndThen"));
+               .WithArguments("And", "Option<int>", "AndThen",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task WrapsAnEagerUnwrapOrArgumentInALambda() =>
@@ -226,7 +228,8 @@ public class CodeFixTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("UnwrapOr", "Option<int>", "UnwrapOrElse"));
+               .WithArguments("UnwrapOr", "Option<int>", "UnwrapOrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task KeepsTheMapDelegateWhenWrappingMapOr() =>
@@ -245,7 +248,8 @@ public class CodeFixTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("MapOr", "Option<int>", "MapOrElse"));
+               .WithArguments("MapOr", "Option<int>", "MapOrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task WrapsAnEagerOkOrArgumentInALambda() =>
@@ -264,5 +268,6 @@ public class CodeFixTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("OkOr", "Option<int>", "OkOrElse"));
+               .WithArguments("OkOr", "Option<int>", "OkOrElse",
+                    "and computing it may be expensive"));
 }

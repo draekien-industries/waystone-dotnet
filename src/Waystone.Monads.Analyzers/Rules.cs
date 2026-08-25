@@ -209,12 +209,23 @@ public static class Rules
     /// Fires on what is not provably free rather than on what is provably
     /// expensive, because only the first is decidable. A constant, a bare
     /// local, parameter, field or property read and a <c>default</c> cost
-    /// nothing to evaluate twice, so the rule stays silent on all of them; a
-    /// call, a <c>new</c> or an <c>await</c> might be cheap or might not, and
-    /// no static test tells the two apart. The residual imprecision is a fire
-    /// on a call that turns out to be cheap, where the caller pays a delegate
-    /// allocation to avoid nothing; Info severity is what makes that
-    /// affordable. A bare property read is skipped whatever the receiver,
+    /// nothing to evaluate twice, so the rule stays silent on all of them, as
+    /// it does on an expression composed entirely of those — arithmetic, a
+    /// ternary, an array index — since a free expression built out of free
+    /// parts is still free. A call, a <c>new</c> or an <c>await</c> might be
+    /// cheap or might not, and no static test tells the two apart. So might a
+    /// user-defined operator or conversion, which is why
+    /// <see cref="LazyVariantAnalyzer" /> gates the composites it admits on
+    /// <c>OperatorMethod</c> rather than reading through to the operands: an
+    /// implicit conversion is an ordinary call, and treating one as free would
+    /// hide the reportable case behind a bare local. The residual imprecision
+    /// is a fire on a call that turns out to be cheap, where the caller pays a
+    /// delegate allocation to avoid nothing; Info severity is what makes that
+    /// affordable, and why the message says an expensive argument *may* be so
+    /// while a mutating one simply is: the walk knows the difference and the
+    /// reason placeholder carries it, rather than leaving the reader to decide
+    /// which half of the rule they are looking at. A bare property read is
+    /// skipped whatever the receiver,
     /// including one whose getter computes: auto-versus-computed is only
     /// decidable for a symbol declared in the current compilation, and a rule
     /// that fired on the metadata half would make two identical call sites
@@ -223,7 +234,7 @@ public static class Rules
     public static readonly DiagnosticDescriptor EagerArgumentNotFree = Idiom(
         "WM2016",
         "Prefer the lazy variant when the argument is not free",
-        "'{0}' evaluates its argument even when '{1}' discards it. Use '{2}' if computing it is expensive or has a side effect.",
+        "'{0}' evaluates its argument even when '{1}' discards it, {3}. Use '{2}', which takes a delegate and runs it only on the branch that needs it.",
         "And, Or, UnwrapOr, MapOr and OkOr evaluate their argument before checking whether the receiver even needs it, so an expensive computation or a side effect runs unconditionally. Their AndThen, OrElse, UnwrapOrElse, MapOrElse and OkOrElse siblings take a delegate instead and only invoke it when the receiver's other branch is taken.");
 
     /// <remarks>

@@ -16,7 +16,8 @@ public class LazyVariantAnalyzerTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("Or", "Option<int>", "OrElse"));
+               .WithArguments("Or", "Option<int>", "OrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task FlagsAndWithACall() =>
@@ -29,7 +30,8 @@ public class LazyVariantAnalyzerTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("And", "Option<int>", "AndThen"));
+               .WithArguments("And", "Option<int>", "AndThen",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task FlagsUnwrapOrWithACall() =>
@@ -42,7 +44,8 @@ public class LazyVariantAnalyzerTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("UnwrapOr", "Option<int>", "UnwrapOrElse"));
+               .WithArguments("UnwrapOr", "Option<int>", "UnwrapOrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task FlagsMapOrOnItsFirstArgument() =>
@@ -55,7 +58,8 @@ public class LazyVariantAnalyzerTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("MapOr", "Option<int>", "MapOrElse"));
+               .WithArguments("MapOr", "Option<int>", "MapOrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task FlagsOkOrWithACall() =>
@@ -68,7 +72,8 @@ public class LazyVariantAnalyzerTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("OkOr", "Option<int>", "OkOrElse"));
+               .WithArguments("OkOr", "Option<int>", "OkOrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task FlagsAResultReceiver() =>
@@ -81,7 +86,8 @@ public class LazyVariantAnalyzerTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("UnwrapOr", "Result<int, string>", "UnwrapOrElse"));
+               .WithArguments("UnwrapOr", "Result<int, string>", "UnwrapOrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task FlagsAnObjectCreation() =>
@@ -92,7 +98,8 @@ public class LazyVariantAnalyzerTests
             """,
             Verify.Diagnostic(Rules.EagerArgumentNotFree)
                .WithLocation(0)
-               .WithArguments("Or", "Option<string>", "OrElse"));
+               .WithArguments("Or", "Option<string>", "OrElse",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task FlagsAnAsyncWrapper() =>
@@ -108,7 +115,8 @@ public class LazyVariantAnalyzerTests
                .WithArguments(
                     "UnwrapOrAsync",
                     "Task<Option<int>>",
-                    "UnwrapOrElseAsync"));
+                    "UnwrapOrElseAsync",
+                    "and computing it may be expensive"));
 
     [Fact]
     public Task IgnoresALiteral() =>
@@ -156,6 +164,100 @@ public class LazyVariantAnalyzerTests
             internal int Read(Option<int> option) =>
                 option.UnwrapOr(Fallback);
             """);
+
+    [Fact]
+    public Task IgnoresArithmeticOverFreeOperands() =>
+        Verify.NoDiagnosticAsync<LazyVariantAnalyzer>(
+            """
+            internal int Read(Option<int> option, int fallback) =>
+                option.UnwrapOr(fallback + 1);
+            """);
+
+    [Fact]
+    public Task IgnoresAnArrayElement() =>
+        Verify.NoDiagnosticAsync<LazyVariantAnalyzer>(
+            """
+            private readonly int[] _defaults = new int[4];
+
+            internal int Read(Option<int> option) =>
+                option.UnwrapOr(_defaults[0]);
+            """);
+
+    [Fact]
+    public Task IgnoresATernaryOverFreeOperands() =>
+        Verify.NoDiagnosticAsync<LazyVariantAnalyzer>(
+            """
+            internal int Read(Option<int> option, bool flag, int a, int b) =>
+                option.UnwrapOr(flag ? a : b);
+            """);
+
+    [Fact]
+    public Task FlagsACallInsideAnOtherwiseFreeExpression() =>
+        Verify.AnalyzerAsync<LazyVariantAnalyzer>(
+            """
+            internal int Expensive() => 42;
+
+            internal int Read(Option<int> option, int fallback) =>
+                option.{|#0:UnwrapOr|}(fallback + Expensive());
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("UnwrapOr", "Option<int>", "UnwrapOrElse",
+                    "and computing it may be expensive"));
+
+    [Fact]
+    public Task FlagsAUserDefinedOperator() =>
+        Verify.AnalyzerAsync<LazyVariantAnalyzer>(
+            """
+            internal readonly struct Money
+            {
+                public static Money operator +(Money a, Money b) => default;
+            }
+
+            internal class Subject
+            {
+                internal Money Read(Option<Money> option, Money a, Money b) =>
+                    option.{|#0:UnwrapOr|}(a + b);
+            }
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("UnwrapOr", "Option<Money>", "UnwrapOrElse",
+                    "and computing it may be expensive"));
+
+    [Fact]
+    public Task FlagsAUserDefinedImplicitConversion() =>
+        Verify.AnalyzerAsync<LazyVariantAnalyzer>(
+            """
+            internal readonly struct Money
+            {
+                public static implicit operator Money(int value) => default;
+            }
+
+            internal class Subject
+            {
+                internal Money Read(Option<Money> option, int fallback) =>
+                    option.{|#0:UnwrapOr|}(fallback);
+            }
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("UnwrapOr", "Option<Money>", "UnwrapOrElse",
+                    "and computing it may be expensive"));
+
+    [Fact]
+    public Task FlagsAnIncrement() =>
+        Verify.AnalyzerAsync<LazyVariantAnalyzer>(
+            """
+            private int _next;
+
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOr|}(_next++);
+            """,
+            Verify.Diagnostic(Rules.EagerArgumentNotFree)
+               .WithLocation(0)
+               .WithArguments("UnwrapOr", "Option<int>", "UnwrapOrElse",
+                    "and evaluating it changes state"));
 
     [Fact]
     public Task IgnoresADefault() =>
