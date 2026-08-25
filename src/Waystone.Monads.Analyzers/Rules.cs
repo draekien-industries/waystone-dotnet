@@ -28,11 +28,10 @@ public static class Rules
     /// an enumerated set of positions and defaults to reporting. None of those
     /// is working code: reaching them requires declaring the monad as
     /// <c>Option&lt;T&gt;?</c>, which WM1008 forbids. WM1008 reports alongside
-    /// this rule in every one of them but the tuple element, where
-    /// <see cref="Semantics.IsDeclarationTypePosition" /> has no case and so
-    /// never sees the declaration. That gap is WM1008's, not a reason to change
-    /// this rule. Do not lower the tier to accommodate them, and do not widen
-    /// the exclusion either — it would silence a real null.
+    /// this rule in every one of them, so a consumer is shown the declaration
+    /// that admitted the null as well as the null itself. Do not lower the tier
+    /// to accommodate them, and do not widen the exclusion either — it would
+    /// silence a real null.
     /// </remarks>
     public static readonly DiagnosticDescriptor NullAssignedToMonad = Bug(
         "WM1002",
@@ -43,9 +42,8 @@ public static class Rules
     /// <remarks>
     /// Warning survives the false-positive question on the same reasoning as
     /// WM1002: every position where the target's nullability cannot be proven
-    /// requires an <c>Option&lt;T&gt;?</c> declaration, which WM1008 forbids —
-    /// though it does not see the declaration in a tuple element, so there this
-    /// rule reports alone, which is WM1008's gap rather than this rule's. The
+    /// requires an <c>Option&lt;T&gt;?</c> declaration, which WM1008 forbids and
+    /// reports alongside this rule. The
     /// generic case that prompted the question is safe — <c>default</c> written
     /// for an unconstrained <c>T</c> has <c>T</c> as its type rather than the
     /// monad, so the rule stays quiet however <c>T</c> is instantiated.
@@ -74,6 +72,12 @@ public static class Rules
     /// independently true and each has its own code fix — so the report is made
     /// ahead of the early returns in <see cref="DeclaredTypeAnalyzer" /> that
     /// would otherwise suppress one of them.
+    /// The positions the rule reaches are the ones enumerated in
+    /// <see cref="Semantics.IsDeclarationTypePosition" />, which recurses through
+    /// tuple elements, array elements and type arguments to reach the
+    /// declaration they sit in. A position missing from that switch is a silent
+    /// miss rather than a decision, so add the case rather than accepting that
+    /// WM1002 or WM1003 reports the assignment alone.
     /// </remarks>
     public static readonly DiagnosticDescriptor NullableMonadDeclared = Bug(
         "WM1008",

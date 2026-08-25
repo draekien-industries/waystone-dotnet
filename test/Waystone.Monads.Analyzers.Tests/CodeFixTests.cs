@@ -167,6 +167,16 @@ public class CodeFixTests
                .WithArguments("Option<int>", "None"));
 
     [Fact]
+    public Task StripsTheNullableAnnotationFromATupleElement() =>
+        Verify.CodeFixAsync<DeclaredTypeAnalyzer,
+            RemoveNullableAnnotationCodeFix>(
+            "internal int Take(({|#0:Option<int>?|} a, int b) pair) => pair.b;",
+            "internal int Take((Option<int> a, int b) pair) => pair.b;",
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
     public Task WrapsAnEagerOrArgumentInALambda() =>
         Verify.CodeFixAsync<LazyVariantAnalyzer, UseLazyVariantCodeFix>(
             """

@@ -214,4 +214,239 @@ public class DeclaredTypeAnalyzerTests
             Verify.Diagnostic(Rules.DerivedMonadTypeDeclared)
                .WithLocation(0)
                .WithArguments("Some<int>", "Option<int>"));
+
+    [Fact]
+    public Task FlagsANullableOptionInATupleReturnType() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal ({|#0:Option<int>?|} a, int b) Make() =>
+                (Option.None<int>(), 1);
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionInATupleParameter() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal int Take(({|#0:Option<int>?|} a, int b) pair) => pair.b;
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionInATupleLocal() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal int Take()
+            {
+                ({|#0:Option<int>?|} a, int b) pair = (Option.None<int>(), 1);
+
+                return pair.b;
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Theory]
+    [InlineData("({|#0:Option<int>?|} a, int b, string c)")]
+    [InlineData("(int a, {|#0:Option<int>?|} b, string c)")]
+    [InlineData("(int a, string b, {|#0:Option<int>?|} c)")]
+    public Task FlagsANullableOptionInAnyTupleElement(string tuple) =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            $"internal void Take({tuple} pair) {{ }}",
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsEveryNullableMonadInATuple() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take(
+                ({|#0:Option<int>?|} a, int b, {|#1:Option<string>?|} c) pair)
+            {
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"),
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(1)
+               .WithArguments("Option<string>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionInANestedTuple() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take((int a, ({|#0:Option<int>?|} b, int c) d) pair)
+            {
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionInAnArrayElement() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal {|#0:Option<int>?|}[] Absent() => [];
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionArrayInATupleElement() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take(({|#0:Option<int>?|}[] a, int b) pair) { }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableResultInATupleReturnType() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal ({|#0:Result<int, string>?|} a, int b) Make() =>
+                (Result.Ok<int, string>(1), 2);
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Result<int, string>", "Err"));
+
+    [Fact]
+    public Task FlagsANullableResultInATupleParameter() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal int Take(({|#0:Result<int, string>?|} a, int b) pair) =>
+                pair.b;
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Result<int, string>", "Err"));
+
+    [Theory]
+    [InlineData("({|#0:Result<int, string>?|} a, int b, string c)")]
+    [InlineData("(int a, {|#0:Result<int, string>?|} b, string c)")]
+    [InlineData("(int a, string b, {|#0:Result<int, string>?|} c)")]
+    public Task FlagsANullableResultInAnyTupleElement(string tuple) =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            $"internal void Take({tuple} pair) {{ }}",
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Result<int, string>", "Err"));
+
+    [Fact]
+    public Task FlagsANullableResultArrayInATupleElement() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take(({|#0:Result<int, string>?|}[] a, int b) pair)
+            {
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Result<int, string>", "Err"));
+
+    [Fact]
+    public Task FlagsANullableDerivedCaseInATupleTwice() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take(({|#0:{|#1:Some<int>|}?|} a, int b) pair) { }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Some<int>", "None"),
+            Verify.Diagnostic(Rules.DerivedMonadTypeDeclared)
+               .WithLocation(1)
+               .WithArguments("Some<int>", "Option<int>"));
+
+    [Fact]
+    public Task FlagsANullableOkCaseInATupleTwice() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take(
+                ({|#0:{|#1:Ok<int, string>|}?|} a, int b) pair)
+            {
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Ok<int, string>", "Err"),
+            Verify.Diagnostic(Rules.DerivedMonadTypeDeclared)
+               .WithLocation(1)
+               .WithArguments("Ok<int, string>", "Result<int, string>"));
+
+    [Fact]
+    public Task FlagsANullableResultWithIdenticalTypeArgumentsInATuple() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take(({|#0:{|#1:Result<int, int>|}?|} a, int b) pair)
+            {
+            }
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Result<int, int>", "Err"),
+            Verify.Diagnostic(Rules.ResultWithIdenticalTypeArguments)
+               .WithLocation(1)
+               .WithArguments("Result<int, int>"));
+
+    [Fact]
+    public Task FlagsANullableOptionInANestedTypeArgument() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal Task<System.Collections.Generic.List<{|#0:Option<int>?|}>>
+                AbsentAsync() =>
+                Task.FromResult(
+                    new System.Collections.Generic.List<Option<int>?>());
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task FlagsANullableOptionInADelegateTypeArgument() =>
+        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
+            """
+            internal System.Func<{|#0:Option<int>?|}> Absent() => () => null;
+            """,
+            Verify.Diagnostic(Rules.NullableMonadDeclared)
+               .WithLocation(0)
+               .WithArguments("Option<int>", "None"));
+
+    [Fact]
+    public Task IgnoresATupleWithNoMonad() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take((int a, string b) pair) { }
+            """);
+
+    [Fact]
+    public Task IgnoresAnUnannotatedOptionInATuple() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take((Option<int> a, int b) pair) { }
+            """);
+
+    [Fact]
+    public Task IgnoresAnUnannotatedResultInATuple() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal void Take((Result<int, string> a, int b) pair) { }
+            """);
+
+    [Fact]
+    public Task IgnoresANullableArrayOfOptions() =>
+        Verify.NoDiagnosticAsync<DeclaredTypeAnalyzer>(
+            """
+            internal Option<int>[]? Absent() => null;
+            """);
 }
