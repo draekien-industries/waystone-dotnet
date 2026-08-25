@@ -49,11 +49,10 @@ public abstract record Option<T> where T : notnull
     /// that takes state instead of capturing it.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -81,11 +80,10 @@ public abstract record Option<T> where T : notnull
     /// that takes state instead of capturing it.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -120,11 +118,10 @@ public abstract record Option<T> where T : notnull
     /// rather than captured by them.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegates rather than letting them close over one
-    /// and they can be <see langword="static" />, which captures nothing, so the
-    /// compiler caches a single instance of each and the call allocates no
-    /// display class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload. A capturing <c>Match</c> allocates more than the
+    /// Handing the <paramref name="state" /> to the delegates rather than
+    /// capturing it lets them be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. A capturing <c>Match</c> allocates more than the
     /// single-delegate members do, because its two branches share one display
     /// class but need a delegate each.
     /// </remarks>
@@ -162,11 +159,10 @@ public abstract record Option<T> where T : notnull
     /// with state passed to the callbacks rather than captured by them.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegates rather than letting them close over one
-    /// and they can be <see langword="static" />, which captures nothing, so the
-    /// compiler caches a single instance of each and the call allocates no
-    /// display class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload. A capturing <c>Match</c> allocates more than the
+    /// Handing the <paramref name="state" /> to the delegates rather than
+    /// capturing it lets them be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. A capturing <c>Match</c> allocates more than the
     /// single-delegate members do, because its two branches share one display
     /// class but need a delegate each.
     /// </remarks>
@@ -202,10 +198,11 @@ public abstract record Option<T> where T : notnull
     /// <see cref="Option{T}" />.
     /// </summary>
     /// <remarks>
-    /// Because this function may throw an exception, its use is generally
-    /// discouraged. Instead, prefer to use the <code>Match</code> function and handle
-    /// the <see cref="None{T}" /> case explicitly, or call <code>UnwrapOr</code>.
-    /// <code>UnwrapOrElse</code>, or <code>UnwrapOrDefault</code>
+    /// Throws on a <see cref="None{T}" />, so prefer a member that cannot:
+    /// <see cref="Match{TOut}(Func{T,TOut},Func{TOut})" /> to handle both cases
+    /// explicitly, or
+    /// <see cref="UnwrapOr" />, <see cref="UnwrapOrElse" /> or
+    /// <see cref="UnwrapOrDefault" /> to supply a fallback.
     /// </remarks>
     /// <exception cref="UnwrapException">
     /// Throws if the option equals
@@ -243,12 +240,12 @@ public abstract record Option<T> where T : notnull
     /// a delegate that takes state instead of capturing it.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload. The delegate is not invoked on a <see cref="Some{T}" />, so a
-    /// capturing call allocates a closure it then discards.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. The delegate is not invoked on a
+    /// <see cref="Some{T}" />, so a capturing call allocates a closure it then
+    /// discards.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -279,9 +276,10 @@ public abstract record Option<T> where T : notnull
     /// <see cref="None{T}" /> (if <see cref="None{T}" />).
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">The value passed to the map function.</param>
     /// <param name="map">The map function.</param>
@@ -334,9 +332,10 @@ public abstract record Option<T> where T : notnull
     /// <paramref name="state" /> and returns the result.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">The value passed to the map function.</param>
     /// <param name="map">
@@ -371,9 +370,10 @@ public abstract record Option<T> where T : notnull
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">The value passed to the map function.</param>
     /// <param name="default">The default value for a <see cref="None{T}" />.</param>
@@ -401,11 +401,10 @@ public abstract record Option<T> where T : notnull
     /// <see cref="Some{T}" />).
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -438,9 +437,10 @@ public abstract record Option<T> where T : notnull
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">The value passed to both functions.</param>
     /// <param name="createDefault">
@@ -468,11 +468,10 @@ public abstract record Option<T> where T : notnull
     /// <see cref="Some{T}" />, so the function need not capture.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -515,9 +514,10 @@ public abstract record Option<T> where T : notnull
     /// <see langword="false" />.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="state" /> is handed to the delegate rather than
-    /// captured by it, so the delegate can be <see langword="static" /> and the
-    /// call allocates no closure.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload.
     /// </remarks>
     /// <param name="state">The value passed to the predicate.</param>
     /// <param name="predicate">The filter function.</param>
@@ -545,12 +545,12 @@ public abstract record Option<T> where T : notnull
     /// that takes state instead of capturing it and returns the result.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload. The delegate is not invoked on a <see cref="Some{T}" />, so a
-    /// capturing call allocates a closure it then discards.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. The delegate is not invoked on a
+    /// <see cref="Some{T}" />, so a capturing call allocates a closure it then
+    /// discards.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -638,9 +638,9 @@ public abstract record Option<T> where T : notnull
     /// <see cref="Err{TOk, TErr}" />.
     /// </summary>
     /// <remarks>
-    /// Arguments passed to this method must be eagerly evauated. If you are
-    /// passing the result of a function call, it is recommended to use
-    /// <see cref="OkOrElse{TErr}" />, which is lazily evaluated.
+    /// <paramref name="error" /> is eagerly evaluated. If you are passing the
+    /// result of a function call, prefer <see cref="OkOrElse{TErr}" />, which is
+    /// lazily evaluated.
     /// </remarks>
     /// <typeparam name="TErr">The type of the error value.</typeparam>
     /// <param name="error">
@@ -684,12 +684,12 @@ public abstract record Option<T> where T : notnull
     /// instead of capturing it.
     /// </summary>
     /// <remarks>
-    /// Hand the value to the delegate rather than letting it close over one and
-    /// the delegate can be <see langword="static" />, which captures nothing, so
-    /// the compiler caches a single instance and the call allocates no display
-    /// class. <c>WM2017</c> reports a capturing call that could use this
-    /// overload. The delegate is not invoked on a <see cref="Some{T}" />, so a
-    /// capturing call allocates a closure it then discards.
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
+    /// use this overload. The delegate is not invoked on a
+    /// <see cref="Some{T}" />, so a capturing call allocates a closure it then
+    /// discards.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
