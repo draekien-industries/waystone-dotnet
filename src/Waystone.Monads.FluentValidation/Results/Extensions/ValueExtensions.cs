@@ -68,7 +68,8 @@ public static class ValueExtensions
         where TValue : notnull
     {
         ValidationResult? validationResult =
-            await validator.ValidateAsync(value, cancellationToken);
+            await validator.ValidateAsync(value, cancellationToken)
+               .ConfigureAwait(false);
 
         return ValidationErr.Create(validationResult)
                             .Match(
