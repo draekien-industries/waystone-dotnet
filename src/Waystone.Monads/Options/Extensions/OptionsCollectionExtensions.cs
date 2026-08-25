@@ -8,22 +8,28 @@ using System.Linq;
 public static class OptionsCollectionExtensions
 {
     /// <summary>
-    /// Filters a sequence of options based on a predicate, converting options
-    /// that fail to match the criteria into <see cref="None{T}" />.
+    /// Applies a predicate to each option in a sequence, replacing every
+    /// <see cref="Some{T}" /> whose value fails the predicate with a
+    /// <see cref="None{T}" />.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
+    /// <remarks>
+    /// The sequence keeps its length and its order: no element is ever dropped,
+    /// so the result holds one option per input option. Follow this with
+    /// <see cref="Flatten{T}" /> to get only the values that matched. The
+    /// predicate is not called for an element that is already a
+    /// <see cref="None{T}" />. Evaluation is deferred — nothing runs until the
+    /// result is enumerated, and each enumeration re-runs the predicate.
+    /// </remarks>
+    /// <param name="options">The sequence to filter.</param>
     /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
+    /// The condition a <see cref="Some{T}" /> value must satisfy to survive as a
+    /// <see cref="Some{T}" />.
     /// </param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// An <see cref="IEnumerable{T}" /> of <see cref="Option{T}" /> that
-    /// contain elements that are <see cref="Some{T}" /> when they match the predicate
-    /// and  are <see cref="None{T}" /> when they failed to match the predicate
+    /// A sequence the same length as <paramref name="options" />, holding each
+    /// matching <see cref="Some{T}" /> unchanged and a <see cref="None{T}" /> in
+    /// every other position. Empty when <paramref name="options" /> is empty.
     /// </returns>
     public static IEnumerable<Option<T>> Filter<T>(
         this IEnumerable<Option<T>> options,
@@ -31,22 +37,26 @@ public static class OptionsCollectionExtensions
         options.Select(o => o.Filter(predicate));
 
     /// <summary>
-    /// Applies a map function onto a sequence of options, transforming the
-    /// values of the <see cref="Some{T}" /> options
+    /// Transforms the value of every <see cref="Some{T}" /> in a sequence,
+    /// leaving each <see cref="None{T}" /> in place.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
+    /// <remarks>
+    /// The sequence keeps its length and its order. The mapper is not called for
+    /// an element that is a <see cref="None{T}" />. Evaluation is deferred —
+    /// nothing runs until the result is enumerated, and each enumeration re-runs
+    /// the mapper.
+    /// </remarks>
+    /// <param name="options">The sequence to map.</param>
     /// <param name="mapper">
-    /// A map function that converts from
-    /// <typeparamref name="TIn" /> to <typeparamref name="TOut" />
+    /// The transform applied to each <see cref="Some{T}" /> value.
     /// </param>
     /// <typeparam name="TIn">The input option value's type</typeparam>
     /// <typeparam name="TOut">The output option value's type</typeparam>
     /// <returns>
-    /// An <see cref="IEnumerable{T}" /> of <see cref="Option{T}" /> that
-    /// contain elements transformed by the mapper
+    /// A sequence the same length as <paramref name="options" />, holding the
+    /// mapped value in each <see cref="Some{T}" /> position and a
+    /// <see cref="None{T}" /> in every other position. Empty when
+    /// <paramref name="options" /> is empty.
     /// </returns>
     public static IEnumerable<Option<TOut>> Map<TIn, TOut>(
         this IEnumerable<Option<TIn>> options,
@@ -58,38 +68,40 @@ public static class OptionsCollectionExtensions
     /// sequence, skipping the <see cref="None{T}" /> ones.
     /// </summary>
     /// <remarks>
-    /// This is the sequence counterpart of Rust's <c>iter().flatten()</c>, which
-    /// works because <c>Option</c> is itself iterable. It is lazy and streams.
+    /// Evaluation is deferred and streams: the source is enumerated once per
+    /// enumeration of the result and no intermediate collection is built. This is
+    /// the one member here that changes the sequence's length, so its result
+    /// cannot be lined up against the source by position.
     /// </remarks>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
+    /// <param name="options">The sequence to flatten.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// An <see cref="IEnumerable{T}" /> yielding the value of every
-    /// <see cref="Some{T}" /> in the source, in order
+    /// The value of every <see cref="Some{T}" /> in the source, in order. Empty
+    /// when <paramref name="options" /> is empty or holds no
+    /// <see cref="Some{T}" />.
     /// </returns>
     public static IEnumerable<T> Flatten<T>(
         this IEnumerable<Option<T>> options) where T : notnull =>
         options.SelectMany(option => option.AsEnumerable());
 
     /// <summary>
-    /// Returns the first <see cref="Option{T}" /> of the sequence that
-    /// satisfies a condition or a <see cref="None{T}" /> if a match is not found
+    /// Returns the first <see cref="Some{T}" /> in a sequence whose value
+    /// satisfies a predicate.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
-    /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
-    /// </param>
+    /// <remarks>
+    /// Enumeration stops at the first match, so the tail of
+    /// <paramref name="options" /> is never visited. The predicate is not called
+    /// for an element that is a <see cref="None{T}" />. Unlike
+    /// <see cref="Filter{T}" />, this member enumerates when it is called rather
+    /// than when its result is enumerated.
+    /// </remarks>
+    /// <param name="options">The sequence to search.</param>
+    /// <param name="predicate">The condition the matching value must satisfy.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The first <see cref="Option{T}" /> that passed the condition specified
-    /// by the predicate, otherwise a <see cref="None{T}" />
+    /// The first matching <see cref="Some{T}" />, or a <see cref="None{T}" /> when
+    /// nothing matches or <paramref name="options" /> is empty. Never
+    /// <see langword="null" />.
     /// </returns>
     public static Option<T> FirstOrNone<T>(
         this IEnumerable<Option<T>> options,
@@ -98,22 +110,21 @@ public static class OptionsCollectionExtensions
      ?? Option.None<T>();
 
     /// <summary>
-    /// Returns the first element of the sequence that satisfies a condition,
-    /// or a default value if a match is not found
+    /// Returns the value of the first <see cref="Some{T}" /> in a sequence that
+    /// satisfies a predicate, or an already-computed fallback.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
-    /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
-    /// </param>
-    /// <param name="default">The default value to return when a match is not found</param>
+    /// <remarks>
+    /// <paramref name="default" /> is evaluated at the call site whether or not a
+    /// match is found; use <see cref="FirstOrElse{T}" /> when producing it is
+    /// expensive. Enumeration stops at the first match.
+    /// </remarks>
+    /// <param name="options">The sequence to search.</param>
+    /// <param name="predicate">The condition the matching value must satisfy.</param>
+    /// <param name="default">The value to return when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The first value that passed the condition specified by the predicate,
-    /// otherwise the provided default
+    /// The first matching value, or <paramref name="default" /> when nothing
+    /// matches or <paramref name="options" /> is empty.
     /// </returns>
     public static T FirstOr<T>(
         this IEnumerable<Option<T>> options,
@@ -122,22 +133,22 @@ public static class OptionsCollectionExtensions
         options.FirstOrNone(predicate).UnwrapOr(@default);
 
     /// <summary>
-    /// Returns the first element of the sequence that satisfies a condition,
-    /// or the default value created from a delegate if a match is not found
+    /// Returns the value of the first <see cref="Some{T}" /> in a sequence that
+    /// satisfies a predicate, or a fallback computed on demand.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
-    /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
-    /// </param>
-    /// <param name="else">The delegate that will create the else value</param>
+    /// <remarks>
+    /// <paramref name="else" /> runs only when nothing matches, which is the
+    /// reason to pick this over <see cref="FirstOr{T}" />. Enumeration stops at
+    /// the first match.
+    /// </remarks>
+    /// <param name="options">The sequence to search.</param>
+    /// <param name="predicate">The condition the matching value must satisfy.</param>
+    /// <param name="else">The delegate that produces the value when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The first value that passed the condition specified by the predicate,
-    /// otherwise the default created by the else delegate
+    /// The first matching value, or the value produced by
+    /// <paramref name="else" /> when nothing matches or
+    /// <paramref name="options" /> is empty.
     /// </returns>
     public static T FirstOrElse<T>(
         this IEnumerable<Option<T>> options,
@@ -146,21 +157,23 @@ public static class OptionsCollectionExtensions
         options.FirstOrNone(predicate).UnwrapOrElse(@else);
 
     /// <summary>
-    /// Returns the last <see cref="Option{T}" /> of the sequence that
-    /// satisfies a condition or a <see cref="None{T}" /> if a match is not found
+    /// Returns the last <see cref="Some{T}" /> in a sequence whose value
+    /// satisfies a predicate.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
-    /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
-    /// </param>
+    /// <remarks>
+    /// The whole of <paramref name="options" /> is enumerated and the predicate
+    /// runs against every <see cref="Some{T}" /> in it, because the last match
+    /// cannot be known any earlier. Prefer <see cref="FirstOrNone{T}" /> when
+    /// either match will do, and do not call this on an unbounded sequence. The
+    /// predicate is not called for an element that is a <see cref="None{T}" />.
+    /// </remarks>
+    /// <param name="options">The sequence to search.</param>
+    /// <param name="predicate">The condition the matching value must satisfy.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The last <see cref="Option{T}" /> that passed the condition specified
-    /// by the predicate, otherwise a <see cref="None{T}" />
+    /// The last matching <see cref="Some{T}" />, or a <see cref="None{T}" /> when
+    /// nothing matches or <paramref name="options" /> is empty. Never
+    /// <see langword="null" />.
     /// </returns>
     public static Option<T> LastOrNone<T>(
         this IEnumerable<Option<T>> options,
@@ -169,22 +182,22 @@ public static class OptionsCollectionExtensions
      ?? Option.None<T>();
 
     /// <summary>
-    /// Returns the last element of the sequence that satisfies a condition,
-    /// or a default value if a match is not found
+    /// Returns the value of the last <see cref="Some{T}" /> in a sequence that
+    /// satisfies a predicate, or an already-computed fallback.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
-    /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
-    /// </param>
-    /// <param name="default">The default value to return when a match is not found</param>
+    /// <remarks>
+    /// <paramref name="default" /> is evaluated at the call site whether or not a
+    /// match is found; use <see cref="LastOrElse{T}" /> when producing it is
+    /// expensive. The whole of <paramref name="options" /> is enumerated, so do
+    /// not call this on an unbounded sequence.
+    /// </remarks>
+    /// <param name="options">The sequence to search.</param>
+    /// <param name="predicate">The condition the matching value must satisfy.</param>
+    /// <param name="default">The value to return when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The last value that passed the condition specified by the predicate,
-    /// otherwise the provided default
+    /// The last matching value, or <paramref name="default" /> when nothing
+    /// matches or <paramref name="options" /> is empty.
     /// </returns>
     public static T LastOr<T>(
         this IEnumerable<Option<T>> options,
@@ -193,22 +206,23 @@ public static class OptionsCollectionExtensions
         options.LastOrNone(predicate).UnwrapOr(@default);
 
     /// <summary>
-    /// Returns the last element of the sequence that satisfies a condition,
-    /// or the default value created from a delegate if a match is not found
+    /// Returns the value of the last <see cref="Some{T}" /> in a sequence that
+    /// satisfies a predicate, or a fallback computed on demand.
     /// </summary>
-    /// <param name="options">
-    /// An <see cref="IEnumerable{T}" /> of
-    /// <see cref="Option{T}" />
-    /// </param>
-    /// <param name="predicate">
-    /// A function to test each <see cref="Option{T}" /> for a
-    /// condition
-    /// </param>
-    /// <param name="else">The delegate that will create the else value</param>
+    /// <remarks>
+    /// <paramref name="else" /> runs only when nothing matches, which is the
+    /// reason to pick this over <see cref="LastOr{T}" />. The whole of
+    /// <paramref name="options" /> is enumerated, so do not call this on an
+    /// unbounded sequence.
+    /// </remarks>
+    /// <param name="options">The sequence to search.</param>
+    /// <param name="predicate">The condition the matching value must satisfy.</param>
+    /// <param name="else">The delegate that produces the value when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The last value that passed the condition specified by the predicate,
-    /// otherwise the default created by the else delegate
+    /// The last matching value, or the value produced by
+    /// <paramref name="else" /> when nothing matches or
+    /// <paramref name="options" /> is empty.
     /// </returns>
     public static T LastOrElse<T>(
         this IEnumerable<Option<T>> options,
