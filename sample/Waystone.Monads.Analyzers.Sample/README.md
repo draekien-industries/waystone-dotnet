@@ -119,7 +119,9 @@ itself be a step. Handing it to `AndThenAsync` fails as `CS0411` — "the type
 arguments cannot be inferred from the usage" — reported against the call site and
 naming neither `ValueTask` nor the step, so it reads like a generics problem
 rather than the design constraint it is. Reuse the async steps, not the async
-chain; `.AsTask()` would buy composability with an allocation on every call.
+chain. `.AsTask()` would buy composability, and costs less than it looks — nothing
+when the chain suspends, one small allocation when it completes synchronously — but
+paying it is the signal the unit of reuse was picked wrong.
 
 ## Trying the code fixes
 

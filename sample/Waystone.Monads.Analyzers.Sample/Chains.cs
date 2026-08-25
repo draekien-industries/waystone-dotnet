@@ -17,10 +17,10 @@ internal record Invoice(int OrderId, decimal Total);
 /// finished chain, this one shows how the steps are shaped so a chain is possible
 /// at all, and what it takes for a chain to be reused rather than retyped.
 ///
-/// The rule every member here obeys: **one parameter in, one monad out**. That is
-/// what lets a step be named at the call site as a method group rather than
-/// wrapped in a lambda, and it is why <see cref="Validated" /> — itself a chain —
-/// can be handed to <c>AndThen</c> exactly as a single step is.
+/// Every member here obeys one rule: one parameter in, one monad out. That is
+/// what lets a step be named at a call site as a method group rather than wrapped
+/// in a lambda, and it is why <see cref="Validated" /> — itself a chain — can be
+/// handed to <c>AndThen</c> exactly as a single step is.
 /// </summary>
 internal class Chains
 {
@@ -34,12 +34,6 @@ internal class Chains
     /// </summary>
     internal Chains(Func<Order, Result<Quote, Error>> price) => _price = price;
 
-    /// <summary>
-    /// A predicate is a reusable unit too, one layer below a step: it names the
-    /// condition so that two guards asking the same question ask it the same way.
-    /// What it is not is a step — it keeps no reason for a refusal, so it fits
-    /// <c>Filter</c> and nothing that has to explain itself.
-    /// </summary>
     private static bool IsPresent(string value) =>
         !string.IsNullOrWhiteSpace(value);
 
@@ -47,10 +41,11 @@ internal class Chains
 
     /// <summary>
     /// A guard step: it answers with the value it was handed, so it fits anywhere
-    /// an <see cref="Order" /> is flowing. This is where a predicate becomes a
-    /// step — the guard is the layer that attaches the reason the predicate cannot
-    /// carry, which is why all three below have the same shape and differ only in
-    /// which question they ask and which code they fail with.
+    /// an <see cref="Order" /> is flowing. The predicate is the reusable unit one
+    /// layer below, naming the condition so two guards asking the same question
+    /// ask it the same way; the guard is the layer that attaches the reason a
+    /// <c>bool</c> cannot carry. That split is why all three guards below are
+    /// structurally identical and differ only in the question and the code.
     /// </summary>
     private static Result<Order, Error> HasSku(Order order) =>
         IsPresent(order.Sku)
@@ -76,7 +71,9 @@ internal class Chains
     /// <summary>
     /// Three guard steps composed into one. Its signature is
     /// <c>Order → Result&lt;Order, Error&gt;</c> — a step's signature — so
-    /// everything below reuses it by name and nothing re-states the three checks.
+    /// <see cref="Bill" /> takes it as a method group and <c>Bill</c> is in turn a
+    /// step for <see cref="BillRounded" />. That is the whole of chain reuse, and
+    /// nothing downstream knows how many steps it is consuming.
     /// </summary>
     internal static Result<Order, Error> Validated(Order order) =>
         HasSku(order).AndThen(HasQuantity).AndThen(HasPostcode);
@@ -89,36 +86,23 @@ internal class Chains
 
     private Result<Quote, Error> Price(Order order) => _price(order);
 
-    /// <summary>
-    /// A chain over a chain: <see cref="Validated" /> arrives as a method group,
-    /// with no lambda and no wrapper, because its shape already matches what
-    /// <c>AndThen</c> accepts.
-    /// </summary>
     internal Result<Invoice, Error> Bill(Order order) =>
         Validated(order).AndThen(Price).Map(Render);
 
-    /// <summary>
-    /// And <see cref="Bill" /> is in turn a step, which is the property that makes
-    /// chains compose without limit. Nothing here knows how many steps <c>Bill</c>
-    /// is made of.
-    /// </summary>
     internal Result<Invoice, Error> BillRounded(Order order) =>
         Bill(order).Map(Rounded);
 
     /// <summary>
-    /// The chain needs nothing added to run per element. Gathering is the caller's
-    /// choice and stays at the call site: <c>Collect</c> stops at the first
-    /// failure.
+    /// The chain needs nothing added to run per element, so gathering stays at the
+    /// call site and stays the caller's choice: <c>Collect</c> stops at the first
+    /// failure and the <c>Partition</c> in <see cref="BillEach" /> reports all of
+    /// them. A chain that gathered its own results would have answered that for
+    /// every caller, and would have stopped being a step besides.
     /// </summary>
     internal Result<IReadOnlyList<Invoice>, Error> BillAll(
         IEnumerable<Order> orders) =>
         orders.Select(Bill).Collect();
 
-    /// <summary>
-    /// The same chain, gathered the other way. <c>Partition</c> reports every
-    /// failure instead of the first, which is why the choice cannot live inside
-    /// <see cref="Bill" />.
-    /// </summary>
     internal (IReadOnlyList<Invoice> Oks, IReadOnlyList<Error> Errs) BillEach(
         IEnumerable<Order> orders) =>
         orders.Select(Bill).Partition();
@@ -133,27 +117,22 @@ internal class Chains
     /// <summary>
     /// An async step is <c>T → Task&lt;Result&lt;U, Error&gt;&gt;</c>, which is
     /// what an I/O method returns anyway, so <c>AndThenAsync</c> takes
-    /// <see cref="ReserveAsync" /> by name. The synchronous
+    /// <see cref="ReserveAsync" /> by name — and the synchronous
     /// <see cref="Validated" /> drops into the same chain untouched, because each
     /// <c>*Async</c> member accepts a synchronous delegate too.
     ///
-    /// This chain is where async reuse stops. It hands back a
-    /// <see cref="ValueTask{TResult}" />, and no <c>*Async</c> member accepts a
-    /// <c>ValueTask</c>-returning delegate, so <c>BillAsync</c> cannot itself
-    /// become a step. Reuse the async steps, not the async chain. Converting is
-    /// possible and is measured in
-    /// <c>bench/Waystone.Monads.Benchmarks/AsyncChainReuseBenchmarks.cs</c>:
-    /// <c>AsTask</c> costs nothing when the chain suspends and one small allocation
-    /// when it completes synchronously, while declaring this <c>async Task</c> and
-    /// awaiting it is never cheaper and is worse when it suspends.
+    /// Async reuse stops here. This hands back a
+    /// <see cref="ValueTask{TResult}" />, which no <c>*Async</c> member accepts as
+    /// a delegate result, so <c>BillAsync</c> cannot itself become a step. Reuse
+    /// the async steps, not the async chain.
     ///
-    /// This chain also trips <c>CA2012</c>, which is silent at its default severity
-    /// and fires for a project that raises the CA rules. It is a false positive:
-    /// the rule does not count a reduced extension receiver as an argument, but
-    /// each member awaits its receiver exactly once, so the single consumption a
-    /// <see cref="ValueTask{TResult}" /> permits is the one it gets. Suppressing it
-    /// is correct here; breaking the chain into locals to satisfy it would store
-    /// the very thing the rule exists to keep out of a local.
+    /// The chain also trips <c>CA2012</c>, silently at that rule's default
+    /// severity and in build output for a project that raises it. It is a false
+    /// positive: the rule does not count a reduced extension receiver as an
+    /// argument, but each member awaits its receiver exactly once, so the single
+    /// consumption a <see cref="ValueTask{TResult}" /> permits is the one it gets.
+    /// Breaking the chain into locals to satisfy it would store the very thing the
+    /// rule exists to keep out of a local.
     /// </summary>
     internal ValueTask<Result<Invoice, Error>> BillAsync(int id) =>
         FetchAsync(id)
