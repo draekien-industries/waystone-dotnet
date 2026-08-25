@@ -8,7 +8,12 @@ using System.Threading;
 using Options;
 using Results.Errors;
 
-/// <summary>Global configuration options for the Waystone.Monads library.</summary>
+/// <summary>Configuration options for the Waystone.Monads library.</summary>
+/// <remarks>
+/// Settings apply process-wide once <see cref="Configure" /> has been called.
+/// Use <see cref="BeginScope(Action{MonadOptions})" /> to override them for one
+/// asynchronous flow instead.
+/// </remarks>
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
@@ -102,6 +107,13 @@ public sealed class MonadOptions
     }
 
     /// <summary>Configures the global options for the Waystone.Monads library.</summary>
+    /// <remarks>
+    /// The options are a single process-wide instance, so this affects every
+    /// caller in the process, including work already in flight. Call it once
+    /// during start-up. To change options for one asynchronous flow without
+    /// disturbing the rest, use
+    /// <see cref="BeginScope(Action{MonadOptions})" /> instead.
+    /// </remarks>
     /// <param name="configure">
     /// The action that will configure the
     /// <see cref="MonadOptions" />
@@ -182,11 +194,22 @@ public sealed class MonadOptions
     /// Configures the log action that should be executed when an exception is
     /// silently handled by the library.
     /// </summary>
+    /// <remarks>
+    /// One logger is held at a time, so calling this again replaces the
+    /// previous one rather than adding to it. It is called only for exceptions
+    /// the library swallows, never for one it lets propagate. Independently of
+    /// this setting, the same exceptions are written to the console while a
+    /// debugger is attached.
+    /// </remarks>
     /// <param name="action">The log action that will be executed.</param>
     /// <returns>
     /// The <see cref="MonadOptions" /> instance for you to chain additional
     /// configurations.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="action" /> is null. Leave the logger unset rather than
+    /// clearing it with null.
+    /// </exception>
     public MonadOptions UseExceptionLogger(Action<Exception, CallerInfo> action)
     {
         ExceptionLogger = Option.Some(action);
@@ -200,12 +223,12 @@ public sealed class MonadOptions
     /// <remarks>
     /// By default an <see cref="OperationCanceledException" /> is not caught,
     /// so it leaves <c>Try</c> and <c>TryAsync</c> untouched and is neither
-    /// logged nor converted. Calling this restores the behaviour of versions
-    /// before 6.0.0, where a cancellation produced a
+    /// logged nor converted. Call this and a cancellation instead produces a
     /// <see cref="Options.None{T}" /> or an <see cref="Results.Err{TOk,TErr}" />
-    /// like any other exception. Prefer the default: a cancelled operation
-    /// produced no answer, and reporting that as an absent or failed value
-    /// hides the cancellation from the caller that requested it.
+    /// like any other exception, which is what versions before 6.0.0 did.
+    /// Prefer the default: a cancelled operation produced no answer, and
+    /// reporting that as an absent or failed value hides the cancellation from
+    /// the caller that requested it.
     /// <see cref="System.Threading.Tasks.TaskCanceledException" /> derives from
     /// <see cref="OperationCanceledException" /> and is covered by this option
     /// too.
@@ -242,12 +265,19 @@ public sealed class MonadOptions
     /// Configures the fallback error code that will be used when a null or
     /// whitespace value is used to create an <see cref="ErrorCode" /> instance.
     /// </summary>
-    /// <remarks>The default fallback is `Unspecified`</remarks>
+    /// <remarks>
+    /// Default: <c>Unspecified</c>. Surrounding whitespace is trimmed off
+    /// before the value is stored.
+    /// </remarks>
     /// <param name="errorCode">The fallback error code to use</param>
     /// <returns>
     /// The <see cref="MonadOptions" /> instance for you to chain additional
     /// configurations.
     /// </returns>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="errorCode" /> is null, empty or whitespace. A fallback
+    /// that is itself unusable would leave nothing to fall back to.
+    /// </exception>
     public MonadOptions UseFallbackErrorCode(string errorCode)
     {
         if (string.IsNullOrWhiteSpace(errorCode))
@@ -265,12 +295,19 @@ public sealed class MonadOptions
     /// Configures the fallback error message that will be used when a null or
     /// whitespace message is used to create an <see cref="Error" /> instance.
     /// </summary>
-    /// <remarks>The default fallback is `An unexpected error occurred.`</remarks>
+    /// <remarks>
+    /// Default: <c>An unexpected error occurred.</c> Surrounding whitespace is
+    /// trimmed off before the value is stored.
+    /// </remarks>
     /// <param name="errorMessage">The fallback error message to use</param>
     /// <returns>
     /// The <see cref="MonadOptions" /> instance for you to chain additional
     /// configurations.
     /// </returns>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="errorMessage" /> is null, empty or whitespace. A
+    /// fallback that is itself unusable would leave nothing to fall back to.
+    /// </exception>
     public MonadOptions UseFallbackErrorMessage(string errorMessage)
     {
         if (string.IsNullOrWhiteSpace(errorMessage))

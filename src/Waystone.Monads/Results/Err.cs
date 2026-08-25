@@ -8,7 +8,13 @@ using Options;
 using System.Diagnostics;
 #endif
 
-/// <summary>An error result</summary>
+/// <summary>A <see cref="Result{TOk,TErr}" /> holding an error.</summary>
+/// <remarks>
+/// One of the two cases of <see cref="Result{TOk,TErr}" />, so matching both
+/// is exhaustive and no third case can be added from outside the library.
+/// Build one with <see cref="Result.Err{TOk,TErr}" />. The error is never
+/// null, though it may be the default of <typeparamref name="TErr" />.
+/// </remarks>
 /// <typeparam name="TOk">The ok result value's type</typeparam>
 /// <typeparam name="TErr">The error result value's type</typeparam>
 #if !DEBUG

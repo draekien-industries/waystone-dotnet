@@ -8,7 +8,13 @@ using Results;
 using System.Diagnostics;
 #endif
 
-/// <summary>No value of type <typeparamref name="T" />.</summary>
+/// <summary>An <see cref="Option{T}" /> holding no value.</summary>
+/// <remarks>
+/// One of the two cases of <see cref="Option{T}" />, so matching both is
+/// exhaustive and no third case can be added from outside the library. Build
+/// one with <see cref="Option.None{T}" />, which hands back a cached instance
+/// rather than constructing one.
+/// </remarks>
 /// <typeparam name="T">The option value's type.</typeparam>
 #if !DEBUG
 [DebuggerStepThrough]
@@ -16,13 +22,6 @@ using System.Diagnostics;
 public sealed record None<T> : Option<T>
     where T : notnull
 {
-    /// <remarks>
-    /// A <see cref="None{T}" /> holds nothing, so every instance of a given
-    /// closed type is interchangeable and the runtime builds this one once.
-    /// Structural equality is unaffected — two <c>None</c> values were already
-    /// equal — but <c>ReferenceEquals</c> now answers true where it answered
-    /// false before 6.0.0.
-    /// </remarks>
     internal static readonly None<T> Instance = new();
 
     /// <inheritdoc />
