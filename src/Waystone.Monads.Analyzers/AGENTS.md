@@ -36,6 +36,13 @@ it fails as twenty errors in unrelated files rather than as a statement about th
 rule. A *disabled* rule at warning severity fires nothing and so builds clean;
 `RulesTests.OnlyMisuseRulesShipAtWarningOrAbove` is what catches that one.
 
+**A deprecation gets a code fix on `CS0618`, not a rule of its own.** The Migration
+tier ships `Disabled`, so a rule there never fires; an enabled rule reports what the
+compiler already reported, which is the `WM1002`-alongside-`WM2008` double-report.
+Subclass `MonadCodeFix` with `FixableDiagnosticIds = ["CS0618"]` and bail unless the
+symbol is one of ours, or the fix fires on a consumer's own obsolete API.
+`UseGeneratedErrorCodeCodeFix` is the worked example.
+
 ## Gotchas
 
 **`WM2018` shares source with the generator.** `ErrorCodeFormat.cs` is a linked
@@ -116,3 +123,13 @@ under test supports**, so `isEnabledByDefault: false` cannot be observed through
 and a disabled rule fires in tests that do not expect it. Assert the default on the
 descriptor instead — `RulesTests` does — and keep a disabled-by-default rule in its
 own analyzer class so it does not pollute another rule's tests.
+
+**`Verify.CompilerCodeFixAsync` covers a fix registered on a compiler diagnostic**,
+using `EmptyDiagnosticAnalyzer` and `DiagnosticResult.CompilerWarning("CS0618")`
+against a `{|#0:...|}` span.
+
+**No generator runs in these tests.** A source that references generated catalog
+members has to declare them by hand in the shape `ErrorCodeCatalogWriter` emits, or
+the fixed code will not compile. That leaves the emitted shape asserted in
+`Waystone.Monads.SourceGenerators.Tests` and assumed here, so a change to the
+nesting has to be carried across by hand.

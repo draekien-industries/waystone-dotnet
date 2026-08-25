@@ -84,6 +84,15 @@ refactors, tests, CI, and build configuration.
 explanatory comments inside method bodies. `CS1591` is suppressed, so the build
 will not tell you when public docs are missing.
 
+**A doc-only change must diff clean twice.** `git diff --stat -- '*PublicAPI*'` is
+empty because the baseline records no comments, and `git diff -U0 | grep -v '///'`
+prints nothing because nothing but comments moved. Either one printing something
+means code leaked into the change.
+
+**`Write` strips the BOM; several sources here have one.** Use `Edit` on an existing
+file. A stripped BOM shows up as `-\xef\xbb\xbfnamespace` in the diff and nothing in
+the build notices.
+
 **Write and audit those comments through the
 `engineering-skills:with-doc-comments` skill.** Nothing in the build checks that
 a doc comment says anything, so the default outcome is a slot-filled restatement
@@ -111,6 +120,11 @@ PR; adopting a hand-built chain afterwards works but is a repair, not a route.
 
 `gh stack submit` opens an editor an agent cannot drive, so pass `--auto`. Note
 that `--auto` creates *new* PRs as drafts unless you add `--open`.
+
+**`--auto` titles a *new* PR from its branch name, not its commit subject.** A layer
+submitted that way arrives titled `feature/dra 113 doc sweep long tail`, which is not
+a conventional commit, so GitVersion reads no increment from it. Run
+`gh pr edit <n> --title` straight after submitting. Existing PRs keep their titles.
 
 **Run `gh stack add <branch>` before committing the next PR's work, not after.**
 It creates the branch and checks it out. Commit first and the work lands on the
