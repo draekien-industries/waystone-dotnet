@@ -23,11 +23,21 @@ cannot be inferred from the usage" — reported against the call site and naming
 neither `ValueTask` nor the step, so it reads like a generics problem in the
 chain rather than the design constraint it is.
 
-**Do not convert it with `.AsTask()`.** That allocates exactly the `Task` the
-`ValueTask` exists to avoid, on every call, and it buries the real signal: the
-unit of reuse was picked wrong. Reuse **async steps**, not async chains. An
-async step is `T → Task<Result<U, Error>>`, which is what an I/O method returns
-anyway, and `AndThenAsync` takes it directly:
+Two conversions can force it into a step's shape, and it is worth knowing what
+each really costs, because the intuition is wrong in both directions.
+`.AsTask()` is free when the chain suspends — a suspended chain is already
+`Task`-backed, so `AsTask` hands that same instance back — and costs one small
+allocation when the chain completes synchronously. Declaring the chain
+`async Task<…>` and awaiting it is **never cheaper and is worse when it
+suspends**, because the extra state machine sits on top of the one the chain
+already built.
+
+So converting is a tax on exactly the synchronous-completion path `ValueTask` was
+chosen to keep free, and the `async` wrapper is the more expensive way to pay it.
+Neither is a catastrophe; the reason to avoid both is that they bury the real
+signal — the unit of reuse was picked wrong. Reuse **async steps**, not async
+chains. An async step is `T → Task<Result<U, Error>>`, which is what an I/O
+method returns anyway, and `AndThenAsync` takes it directly:
 
 ```csharp
 private static Task<Result<Reservation, Error>> ReserveAsync(Order order) => …

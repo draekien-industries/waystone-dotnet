@@ -140,8 +140,12 @@ internal class Chains
     /// This chain is where async reuse stops. It hands back a
     /// <see cref="ValueTask{TResult}" />, and no <c>*Async</c> member accepts a
     /// <c>ValueTask</c>-returning delegate, so <c>BillAsync</c> cannot itself
-    /// become a step. Reuse the async steps, not the async chain — converting with
-    /// <c>AsTask</c> would buy composability with an allocation on every call.
+    /// become a step. Reuse the async steps, not the async chain. Converting is
+    /// possible and is measured in
+    /// <c>bench/Waystone.Monads.Benchmarks/AsyncChainReuseBenchmarks.cs</c>:
+    /// <c>AsTask</c> costs nothing when the chain suspends and one small allocation
+    /// when it completes synchronously, while declaring this <c>async Task</c> and
+    /// awaiting it is never cheaper and is worse when it suspends.
     ///
     /// This chain also trips <c>CA2012</c>, which is silent at its default severity
     /// and fires for a project that raises the CA rules. It is a false positive:
