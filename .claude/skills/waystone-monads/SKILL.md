@@ -1,6 +1,6 @@
 ---
 name: waystone-monads
-description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM diagnostic fires, or when the user says "use an Option", "return a Result", "make this monadic".
+description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM diagnostic fires, when extracting a reusable chain of fallible steps, or when the user says "use an Option", "return a Result", "make this monadic", "make this pipeline reusable".
 ---
 
 # Waystone.Monads
@@ -70,6 +70,41 @@ Pick the combinator by what the delegate returns:
 
 `Map` that returns a monad produces a nested monad and forces a `Flatten`;
 that pair is exactly `AndThen` (`WM2005`).
+
+### Design steps so the chain is possible
+
+A chain reads that way only when every step already has the shape a chain
+accepts: **one parameter in, one monad out**. That is what makes a step a method
+group rather than a lambda, and it is the constraint to design backwards from.
+
+| A step needs | Give it |
+| --- | --- |
+| A dependency — a repository, a clock, a rate | A field set in the constructor, never a second parameter |
+| A value an earlier step produced | A tuple carried forward, so the step still takes one parameter |
+| Only to validate what it was handed | The same `T` back, so it slots in anywhere that `T` flows |
+| To fail | One error code, so the failure names which step it was |
+
+A **guard step** — `Order → Result<Order, Error>` — is the shape that makes
+validation reusable rather than copied, because it fits every chain carrying an
+`Order`. A step that takes two parameters fits none of them, and forces the
+lambda the chain exists to avoid. A step that answers with `bool` fits only
+`Filter`, which discards the reason — so where the reason is what the caller
+needs, the guard returns the monad and not the predicate.
+
+Every step in one chain must fail with the **same error type**; `AndThen` fixes
+`TErr` and will not accept anything else. Where a step's failures come from
+another taxonomy, convert at that seam with `MapErr` rather than widening the
+chain's error type to accommodate both.
+
+**A named chain is itself a step.** `Place(int) → Result<Shipment, Error>` has
+exactly the shape `AndThen` takes, so a chain composes into a larger chain by
+method group with no wrapper and no lambda. That is the whole of chain reuse:
+extract what repeats into a method obeying the rules above, and it is available
+everywhere the types line up. Read
+[references/reusable-chains.md](references/reusable-chains.md) before extracting
+one — a chain that must vary by caller and an `async` chain each have a shape
+that stops composing, and the async one is a hard constraint rather than a
+preference.
 
 ## Collapse once, at the end
 
@@ -271,10 +306,17 @@ actually touching. Two further references —
 and [references/state-overloads.md](references/state-overloads.md) for closure
 mechanics — are pointed to above, where the situation that needs them arises.
 
+**Every code sample, here and in the references, is illustrative.** The recurring
+`Order`, `Quote`, `Invoice` and `Shipment` types are there to make a shape legible
+in isolation, and none of them is a type this library ships. Substitute the domain
+types of the codebase being worked in and keep the shape — a chain copied verbatim
+compiles against nothing.
+
 | Read | When |
 | --- | --- |
 | [references/async.md](references/async.md) | The chain crosses an `await`, or `Try`/`TryAsync` is involved. The `*Async` members extend `Task<Option<T>>`, so a chain need not be broken into locals — and an async delegate handed to a synchronous member compiles silently while catching nothing |
 | [references/sequences.md](references/sequences.md) | Working over an `IEnumerable` of monads — `Collect`, `Partition`, `Flatten` — or combining two with `Zip`, `Reduce` or `Xor`, several of which invert the obvious expectation |
+| [references/reusable-chains.md](references/reusable-chains.md) | Extracting a chain for reuse, or a chain has to vary by caller. Why an async chain is terminal and cannot be a step — and why `.AsTask()` is the wrong answer to that — where a variation point goes, why a library of composed `Func` values is worse than the chain, and how many tests a chain needs once its steps are tested |
 | [references/nesting.md](references/nesting.md) | A monad has ended up inside another. Which shape to reach for, what `Transpose` maps to what in both directions, and when the nesting should be resolved with `OkOr` instead of preserved |
 | [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension, and never through the obsolete `FromEnum` factories |
 | [references/rust-to-csharp.md](references/rust-to-csharp.md) | Porting Rust, or a Rust idiom has no obvious C# spelling |
@@ -307,6 +349,13 @@ Run over the code just written and rewrite each of these where it appears:
 - [ ] Every eager argument that is a call — moved to the `*Else` sibling
 - [ ] Every capturing lambda — moved to the state overload
 - [ ] Every discarded `Result` or `Option`
+- [ ] Every step taking two parameters — reshaped to one in, one monad out, so
+      the chain takes it as a method group rather than a lambda
+- [ ] Every run of steps repeated across chains — extracted into a named chain
+      and reused as a method group, or, if any step awaits, extracted as steps
+      rather than as a chain
+- [ ] Every `.AsTask()` reached for to make an async chain composable — reverted,
+      and the reuse moved down to the steps
 
 The build is the check that this landed: `WM1xxx` rules are warnings and
 `WM2xxx` are informational, both enabled by default, and both ship inside the
