@@ -41,6 +41,33 @@ public sealed class ErrorCodeFormatGenerationTests
         run.Source.ShouldContain("AlreadyShipped = \"order.already-shipped\";");
     }
 
+    /// <summary>
+    /// The code a member produces is not derivable from its name once a format is
+    /// set, and a consumer reading a tooltip cannot see the format. Both the name
+    /// constant and the error code field carry the computed value in their summary
+    /// so it is legible where the member is used.
+    /// </summary>
+    [Fact]
+    public void WritesTheComputedCodeIntoTheMemberSummaries()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            [ErrorCodeCatalog(Format = "order.{member:kebab}")]
+            public enum OrderError
+            {
+                NotFound,
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain(
+            "/// <summary>The error code name of <c>global::Sample.OrderError.NotFound</c>: <c>order.not-found</c>.</summary>");
+
+        run.Source.ShouldContain(
+            "/// <summary>The error code of <c>global::Sample.OrderError.NotFound</c>: <c>order.not-found</c>.</summary>");
+    }
+
     [Fact]
     public void TakesTheFormatFromTheAssembly()
     {
