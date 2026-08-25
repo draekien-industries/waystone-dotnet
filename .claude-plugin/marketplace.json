@@ -1,0 +1,37 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "waystone-dotnet",
+  "owner": {
+    "name": "William Pei",
+    "email": "draekien@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "Agent tooling for developers building on the Waystone.Net packages."
+  },
+  "plugins": [
+    {
+      "name": "waystone-dotnet",
+      "description": "Write idiomatic code against the Waystone.Net packages — composing Option<T> and Result<TOk, TErr>, the traps that defeat them, and the WM analyzer diagnostics that catch those traps.",
+      "version": "0.1.0",
+      "author": {
+        "name": "William Pei",
+        "email": "draekien@users.noreply.github.com"
+      },
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./.claude/skills/waystone-monads"
+      ],
+      "homepage": "https://draekien-industries.wpei.me/",
+      "repository": "https://github.com/draekien-industries/waystone-dotnet",
+      "license": "MIT",
+      "category": "development",
+      "tags": [
+        "dotnet",
+        "csharp",
+        "roslyn",
+        "monads"
+      ]
+    }
+  ]
+}
