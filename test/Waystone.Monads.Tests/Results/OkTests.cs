@@ -389,4 +389,99 @@ public class OkTests
 
         ok.AsEnumerable().ShouldBe(new[] { 1 });
     }
+    [Fact]
+    public void GivenState_WhenIsOkAnd_ThenReturnThePredicateResult()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.IsOkAnd(1, static (x, state) => x == state).ShouldBeTrue();
+        ok.IsOkAnd(2, static (x, state) => x == state).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void GivenState_WhenIsErrAnd_ThenReturnFalse()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        var predicate = Substitute.For<Func<string, int, bool>>();
+
+        ok.IsErrAnd(10, predicate).ShouldBeFalse();
+
+        predicate.DidNotReceiveWithAnyArgs().Invoke(default!, default);
+    }
+
+    [Fact]
+    public void GivenState_WhenMatchingWithFuncs_ThenInvokeOnOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        int result = ok.Match(
+            10,
+            static (x, state) => x + state,
+            static (_, state) => state * 100);
+
+        result.ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMatchingWithActions_ThenInvokeOnOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        var onOk = Substitute.For<Action<int, int>>();
+        var onErr = Substitute.For<Action<string, int>>();
+
+        ok.Match(10, onOk, onErr);
+
+        onOk.Received().Invoke(1, 10);
+        onErr.DidNotReceiveWithAnyArgs().Invoke(default!, default);
+    }
+
+    [Fact]
+    public void GivenState_WhenOrElse_ThenReturnTheOriginalOkValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Result<int, int> result = ok.OrElse(
+            10,
+            static (_, state) => Result.Err<int, int>(state));
+
+        result.ShouldBe(Result.Ok<int, int>(1));
+    }
+
+    [Fact]
+    public void GivenState_WhenUnwrapOrElse_ThenReturnTheContainedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.UnwrapOrElse(10, static (_, state) => state).ShouldBe(1);
+    }
+
+    [Fact]
+    public void GivenState_WhenInspect_ThenInvokeTheAction()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        var action = Substitute.For<Action<int, int>>();
+
+        ok.Inspect(10, action).ShouldBe(ok);
+
+        action.Received().Invoke(1, 10);
+    }
+
+    [Fact]
+    public void GivenState_WhenInspectErr_ThenDoNotInvokeTheAction()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        var action = Substitute.For<Action<string, int>>();
+
+        ok.InspectErr(10, action).ShouldBe(ok);
+
+        action.DidNotReceiveWithAnyArgs().Invoke(default!, default);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOrDefault_ThenReturnTheMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.MapOrDefault(10, static (x, state) => x + state).ShouldBe(11);
+    }
 }

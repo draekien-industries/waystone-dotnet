@@ -84,3 +84,28 @@ RS0016/RS0017 pair: it names the exact parameter and type parameter drift betwee
 the hand-written extension and the core member it forwards to. A family converts
 with an untouched baseline only when the two already agree. See
 [Waystone.Monads](../Waystone.Monads/AGENTS.md) for what each kind of drift costs.
+
+**Drift is not the only blocker.** DRA-108 tried all eight remaining families and
+landed one — `Result.Match`. Six were parameter renames, which DRA-110 owns.
+`Option.Match` was neither, and is worth knowing about before you attempt it:
+
+* Conversion **removes six overloads** and fires RS0017 on each. They are the
+  three async-delegate shapes — `(Func<T, Task<TOut>>, Func<Task<TOut>>)` and
+  the two half-async pairs — on both the `Task` and `ValueTask` receiver. That
+  is a public API removal rather than a rename, so no amount of renaming
+  unblocks it.
+* The mechanism is **not** "the generator cannot emit async-delegate
+  forwarders". It plainly can: `Result.Match` has four such shapes across its
+  awaited blocks and converted with zero RS0017. What separates the two was not
+  established. The visible difference is that Option's lost overloads all
+  involve a parameterless `Func<Task<TOut>>` branch where Result's take the
+  contained value. Treat that as a lead, not a finding.
+* Conversion also breaks `OkOrElseExtensions`, which forwards through
+  `optionTask.MatchAsync(...)`. It fails as `CS8030` at the call site rather
+  than as anything pointing at `MatchExtensions`, so the compile error names the
+  wrong file.
+
+Run the experiment on the whole set at once rather than one family at a time:
+one build reports every family's verdict, and the count of RS0017 rows per class
+is the verdict. Do it before the core members change, so a failed conversion
+does not also hide fresh RS0016 rows.

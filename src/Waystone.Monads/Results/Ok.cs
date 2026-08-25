@@ -41,7 +41,17 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     public override bool IsOkAnd(Func<TOk, bool> predicate) => predicate(Value);
 
     /// <inheritdoc />
+    public override bool IsOkAnd<TState>(
+        TState state,
+        Func<TOk, TState, bool> predicate) => predicate(Value, state);
+
+    /// <inheritdoc />
     public override bool IsErrAnd(Func<TErr, bool> predicate) => false;
+
+    /// <inheritdoc />
+    public override bool IsErrAnd<TState>(
+        TState state,
+        Func<TErr, TState, bool> predicate) => false;
 
 
     /// <inheritdoc />
@@ -51,9 +61,25 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         onOk(Value);
 
     /// <inheritdoc />
+    public override TOut Match<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> onOk,
+        Func<TErr, TState, TOut> onErr) =>
+        onOk(Value, state);
+
+    /// <inheritdoc />
     public override void Match(Action<TOk> onOk, Action<TErr> onErr)
     {
         onOk(Value);
+    }
+
+    /// <inheritdoc />
+    public override void Match<TState>(
+        TState state,
+        Action<TOk, TState> onOk,
+        Action<TErr, TState> onErr)
+    {
+        onOk(Value, state);
     }
 
     /// <inheritdoc />
@@ -72,6 +98,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override Result<TOk, TOut>
         OrElse<TOut>(Func<TErr, Result<TOk, TOut>> createOther) =>
+        Result.Ok<TOk, TOut>(Value);
+
+    /// <inheritdoc />
+    public override Result<TOk, TOut> OrElse<TState, TOut>(
+        TState state,
+        Func<TErr, TState, Result<TOk, TOut>> createOther) =>
         Result.Ok<TOk, TOut>(Value);
 
     /// <inheritdoc />
@@ -96,6 +128,11 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Value;
 
     /// <inheritdoc />
+    public override TOk UnwrapOrElse<TState>(
+        TState state,
+        Func<TErr, TState, TOk> onErr) => Value;
+
+    /// <inheritdoc />
     public override TErr UnwrapErr() => throw UnwrapException.For(this);
 
     /// <inheritdoc />
@@ -106,7 +143,21 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     }
 
     /// <inheritdoc />
+    public override Result<TOk, TErr> Inspect<TState>(
+        TState state,
+        Action<TOk, TState> action)
+    {
+        action(Value, state);
+        return this;
+    }
+
+    /// <inheritdoc />
     public override Result<TOk, TErr> InspectErr(Action<TErr> action) => this;
+
+    /// <inheritdoc />
+    public override Result<TOk, TErr> InspectErr<TState>(
+        TState state,
+        Action<TErr, TState> action) => this;
 
     /// <inheritdoc />
     public override Result<TOut, TErr> Map<TOut>(Func<TOk, TOut> map) =>
@@ -131,6 +182,11 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override TOut MapOrDefault<TOut>(Func<TOk, TOut> map) =>
         map(Value);
+
+    /// <inheritdoc />
+    public override TOut MapOrDefault<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> map) => map(Value, state);
 
     /// <inheritdoc />
     public override TOut MapOrElse<TOut>(

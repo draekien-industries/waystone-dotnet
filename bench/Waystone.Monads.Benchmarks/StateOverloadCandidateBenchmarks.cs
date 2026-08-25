@@ -1,6 +1,5 @@
 namespace Waystone.Monads.Benchmarks;
 
-using System;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using Options;
@@ -167,8 +166,7 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("ResultPredicate")]
     public bool IsOkAndWithState() =>
-        IsOkAnd(
-            _ok,
+        _ok.IsOkAnd(
             _threshold,
             static (value, threshold) => value > threshold);
 
@@ -184,28 +182,10 @@ public class StateOverloadCandidateBenchmarks
     [Benchmark]
     [BenchmarkCategory("ResultMatchFunc")]
     public int ResultMatchFuncWithState() =>
-        Match(
-            _ok,
+        _ok.Match(
             _addend,
             static (value, addend) => value + addend,
             static (string _, int addend) => addend);
 
     private static int Consume(int value) => value;
-
-    private static bool IsOkAnd<TOk, TErr, TState>(
-        Result<TOk, TErr> result,
-        TState state,
-        Func<TOk, TState, bool> predicate)
-        where TOk : notnull where TErr : notnull =>
-        result is Ok<TOk, TErr> ok && predicate(ok.Unwrap(), state);
-
-    private static TOut Match<TOk, TErr, TState, TOut>(
-        Result<TOk, TErr> result,
-        TState state,
-        Func<TOk, TState, TOut> onOk,
-        Func<TErr, TState, TOut> onErr)
-        where TOk : notnull where TErr : notnull =>
-        result is Ok<TOk, TErr> ok
-            ? onOk(ok.Unwrap(), state)
-            : onErr(result.UnwrapErr(), state);
 }

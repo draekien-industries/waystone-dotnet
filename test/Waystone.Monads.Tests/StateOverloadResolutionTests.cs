@@ -68,6 +68,22 @@ public sealed class StateOverloadResolutionTests
 
     private static readonly Func<string, string> EchoError = state => state;
 
+    private static readonly Func<string, bool> IsBoom = error => error == "boom";
+
+    private static readonly Func<string, int, bool> ErrorMatches =
+        (error, state) => error.Length == state;
+
+    private static readonly Action<string> RecordError = _ => { };
+
+    private static readonly Action<string, int> RecordErrorWithState =
+        (_, _) => { };
+
+    private static readonly Func<string, Result<int, int>> ErrZero = _ =>
+        Result.Err<int, int>(0);
+
+    private static readonly Func<string, int, Result<int, int>> ErrState =
+        (_, state) => Result.Err<int, int>(state);
+
     [Fact]
     public void StoredDelegatesBindToTheIntendedOptionOverload()
     {
@@ -148,6 +164,46 @@ public sealed class StateOverloadResolutionTests
 
         ok.AndThen(OkIncrement).ShouldBe(Result.Ok<int, string>(2));
         ok.AndThen(10, OkAdd).ShouldBe(Result.Ok<int, string>(11));
+
+        ok.IsOkAnd(IsOne).ShouldBeTrue();
+        ok.IsOkAnd(1, Matches).ShouldBeTrue();
+
+        ok.IsErrAnd(IsBoom).ShouldBeFalse();
+        ok.IsErrAnd(4, ErrorMatches).ShouldBeFalse();
+
+        ok.MapOrDefault(Increment).ShouldBe(2);
+        ok.MapOrDefault(10, Add).ShouldBe(11);
+
+        ok.Inspect(Record).ShouldBe(ok);
+        ok.Inspect(10, RecordWithState).ShouldBe(ok);
+
+        ok.InspectErr(RecordError).ShouldBe(ok);
+        ok.InspectErr(10, RecordErrorWithState).ShouldBe(ok);
+
+        ok.UnwrapOrElse(Zero).ShouldBe(1);
+        ok.UnwrapOrElse(10, ErrorState).ShouldBe(1);
+
+        ok.OrElse(ErrZero).ShouldBe(Result.Ok<int, int>(1));
+        ok.OrElse(10, ErrState).ShouldBe(Result.Ok<int, int>(1));
+    }
+
+    /// <remarks>
+    /// The same trap as the Option Match pair, one type argument wider: the
+    /// Func and Action forms of the state overload both take three arguments,
+    /// and only the delegate types separate them. Record binds as the non-state
+    /// onOk and as the state onOk, so passing it either way has to still reach
+    /// the Action form.
+    /// </remarks>
+    [Fact]
+    public void StoredDelegatesBindToTheIntendedResultMatchOverload()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.Match(Increment, Zero).ShouldBe(2);
+        ok.Match(10, Add, ErrorState).ShouldBe(11);
+
+        ok.Match(Record, RecordError);
+        ok.Match(10, RecordWithState, RecordErrorWithState);
     }
 
     /// <remarks>

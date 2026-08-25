@@ -47,10 +47,60 @@ public abstract record Result<TOk, TErr>
 
     /// <summary>
     /// Returns <see langword="true" /> if the result is
+    /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate
+    /// that takes state instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="predicate">The condition that the ok value must satisfy</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the predicate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract bool IsOkAnd<TState>(
+        TState state,
+        Func<TOk, TState, bool> predicate);
+
+    /// <summary>
+    /// Returns <see langword="true" /> if the result is
     /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
     /// </summary>
     /// <param name="predicate">The condition that the error value must satisfy</param>
     public abstract bool IsErrAnd(Func<TErr, bool> predicate);
+
+    /// <summary>
+    /// Returns <see langword="true" /> if the result is
+    /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a
+    /// predicate that takes state instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="predicate">The condition that the error value must satisfy</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the predicate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract bool IsErrAnd<TState>(
+        TState state,
+        Func<TErr, TState, bool> predicate);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the result, invoking the
@@ -72,6 +122,42 @@ public abstract record Result<TOk, TErr>
         Func<TErr, TOut> onErr);
 
     /// <summary>
+    /// Performs a <see langword="switch" /> on the result and returns what the
+    /// callback for its case produces, with state passed to the callbacks
+    /// rather than captured by them.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegates rather than letting them close over one
+    /// and they can be <see langword="static" />, which captures nothing, so the
+    /// compiler caches a single instance of each and the call allocates no
+    /// display class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload. A capturing <c>Match</c> allocates more than the
+    /// single-delegate members do, because its two branches share one display
+    /// class but need a delegate each.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="onOk">
+    /// A callback for handling the <see cref="Ok{TOk,TErr}" />
+    /// case.
+    /// </param>
+    /// <param name="onErr">
+    /// A callback for handling the <see cref="Err{TOk,TErr}" />
+    /// case.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the callbacks. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOut">The returned type.</typeparam>
+    public abstract TOut Match<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> onOk,
+        Func<TErr, TState, TOut> onErr);
+
+    /// <summary>
     /// Performs a <see langword="switch" /> on the result, invoking the
     /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
     /// the <paramref name="onErr" /> callback when it is a
@@ -86,6 +172,40 @@ public abstract record Result<TOk, TErr>
     /// case.
     /// </param>
     public abstract void Match(Action<TOk> onOk, Action<TErr> onErr);
+
+    /// <summary>
+    /// Performs a <see langword="switch" /> on the result for its side effect,
+    /// with state passed to the callbacks rather than captured by them.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegates rather than letting them close over one
+    /// and they can be <see langword="static" />, which captures nothing, so the
+    /// compiler caches a single instance of each and the call allocates no
+    /// display class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload. A capturing <c>Match</c> allocates more than the
+    /// single-delegate members do, because its two branches share one display
+    /// class but need a delegate each.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="onOk">
+    /// A callback for handling the <see cref="Ok{TOk,TErr}" />
+    /// case.
+    /// </param>
+    /// <param name="onErr">
+    /// A callback for handling the <see cref="Err{TOk,TErr}" />
+    /// case.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the callbacks. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract void Match<TState>(
+        TState state,
+        Action<TOk, TState> onOk,
+        Action<TErr, TState> onErr);
 
     /// <summary>
     /// Returns <paramref name="other" /> if the <see langword="this" />
@@ -189,6 +309,33 @@ public abstract record Result<TOk, TErr>
         Func<TErr, Result<TOk, TOut>> createOther) where TOut : notnull;
 
     /// <summary>
+    /// Calls a function that takes state instead of capturing it if the result
+    /// is <see cref="Err{TOk,TErr}" />, otherwise returns the
+    /// <see cref="Ok{TOk,TErr}" /> value of this result instance.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="createOther">A function which creates the other result.</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOut">The other result's error value type.</typeparam>
+    public abstract Result<TOk, TOut> OrElse<TState, TOut>(
+        TState state,
+        Func<TErr, TState, Result<TOk, TOut>> createOther)
+        where TOut : notnull;
+
+    /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value, consuming the
     /// result instance.
     /// </summary>
@@ -265,6 +412,33 @@ public abstract record Result<TOk, TErr>
     public abstract TOk UnwrapOrElse(Func<TErr, TOk> onErr);
 
     /// <summary>
+    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
+    /// from a callback that takes state instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="onErr">
+    /// The callback function for computing the
+    /// <see cref="Err{TOk,TErr}" /> return value.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the callback. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    public abstract TOk UnwrapOrElse<TState>(
+        TState state,
+        Func<TErr, TState, TOk> onErr);
+
+    /// <summary>
     /// Returns the contained <see cref="Err{TOk,TErr}" /> value, consuming
     /// the result instance.
     /// </summary>
@@ -283,11 +457,61 @@ public abstract record Result<TOk, TErr>
     public abstract Result<TOk, TErr> Inspect(Action<TOk> action);
 
     /// <summary>
+    /// Calls a function with the contained value and the state if
+    /// <see cref="Ok{TOk,TErr}" />, so the function need not capture.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="action">The function to be invoked.</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <returns>The original <see cref="Result{TOk,TErr}" />, unchanged.</returns>
+    public abstract Result<TOk, TErr> Inspect<TState>(
+        TState state,
+        Action<TOk, TState> action);
+
+    /// <summary>
     /// Calls a function with a reference to the contained value if
     /// <see cref="Err{TOk,TErr}" />
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
     public abstract Result<TOk, TErr> InspectErr(Action<TErr> action);
+
+    /// <summary>
+    /// Calls a function with the contained error and the state if
+    /// <see cref="Err{TOk,TErr}" />, so the function need not capture.
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="action">The function to be invoked.</param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <returns>The original <see cref="Result{TOk,TErr}" />, unchanged.</returns>
+    public abstract Result<TOk, TErr> InspectErr<TState>(
+        TState state,
+        Action<TErr, TState> action);
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to
@@ -361,6 +585,33 @@ public abstract record Result<TOk, TErr>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut? MapOrDefault<TOut>(Func<TOk, TOut> map)
         where TOut : notnull;
+
+    /// <summary>
+    /// Returns the <see langword="default" /> of <typeparamref name="TOut" /> (if
+    /// <see cref="Err{TOk,TErr}" />), or applies a function that takes state
+    /// instead of capturing it to the contained value (if
+    /// <see cref="Ok{TOk,TErr}" />).
+    /// </summary>
+    /// <remarks>
+    /// Hand the value to the delegate rather than letting it close over one and
+    /// the delegate can be <see langword="static" />, which captures nothing, so
+    /// the compiler caches a single instance and the call allocates no display
+    /// class. <c>WM2017</c> reports a capturing call that could use this
+    /// overload.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the map function. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    public abstract TOut? MapOrDefault<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> map) where TOut : notnull;
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
