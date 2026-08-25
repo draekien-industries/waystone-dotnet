@@ -40,9 +40,28 @@ the rest. Assume `ValueTask` unless the member is one of these two:
 | `CollectAsync` | Consumes an `IAsyncEnumerable`, so it is a genuinely async gather rather than a continuation on a chain |
 
 Never call `.AsTask()` on either — both already hand back a `Task`. Going the
-other way, where a `ValueTask` has to satisfy an API that demands a `Task`,
-`.AsTask()` is the conversion and the compiler's own type-mismatch diagnostic
-offers it as a fix.
+other way, `.AsTask()` is the conversion where a foreign API genuinely demands a
+`Task`, and the compiler's own type-mismatch diagnostic offers it as a fix. It is
+**not** a way to feed one async chain into another, which no member here
+supports.
+
+## A chain trips CA2012, and the chain is still right
+
+`CA2012` fires on every chained `*Async` call: the intermediate `ValueTask` is
+used as the receiver of the next member, and the rule only recognises a
+`ValueTask` that is awaited, returned, or passed as a named argument. A reduced
+extension receiver is none of those to the analyzer, even though it is one in
+fact.
+
+Awaiting does not clear it and neither does `ConfigureAwait` — the receiver is
+what it reads, not the tail of the expression. Only a chain of a single `*Async`
+call escapes.
+
+The code is nonetheless correct: each member awaits its receiver exactly once, so
+the one consumption `ValueTask` allows is the one it gets. Suppress `CA2012` where
+the chain lives rather than breaking the chain into locals to satisfy it, because
+a local is the thing `ValueTask` genuinely must not be stored in — satisfying the
+rule that way is what would introduce the bug it warns about.
 
 ## An async delegate in a synchronous member is silent
 

@@ -12,7 +12,7 @@
     {
       "name": "waystone-dotnet",
       "description": "Write idiomatic code against the Waystone.Net packages — composing Option<T> and Result<TOk, TErr>, the traps that defeat them, and the WM analyzer diagnostics that catch those traps.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "William Pei",
         "email": "draekien@users.noreply.github.com"
