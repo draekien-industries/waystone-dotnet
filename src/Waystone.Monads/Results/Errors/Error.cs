@@ -20,12 +20,15 @@ public record Error
     /// <see cref="ErrorCode" /> and a message string.
     /// </summary>
     /// <remarks>
-    /// Surrounding whitespace is trimmed off the message. A message that is null,
-    /// empty or whitespace is replaced by the fallback configured through
-    /// <see cref="MonadOptions.UseFallbackErrorMessage" />, so this never throws
-    /// and <see cref="Message" /> is never null or blank. Default fallback:
+    /// The two arguments are treated differently, deliberately. Surrounding
+    /// whitespace is trimmed off the message, and a message that is null, empty or
+    /// whitespace is replaced by the fallback configured through
+    /// <see cref="MonadOptions.UseFallbackErrorMessage" />, so
+    /// <see cref="Message" /> is never null or blank. Default fallback:
     /// <c>An unexpected error occurred.</c> Pass a real message; the fallback says
-    /// nothing about what actually failed.
+    /// nothing about what actually failed. A null <paramref name="code" /> throws,
+    /// because consumers branch on <see cref="Code" /> and no fallback would be
+    /// correct.
     /// </remarks>
     /// <param name="code">
     /// The <see cref="ErrorCode" /> that uniquely identifies the
@@ -35,8 +38,13 @@ public record Error
     /// A descriptive error message providing more context about
     /// the error. Blank is replaced by the configured fallback.
     /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="code" /> is null.
+    /// </exception>
     public Error(ErrorCode code, string message)
     {
+        if (code is null) throw new ArgumentNullException(nameof(code));
+
         Code = code;
         Message = string.IsNullOrWhiteSpace(message)
             ? MonadOptions.Current.FallbackErrorMessage

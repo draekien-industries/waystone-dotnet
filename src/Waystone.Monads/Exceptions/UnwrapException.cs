@@ -18,21 +18,17 @@ public class UnwrapException : SystemException
     internal UnwrapException(string message) : base(message)
     { }
 
-    internal UnwrapException(string message, Exception innerException) :
-        base(message, innerException)
-    { }
-
     internal static UnwrapException<TErr>
         For<TOk, TErr>(Err<TOk, TErr> err)
         where TOk : notnull where TErr : notnull =>
         new(
-            "Unwrap called on an `Error` result.",
+            "Unwrap called on an `Err` result.",
             err.Value);
 
     internal static UnwrapException<TOk> For<TOk, TErr>(Ok<TOk, TErr> ok)
         where TOk : notnull where TErr : notnull =>
         new(
-            "Unwrap called on an `Ok` result.",
+            "UnwrapErr called on an `Ok` result.",
             ok.Value);
 }
 
@@ -53,14 +49,6 @@ public sealed class UnwrapException<T> : UnwrapException
     where T : notnull
 {
     internal UnwrapException(string message, T value) : base(message)
-    {
-        Value = value;
-    }
-
-    internal UnwrapException(
-        string message,
-        T value,
-        Exception innerException) : base(message, innerException)
     {
         Value = value;
     }

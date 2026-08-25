@@ -52,8 +52,13 @@ public class ErrorCodeFactory
     /// </remarks>
     /// <param name="exception">The exception value to convert into an Error Code.</param>
     /// <returns>The created <see cref="ErrorCode" />.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="exception" /> is null.
+    /// </exception>
     public virtual ErrorCode FromException(Exception exception)
     {
+        if (exception is null) throw new ArgumentNullException(nameof(exception));
+
         Type exceptionType = exception.GetType();
         string exceptionName = exceptionType.Name;
 

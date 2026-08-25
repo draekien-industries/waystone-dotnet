@@ -77,7 +77,14 @@ public record ErrorCode
     /// </summary>
     /// <param name="value">The <see cref="ErrorCode" /> instance to be converted.</param>
     /// <returns>The string value of the provided <see cref="ErrorCode" />.</returns>
-    public static implicit operator string(ErrorCode value) => value.ToString();
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="value" /> is null. The conversion is implicit, so this can
+    /// fire on a line that names no cast.
+    /// </exception>
+    public static implicit operator string(ErrorCode value) =>
+        value is null
+            ? throw new ArgumentNullException(nameof(value))
+            : value.Value;
 
     /// <summary>
     /// Implicitly converts a string value to an <see cref="ErrorCode" />
