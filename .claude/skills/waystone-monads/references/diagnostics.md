@@ -50,6 +50,7 @@ fires on ordinary non-monadic C# and is off until a migration turns it on.
 | `WM2018` | Two `[ErrorCodeCatalog]` enums generating the same code | Rename one enum or the colliding member — no two taxonomies should share a wire code |
 | `WM2019` | A generated code missing from `ErrorCodes.txt` | Invoke the fix, then read the added line before committing |
 | `WM2020` | An `ErrorCodes.txt` entry no catalog generates | Delete the line, or restore the member if the code was removed by mistake |
+| `WM2021` | `IsSome`, `IsNone`, `IsOk` or `IsErr` read through a property pattern | The combinator or `Match` — no fix ships, since the rewrite differs per pattern position |
 
 `WM2007` and `WM2015` point in opposite directions on a value type by design:
 the first removes a repeated type from `UnwrapOr`, the second asks whether the

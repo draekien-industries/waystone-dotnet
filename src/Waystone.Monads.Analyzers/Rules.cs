@@ -311,6 +311,43 @@ public static class Rules
         "An entry left behind by a rename or a deletion claims a code the project no longer produces, so the list stops describing the project and the review it exists for stops being worth reading. Delete the line, or restore the member that generated it if the code was removed by mistake.",
         WellKnownDiagnosticTags.CompilationEnd);
 
+    /// <remarks>
+    /// Keyed on the property subpattern rather than on the enclosing
+    /// <c>is</c> or <c>switch</c>, so one arm of the rule covers every position
+    /// a pattern can hold — an <c>is</c> expression, a switch arm, a
+    /// <c>when</c> clause and a nested subpattern all reach the same node.
+    /// The overlap with WM2004 and WM2006 is avoided rather than managed. Both
+    /// of those match a property *read* through
+    /// <see cref="Semantics.StateCheck" />, which a subpattern is not, so
+    /// neither fires on the pattern form and there is no double report. That
+    /// gap is the reason this rule exists: the pattern spelling opts a state
+    /// check out of the rules that would otherwise read it. Widening
+    /// <c>StateCheck</c> to see subpatterns was the alternative and was
+    /// rejected — it would leave a bare
+    /// <c>option is { IsSome: true }</c> unreported, since WM2004 and WM2006
+    /// both require an unwrap alongside the check, and that bare form is the
+    /// one most often written to dodge them.
+    /// Applying this rule's fix produces a property read, which WM2004 or
+    /// WM2006 may then report. That chain is intended and mirrors the
+    /// WM2007-to-WM2015 pair: each rule states one true thing, and the second
+    /// only becomes visible once the first is resolved.
+    /// No code fix. The rewrite depends on the position: an <c>is</c>
+    /// expression becomes a property read, a negated one becomes a negated
+    /// read, and a switch arm cannot become a property read at all without
+    /// restructuring the switch into a <c>Match</c>. A fix covering only the
+    /// first would leave the two shapes most worth correcting untouched while
+    /// implying the rule had been dealt with.
+    /// Type patterns naming <c>Some</c>, <c>None</c>, <c>Ok</c> or <c>Err</c>
+    /// are not in scope here. Those are the same mistake WM2011 reports at a
+    /// declaration, and the case types expose no value to destructure, so a
+    /// type pattern buys nothing this rule needs to talk about.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor StateCheckedThroughPattern = Idiom(
+        "WM2021",
+        "Do not test Option or Result state with a property pattern",
+        "'{0}' on '{1}' is read through a property pattern, which the rules that report a state check cannot see. Read '{0}' directly, or use '{2}' to test the value in the same call.",
+        "A property pattern that reads IsSome, IsNone, IsOk or IsErr is a state check written so that nothing recognises it as one. It costs the reader the vocabulary the library provides for the same question, and it silently opts the call site out of the rules that report a guarded unwrap or a check combined with an unwrap.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",

@@ -146,6 +146,24 @@ bool big = option.IsSomeAnd(value => value > 2);
 the value, so no unwrap is needed. Where a chain ends in a `bool`, one of these
 is almost always the ending.
 
+A property pattern is the same check wearing a disguise, and it is worse than
+the plain read rather than better:
+
+```csharp
+// Poor — a state check nothing recognises as one (WM2021)
+if (option is { IsSome: true }) { return option.Unwrap(); }
+
+// Poor — the same, in a switch arm
+return option switch { { IsSome: true } => 1, _ => 0 };
+
+// Good
+return option.MapOr(0, _ => 1);
+```
+
+Reaching for `is { IsSome: true }` usually means the plain check felt wrong —
+which it was. The answer is the combinator or `Match`, not a spelling of the
+check that the rules cannot read.
+
 ### Treating the monad as nullable
 
 `Option` and `Result` are records, so the compiler permits `null`, `default`
@@ -274,6 +292,8 @@ Run over the code just written and rewrite each of these where it appears:
 - [ ] Every `Unwrap` and `Expect` outside a test — replaced or propagated
 - [ ] Every `IsSome`/`IsOk` followed by an unwrap — collapsed to `Match`,
       `IsSomeAnd`, `IsOkAnd` or `UnwrapOr`
+- [ ] Every `is { IsSome: true }` or equivalent property pattern — replaced with
+      the combinator or `Match` the check was avoiding
 - [ ] Every nested `Match` — flattened into `AndThen`/`Map`/`OrElse`
 - [ ] Every `Match` branch that rebuilds the case it received — replaced with
       the combinator it was imitating
