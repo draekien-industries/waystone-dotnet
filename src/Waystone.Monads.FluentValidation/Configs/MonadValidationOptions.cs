@@ -7,9 +7,13 @@ using Monads.Results.Errors;
 using Results;
 
 /// <summary>
-/// Global configuration options for the Waystone.Monads.FluentValidation
-/// library.
+/// Configuration for converting a <see cref="ValidationErr" /> into an
+/// <see cref="Error" />.
 /// </summary>
+/// <remarks>
+/// Registered as a satellite of <see cref="MonadOptions" />, so it follows whatever
+/// options scope is current when <see cref="ValidationErr.ToError" /> reads it.
+/// </remarks>
 [ExcludeFromCodeCoverage]
 public sealed class MonadValidationOptions : IMonadOptionsSatellite
 {
@@ -42,15 +46,16 @@ public sealed class MonadValidationOptions : IMonadOptionsSatellite
     internal string FallbackValidationErrorMessage { get; set; }
 
     /// <summary>
-    /// Configures the error code that will be used when converting a
-    /// <see cref="ValidationErr" /> into an <see cref="Error" />
+    /// Sets the error code that <see cref="ValidationErr.ToError" /> stamps on the
+    /// <see cref="Error" /> it produces.
     /// </summary>
-    /// <remarks>The default error code is `validation.failed`.</remarks>
-    /// <param name="errorCode">The validation error code to use.</param>
-    /// <returns>
-    /// The instance of <see cref="MonadValidationOptions" /> for chaining
-    /// more configurations.
-    /// </returns>
+    /// <param name="errorCode">
+    /// The validation error code to use. Default: <c>validation.failed</c>.
+    /// </param>
+    /// <returns>This instance, for chaining more configurations.</returns>
+    /// <exception cref="ArgumentException">
+    /// If <paramref name="errorCode" /> is null, empty or whitespace.
+    /// </exception>
     public MonadValidationOptions UseValidationErrorCode(string errorCode)
     {
         if (string.IsNullOrWhiteSpace(errorCode))
@@ -65,19 +70,17 @@ public sealed class MonadValidationOptions : IMonadOptionsSatellite
     }
 
     /// <summary>
-    /// Configures the fallback error message that will be used when
-    /// converting a <see cref="ValidationErr" /> into an <see cref="Error" /> if the
-    /// validation error does not have a specific message set.
+    /// Sets the message <see cref="ValidationErr.ToError" /> uses when the validation
+    /// result carries no failure messages of its own.
     /// </summary>
-    /// <remarks>
-    /// The default fallback error message is `One or more validation errors
-    /// occurred.`
-    /// </remarks>
-    /// <param name="fallbackErrorMessage">The fallback error message to use.</param>
-    /// <returns>
-    /// The instance of <see cref="MonadValidationOptions" /> for chaining
-    /// more configurations.
-    /// </returns>
+    /// <param name="fallbackErrorMessage">
+    /// The fallback error message to use. Default:
+    /// <c>One or more validation errors occurred.</c>
+    /// </param>
+    /// <returns>This instance, for chaining more configurations.</returns>
+    /// <exception cref="ArgumentException">
+    /// If <paramref name="fallbackErrorMessage" /> is null, empty or whitespace.
+    /// </exception>
     public MonadValidationOptions UseFallbackValidationErrorMessage(
         string fallbackErrorMessage)
     {

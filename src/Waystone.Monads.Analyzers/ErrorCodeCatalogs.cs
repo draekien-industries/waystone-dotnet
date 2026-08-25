@@ -23,6 +23,11 @@ public static class ErrorCodeCatalogs
     /// One entry per member of <paramref name="type" /> when it is an attributed enum,
     /// and nothing at all when it is not.
     /// </summary>
+    /// <remarks>
+    /// Also nothing when the format the enum or the assembly declares does not parse:
+    /// the generator reports <c>WMG0005</c> for that and emits no codes, so there is
+    /// nothing for the registry rules to compare against either.
+    /// </remarks>
     public static ImmutableArray<Declared> Collect(
         INamedTypeSymbol type,
         MonadSymbols symbols,
@@ -89,7 +94,7 @@ public static class ErrorCodeCatalogs
 
     /// <summary>
     /// The format the assembly declares through <c>[ErrorCodeFormat]</c>, or
-    /// <c>null</c> when it declares none.
+    /// <see langword="null" /> when it declares none.
     /// </summary>
     public static string? AssemblyFormat(Compilation compilation)
     {

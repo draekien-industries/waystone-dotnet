@@ -14,6 +14,12 @@ internal static class DocComments
     /// The source member's documentation with every tag but <c>&lt;summary&gt;</c>
     /// forwarded verbatim, and the established await phrasing prepended to the summary.
     /// </summary>
+    /// <remarks>
+    /// Empty when the source member has no usable documentation and
+    /// <paramref name="summaryOverride" /> is <see langword="null" />, so the
+    /// generated member is emitted with no doc comment rather than an empty one.
+    /// Passing an override is what documents such a member.
+    /// </remarks>
     public static IEnumerable<string> Render(
         IMethodSymbol source,
         ITypeSymbol receiverType,
@@ -69,6 +75,13 @@ internal static class DocComments
     /// leaves on an extension block's compatibility static form back to the declaration
     /// that carries the real text.
     /// </summary>
+    /// <remarks>
+    /// Null when the member has no comment, when its XML does not parse, and when a
+    /// lone <c>&lt;inheritdoc /&gt;</c> has no <c>cref</c> or one that does not
+    /// resolve to a method — a missing comment and an unfollowable one are the same
+    /// outcome to the caller. The chain is followed at most
+    /// <see cref="MaxInheritDocHops" /> times.
+    /// </remarks>
     private static XElement? Load(
         IMethodSymbol source,
         Compilation compilation,

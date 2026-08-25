@@ -14,9 +14,14 @@ using System.Threading.Tasks;
 /// Writes the error code registry the compilation implies.
 /// </summary>
 /// <remarks>
+/// Offers nothing when the project has no <c>ErrorCodes.txt</c> additional document,
+/// and leaves the solution untouched when the compilation or the
+/// <c>Waystone.Monads</c> error types cannot be resolved.
+/// <para>
 /// Not a <see cref="MonadCodeFix" />: that base resolves a syntax node and a semantic
 /// model for the document the diagnostic sits in, and this fix edits an additional
 /// document and needs neither.
+/// </para>
 /// <para>
 /// One invocation writes the whole file, so a run started from any one missing code
 /// also takes out every stale entry. That is what makes the absence of a fix-all

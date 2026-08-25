@@ -9,7 +9,12 @@ using global::FluentValidation.Results;
 using Monads.Results.Errors;
 using Options;
 
-/// <summary>The errors that were encountered while running a validator</summary>
+/// <summary>The failures a validator reported for one value.</summary>
+/// <remarks>
+/// An instance only exists for an invalid <see cref="ValidationResult" />;
+/// <see cref="Create" /> returns none for a valid one, so <see cref="Errors" /> is
+/// never empty in practice.
+/// </remarks>
 public sealed class ValidationErr
 {
     private readonly ValidationResult _validationResult;
@@ -20,6 +25,11 @@ public sealed class ValidationErr
     }
 
     /// <inheritdoc cref="ValidationResult.Errors" />
+    /// <remarks>
+    /// The list is the wrapped <see cref="ValidationResult" />'s own, not a copy.
+    /// Mutating it changes what <see cref="AsValidationResult" />,
+    /// <see cref="ToDictionary" /> and <see cref="ToError" /> report.
+    /// </remarks>
     public List<ValidationFailure> Errors => _validationResult.Errors;
 
     /// <inheritdoc cref="ValidationResult.RuleSetsExecuted" />
@@ -53,12 +63,17 @@ public sealed class ValidationErr
 
     /// <summary>Converts the <see cref="ValidationErr" /> to an <see cref="Error" />.</summary>
     /// <remarks>
-    /// Uses the options configured in <see cref="MonadValidationOptions" />
-    /// to determine the error code and the fallback error message (for when there are
-    /// no errors in the validation result).
+    /// Reads <see cref="MonadValidationOptions" /> from the ambient scope at the
+    /// moment of the call, not from when this instance was created, so the error
+    /// code and the fallback message follow whatever scope the call sits in.
+    /// <para>
+    /// The message is every failure's message joined with <c>"; "</c>, each stripped
+    /// of a trailing full stop, with a single <c>";"</c> appended. When the
+    /// validation result carries no failures the configured fallback message is used
+    /// instead.
+    /// </para>
     /// </remarks>
-    /// <returns>The created <see cref="Error" /></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <returns>The created <see cref="Error" />.</returns>
     public Error ToError()
     {
         Debug.Assert(

@@ -9,9 +9,20 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 /// <summary>
-/// Generates the error code constants, error codes and error factories of an enum
-/// marked with <c>[ErrorCodeCatalog]</c>.
+/// Generates the error code constants, <c>ErrorCode</c> fields, <c>Error</c>
+/// factories and the extensions that map an enum value to each, for an enum marked
+/// with <c>[ErrorCodeCatalog]</c>.
 /// </summary>
+/// <remarks>
+/// Silent on a compilation with no attributed enum. For an attributed enum it emits
+/// nothing and reports instead when the <c>Waystone.Monads</c> error types are not
+/// resolvable (<c>WMG0004</c>), the enum is <c>[Flags]</c> (<c>WMG0001</c>), the
+/// format does not parse (<c>WMG0005</c>) or omits <c>{member}</c> (<c>WMG0006</c>),
+/// a member is named after one of the generated nested classes (<c>WMG0003</c>), or
+/// two members share a value (<c>WMG0002</c>). The last two are collected across the
+/// whole enum, so one of them suppresses the source for every member, not just the
+/// offending one.
+/// </remarks>
 [Generator(LanguageNames.CSharp)]
 public sealed class ErrorCodeCatalogGenerator : IIncrementalGenerator
 {
@@ -186,8 +197,8 @@ public sealed class ErrorCodeCatalogGenerator : IIncrementalGenerator
     }
 
     /// <summary>
-    /// The format the enum asks for, then the one the assembly asks for, then null
-    /// for the built-in default.
+    /// The format the enum asks for, then the one the assembly asks for, then
+    /// <see langword="null" /> for the built-in default.
     /// </summary>
     private static string? RequestedFormat(
         AttributeData catalog,

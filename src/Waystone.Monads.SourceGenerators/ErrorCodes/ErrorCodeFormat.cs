@@ -8,6 +8,13 @@ using System.Text;
 /// A parsed error code format: the literal text and placeholders of something like
 /// <c>"order.{member:kebab}"</c>.
 /// </summary>
+/// <remarks>
+/// A format is literal text with <c>{enum}</c> and <c>{member}</c> placeholders, each
+/// optionally taking a casing after a colon — <c>kebab</c>, <c>snake</c>, <c>lower</c>
+/// or <c>upper</c>. Write <c>{{</c> and <c>}}</c> for a literal brace. Any other
+/// placeholder name, any other casing, an unclosed <c>{</c> and an unmatched <c>}</c>
+/// are all rejected by <see cref="TryParse" />. Default: <c>{enum}.{member}</c>.
+/// </remarks>
 internal sealed class ErrorCodeFormat
 {
     public const string Default = "{enum}.{member}";
@@ -22,7 +29,11 @@ internal sealed class ErrorCodeFormat
         _segments = segments;
     }
 
-    /// <summary>Whether any segment substitutes the member name.</summary>
+    /// <summary>
+    /// Checks whether any segment substitutes the member name. A format where none
+    /// does gives every member of an enum the same code, which the generator rejects
+    /// with <c>WMG0006</c>.
+    /// </summary>
     public bool UsesMember
     {
         get
@@ -40,6 +51,23 @@ internal sealed class ErrorCodeFormat
     /// Parses <paramref name="format" />, or returns the reason it is not a usable
     /// format.
     /// </summary>
+    /// <param name="format">
+    /// The format to parse. Null and empty are rejected; pass <see cref="Default" />
+    /// for the built-in scheme.
+    /// </param>
+    /// <param name="parsed">
+    /// The parsed format, or <see langword="null" /> when parsing failed.
+    /// </param>
+    /// <param name="error">
+    /// A lowercase phrase naming the problem, suitable for interpolating into the
+    /// <c>WMG0005</c> message, or <see langword="null" /> when parsing succeeded.
+    /// </param>
+    /// <returns>True if the format parsed; false otherwise.</returns>
+    /// <remarks>
+    /// A format that parses is not necessarily usable for a catalog: one with no
+    /// <c>{member}</c> placeholder parses here and is rejected separately, since every
+    /// member would otherwise share one code. Check <see cref="UsesMember" />.
+    /// </remarks>
     public static bool TryParse(
         string? format,
         out ErrorCodeFormat? parsed,
@@ -127,7 +155,10 @@ internal sealed class ErrorCodeFormat
         return true;
     }
 
-    /// <summary>Applies the format to a concrete enum and member name.</summary>
+    /// <summary>
+    /// Applies the format to a concrete enum and member name, running each
+    /// placeholder's casing over the name it substitutes.
+    /// </summary>
     public string Apply(string enumName, string memberName)
     {
         var builder = new StringBuilder();
