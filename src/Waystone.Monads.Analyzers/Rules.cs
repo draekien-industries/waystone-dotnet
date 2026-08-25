@@ -9,11 +9,9 @@ public static class Rules
     private const string Design = nameof(Design);
 
     /// <remarks>
-    /// The only survivor of the rules that encoded the pre-v6 default-value
-    /// invariant. It reports the null case alone, which is what Some still
-    /// rejects; the value-type half retired with the relaxation, because a
-    /// default is now an ordinary value. Keep the message about null rather
-    /// than about default(T).
+    /// Reports the null case alone, because <c>Some</c> rejects null but
+    /// accepts the default of a value type as the ordinary value it is. Keep
+    /// the message about null rather than about <c>default(T)</c>.
     /// </remarks>
     public static readonly DiagnosticDescriptor SomeFromDefaultValue = Bug(
         "WM1001",
@@ -22,21 +20,19 @@ public static class Rules
         "The constructor of Some rejects null, so this call always throws an ArgumentNullException.");
 
     /// <remarks>
-    /// Warning survives the false-positive question, examined in DRA-77. The
-    /// worst case found is a null reaching a target the analyzer cannot prove is
-    /// non-nullable, which happens in a tuple element, a collection-initializer
-    /// element and a local function return, because
+    /// Warning survives the false-positive question. The worst case found is a
+    /// null reaching a target the analyzer cannot prove is non-nullable, which
+    /// happens in a tuple element, a collection-initializer element and a local
+    /// function return, because
     /// <see cref="NullAndDefaultAnalyzer.TargetIsExplicitlyNullable" /> matches
     /// an enumerated set of positions and defaults to reporting. None of those
     /// is working code: reaching them requires declaring the monad as
-    /// <c>Option&lt;T&gt;?</c>, which WM1008 forbids. It reports alongside
-    /// WM1008 for the collection-initializer element and the local-function
-    /// return, but not for the tuple element:
-    /// <see cref="Semantics.IsDeclarationTypePosition" /> has no case for a
-    /// tuple element, so WM1008 never sees that declaration and this rule is the
-    /// only one that fires there. That gap is WM1008's, tracked in DRA-98, not a
-    /// reason to change this rule. Do not lower the tier to accommodate them,
-    /// and do not widen the exclusion either — it would silence a real null.
+    /// <c>Option&lt;T&gt;?</c>, which WM1008 forbids. WM1008 reports alongside
+    /// this rule in every one of them but the tuple element, where
+    /// <see cref="Semantics.IsDeclarationTypePosition" /> has no case and so
+    /// never sees the declaration. That gap is WM1008's, not a reason to change
+    /// this rule. Do not lower the tier to accommodate them, and do not widen
+    /// the exclusion either — it would silence a real null.
     /// </remarks>
     public static readonly DiagnosticDescriptor NullAssignedToMonad = Bug(
         "WM1002",
@@ -45,15 +41,14 @@ public static class Rules
         "Option and Result are records, so the compiler permits null where one is expected. None and Err express absence and failure; null expresses neither.");
 
     /// <remarks>
-    /// Warning survives the false-positive question, examined in DRA-77, on the
-    /// same reasoning as WM1002: every position where the target's nullability
-    /// cannot be proven requires an <c>Option&lt;T&gt;?</c> declaration, which
-    /// WM1008 forbids — though it does not see the declaration in a tuple
-    /// element, so there this rule reports alone, which is DRA-98's gap rather
-    /// than this rule's. The generic case that prompted the question is safe —
-    /// <c>default</c> written for an unconstrained <c>T</c> has <c>T</c> as its
-    /// type rather than the monad, so the rule stays quiet however <c>T</c> is
-    /// instantiated.
+    /// Warning survives the false-positive question on the same reasoning as
+    /// WM1002: every position where the target's nullability cannot be proven
+    /// requires an <c>Option&lt;T&gt;?</c> declaration, which WM1008 forbids —
+    /// though it does not see the declaration in a tuple element, so there this
+    /// rule reports alone, which is WM1008's gap rather than this rule's. The
+    /// generic case that prompted the question is safe — <c>default</c> written
+    /// for an unconstrained <c>T</c> has <c>T</c> as its type rather than the
+    /// monad, so the rule stays quiet however <c>T</c> is instantiated.
     /// </remarks>
     public static readonly DiagnosticDescriptor DefaultOfMonad = Bug(
         "WM1003",
@@ -88,19 +83,18 @@ public static class Rules
 
     /// <remarks>
     /// Exists because the break that produces the <c>Try</c> case is silent.
-    /// Until v6 an async factory bound to a dedicated <c>Try</c> overload;
-    /// removing that overload does not fail the call, it rebinds it to
-    /// <c>Try&lt;T&gt;(Func&lt;T&gt;)</c> with <c>T</c> inferred as the task,
-    /// which satisfies <c>notnull</c>. Only a call site that assigns to an
-    /// explicitly typed local gets a compiler error, so the rule carries the
-    /// whole migration for every other shape.
+    /// Removing the dedicated async <c>Try</c> overload does not fail the call,
+    /// it rebinds it to <c>Try&lt;T&gt;(Func&lt;T&gt;)</c> with <c>T</c>
+    /// inferred as the task, which satisfies <c>notnull</c>. Only a call site
+    /// that assigns to an explicitly typed local gets a compiler error, so the
+    /// rule carries the whole migration for every other shape.
     /// The test is that the awaitable ends up <em>inside</em> the monad, not
     /// merely that a delegate returned one. <c>Match</c> and <c>MapOr</c> hand
     /// the task straight back, so the caller awaits it and nothing is lost;
-    /// <c>Map</c> and <c>MapErr</c> trap it in an <c>Option</c> or a
-    /// <c>Result</c> where it cannot be awaited without unwrapping first. A
-    /// delegate parameter is required so that <c>Option.Some(FetchAsync())</c>,
-    /// where the caller built the task deliberately, stays silent.
+    /// <c>Map</c> and <c>MapErr</c> trap it where it cannot be awaited without
+    /// unwrapping first. A delegate parameter is required so that
+    /// <c>Option.Some(FetchAsync())</c>, where the caller built the task
+    /// deliberately, stays silent.
     /// No code fix: renaming to the <c>Async</c> sibling alone leaves the caller
     /// with an unawaited task, and where the await belongs is not something the
     /// fix can decide.
@@ -219,13 +213,12 @@ public static class Rules
     /// call, a <c>new</c> or an <c>await</c> might be cheap or might not, and
     /// no static test tells the two apart. The residual imprecision is a fire
     /// on a call that turns out to be cheap, where the caller pays a delegate
-    /// allocation to avoid nothing. That is documented on the rules page
-    /// rather than tuned away, and Info severity is what makes it affordable.
-    /// A bare property read is skipped whatever the receiver, including one
-    /// whose getter computes: auto-versus-computed is only decidable for a
-    /// symbol declared in the current compilation, and a rule that fired on
-    /// the metadata half would make two identical call sites behave
-    /// differently on nothing but which assembly declared the property.
+    /// allocation to avoid nothing; Info severity is what makes that
+    /// affordable. A bare property read is skipped whatever the receiver,
+    /// including one whose getter computes: auto-versus-computed is only
+    /// decidable for a symbol declared in the current compilation, and a rule
+    /// that fired on the metadata half would make two identical call sites
+    /// behave differently on nothing but which assembly declared the property.
     /// </remarks>
     public static readonly DiagnosticDescriptor EagerArgumentNotFree = Idiom(
         "WM2016",
@@ -243,11 +236,10 @@ public static class Rules
     /// instance-method code and drown the signal.
     /// The overload set is discovered from the containing type rather than
     /// listed here. A hardcoded list would name an overload that does not
-    /// exist: <c>ZipWith</c> and <c>Reduce</c> take a delegate and have no
-    /// state overload, because their delegates already receive every operand as
-    /// an argument of the call, and DRA-108 declined them permanently on that
-    /// ground. The lookup has paid for itself twice — DRA-107 and DRA-108 both
-    /// moved the set without touching
+    /// exist: <c>ZipWith</c> and <c>Reduce</c> take a delegate and will never
+    /// gain a state overload, their delegates already receiving every operand
+    /// as an argument of the call. The lookup has paid for itself twice — two
+    /// rounds of adding state overloads have moved the set without touching
     /// <see cref="StateOverloadAnalyzer" />.
     /// No code fix ships: the natural rewrite reuses the captured name as the
     /// new delegate parameter, which shadows the enclosing local and is CS0136
