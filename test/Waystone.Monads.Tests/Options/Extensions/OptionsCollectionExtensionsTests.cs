@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Shouldly;
     using Xunit;
 
@@ -180,9 +181,92 @@
             results.ShouldBe(new[] { Option.Some(1) });
         }
 
+        [Fact]
+        public void
+            GivenAllSome_WhenInvokingCollect_ThenReturnSomeOfEveryValueInOrder()
+        {
+            List<Option<int>> options = new List<Option<int>> { 1, 2, 3 };
+
+            options.Collect().Unwrap().ShouldBe(new[] { 1, 2, 3 });
+        }
+
+        [Fact]
+        public void
+            GivenEmptyCollection_WhenInvokingCollect_ThenReturnSomeOfAnEmptyList() =>
+            new List<Option<int>>().Collect().Unwrap().ShouldBeEmpty();
+
+        [Fact]
+        public void GivenANone_WhenInvokingCollect_ThenReturnNone() =>
+            Values.Collect().IsNone.ShouldBeTrue();
+
+        [Fact]
+        public void
+            GivenThrowingSource_WhenInvokingCollect_ThenStopAtTheFirstNone() =>
+            ThrowingAfterNoneSource().Collect().IsNone.ShouldBeTrue();
+
+        [Fact]
+        public async Task
+            GivenAllSomeStream_WhenInvokingCollectAsync_ThenReturnSomeOfEveryValueInOrder()
+        {
+            Option<IReadOnlyList<int>> result = await SomeStream()
+               .CollectAsync();
+
+            result.Unwrap().ShouldBe(new[] { 1, 2, 3 });
+        }
+
+        [Fact]
+        public async Task
+            GivenEmptyStream_WhenInvokingCollectAsync_ThenReturnSomeOfAnEmptyList()
+        {
+            Option<IReadOnlyList<int>> result = await EmptyStream()
+               .CollectAsync();
+
+            result.Unwrap().ShouldBeEmpty();
+        }
+
+        [Fact]
+        public async Task
+            GivenThrowingStream_WhenInvokingCollectAsync_ThenStopAtTheFirstNone()
+        {
+            Option<IReadOnlyList<int>> result = await ThrowingStream()
+               .CollectAsync();
+
+            result.IsNone.ShouldBeTrue();
+        }
+
+#pragma warning disable CS1998
+        private static async IAsyncEnumerable<Option<int>> SomeStream()
+        {
+            yield return Option.Some(1);
+            yield return Option.Some(2);
+            yield return Option.Some(3);
+        }
+
+        private static async IAsyncEnumerable<Option<int>> EmptyStream()
+        {
+            yield break;
+        }
+
+        private static async IAsyncEnumerable<Option<int>> ThrowingStream()
+        {
+            yield return Option.Some(1);
+            yield return Option.None<int>();
+
+            throw new InvalidOperationException("Enumerated too far.");
+        }
+#pragma warning restore CS1998
+
         private static IEnumerable<Option<int>> ThrowingSource()
         {
             yield return Option.Some(1);
+
+            throw new InvalidOperationException("Enumerated too far.");
+        }
+
+        private static IEnumerable<Option<int>> ThrowingAfterNoneSource()
+        {
+            yield return Option.Some(1);
+            yield return Option.None<int>();
 
             throw new InvalidOperationException("Enumerated too far.");
         }
