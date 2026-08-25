@@ -73,11 +73,12 @@ public static class Rules
     /// ahead of the early returns in <see cref="DeclaredTypeAnalyzer" /> that
     /// would otherwise suppress one of them.
     /// The positions the rule reaches are the ones enumerated in
-    /// <see cref="Semantics.IsDeclarationTypePosition" />, which recurses through
-    /// tuple elements, array elements and type arguments to reach the
-    /// declaration they sit in. A position missing from that switch is a silent
-    /// miss rather than a decision, so add the case rather than accepting that
-    /// WM1002 or WM1003 reports the assignment alone.
+    /// <see cref="Semantics.IsDeclarationTypePosition" />. A type nested in a
+    /// tuple element, an array element or a type argument reaches its
+    /// declaration from there, so the annotation is seen wherever it is
+    /// written. A position that method does not walk is a silent miss rather
+    /// than a decision, so widen it rather than accepting that WM1002 or
+    /// WM1003 reports the assignment alone.
     /// </remarks>
     public static readonly DiagnosticDescriptor NullableMonadDeclared = Bug(
         "WM1008",

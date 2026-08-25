@@ -245,7 +245,10 @@ public static class Semantics
 
         while (current.Parent is QualifiedNameSyntax
             or AliasQualifiedNameSyntax
-            or NullableTypeSyntax)
+            or NullableTypeSyntax
+            or TupleElementSyntax
+            or TupleTypeSyntax
+            or ArrayTypeSyntax)
         {
             current = current.Parent;
         }
@@ -259,11 +262,6 @@ public static class Semantics
             VariableDeclarationSyntax variable => variable.Type == current,
             DelegateDeclarationSyntax @delegate =>
                 @delegate.ReturnType == current,
-            TupleElementSyntax element => element.Type == current
-             && element.Parent is not null
-             && IsDeclarationTypePosition(element.Parent),
-            ArrayTypeSyntax array => array.ElementType == current
-             && IsDeclarationTypePosition(array),
             TypeArgumentListSyntax list => list.Parent is not null
              && IsDeclarationTypePosition(list.Parent),
             _ => false,
