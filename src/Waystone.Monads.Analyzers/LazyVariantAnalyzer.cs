@@ -154,8 +154,6 @@ public sealed class LazyVariantAnalyzer : MonadAnalyzer
             case IPropertyReferenceOperation:
             case IDefaultValueOperation:
             case IInstanceReferenceOperation:
-            case ILiteralOperation:
-            case ITypeOfOperation:
                 return Cost.Free;
 
             case IIncrementOrDecrementOperation:
@@ -168,9 +166,6 @@ public sealed class LazyVariantAnalyzer : MonadAnalyzer
                 return conversion.OperatorMethod is null
                     ? CostOf(conversion.Operand)
                     : Cost.Computed;
-
-            case IParenthesizedOperation parenthesized:
-                return CostOf(parenthesized.Operand);
 
             case IUnaryOperation unary:
                 return unary.OperatorMethod is null
@@ -185,12 +180,10 @@ public sealed class LazyVariantAnalyzer : MonadAnalyzer
             case ICoalesceOperation coalesce:
                 return Max(CostOf(coalesce.Value), CostOf(coalesce.WhenNull));
 
-            case IConditionalOperation conditional:
-                return conditional.WhenFalse is { } whenFalse
-                    ? Max(
-                        CostOf(conditional.Condition),
-                        Max(CostOf(conditional.WhenTrue), CostOf(whenFalse)))
-                    : Cost.Computed;
+            case IConditionalOperation { WhenFalse: { } whenFalse } conditional:
+                return Max(
+                    CostOf(conditional.Condition),
+                    Max(CostOf(conditional.WhenTrue), CostOf(whenFalse)));
 
             case IArrayElementReferenceOperation element:
                 return element.Indices.Aggregate(
@@ -201,9 +194,6 @@ public sealed class LazyVariantAnalyzer : MonadAnalyzer
                 return tuple.Elements.Aggregate(
                     Cost.Free,
                     (worst, e) => Max(worst, CostOf(e)));
-
-            case IIsTypeOperation isType:
-                return CostOf(isType.ValueOperand);
 
             default:
                 return Cost.Computed;
