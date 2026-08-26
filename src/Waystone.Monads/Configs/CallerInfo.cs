@@ -11,10 +11,9 @@ using System.Diagnostics;
 /// <see cref="System.Runtime.CompilerServices.CallerArgumentExpressionAttribute" />
 /// and <see cref="System.Runtime.CompilerServices.CallerLineNumberAttribute" />
 /// values at the <c>Try</c> or <c>TryAsync</c> call, then reports it on the
-/// <see cref="Diagnostics.ExceptionHandled" /> diagnostic event and hands it to
-/// any logger registered through
-/// <see cref="MonadOptions.UseExceptionLogger" />. Do not supply these values
-/// yourself.
+/// <see cref="Diagnostics.ExceptionHandled" /> diagnostic event — which is what
+/// <c>Waystone.Monads.Extensions.Logging</c> turns into a log entry. Do not
+/// supply these values yourself.
 /// </remarks>
 /// <param name="MemberName">The member that called <c>Try</c>.</param>
 /// <param name="ArgumentExpression">

@@ -106,16 +106,37 @@ Error error = await FetchUserAsync(id).UnwrapErrAsync();
 
 ## Configuration
 
-You can configure an action to be invoked when an exception is caught and
-handled by the library. Invoke the `UseExceptionLogger` function once during the
-lifetime of your app:
+### Observability
+
+The library reports the exceptions it swallows through sources named after
+itself, so most of this needs no configuration at all.
+
+**Metrics need nothing installed.** A `Meter` named `Waystone.Monads` publishes a
+`waystone.monads.exceptions_handled` counter, tagged with `error.type` and with
+`waystone.monads.monad` to separate the `Option` case from the `Result` one. Add
+the name to the meters your pipeline already collects:
 
 ```csharp
-MonadOptions.Configure(options => options.UseExceptionLogger((exception, callerInfo) =>
-{
-    Log.Error(exception, "Exception when creating monad"); // use Serilog/NLog/Etc
-}));
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics.AddMeter("Waystone.Monads"));
 ```
+
+**Logs need one call**, because `Microsoft.Extensions.Logging` publishes no
+ambient logger to discover. Install
+[`Waystone.Monads.Extensions.Logging`](https://www.nuget.org/packages/Waystone.Monads.Extensions.Logging)
+and point it at your own `ILogger` once during start-up:
+
+```csharp
+MonadOptions.Configure(options => options.UseLoggerFactoryFrom(app.Services));
+```
+
+`UseLogger(logger)` and `UseLoggerFactory(factory)` are there for an application
+with no service provider.
+
+`MonadOptions.UseExceptionLogger` did this with a hand-written delegate. It is
+obsolete and removed in `7.0.0`; configuring both logs everything twice.
+
+### Error codes
 
 There may be times where you want to generate an `ErrorCode` from an `Enum` or an `Exception`.
 You can configure the formatting of the generated error codes using the `UseErrorCodeFactory`.

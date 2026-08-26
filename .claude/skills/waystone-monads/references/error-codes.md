@@ -124,9 +124,13 @@ which enum should keep the code.
 building errors:
 
 - `UseFallbackErrorCode` names the code used when one cannot be derived.
-- `UseExceptionLogger` receives every exception `Try` and `TryAsync` convert,
+- `UseLoggerFactoryFrom`, from `Waystone.Monads.Extensions.Logging`, sends every
+  exception `Try` and `TryAsync` convert to the application's own `ILogger`,
   along with caller information. Without it, a converted exception's stack trace
-  is not recorded anywhere.
+  reaches no log. `UseExceptionLogger` is the obsolete hand-written form of the
+  same thing and is removed in `7.0.0`; do not reach for it in new code.
+  Counts of those exceptions need nothing configured — core publishes them on a
+  `Meter` named `Waystone.Monads`.
 
 `UseCancellationAsFailure` is a trap worth knowing: by default an
 `OperationCanceledException` is **not** caught by `Try`/`TryAsync` and
