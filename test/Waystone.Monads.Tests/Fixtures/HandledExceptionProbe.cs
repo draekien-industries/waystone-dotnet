@@ -53,12 +53,4 @@ public sealed class HandledExceptionProbe(Action<Exception, CallerInfo> record)
                 values["ArgumentExpression"] as string ?? string.Empty,
                 values["LineNumber"] as int? ?? 0));
     }
-
-    private sealed class NoScope : IDisposable
-    {
-        internal static readonly NoScope Instance = new();
-
-        public void Dispose()
-        { }
-    }
 }

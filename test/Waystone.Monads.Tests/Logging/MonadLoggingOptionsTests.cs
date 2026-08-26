@@ -7,6 +7,7 @@ using System.Linq;
 using Configs;
 using Diagnostics;
 using Extensions.Logging.Configs;
+using Fixtures;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Options;
@@ -227,14 +228,6 @@ public sealed class MonadLoggingOptionsTests
                     : new Dictionary<string, object?>();
 
             _entries.Enqueue(new Entry(logLevel, exception, properties));
-        }
-
-        private sealed class NoScope : IDisposable
-        {
-            internal static readonly NoScope Instance = new();
-
-            public void Dispose()
-            { }
         }
     }
 
