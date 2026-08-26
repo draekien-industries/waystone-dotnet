@@ -3,9 +3,11 @@
 using System;
 using System.Threading.Tasks;
 using Configs;
+using Fixtures;
 using JetBrains.Annotations;
 using NSubstitute;
 using Shouldly;
+using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(Option))]
@@ -20,7 +22,7 @@ public sealed class OptionTests
 
     private MonadOptionsScope LoggerScope() =>
         MonadOptions.BeginScope(
-            options => options.UseExceptionLogger(_callback));
+            options => options.UseLogger(new HandledExceptionProbe(_callback)));
 
     [Fact]
     public async Task GivenAsyncFactory_WhenBinding_ReturnSome()

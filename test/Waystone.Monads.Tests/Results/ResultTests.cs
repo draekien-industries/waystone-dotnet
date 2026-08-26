@@ -4,9 +4,11 @@ using System;
 using System.Threading.Tasks;
 using Configs;
 using Errors;
+using Fixtures;
 using JetBrains.Annotations;
 using NSubstitute;
 using Shouldly;
+using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(Result))]
@@ -79,7 +81,8 @@ public sealed class ResultTests
         callback.Invoke(Arg.Any<Exception>()).Returns("error");
 
         using (MonadOptions.BeginScope(
-                   options => options.UseExceptionLogger(logger)))
+                   options => options.UseLogger(
+                       new HandledExceptionProbe(logger))))
         {
             Result<string, string> result =
                 Result.Try(() => default(string)!, callback);
@@ -105,7 +108,8 @@ public sealed class ResultTests
         callback.Invoke(Arg.Any<Exception>()).Returns("error");
 
         using (MonadOptions.BeginScope(
-                   options => options.UseExceptionLogger(logger)))
+                   options => options.UseLogger(
+                       new HandledExceptionProbe(logger))))
         {
             Result<string, string> result = await Result.TryAsync(
                 () => Task.FromResult(default(string)!),

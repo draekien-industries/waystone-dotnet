@@ -3,12 +3,14 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Fixtures;
 using JetBrains.Annotations;
 using NSubstitute;
 using Options;
 using Results;
 using Results.Errors;
 using Shouldly;
+using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(Option))]
@@ -22,7 +24,8 @@ public sealed class TryStateOverloadTests
     }
 
     private MonadOptionsScope LoggerScope() =>
-        MonadOptions.BeginScope(options => options.UseExceptionLogger(_logger));
+        MonadOptions.BeginScope(
+            options => options.UseLogger(new HandledExceptionProbe(_logger)));
 
     private static int Double(int state) => state * 2;
 

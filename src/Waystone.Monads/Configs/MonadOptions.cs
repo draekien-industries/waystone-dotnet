@@ -197,15 +197,27 @@ public sealed class MonadOptions
     }
 
     /// <summary>
-    /// Configures the log action that should be executed when an exception is
-    /// silently handled by the library.
+    /// Use <c>UseLoggerFactoryFrom</c> from
+    /// <c>Waystone.Monads.Extensions.Logging</c> instead, which sends handled
+    /// exceptions to your own <c>ILogger</c>.
     /// </summary>
     /// <remarks>
+    /// The delegate this takes has to be written by hand for whichever logging
+    /// library you use, and only one can be held at a time, so a second observer
+    /// of the same exceptions silently replaces the first. The replacement
+    /// package subscribes to the <c>Waystone.Monads.ExceptionHandled</c>
+    /// diagnostic event instead, which any number of observers can share.
+    /// <para>
+    /// Both paths fire while this member exists, so configuring the replacement
+    /// package without removing this call logs every handled exception twice.
+    /// </para>
+    /// <para>
     /// One logger is held at a time, so calling this again replaces the
     /// previous one rather than adding to it. It is called only for exceptions
     /// the library swallows, never for one it lets propagate. Independently of
     /// this setting, the same exceptions are written to the console while a
     /// debugger is attached.
+    /// </para>
     /// </remarks>
     /// <param name="action">The log action that will be executed.</param>
     /// <returns>
@@ -216,6 +228,8 @@ public sealed class MonadOptions
     /// <paramref name="action" /> is null. Leave the logger unset rather than
     /// clearing it with null.
     /// </exception>
+    [Obsolete(
+        "Install Waystone.Monads.Extensions.Logging and configure your own ILogger with MonadOptions.UseLoggerFactoryFrom, UseLoggerFactory or UseLogger. This member will be removed in 7.0.0.")]
     public MonadOptions UseExceptionLogger(Action<Exception, CallerInfo> action)
     {
         ExceptionLogger = Option.Some(action);
