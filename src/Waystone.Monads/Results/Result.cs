@@ -690,34 +690,4 @@ public static class Result
     public static Result<TOk, Error> Err<TOk>(Error error)
         where TOk : notnull =>
         new Err<TOk, Error>(error);
-
-    /// <summary>
-    /// Creates an <see cref="Err{TOk,TErr}" /> result containing an
-    /// <see cref="Error" /> whose code is derived from the provided enum value.
-    /// </summary>
-    /// <remarks>
-    /// The <see cref="ErrorCodeFactory" /> configured on
-    /// <see cref="MonadOptions" /> works the code out by reflection at run time,
-    /// so it cannot apply the format declared on the enum and nothing tells you
-    /// when a rename changes the code. Mark the enum with
-    /// <c>[ErrorCodeCatalog]</c> and pass
-    /// <c>{EnumName}Catalog.Errors.{Member}(message)</c> to
-    /// <see cref="Err{TOk}(Error)" />, or <c>code.ToError(message)</c> where the
-    /// member is only known at run time.
-    /// </remarks>
-    /// <param name="code">The enum value to create the error code from.</param>
-    /// <param name="message">
-    /// A descriptive error message providing more context
-    /// about the error.
-    /// </param>
-    /// <typeparam name="TOk">The ok result value's type</typeparam>
-    /// <returns>
-    /// A <see cref="Result{TOk,TErr}" /> that is always an
-    /// <see cref="Err{TOk,TErr}" />.
-    /// </returns>
-    [Obsolete(
-        "Mark the enum with [ErrorCodeCatalog] and pass {EnumName}Catalog.Errors.{Member}(message) to Result.Err, or code.ToError(message) where the member is only known at run time, instead of working the code out at run time. This member will be removed in 7.0.0.")]
-    public static Result<TOk, Error> Err<TOk>(Enum code, string message)
-        where TOk : notnull =>
-        new Err<TOk, Error>(Error.FromEnum(code, message));
 }

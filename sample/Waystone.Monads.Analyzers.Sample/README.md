@@ -48,8 +48,8 @@ The point is where those errors come from. `OrderErrorCode` is marked
   at the boundary where one is worth writing.
 - `StatusCodeFor` switches on the code to pick an HTTP status. **This is the method
   the feature exists for.** A `case` label needs a compile-time constant, so it can be
-  written against `OrderErrorCodeCatalog.Names` and cannot be written against
-  `ErrorCode.FromEnum` at all — that call works its string out at run time.
+  written against `OrderErrorCodeCatalog.Names` and could never have been written
+  against a code worked out at run time.
 
 The enum also declares a format, `order.{member:kebab}`, so the codes are
 `order.not-found` rather than `OrderErrorCode.NotFound`. That is the shape you would

@@ -29,12 +29,13 @@ using System;
 /// catalog being generated at all.
 /// </para>
 /// <para>
-/// The generated codes follow the same <c>{EnumTypeName}.{MemberName}</c>
-/// scheme as the default <see cref="Configs.ErrorCodeFactory" />, so a generated
-/// constant and a call to <see cref="ErrorCode.FromEnum" /> return the same
-/// string. Installing a custom factory through
-/// <see cref="Configs.MonadOptions.UseErrorCodeFactory" /> changes the
-/// runtime string and not the generated one.
+/// The generated codes follow the <c>{EnumTypeName}.{MemberName}</c> scheme
+/// unless <see cref="Format" /> or
+/// <see cref="ErrorCodeFormatAttribute" /> says otherwise. Whichever applies is
+/// read at compile time and baked into the constants, so the codes an enum
+/// produces are fixed by its source and cannot be changed from configuration —
+/// <see cref="Configs.MonadOptions.UseErrorCodeFactory" /> reaches only the codes
+/// derived from exceptions.
 /// </para>
 /// <para>
 /// Because the code is derived from the enum's name and its members' names,

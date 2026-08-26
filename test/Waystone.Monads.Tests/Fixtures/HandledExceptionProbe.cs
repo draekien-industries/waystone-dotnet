@@ -13,13 +13,14 @@ using Microsoft.Extensions.Logging;
 /// </summary>
 /// <remarks>
 /// The tests here observe handled exceptions to prove that <c>Try</c> swallowed
-/// one — or did not — rather than to test logging. This keeps that observation
-/// pointed at the supported configuration path now that
-/// <c>UseExceptionLogger</c> is obsolete, without rewriting every assertion.
-/// The diagnostic event would be the more direct probe and is the wrong one:
-/// it is process-wide, so a scenario running in parallel would land in the
-/// snapshot, whereas the logger follows the <c>MonadOptions</c> scope that set
-/// it.
+/// one — or did not — rather than to test logging. An <c>ILogger</c> is the only
+/// configurable observer the library still offers, so this is the supported path
+/// and not a workaround.
+/// <para>
+/// The diagnostic event would be the more direct probe and is the wrong one: it
+/// is process-wide, so a scenario running in parallel would land in the snapshot,
+/// whereas the logger follows the <c>MonadOptions</c> scope that set it.
+/// </para>
 /// </remarks>
 public sealed class HandledExceptionProbe(Action<Exception, CallerInfo> record)
     : ILogger

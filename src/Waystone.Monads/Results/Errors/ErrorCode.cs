@@ -34,28 +34,6 @@ public record ErrorCode
     /// <summary>The error code string value, trimmed and never null or blank.</summary>
     public string Value { get; }
 
-    /// <summary>Creates an instance of an <see cref="ErrorCode" /> from an enum value.</summary>
-    /// <remarks>
-    /// Uses the <see cref="ErrorCodeFactory" /> configured in
-    /// <see cref="MonadOptions" />.
-    /// <para>
-    /// This works the code out by reflection at run time, so it cannot apply the
-    /// format declared on the enum and nothing tells you when a rename changes the
-    /// code. Mark the enum with <c>[ErrorCodeCatalog]</c> and use the generated
-    /// <c>ToErrorCode()</c> extension, or the generated
-    /// <c>{EnumName}Catalog.Codes</c> field where the member is known at the call
-    /// site.
-    /// </para>
-    /// </remarks>
-    /// <param name="value">The enum value to create the error code from.</param>
-    /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
-    [Obsolete(
-        "Mark the enum with [ErrorCodeCatalog] and use the generated ToErrorCode() extension, or the generated {EnumName}Catalog.Codes field, instead of working the code out at run time. This member will be removed in 7.0.0.")]
-    public static ErrorCode FromEnum(Enum value) =>
-#pragma warning disable CS0618
-        MonadOptions.Current.ErrorCodeFactory.FromEnum(value);
-#pragma warning restore CS0618
-
     /// <summary>Creates an instance of an <see cref="ErrorCode" /> from an exception.</summary>
     /// <remarks>
     /// Prefer an <c>[ErrorCodeCatalog]</c> enum. The code here is the exception's

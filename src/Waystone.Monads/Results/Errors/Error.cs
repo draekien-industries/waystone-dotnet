@@ -60,28 +60,6 @@ public record Error
     /// <summary>A descriptive error message, trimmed and never null or blank.</summary>
     public string Message { get; }
 
-    /// <summary>Creates a new instance of <see cref="Error" /> from an enum value.</summary>
-    /// <remarks>
-    /// The code is worked out by reflection at run time through the
-    /// <see cref="ErrorCodeFactory" /> configured in <see cref="MonadOptions" />, so
-    /// it cannot apply the format declared on the enum and nothing tells you when a
-    /// rename changes the code. Mark the enum with <c>[ErrorCodeCatalog]</c> and use
-    /// the generated <c>{EnumName}Catalog.Errors.{Member}(message)</c> factory, or
-    /// the generated <c>ToError(message)</c> extension where the member is only
-    /// known at run time.
-    /// </remarks>
-    /// <param name="value">The enum value to create the error code from.</param>
-    /// <param name="message">
-    /// A descriptive error message providing more context
-    /// about the error. Blank is replaced by the configured fallback.
-    /// </param>
-    /// <returns>The created <see cref="Error" />.</returns>
-    [Obsolete(
-        "Mark the enum with [ErrorCodeCatalog] and use the generated {EnumName}Catalog.Errors.{Member}(message) factory, or the generated ToError(message) extension where the member is only known at run time, instead of working the code out at run time. This member will be removed in 7.0.0.")]
-    public static Error FromEnum(Enum value, string message) => new(
-        ErrorCode.FromEnum(value),
-        message);
-
     /// <summary>Creates a new instance of <see cref="Error" /> from an exception.</summary>
     /// <remarks>
     /// The code is the exception's type name with a trailing <c>Exception</c>

@@ -107,7 +107,7 @@ namespace Waystone.Monads.Specs.Results.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Specs/Results/Features/ErrorResultFactories.feature.ndjson", 11);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Specs/Results/Features/ErrorResultFactories.feature.ndjson", 8);
         }
         
         async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
@@ -201,15 +201,15 @@ namespace Waystone.Monads.Specs.Results.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.FactAttribute(DisplayName="Creating an Err result from an enum and a message")]
+        [global::Xunit.FactAttribute(DisplayName="Trying a factory that succeeds")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Result and Error factories that default the error type to Error")]
-        [global::Xunit.TraitAttribute("Description", "Creating an Err result from an enum and a message")]
-        public async global::System.Threading.Tasks.Task CreatingAnErrResultFromAnEnumAndAMessage()
+        [global::Xunit.TraitAttribute("Description", "Trying a factory that succeeds")]
+        public async global::System.Threading.Tasks.Task TryingAFactoryThatSucceeds()
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "2";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Creating an Err result from an enum and a message", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Trying a factory that succeeds", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 13
@@ -223,107 +223,9 @@ namespace Waystone.Monads.Specs.Results.Features
             {
                 await this.ScenarioStartAsync();
 #line 14
-        await testRunner.WhenAsync("creating an Err result from the NotFound enum value and message \"the user was not" +
-                        " found\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 15
-        await testRunner.ThenAsync("the error typed result should be Err with code \"TestErrorCodes.NotFound\" and mess" +
-                        "age \"the user was not found\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Creating an Error from an enum and a message")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Result and Error factories that default the error type to Error")]
-        [global::Xunit.TraitAttribute("Description", "Creating an Error from an enum and a message")]
-        public async global::System.Threading.Tasks.Task CreatingAnErrorFromAnEnumAndAMessage()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "3";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Creating an Error from an enum and a message", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 17
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 18
-        await testRunner.WhenAsync("creating an Error from the NotFound enum value and message \"the user was not foun" +
-                        "d\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 19
-        await testRunner.ThenAsync("the Error should have code \"TestErrorCodes.NotFound\" and message \"the user was no" +
-                        "t found\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Creating an Error from an enum without a message")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Result and Error factories that default the error type to Error")]
-        [global::Xunit.TraitAttribute("Description", "Creating an Error from an enum without a message")]
-        public async global::System.Threading.Tasks.Task CreatingAnErrorFromAnEnumWithoutAMessage()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "4";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Creating an Error from an enum without a message", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 21
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 22
-        await testRunner.WhenAsync("creating an Error from the NotFound enum value and message \"\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 23
-        await testRunner.ThenAsync("the Error should have code \"TestErrorCodes.NotFound\" and message \"An unexpected e" +
-                        "rror occurred.\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-            }
-            await this.ScenarioCleanupAsync();
-        }
-        
-        [global::Xunit.FactAttribute(DisplayName="Trying a factory that succeeds")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Result and Error factories that default the error type to Error")]
-        [global::Xunit.TraitAttribute("Description", "Trying a factory that succeeds")]
-        public async global::System.Threading.Tasks.Task TryingAFactoryThatSucceeds()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "5";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Trying a factory that succeeds", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
-            string[] tagsOfRule = ((string[])(null));
-            global::Reqnroll.RuleInfo ruleInfo = null;
-#line 25
-    this.ScenarioInitialize(scenarioInfo, ruleInfo);
-#line hidden
-            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                await testRunner.SkipScenarioAsync();
-            }
-            else
-            {
-                await this.ScenarioStartAsync();
-#line 26
         await testRunner.WhenAsync("trying a factory that returns 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 27
+#line 15
         await testRunner.ThenAsync("the error typed result should be Ok with the value 10", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -337,11 +239,11 @@ namespace Waystone.Monads.Specs.Results.Features
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "6";
+            string pickleIndex = "3";
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Trying a factory that throws", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 29
+#line 17
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -351,11 +253,11 @@ namespace Waystone.Monads.Specs.Results.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 30
+#line 18
         await testRunner.WhenAsync("trying a factory that throws an InvalidOperationException with message \"factory f" +
                         "ailed\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 31
+#line 19
         await testRunner.ThenAsync("the error typed result should be Err with code \"InvalidOperation\" and message \"fa" +
                         "ctory failed\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
@@ -370,11 +272,11 @@ namespace Waystone.Monads.Specs.Results.Features
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "7";
+            string pickleIndex = "4";
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Trying an async factory that succeeds", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 33
+#line 21
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -384,10 +286,10 @@ namespace Waystone.Monads.Specs.Results.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 34
+#line 22
         await testRunner.WhenAsync("trying an async factory that returns 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 35
+#line 23
         await testRunner.ThenAsync("the error typed result should be Ok with the value 20", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
@@ -401,11 +303,11 @@ namespace Waystone.Monads.Specs.Results.Features
         {
             string[] tagsOfScenario = ((string[])(null));
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "8";
+            string pickleIndex = "5";
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Trying an async factory that throws", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 37
+#line 25
     this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -415,11 +317,11 @@ namespace Waystone.Monads.Specs.Results.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 38
+#line 26
         await testRunner.WhenAsync("trying an async factory that throws an InvalidOperationException with message \"as" +
                         "ync factory failed\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 39
+#line 27
         await testRunner.ThenAsync("the error typed result should be Err with code \"InvalidOperation\" and message \"as" +
                         "ync factory failed\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden

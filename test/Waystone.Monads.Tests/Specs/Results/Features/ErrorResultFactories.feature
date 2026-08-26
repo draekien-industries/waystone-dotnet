@@ -10,18 +10,6 @@ Feature: Result and Error factories that default the error type to Error
         When creating an Err result from the Error
         Then the error typed result should be Err with code "Explicit.Code" and message "something went wrong"
 
-    Scenario: Creating an Err result from an enum and a message
-        When creating an Err result from the NotFound enum value and message "the user was not found"
-        Then the error typed result should be Err with code "TestErrorCodes.NotFound" and message "the user was not found"
-
-    Scenario: Creating an Error from an enum and a message
-        When creating an Error from the NotFound enum value and message "the user was not found"
-        Then the Error should have code "TestErrorCodes.NotFound" and message "the user was not found"
-
-    Scenario: Creating an Error from an enum without a message
-        When creating an Error from the NotFound enum value and message ""
-        Then the Error should have code "TestErrorCodes.NotFound" and message "An unexpected error occurred."
-
     Scenario: Trying a factory that succeeds
         When trying a factory that returns 10
         Then the error typed result should be Ok with the value 10

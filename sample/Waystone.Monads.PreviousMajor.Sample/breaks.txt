@@ -3,4 +3,18 @@
 Written by `capture-breaks.ps1`. Every row is a diagnostic a consumer
 on the previous major gets from the surface in the working tree.
 
-No diagnostics. The previous major still compiles against this tree.
+| Code | Kind | Count |
+| --- | --- | --- |
+| CS0115 | error | 1 |
+| CS0117 | error | 2 |
+| CS1061 | error | 2 |
+| CS1501 | error | 1 |
+
+| Code | File | Line | Message |
+| --- | --- | --- | --- |
+| CS0115 | sample/Waystone.Monads.PreviousMajor.Declarations.Sample/ErrorCodeFactoryOverride.cs | 15 | 'UpperCaseErrorCodeFactory.FromEnum(Enum)': no suitable method found to override |
+| CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 17 | 'ErrorCode' does not contain a definition for 'FromEnum' |
+| CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 20 | 'Error' does not contain a definition for 'FromEnum' |
+| CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/Configuration.cs | 22 | 'MonadOptions' does not contain a definition for 'UseExceptionLogger' and no accessible extension method 'UseExceptionLogger' accepting a first argument of type 'MonadOptions' could be found (are you missing a using directive or an assembly reference?) |
+| CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 32 | 'ErrorCodeFactory' does not contain a definition for 'FromEnum' and no accessible extension method 'FromEnum' accepting a first argument of type 'ErrorCodeFactory' could be found (are you missing a using directive or an assembly reference?) |
+| CS1501 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 23 | No overload for method 'Err' takes 2 arguments |

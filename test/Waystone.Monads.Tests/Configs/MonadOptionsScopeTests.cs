@@ -11,11 +11,6 @@ using Xunit;
 [TestSubject(typeof(MonadOptionsScope))]
 public sealed class MonadOptionsScopeTests
 {
-    private enum TestErrorCodes
-    {
-        Failure,
-    }
-
     private static string ResolveFallbackCode() => new ErrorCode(" ").Value;
 
     private static string ResolveFallbackMessage() =>
@@ -121,21 +116,21 @@ public sealed class MonadOptionsScopeTests
     }
 
     [Fact]
-#pragma warning disable CS0618
     public void GivenScope_WhenOverridingErrorCodeFactory_ThenUseScopedFactory()
     {
-        string global = ErrorCode.FromEnum(TestErrorCodes.Failure).Value;
+        InvalidOperationException exception = new();
+
+        string global = ErrorCode.FromException(exception).Value;
 
         using (MonadOptions.BeginScope(
             o => o.UseErrorCodeFactory(new PrefixingErrorCodeFactory())))
         {
-            ErrorCode.FromEnum(TestErrorCodes.Failure)
-               .Value.ShouldBe("scoped.Failure");
+            ErrorCode.FromException(exception)
+               .Value.ShouldBe("scoped.InvalidOperation");
         }
 
-        ErrorCode.FromEnum(TestErrorCodes.Failure).Value.ShouldBe(global);
+        ErrorCode.FromException(exception).Value.ShouldBe(global);
     }
-#pragma warning restore CS0618
 
     [Fact]
     public void
@@ -196,9 +191,7 @@ public sealed class MonadOptionsScopeTests
 
     private sealed class PrefixingErrorCodeFactory : ErrorCodeFactory
     {
-#pragma warning disable CS0672
-        public override ErrorCode FromEnum(Enum @enum) =>
-#pragma warning restore CS0672
-            new($"scoped.{@enum}");
+        public override ErrorCode FromException(Exception exception) =>
+            new($"scoped.{base.FromException(exception).Value}");
     }
 }

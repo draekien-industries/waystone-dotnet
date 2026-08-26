@@ -13,11 +13,6 @@ using Waystone.Monads.Results;
 [Binding]
 public sealed class ErrorResultFactoriesSteps(SpecContext context)
 {
-    private enum TestErrorCodes
-    {
-        NotFound,
-    }
-
     [Given("an Error with code {string} and message {string}")]
     public void GivenAnErrorWithCodeAndMessage(string code, string message)
     {
@@ -40,30 +35,6 @@ public sealed class ErrorResultFactoriesSteps(SpecContext context)
         Result<int, Error> result = Result.Err<int>(error);
 
         context.SetOutcome(result);
-    }
-
-    [When(
-        "creating an Err result from the NotFound enum value and message {string}")]
-    public void WhenCreatingAnErrResultFromTheNotFoundEnumValueAndMessage(
-        string message)
-    {
-        // Obsolete from 6.x, removed in 7.0.0. These two steps are the coverage
-        // for that path and are deleted with the members, not migrated.
-#pragma warning disable CS0618
-        Result<int, Error> result =
-            Result.Err<int>(TestErrorCodes.NotFound, message);
-#pragma warning restore CS0618
-
-        context.SetOutcome(result);
-    }
-
-    [When("creating an Error from the NotFound enum value and message {string}")]
-    public void WhenCreatingAnErrorFromTheNotFoundEnumValueAndMessage(
-        string message)
-    {
-#pragma warning disable CS0618
-        context.Error = Error.FromEnum(TestErrorCodes.NotFound, message);
-#pragma warning restore CS0618
     }
 
     [When("trying a factory that returns {int}")]
