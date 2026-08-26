@@ -31,6 +31,11 @@ using ILoggerFactory factory = LoggerFactory.Create(
 MonadOptions.Configure(options => options.UseLoggerFactory(factory));
 ```
 
+`LoggerFactory.Create` is not in `Microsoft.Extensions.Logging.Abstractions`, which
+is all this package brings with it. Add `Microsoft.Extensions.Logging` to build a
+factory yourself, plus a provider package such as
+`Microsoft.Extensions.Logging.Console`. An application with a host already has both.
+
 Or hand over a logger you already hold, which then keeps its own category:
 
 ```csharp
