@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Configs;
+using Diagnostics;
 using Extensions.Logging.Configs;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
@@ -159,6 +160,29 @@ public sealed class MonadLoggingOptionsTests
                 options => options.UseLogger(null!)));
     }
 
+    [Fact]
+    public void GivenANullFactory_WhenConfigured_ThenRefuseIt()
+    {
+        Should.Throw<ArgumentNullException>(
+            () => MonadOptions.BeginScope(
+                options => options.UseLoggerFactory(null!)));
+    }
+
+    [Fact]
+    public void GivenSomeoneElsesPayload_WhenWrittenToTheEvent_ThenIgnoreIt()
+    {
+        var logger = new RecordingLogger();
+
+        using (MonadOptions.BeginScope(options => options.UseLogger(logger)))
+        {
+            MonadDiagnostics.Listener.Write(
+                MonadDiagnostics.ExceptionHandledEventName,
+                "not an ExceptionHandled");
+        }
+
+        logger.Everything.ShouldBeEmpty();
+    }
+
     private sealed class ProbeException() : Exception("Probe.");
 
     private sealed class Entry(
@@ -179,6 +203,8 @@ public sealed class MonadLoggingOptionsTests
 
         public IReadOnlyList<Entry> Entries =>
             _entries.Where(entry => entry.Exception is ProbeException).ToList();
+
+        public IReadOnlyList<Entry> Everything => _entries.ToList();
 
         public IDisposable BeginScope<TState>(TState state)
             where TState : notnull =>

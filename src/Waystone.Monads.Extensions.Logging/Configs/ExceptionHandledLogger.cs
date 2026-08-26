@@ -3,7 +3,7 @@ namespace Waystone.Monads.Extensions.Logging.Configs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Monads.Diagnostics;
 
@@ -12,29 +12,13 @@ internal static class ExceptionHandledLogger
     private const string MessageTemplate =
         "Waystone.Monads handled an exception thrown by {ArgumentExpression} in {MemberName} at line {LineNumber}.";
 
-    private static readonly object Gate = new();
-
-    private static IDisposable? _allListeners;
+    private static readonly Lazy<IDisposable> AllListeners = new(
+        () => DiagnosticListener.AllListeners.Subscribe(
+            new Observer<DiagnosticListener>(Attach)));
 
     internal static void Subscribe()
     {
-        if (Volatile.Read(ref _allListeners) is not null)
-        {
-            return;
-        }
-
-        lock (Gate)
-        {
-            if (_allListeners is not null)
-            {
-                return;
-            }
-
-            Volatile.Write(
-                ref _allListeners,
-                DiagnosticListener.AllListeners.Subscribe(
-                    new Observer<DiagnosticListener>(Attach)));
-        }
+        _ = AllListeners.Value;
     }
 
     private static void Attach(DiagnosticListener listener)
@@ -72,6 +56,7 @@ internal static class ExceptionHandledLogger
             handled.Caller.LineNumber);
     }
 
+    [ExcludeFromCodeCoverage]
     private sealed class Observer<T>(Action<T> onNext) : IObserver<T>
     {
         public void OnCompleted()
