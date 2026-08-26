@@ -46,4 +46,25 @@ public sealed class OrElseExtensionsTests
 
         result.ShouldBeSomeValue(2);
     }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenOrElseAsyncWithAnAsyncFactory_ThenReturnTheOtherOption()
+    {
+        Option<int> result = await Task.FromResult(Option.None<int>())
+           .OrElseAsync(() => new ValueTask<Option<int>>(Option.Some(2)));
+
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenOrElseAsyncWithAnAsyncFactory_ThenReturnTheOtherOption()
+    {
+        Option<int> result =
+            await new ValueTask<Option<int>>(Option.None<int>())
+               .OrElseAsync(() => new ValueTask<Option<int>>(Option.Some(2)));
+
+        result.ShouldBeSomeValue(2);
+    }
 }
