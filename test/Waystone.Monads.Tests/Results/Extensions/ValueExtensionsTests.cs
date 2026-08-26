@@ -25,8 +25,8 @@ public sealed class ValueExtensionsTests
         Result<TestClass, ValidationErr> result =
             value.Validate(new TestValidator());
 
-        result.IsOk.ShouldBeTrue();
-        result.Unwrap().ShouldBe(value);
+        result.ShouldBeOk();
+        result.ShouldBeOkValue(value);
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public sealed class ValueExtensionsTests
         Result<TestClass, ValidationErr> result =
             value.Validate(new TestValidator());
 
-        result.IsErr.ShouldBeTrue();
+        result.ShouldBeErr();
         result.UnwrapErr().Errors.Count.ShouldBe(1);
         result.UnwrapErr().RuleSetsExecuted.Length.ShouldBe(1);
         result.UnwrapErr().ToDictionary().ShouldContainKey("Value");
@@ -62,8 +62,8 @@ public sealed class ValueExtensionsTests
                 new TestValidator(),
                 TestContext.Current.CancellationToken);
 
-        result.IsOk.ShouldBeTrue();
-        result.Unwrap().ShouldBe(value);
+        result.ShouldBeOk();
+        result.ShouldBeOkValue(value);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public sealed class ValueExtensionsTests
                 new TestValidator(),
                 TestContext.Current.CancellationToken);
 
-        result.IsErr.ShouldBeTrue();
+        result.ShouldBeErr();
         result.UnwrapErr().Errors.Count.ShouldBe(1);
         result.UnwrapErr().RuleSetsExecuted.Length.ShouldBe(1);
         result.UnwrapErr().ToDictionary().ShouldContainKey("Value");

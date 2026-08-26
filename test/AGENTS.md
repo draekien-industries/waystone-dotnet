@@ -2,11 +2,47 @@
 
 ## Running them
 
-`dotnet test` with no `--framework` runs every target framework — five for
-`Waystone.Monads.Tests` — and takes about twelve seconds incrementally. The
-`pre-push` hook runs exactly that, because CI pins `--framework net8.0` for
-coverage collection and would let a net472, net481, net9.0 or net10.0 break
-through.
+`dotnet test` with no `--framework` runs every target framework. The `pre-push`
+hook runs exactly that, because CI pins `--framework net8.0` for coverage
+collection and would let a net472, net481, net9.0 or net10.0 break through.
+
+## Shared configuration
+
+**`test/Directory.Build.props` owns the framework matrix and the warning policy**,
+the way `src/Directory.Build.props` does for the shipped projects. A test project
+declares neither, and adding `Nullable`, `IsPackable`, `OutputType`, `LangVersion`
+or `ImplicitUsings` to one is duplication rather than intent.
+
+`OutputType` and `LangVersion` are load-bearing there, not tidiness. xunit.v3
+fails the build outright unless the project is an executable, and net472 and
+net481 default to C# 7.3, so a test project that set neither would either not
+build or compile against a language a decade older than the tests are written in.
+
+**Warnings are errors across `test/`.** The only warnings left in the tree are
+codeless MSBuild ones from `Microsoft.Extensions.Diagnostics.Testing`, which says
+it does not support net472 or net481. A warning with no code cannot be promoted
+to an error, so those survive; anything with a code will fail the build.
+
+**One project overrides the matrix, and says why in its own file.** Keep that
+shape: an exception belongs next to the code it applies to, not as a condition in
+the shared props. `Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests`
+drops net472 and net481, because its subject depends on ASP.NET Core and ships
+net8.0 and net10.0 only. It keeps net9.0, which resolves the net8.0 asset.
+
+**Both analyzer harnesses select `ReferenceAssemblies` from the framework the
+test host is running on**, through `Verify.Target`. Do not pin a version there.
+Pinned, all five frameworks compiled the identical net8.0 source, so the matrix
+proved one thing five times — and in `Waystone.Monads.Shouldly.Analyzers.Tests`
+it was worse than useless: that harness hands the compilation the Shouldly
+assembly the *host* has loaded, so a net9.0 host mixed a net8.0 compilation with
+a Shouldly built against `System.Runtime` 9.0.0.0 and failed 44 tests on
+`CS1705` rather than on anything the analyzer did.
+
+**On net472 and net481 those harnesses add `System.Threading.Tasks.Extensions`
+explicitly.** `ValueTask<T>` is not part of .NET Framework, so a test with a
+`ValueTask` receiver otherwise fails on `CS0012` naming an assembly its source
+never mentions. Keep the version in step with the one `Waystone.Monads`
+references, so the compilation sees what a consumer on that framework would.
 
 ## Gotchas
 
@@ -34,3 +70,21 @@ offending package directory and it re-downloads.
 **`ClosedHierarchyTests` lives in the analyzer test project, not here.**
 `Waystone.Monads.Tests` has `InternalsVisibleTo`, so it would compile an
 out-of-assembly derived type happily and prove nothing.
+
+**`Waystone.Monads.Tests` imports the assertion analyzers, so WMS2001 and WMS2002
+report on it.** They are `Info`, so nothing fails; MSBuild does not log them
+either, which is why the build looks silent. To see them, run the fix:
+
+```
+dotnet format analyzers test/Waystone.Monads.Tests/Waystone.Monads.Tests.csproj \
+  --diagnostics WMS2001 WMS2002 --severity info
+```
+
+**Run that until it stops changing files — one pass is not enough.** WMS2001
+rewrites `(await x).IsSome.ShouldBeTrue()` into `(await x).ShouldBeSome()`, which
+is then WMS2002's input, and the batch fixer only lands non-overlapping fixes per
+pass. Sweeping this project took three passes to reach a fixed point.
+
+**Always scope it with `--diagnostics`.** Without it, `dotnet format` applies
+every fix available at `Info` across the project, and the sweep disappears into
+several hundred unrelated edits.

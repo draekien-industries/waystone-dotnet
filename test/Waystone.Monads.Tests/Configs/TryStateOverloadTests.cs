@@ -177,7 +177,7 @@ public sealed class TryStateOverloadTests
         {
             Result<int, Error> result = Result.Try(21, Throw);
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
             result.UnwrapErr().Message.ShouldBe("21");
         }
     }
@@ -199,7 +199,7 @@ public sealed class TryStateOverloadTests
         {
             Result<int, Error> result = await Result.TryAsync(21, ThrowAsync);
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
             result.UnwrapErr().Message.ShouldBe("21");
         }
     }

@@ -20,7 +20,7 @@ public sealed class TransposeExtensionsTests
 
         Result<string, string> flattened = nested.Flatten();
 
-        flattened.Unwrap().ShouldBe("1");
+        flattened.ShouldBeOkValue("1");
     }
 
 #endregion flatten
@@ -35,8 +35,8 @@ public sealed class TransposeExtensionsTests
 
         Option<Result<int, string>> result = okOfSome.Transpose();
 
-        result.IsSome.ShouldBeTrue();
-        result.Unwrap().ShouldBe(ok);
+        result.ShouldBeSome();
+        result.ShouldBeSomeValue(ok);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public sealed class TransposeExtensionsTests
 
         Option<Result<int, string>> result = none.Transpose();
 
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public sealed class TransposeExtensionsTests
 
         Option<Result<int, string>> result = errOfSome.Transpose();
 
-        result.IsSome.ShouldBeTrue();
-        result.Unwrap().ShouldBe(err);
+        result.ShouldBeSome();
+        result.ShouldBeSomeValue(err);
     }
 
     [Fact]
@@ -72,8 +72,8 @@ public sealed class TransposeExtensionsTests
 
         Option<Result<int, string>> result = errOfNone.Transpose();
 
-        result.IsSome.ShouldBeTrue();
-        result.Unwrap().ShouldBe(err);
+        result.ShouldBeSome();
+        result.ShouldBeSomeValue(err);
     }
 
 #endregion transpose

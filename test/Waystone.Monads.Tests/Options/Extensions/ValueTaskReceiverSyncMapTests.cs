@@ -24,8 +24,8 @@ public sealed class ValueTaskReceiverSyncMapTests
 
         Option<string> result = await some.MapAsync(value => $"n{value}");
 
-        result.IsSome.ShouldBeTrue();
-        result.Unwrap().ShouldBe("n1");
+        result.ShouldBeSome();
+        result.ShouldBeSomeValue("n1");
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public sealed class ValueTaskReceiverSyncMapTests
                 return $"n{value}";
             });
 
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
         invoked.ShouldBeFalse();
     }
 

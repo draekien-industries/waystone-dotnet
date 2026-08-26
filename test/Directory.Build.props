@@ -1,0 +1,36 @@
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>disable</ImplicitUsings>
+    </PropertyGroup>
+
+    <!--
+    OutputType and LangVersion are requirements rather than preferences.
+    xunit.v3 fails the build outright unless the test project is an executable,
+    and net472 and net481 default to C# 7.3, so without LangVersion every test
+    targeting them would compile against a language a decade older than the one
+    the tests are written in.
+    -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <LangVersion>latestMajor</LangVersion>
+    </PropertyGroup>
+
+    <!--
+    Every test project targets this matrix. A project that cannot reach it says
+    so in its own file, with the reason: overriding here is how the exception
+    stays visible next to the code it applies to. The split on OS is because
+    net472 and net481 need the .NET Framework reference assemblies, which are
+    only installed on Windows.
+    -->
+    <PropertyGroup Label="The default test matrix" Condition="'$(OS)' == 'Unix'">
+        <TargetFrameworks>net8.0;net9.0;net10.0;</TargetFrameworks>
+    </PropertyGroup>
+
+    <PropertyGroup Label="The default test matrix" Condition="'$(OS)' == 'Windows_NT'">
+        <TargetFrameworks>net8.0;net9.0;net10.0;net472;net481;</TargetFrameworks>
+    </PropertyGroup>
+</Project>

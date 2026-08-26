@@ -161,12 +161,12 @@ public sealed class OptionTests
 #pragma warning restore CS8604 // Possible null reference argument.
         Option<Guid> option6 = Guid.NewGuid();
 
-        option1.IsSome.ShouldBeTrue();
-        option2.IsSome.ShouldBeTrue();
-        option3.IsSome.ShouldBeTrue();
-        option4.IsSome.ShouldBeFalse();
-        option5.IsSome.ShouldBeTrue();
-        option6.IsSome.ShouldBeTrue();
+        option1.ShouldBeSome();
+        option2.ShouldBeSome();
+        option3.ShouldBeSome();
+        option4.ShouldBeNone();
+        option5.ShouldBeSome();
+        option6.ShouldBeSome();
     }
 
     [Fact]
@@ -174,7 +174,7 @@ public sealed class OptionTests
     {
         string? value = null;
         Option<string> result = Option.FromNullable(value);
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
         result.ShouldBeOfType<None<string>>();
     }
 
@@ -183,7 +183,7 @@ public sealed class OptionTests
     {
         int? value = null;
         Option<int> result = Option.FromNullable(value);
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
         result.ShouldBeOfType<None<int>>();
     }
 
@@ -192,9 +192,9 @@ public sealed class OptionTests
     {
         var value = "test";
         Option<string> result = Option.FromNullable(value);
-        result.IsSome.ShouldBeTrue();
+        result.ShouldBeSome();
         result.ShouldBeOfType<Some<string>>();
-        result.Unwrap().ShouldBe("test");
+        result.ShouldBeSomeValue("test");
     }
 
     [Fact]
@@ -202,9 +202,9 @@ public sealed class OptionTests
     {
         int? value = 42;
         Option<int> result = Option.FromNullable(value);
-        result.IsSome.ShouldBeTrue();
+        result.ShouldBeSome();
         result.ShouldBeOfType<Some<int>>();
-        result.Unwrap().ShouldBe(42);
+        result.ShouldBeSomeValue(42);
     }
 
     [Fact]
@@ -212,9 +212,9 @@ public sealed class OptionTests
     {
         int? zero = 0;
         Option<int> result = Option.FromNullable(zero);
-        result.IsSome.ShouldBeTrue();
+        result.ShouldBeSome();
         result.ShouldBeOfType<Some<int>>();
-        result.Unwrap().ShouldBe(0);
+        result.ShouldBeSomeValue(0);
 
         Guid? empty = Guid.Empty;
         Option.FromNullable(empty).ShouldBe(Option.Some(Guid.Empty));

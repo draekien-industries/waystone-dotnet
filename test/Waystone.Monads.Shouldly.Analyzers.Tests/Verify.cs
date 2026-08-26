@@ -114,6 +114,68 @@ internal static class Verify
 
                                   """;
 
+    /// <summary>
+    /// Gets the reference assemblies for the framework this test host is running on.
+    /// </summary>
+    /// <remarks>
+    /// Tracks the host rather than pinning a version, because the references added
+    /// below are the assemblies this host has already loaded. Pin net8.0 and a net9.0
+    /// host hands the compilation a Shouldly built against System.Runtime 9.0.0.0,
+    /// which a net8.0 compilation cannot reference: every test that compiles an
+    /// assertion then fails on <c>CS1705</c> rather than on anything the analyzer did.
+    /// Keeping the two in step is what lets this project run the full matrix.
+    /// </remarks>
+    private static ReferenceAssemblies Target =>
+#if NET10_0
+        ReferenceAssemblies.Net.Net100;
+#elif NET9_0
+        ReferenceAssemblies.Net.Net90;
+#elif NET8_0
+        ReferenceAssemblies.Net.Net80;
+#elif NET472
+        WithValueTask(ReferenceAssemblies.NetFramework.Net472.Default);
+#else
+        WithValueTask(ReferenceAssemblies.NetFramework.Net48.Default);
+#endif
+
+#if NETFRAMEWORK
+    /// <summary>
+    /// Adds the package carrying <see cref="ValueTask{TResult}" />, which .NET
+    /// Framework does not have.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Every assertion in this package has a <c>ValueTask</c> receiver overload, so
+    /// without this the fifteen tests covering them fail on <c>CS0012</c> naming an
+    /// assembly their source never mentions.
+    /// </para>
+    /// <para>
+    /// Restoring the package rather than referencing the <c>ValueTask</c> this host has
+    /// already loaded, which would be the shorter way to track the version. Adding the
+    /// runtime assembly directly gives the compilation a second definition of the type
+    /// beside the platform's, and a test that asserts on a compiler error then sees it
+    /// rendered against the wrong one. It costs nothing here today and five tests in
+    /// the sibling harness, which is reason enough to keep the two the same.
+    /// </para>
+    /// <para>
+    /// The version is duplicated from <c>Directory.Packages.props</c> because a
+    /// synthetic compilation takes no part in the project's package graph. Keep the
+    /// two in step by hand; nothing in the build compares them.
+    /// </para>
+    /// </remarks>
+    private static ReferenceAssemblies WithValueTask(
+        ReferenceAssemblies assemblies) =>
+        assemblies.AddPackages(
+            ImmutableArray.Create(
+                new PackageIdentity(
+                    "System.Threading.Tasks.Extensions",
+                    "4.6.3")));
+#endif
+
+    private static ImmutableArray<MetadataReference> References(
+        bool withAssertions) =>
+        withAssertions ? WithAssertions : WithoutAssertions;
+
     private static readonly ImmutableArray<MetadataReference> WithAssertions =
         ImmutableArray.Create<MetadataReference>(
             MetadataReference.CreateFromFile(
@@ -136,10 +198,9 @@ internal static class Verify
     {
         public AnalyzerTest(bool withAssertions = true)
         {
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net80;
+            ReferenceAssemblies = Target;
 
-            TestState.AdditionalReferences.AddRange(
-                withAssertions ? WithAssertions : WithoutAssertions);
+            TestState.AdditionalReferences.AddRange(References(withAssertions));
 
             SolutionTransforms.Add(EnableNullable);
         }
@@ -156,9 +217,9 @@ internal static class Verify
     {
         public CodeFixTest()
         {
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net80;
-            TestState.AdditionalReferences.AddRange(WithAssertions);
-            FixedState.AdditionalReferences.AddRange(WithAssertions);
+            ReferenceAssemblies = Target;
+            TestState.AdditionalReferences.AddRange(References(true));
+            FixedState.AdditionalReferences.AddRange(References(true));
             SolutionTransforms.Add(EnableNullable);
         }
 

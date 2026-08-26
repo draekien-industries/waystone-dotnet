@@ -18,7 +18,7 @@ public class ErrTests
     {
         Result<int, string> result = Result.Err<int, string>("error");
 
-        result.IsOk.ShouldBeFalse();
+        result.ShouldBeErr();
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class ErrTests
     {
         Result<int, string> result = Result.Err<int, string>("error");
 
-        result.UnwrapErr().ShouldBe("error");
+        result.ShouldBeErrValue("error");
     }
 
     [Fact]

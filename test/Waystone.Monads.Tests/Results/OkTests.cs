@@ -18,8 +18,7 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-        ok.IsOk.ShouldBeTrue();
-        ok.IsErr.ShouldBeFalse();
+        ok.ShouldBeOk();
     }
 
     [Fact]
@@ -147,7 +146,7 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-        ok.Unwrap().ShouldBe(1);
+        ok.ShouldBeOkValue(1);
         ok.UnwrapOr(10).ShouldBe(1);
         ok.UnwrapOrDefault().ShouldBe(1);
         ok.UnwrapOrElse(_ => 10).ShouldBe(1);

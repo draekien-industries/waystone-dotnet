@@ -247,7 +247,7 @@ public sealed class CancellationHandlingTests
             Result<int, Error> result =
                 Result.Try<int>(() => throw Cancelled());
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
         }
     }
 
@@ -260,7 +260,7 @@ public sealed class CancellationHandlingTests
             Result<int, Error> result =
                 await Result.TryAsync<int>(() => throw Cancelled());
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
         }
     }
 
