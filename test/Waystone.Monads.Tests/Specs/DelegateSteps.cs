@@ -75,10 +75,12 @@ public sealed class DelegateSteps(SpecContext context)
     [Given("an async delegate that returns an OK result with value {int}")]
     public void GivenAnAsyncDelegateThatReturnsAnOkResultWithValue(int value)
     {
-        var func = Substitute.For<Func<int, Task<Result<int, string>>>>();
+        var func = Substitute.For<Func<int, ValueTask<Result<int, string>>>>();
 
         func.Invoke(Arg.Any<int>())
-           .Returns(Task.FromResult(Result.Ok<int, string>(value)));
+           .Returns(
+                new ValueTask<Result<int, string>>(
+                    Result.Ok<int, string>(value)));
 
         context.SetSlot(func, SpecContext.AsyncOkSlot);
     }
@@ -88,10 +90,12 @@ public sealed class DelegateSteps(SpecContext context)
     public void GivenAnAsyncDelegateThatReturnsAnErrorResultWithMessage(
         string message)
     {
-        var func = Substitute.For<Func<int, Task<Result<int, string>>>>();
+        var func = Substitute.For<Func<int, ValueTask<Result<int, string>>>>();
 
         func.Invoke(Arg.Any<int>())
-           .Returns(Task.FromResult(Result.Err<int, string>(message)));
+           .Returns(
+                new ValueTask<Result<int, string>>(
+                    Result.Err<int, string>(message)));
 
         context.SetSlot(func, SpecContext.AsyncErrorSlot);
     }

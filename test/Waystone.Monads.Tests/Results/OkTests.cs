@@ -300,7 +300,7 @@ public class OkTests
         Result<int, string> ok = Result.Ok<int, string>(1);
 
         Result<string, string> result =
-            await ok.AndThenAsync(x => Task.FromResult(
+            await ok.AndThenAsync(x => new ValueTask<Result<string, string>>(
                 Result.Ok<string, string>(x.ToString())));
 
         result.ShouldBe(Result.Ok<string, string>("1"));
@@ -311,11 +311,13 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-        (await ok.OrElseAsync(_ => Task.FromResult(Result.Ok<int, bool>(2))))
+        (await ok.OrElseAsync(
+                _ => new ValueTask<Result<int, bool>>(
+                    Result.Ok<int, bool>(2))))
            .ShouldBe(Result.Ok<int, bool>(1));
 
         (
-                await ok.OrElseAsync(_ => Task.FromResult(
+                await ok.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
                     Result.Err<int, bool>(false))))
            .ShouldBe(Result.Ok<int, bool>(1));
     }

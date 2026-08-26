@@ -34,7 +34,7 @@ public static class AndThenExtensions
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>>
-            AndThenAsync<TOut>(Func<TOk, Task<Result<TOut, TErr>>> factory)
+            AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>> factory)
             where TOut : notnull
         {
             if (result.IsErr)
@@ -75,7 +75,8 @@ public static class AndThenExtensions
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-            Func<TOk, Task<Result<TOut, TErr>>> factory) where TOut : notnull
+            Func<TOk, ValueTask<Result<TOut, TErr>>> factory)
+            where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
@@ -138,7 +139,8 @@ public static class AndThenExtensions
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-            Func<TOk, Task<Result<TOut, TErr>>> factory) where TOut : notnull
+            Func<TOk, ValueTask<Result<TOut, TErr>>> factory)
+            where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 

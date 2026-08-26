@@ -306,7 +306,7 @@ public class ErrTests
         Result<int, string> err = Result.Err<int, string>("error");
 
         Result<string, string> result =
-            await err.AndThenAsync(x => Task.FromResult(
+            await err.AndThenAsync(x => new ValueTask<Result<string, string>>(
                 Result.Ok<string, string>(x.ToString())));
 
         result.ShouldBe(Result.Err<string, string>("error"));
@@ -317,10 +317,12 @@ public class ErrTests
     {
         Result<int, string> err = Result.Err<int, string>("error");
 
-        (await err.OrElseAsync(_ => Task.FromResult(Result.Ok<int, bool>(1))))
+        (await err.OrElseAsync(
+                _ => new ValueTask<Result<int, bool>>(
+                    Result.Ok<int, bool>(1))))
            .ShouldBe(Result.Ok<int, bool>(1));
 
-        (await err.OrElseAsync(_ => Task.FromResult(
+        (await err.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
                 Result.Err<int, bool>(false))))
            .ShouldBe(Result.Err<int, bool>(false));
     }

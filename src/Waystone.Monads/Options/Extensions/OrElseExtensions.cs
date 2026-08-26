@@ -8,7 +8,7 @@ public static class OrElseExtensions
     extension<T>(Option<T> option) where T : notnull
     {
         public async ValueTask<Option<T>> OrElseAsync(
-            Func<Task<Option<T>>> elseFunc)
+            Func<ValueTask<Option<T>>> elseFunc)
         {
             if (option.IsSome) return option;
 
@@ -25,7 +25,8 @@ public static class OrElseExtensions
             return option.IsSome ? option : elseFunc.Invoke();
         }
 
-        public async ValueTask<Option<T>> OrElseAsync(Func<Task<Option<T>>> elseFunc)
+        public async ValueTask<Option<T>> OrElseAsync(
+            Func<ValueTask<Option<T>>> elseFunc)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
@@ -44,7 +45,8 @@ public static class OrElseExtensions
             return option.IsSome ? option : elseFunc.Invoke();
         }
 
-        public async ValueTask<Option<T>> OrElseAsync(Func<Task<Option<T>>> elseFunc)
+        public async ValueTask<Option<T>> OrElseAsync(
+            Func<ValueTask<Option<T>>> elseFunc)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 

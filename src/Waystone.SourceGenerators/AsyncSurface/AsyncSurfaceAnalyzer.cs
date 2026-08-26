@@ -19,7 +19,9 @@ public sealed class AsyncSurfaceAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Rules.TaskReturningMonad);
+        ImmutableArray.Create(
+            Rules.TaskReturningStepDelegate,
+            Rules.TaskReturningMonad);
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -50,6 +52,8 @@ public sealed class AsyncSurfaceAnalyzer : DiagnosticAnalyzer
 
         if (!IsPubliclyVisible(method)) return;
 
+        ReportStepDelegates(context, method, monads);
+
         if (!(method.ReturnType is INamedTypeSymbol returned)) return;
 
         if (!monads.IsTaskOfMonad(returned, out ITypeSymbol? monad)) return;
@@ -61,6 +65,41 @@ public sealed class AsyncSurfaceAnalyzer : DiagnosticAnalyzer
                 method.ToDisplayString(MemberFormat),
                 Display(returned),
                 "ValueTask<" + Display(monad!) + ">"));
+    }
+
+    private static void ReportStepDelegates(
+        SymbolAnalysisContext context,
+        IMethodSymbol method,
+        MonadTypes monads)
+    {
+        foreach (IParameterSymbol parameter in method.Parameters)
+        {
+            if (!(parameter.Type is INamedTypeSymbol delegated)
+             || delegated.TypeKind != TypeKind.Delegate)
+            {
+                continue;
+            }
+
+            if (!(delegated.DelegateInvokeMethod?.ReturnType is
+                    INamedTypeSymbol returned))
+            {
+                continue;
+            }
+
+            if (!monads.IsTaskOfMonad(returned, out ITypeSymbol? monad))
+            {
+                continue;
+            }
+
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    Rules.TaskReturningStepDelegate,
+                    parameter.Locations[0],
+                    parameter.Name,
+                    method.ToDisplayString(MemberFormat),
+                    Display(returned),
+                    "ValueTask<" + Display(monad!) + ">"));
+        }
     }
 
     /// <summary>

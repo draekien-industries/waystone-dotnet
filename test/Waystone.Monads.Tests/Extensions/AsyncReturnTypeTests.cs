@@ -115,7 +115,9 @@ public sealed class AsyncReturnTypeTests
 
         ValueTask<Option<int>> chain =
             option.MapAsync(value => Task.FromResult(value + 1))
-                  .AndThenAsync(value => Task.FromResult(Option.Some(value + 1)))
+                  .AndThenAsync(
+                       value => new ValueTask<Option<int>>(
+                           Option.Some(value + 1)))
                   .FilterAsync(value => Task.FromResult(value > 0));
 
         (await chain).ShouldBe(Option.Some(3));
@@ -129,11 +131,77 @@ public sealed class AsyncReturnTypeTests
         ValueTask<Option<int>> chain =
             optionTask.MapAsync(value => Task.FromResult(value + 1))
                       .AndThenAsync(
-                           value => Task.FromResult(Option.Some(value + 1)))
+                           value => new ValueTask<Option<int>>(
+                               Option.Some(value + 1)))
                       .FilterAsync(value => Task.FromResult(value > 0));
 
         (await chain).ShouldBe(Option.Some(3));
     }
+
+    /// <summary>
+    /// A two-link async chain, whose signature is a step's signature. Up to 6.x
+    /// this could not exist as a step: every step parameter took a
+    /// <c>Task</c>-returning delegate while every member returned a
+    /// <see cref="ValueTask{TResult}" />, so a chain was terminal.
+    /// </summary>
+    private static ValueTask<Option<int>> DoubledThenIncremented(int value) =>
+        Option.Some(value)
+              .MapAsync(inner => Task.FromResult(inner * 2))
+              .AndThenAsync(
+                   inner => new ValueTask<Option<int>>(Option.Some(inner + 1)));
+
+    private static ValueTask<Result<int, string>> Halved(int value) =>
+        Result.Ok<int, string>(value)
+              .MapAsync(inner => Task.FromResult(inner / 2));
+
+    /// <summary>
+    /// The whole point of the delegate change: the chain above is handed over as a
+    /// method group, with no lambda and no <c>.AsTask()</c>. If this stops
+    /// compiling, an async chain has stopped being a step.
+    /// </summary>
+    [Fact]
+    public async Task GivenAnAsyncChain_ThenItComposesAsAStepByName()
+    {
+        Option<int> result = await Option.Some(3)
+                                        .AndThenAsync(DoubledThenIncremented);
+
+        result.ShouldBe(Option.Some(7));
+    }
+
+    [Fact]
+    public async Task GivenAnAsyncChainOverAResult_ThenItComposesAsAStepByName()
+    {
+        Result<int, string> result =
+            await Result.Ok<int, string>(8).AndThenAsync(Halved);
+
+        result.ShouldBe(Result.Ok<int, string>(4));
+    }
+
+    /// <summary>
+    /// A chain reused across two receiver shapes, which is what makes the step a
+    /// unit of reuse rather than a one-off.
+    /// </summary>
+    [Fact]
+    public async Task GivenAnAwaitedReceiver_ThenAnAsyncChainStillComposesAsAStep()
+    {
+        Option<int> result = await Task.FromResult(Option.Some(3))
+                                      .AndThenAsync(DoubledThenIncremented);
+
+        result.ShouldBe(Option.Some(7));
+    }
+
+    [Fact]
+    public async Task GivenAnAsyncChain_ThenItComposesAsAnOrElseStepByName()
+    {
+        Result<int, string> result = await Result.Err<int, string>("failed")
+                                               .OrElseAsync(Recovered);
+
+        result.ShouldBe(Result.Ok<int, string>(1));
+    }
+
+    private static ValueTask<Result<int, string>> Recovered(string error) =>
+        Result.Ok<int, string>(error.Length)
+              .MapAsync(inner => Task.FromResult(inner / 6));
 
     private static bool CannotCompleteSynchronously(MethodInfo method)
     {

@@ -382,7 +382,8 @@ public class NoneTest
         Option<int> none = Option.None<int>();
 
         Option<int> result =
-            await none.OrElseAsync(() => Task.FromResult(Option.Some(1)));
+            await none.OrElseAsync(
+                () => new ValueTask<Option<int>>(Option.Some(1)));
 
         result.ShouldBe(Option.Some(1));
     }
@@ -415,7 +416,8 @@ public class NoneTest
         Option<int> none = Option.None<int>();
 
         Option<int> result =
-            await none.AndThenAsync(x => Task.FromResult(Option.Some(x + 1)));
+            await none.AndThenAsync(
+                x => new ValueTask<Option<int>>(Option.Some(x + 1)));
 
         result.ShouldBe(none);
     }
