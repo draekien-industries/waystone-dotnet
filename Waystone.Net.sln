@@ -58,6 +58,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.SourceGener
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.SourceGenerators.Tests", "test\Waystone.Monads.SourceGenerators.Tests\Waystone.Monads.SourceGenerators.Tests.csproj", "{35C64EAF-3578-4795-91BA-34F401F442E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.Extensions.Logging", "src\Waystone.Monads.Extensions.Logging\Waystone.Monads.Extensions.Logging.csproj", "{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -296,6 +298,18 @@ Global
 		{35C64EAF-3578-4795-91BA-34F401F442E2}.Release|x64.Build.0 = Release|Any CPU
 		{35C64EAF-3578-4795-91BA-34F401F442E2}.Release|x86.ActiveCfg = Release|Any CPU
 		{35C64EAF-3578-4795-91BA-34F401F442E2}.Release|x86.Build.0 = Release|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Debug|x64.Build.0 = Debug|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Debug|x86.Build.0 = Debug|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Release|x64.ActiveCfg = Release|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Release|x64.Build.0 = Release|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Release|x86.ActiveCfg = Release|Any CPU
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -320,5 +334,6 @@ Global
 		{65B4269E-B928-44B8-B15B-8F475C09515D} = {67A04439-B9B7-4420-A229-6353EAD7E265}
 		{0DA32976-2ABC-41CF-A45B-0225487F63BE} = {5FB28234-858F-4E64-920E-245F92529D8F}
 		{35C64EAF-3578-4795-91BA-34F401F442E2} = {67A04439-B9B7-4420-A229-6353EAD7E265}
+		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7} = {5FB28234-858F-4E64-920E-245F92529D8F}
 	EndGlobalSection
 EndGlobal

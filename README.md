@@ -23,6 +23,7 @@
 Waystone.Net is a collection of C# class libraries published to NuGet.org. You can install them via the NuGet package manager by searching for `Waystone` packages. The following packages are currently available:
 
 - Waystone.Monads
+- Waystone.Monads.Extensions.Logging
 - Waystone.Monads.FluentValidation
 - Waystone.WideLogEvents
 - Serilog.Enrichers.Waystone.WideLogEvents
