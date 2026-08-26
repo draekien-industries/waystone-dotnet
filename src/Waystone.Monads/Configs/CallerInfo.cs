@@ -10,9 +10,11 @@ using System.Diagnostics;
 /// <see cref="System.Runtime.CompilerServices.CallerMemberNameAttribute" />,
 /// <see cref="System.Runtime.CompilerServices.CallerArgumentExpressionAttribute" />
 /// and <see cref="System.Runtime.CompilerServices.CallerLineNumberAttribute" />
-/// values at the <c>Try</c> or <c>TryAsync</c> call, then hands it to the logger
-/// registered through <see cref="MonadOptions.UseExceptionLogger" />. Do not
-/// supply these values yourself.
+/// values at the <c>Try</c> or <c>TryAsync</c> call, then reports it on the
+/// <see cref="Diagnostics.ExceptionHandled" /> diagnostic event and hands it to
+/// any logger registered through
+/// <see cref="MonadOptions.UseExceptionLogger" />. Do not supply these values
+/// yourself.
 /// </remarks>
 /// <param name="MemberName">The member that called <c>Try</c>.</param>
 /// <param name="ArgumentExpression">

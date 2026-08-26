@@ -56,6 +56,7 @@ the escape hatch for a throwaway run you do not want in the tree.
 | `HotPathBenchmarks` | The paths that produce a `None` — the factory, a rejecting `Filter`, `Map`/`Zip` on a `None`, `Xor`, and an async short circuit |
 | `StateOverloadBenchmarks` | `Map`, `MapOr` and `Filter` on `Option`, `Map` on `Result`, and `Try` on both, each run twice — once with a capturing lambda and once with the state overload |
 | `StateOverloadCandidateBenchmarks` | The nine delegate *shapes* DRA-108 found without a state overload, each run twice — once with a capturing lambda and once with the state overload. Both sides call shipped members; the `private static` prototypes the class was built on are gone |
+| `TryDiagnosticsBenchmarks` | `Try` on the succeeding path and on the throwing path, the latter run twice — once with nothing listening and once with both a `MeterListener` and a `DiagnosticListener` subscriber attached |
 
 `AsyncChainBenchmarks` is the one to watch across the v6 stack. A chain today
 starts as `ValueTask` off an `Option<T>` receiver and degrades to `Task` at the
@@ -319,3 +320,42 @@ third time on this page that it is the column to read.
 
 `Match` is the exception that keeps its headline everywhere: 0.36×, 0.39× and
 0.45× across the three `Match` rows, against 152 B eliminated.
+
+## Native diagnostics on the `Try` paths
+
+`artifacts/dra-116-before/` and `artifacts/dra-116/` hold the two runs, same
+machine and settings. DRA-116 made `Waystone.Monads` emit a counter and a
+diagnostic event every time a `Try` swallows an exception, which puts new code on
+a path DRA-100 had just finished emptying. The question this class answers is what
+that costs a consumer who is not listening.
+
+| Call | before | after | Δ |
+| -- | --: | --: | --: |
+| `Option.Try`, succeeds | 24 B | 24 B | 0 B |
+| `Option.Try`, throws, nothing listening | 480 B | 480 B | 0 B |
+| `Result.Try`, throws, nothing listening | 616 B | 616 B | 0 B |
+| `Option.Try`, throws, observed | — | 520 B | +40 B |
+| `Result.Try`, throws, observed | — | 656 B | +40 B |
+
+**Nobody listening pays nothing.** Both gates — `Instrument.Enabled` and
+`DiagnosticListener.IsEnabled` — resolve to a field read against a null
+subscriber list, so the unobserved rows are byte-identical before and after and
+their means sit inside each other's error bars.
+
+**Listening costs 40 B, and all of it is the event payload.** The counter itself
+allocates nothing: two tags fit the `Counter<long>.Add` overload that takes them
+as arguments, so they travel in a stack `TagList` and never reach the heap. The
+40 B is one `ExceptionHandled` record — three fields and a header — built because
+`DiagnosticListener` is untyped and a subscriber needs an object to cast.
+
+The `before` column has no entry for the observed rows: with the emission call
+removed there is nothing to observe, so those two benchmarks measure the
+unobserved path and the comparison is meaningless. The `before` run was captured
+by commenting out the single call in `MonadOptions.Log` rather than by building
+`main`, because the benchmark class references the diagnostic names and would not
+compile against `main` at all.
+
+Read this table against the exception, not against the counter. A thrown
+exception costs 3.2 µs and 480 B before anything of ours runs; 40 B on top of it,
+paid only by a consumer who asked to observe, is under nine percent of an
+allocation they had already decided to accept.

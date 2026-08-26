@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using Diagnostics;
 using Options;
 using Results.Errors;
 
@@ -89,7 +90,10 @@ public sealed class MonadOptions
         return (T)Satellites.GetOrAdd(typeof(T), _ => create());
     }
 
-    internal void Log(Exception exception, CallerInfo callerInfo)
+    internal void Log(
+        Exception exception,
+        CallerInfo callerInfo,
+        MonadKind monad)
     {
         if (Debugger.IsAttached)
         {
@@ -102,6 +106,8 @@ public sealed class MonadOptions
             Console.WriteLine(
                 $"  Argument Expression: {callerInfo.ArgumentExpression}");
         }
+
+        MonadDiagnostics.RecordExceptionHandled(exception, callerInfo, monad);
 
         ExceptionLogger.Inspect(logger => logger.Invoke(exception, callerInfo));
     }

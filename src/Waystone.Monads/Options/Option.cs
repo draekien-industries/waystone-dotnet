@@ -4,6 +4,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
+using Diagnostics;
 #if !DEBUG
 using System.Diagnostics;
 #endif
@@ -68,7 +69,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Option);
             return None<T>();
         }
     }
@@ -123,7 +124,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Option);
             return None<T>();
         }
     }
@@ -195,7 +196,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Option);
             return None<T>();
         }
     }
@@ -268,7 +269,7 @@ public static class Option
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Option);
             return None<T>();
         }
     }

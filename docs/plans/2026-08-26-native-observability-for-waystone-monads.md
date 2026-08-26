@@ -118,8 +118,10 @@ PR 3 must not precede PR 2, or the obsoletion names a replacement nobody can ins
   `ExceptionLogger` so both paths work through 6.x.
 - Gate both on their enablement checks — `Instrument.Enabled` and
   `DiagnosticListener.IsEnabled(eventName)` — so an unobserved process allocates nothing.
-- `PublicAPI.Unshipped.txt` rows and doc comments for every new public member, written
-  through `engineering-skills:with-doc-comments`.
+- Public API baseline rows and doc comments for every new public member, written
+  through `engineering-skills:with-doc-comments`. The rows go straight into
+  `PublicAPI.Shipped.txt` — `pre-push` fails on an unshipped one, so `Unshipped.txt`
+  is not a resting place for a change that is about to be pushed.
 - Benchmark: `Try` on the success and throwing paths, observed and unobserved, with
   before/after `[MemoryDiagnoser]` figures in the PR body. This sits on the paths DRA-100
   optimised, so a regression here is a blocker rather than a note.

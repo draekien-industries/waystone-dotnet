@@ -49,6 +49,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="System.Diagnostics.DiagnosticSource"/>
         <PackageReference Include="System.Threading.Tasks.Extensions"/>
         <PackageReference Include="System.ValueTuple"/>
     </ItemGroup>
