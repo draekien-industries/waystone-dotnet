@@ -20,6 +20,21 @@ Waystone.Monads.Configs.MonadOptions.UseFallbackErrorMessage(string! errorMessag
 Waystone.Monads.Configs.MonadOptionsScope
 Waystone.Monads.Configs.MonadOptionsScope.Dispose() -> void
 Waystone.Monads.Configs.MonadOptionsScope.MonadOptionsScope() -> void
+Waystone.Monads.Diagnostics.ExceptionHandled
+Waystone.Monads.Diagnostics.ExceptionHandled.<Clone>$() -> Waystone.Monads.Diagnostics.ExceptionHandled!
+Waystone.Monads.Diagnostics.ExceptionHandled.Caller.get -> Waystone.Monads.Configs.CallerInfo!
+Waystone.Monads.Diagnostics.ExceptionHandled.Caller.init -> void
+Waystone.Monads.Diagnostics.ExceptionHandled.Deconstruct(out System.Exception! Exception, out Waystone.Monads.Configs.CallerInfo! Caller, out Waystone.Monads.Diagnostics.MonadKind Monad) -> void
+Waystone.Monads.Diagnostics.ExceptionHandled.Equals(Waystone.Monads.Diagnostics.ExceptionHandled? other) -> bool
+Waystone.Monads.Diagnostics.ExceptionHandled.Exception.get -> System.Exception!
+Waystone.Monads.Diagnostics.ExceptionHandled.Exception.init -> void
+Waystone.Monads.Diagnostics.ExceptionHandled.ExceptionHandled(System.Exception! Exception, Waystone.Monads.Configs.CallerInfo! Caller, Waystone.Monads.Diagnostics.MonadKind Monad) -> void
+Waystone.Monads.Diagnostics.ExceptionHandled.Monad.get -> Waystone.Monads.Diagnostics.MonadKind
+Waystone.Monads.Diagnostics.ExceptionHandled.Monad.init -> void
+Waystone.Monads.Diagnostics.MonadDiagnostics
+Waystone.Monads.Diagnostics.MonadKind
+Waystone.Monads.Diagnostics.MonadKind.Option = 0 -> Waystone.Monads.Diagnostics.MonadKind
+Waystone.Monads.Diagnostics.MonadKind.Result = 1 -> Waystone.Monads.Diagnostics.MonadKind
 Waystone.Monads.Exceptions.UnmetExpectationException
 Waystone.Monads.Exceptions.UnwrapException
 Waystone.Monads.Exceptions.UnwrapException<T>
@@ -546,9 +561,20 @@ abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOr(TOk default) -> TOk
 abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOrDefault() -> TOk?
 abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOrElse(System.Func<TErr, TOk>! onErr) -> TOk
 abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOrElse<TState>(TState state, System.Func<TErr, TState, TOk>! onErr) -> TOk
+const Waystone.Monads.Diagnostics.MonadDiagnostics.ErrorTypeTagKey = "error.type" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.ExceptionHandledEventName = "Waystone.Monads.ExceptionHandled" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.ExceptionsHandledInstrumentName = "waystone.monads.exceptions_handled" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.ListenerName = "Waystone.Monads" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.MeterName = "Waystone.Monads" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.MonadTagKey = "waystone.monads.monad" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.OptionMonadTagValue = "option" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.ResultMonadTagValue = "result" -> string!
 override Waystone.Monads.Configs.CallerInfo.Equals(object? obj) -> bool
 override Waystone.Monads.Configs.CallerInfo.GetHashCode() -> int
 override Waystone.Monads.Configs.CallerInfo.ToString() -> string!
+override Waystone.Monads.Diagnostics.ExceptionHandled.Equals(object? obj) -> bool
+override Waystone.Monads.Diagnostics.ExceptionHandled.GetHashCode() -> int
+override Waystone.Monads.Diagnostics.ExceptionHandled.ToString() -> string!
 override Waystone.Monads.Options.None<T>.<Clone>$() -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.And<TOut>(Waystone.Monads.Options.Option<TOut>! other) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.None<T>.AsEnumerable() -> System.Collections.Generic.IEnumerable<T>!
@@ -745,6 +771,8 @@ static Waystone.Monads.Configs.CallerInfo.operator !=(Waystone.Monads.Configs.Ca
 static Waystone.Monads.Configs.CallerInfo.operator ==(Waystone.Monads.Configs.CallerInfo? left, Waystone.Monads.Configs.CallerInfo? right) -> bool
 static Waystone.Monads.Configs.MonadOptions.BeginScope(System.Action<Waystone.Monads.Configs.MonadOptions!>! configure) -> Waystone.Monads.Configs.MonadOptionsScope
 static Waystone.Monads.Configs.MonadOptions.Configure(System.Action<Waystone.Monads.Configs.MonadOptions!>! configure) -> void
+static Waystone.Monads.Diagnostics.ExceptionHandled.operator !=(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
+static Waystone.Monads.Diagnostics.ExceptionHandled.operator ==(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
 static Waystone.Monads.Options.Extensions.AndExtensions.AndAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, Waystone.Monads.Options.Option<TOut>! other) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 static Waystone.Monads.Options.Extensions.AndExtensions.AndAsync<T, TOut>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, Waystone.Monads.Options.Option<TOut>! other) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 static Waystone.Monads.Options.Extensions.AndThenExtensions.AndThenAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<T, System.Threading.Tasks.Task<Waystone.Monads.Options.Option<TOut>!>!>! map) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>

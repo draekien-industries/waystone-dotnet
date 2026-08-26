@@ -4,6 +4,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Configs;
+using Diagnostics;
 using Errors;
 #if !DEBUG
 using System.Diagnostics;
@@ -89,7 +90,7 @@ public static class Result
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Result);
             return Err<TOk, TErr>(onError(ex));
         }
 
@@ -167,7 +168,7 @@ public static class Result
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Result);
             return Err<TOk, TErr>(onError(ex));
         }
 
@@ -263,7 +264,7 @@ public static class Result
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Result);
             return Err<TOk, TErr>(onError(ex));
         }
 
@@ -358,7 +359,7 @@ public static class Result
                 callerMemberName,
                 callerArgumentExpression,
                 callerLineNumber);
-            MonadOptions.Current.Log(ex, caller);
+            MonadOptions.Current.Log(ex, caller, MonadKind.Result);
             return Err<TOk, TErr>(onError(ex));
         }
 
