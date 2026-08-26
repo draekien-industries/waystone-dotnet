@@ -1,6 +1,6 @@
 ---
 name: waystone-monads
-description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM diagnostic fires, when extracting a reusable chain of fallible steps, or when the user says "use an Option", "return a Result", "make this monadic", "make this pipeline reusable".
+description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM diagnostic fires, when extracting a reusable chain of fallible steps, when configuring MonadOptions or observing the exceptions Try swallows, or when the user says "use an Option", "return a Result", "make this monadic", "make this pipeline reusable".
 ---
 
 # Waystone.Monads
@@ -298,13 +298,34 @@ nothing distinguishes that from a real one. `UnwrapOrNull` returns `null`
 instead (`WM2015`). The default is fine when the caller genuinely wants it; the
 point is to make that a decision rather than an accident.
 
+## See what Try swallowed
+
+`Try` and `TryAsync` catch the exception and hand back a `None` or an `Err`, so it
+reaches no caller — and in the `Option` case is gone for good. The library reports
+each one it catches on a meter and a `DiagnosticListener` named after itself, both
+gated on whether anything is listening. Two things follow for code written here:
+
+- **`MonadOptions.UseExceptionLogger` is obsolete** and removed in `7.0.0`.
+  Configure logging through `Waystone.Monads.Extensions.Logging` instead, with
+  `UseLoggerFactoryFrom`, `UseLoggerFactory` or `UseLogger`. Configuring both
+  reports every handled exception twice.
+- **Never write one of the names as a literal.** Meter, listener, event, instrument
+  and tag names are constants on `MonadDiagnostics`. A mistyped literal subscribes
+  to nothing and fails silently — no exception, no warning, an empty dashboard.
+
+Read [references/observability.md](references/observability.md) before wiring up
+either channel, before migrating a `UseExceptionLogger` call, and before writing a
+test that asserts a `Try` swallowed something.
+
 ## Where the detail lives
 
 These areas carry more than the chain above needs. Load the one the code is
-actually touching. Two further references —
-[references/diagnostics.md](references/diagnostics.md) for the full rule table
-and [references/state-overloads.md](references/state-overloads.md) for closure
-mechanics — are pointed to above, where the situation that needs them arises.
+actually touching. Three further references —
+[references/diagnostics.md](references/diagnostics.md) for the full rule table,
+[references/state-overloads.md](references/state-overloads.md) for closure
+mechanics and [references/observability.md](references/observability.md) for the
+metrics, logging and raw-event channels — are pointed to above, where the
+situation that needs them arises.
 
 **Every code sample, here and in the references, is illustrative.** The recurring
 `Order`, `Quote`, `Invoice` and `Shipment` types are there to make a shape legible
@@ -356,6 +377,10 @@ Run over the code just written and rewrite each of these where it appears:
       rather than as a chain
 - [ ] Every `.AsTask()` reached for to make an async chain composable — reverted,
       and the reuse moved down to the steps
+- [ ] Every `UseExceptionLogger` call — migrated onto the logging package, not
+      suppressed
+- [ ] Every observability name written as a literal — replaced with the
+      `MonadDiagnostics` constant
 
 The build is the check that this landed: `WM1xxx` rules are warnings and
 `WM2xxx` are informational, both enabled by default, and both ship inside the
