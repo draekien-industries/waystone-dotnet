@@ -2,8 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
-public static class MapErrExtensions
+[GenerateAwaitedReceivers(typeof(Result<,>))]
+[GenerateAwaitedMember(nameof(Result<,>.MapErr))]
+public static partial class MapErrExtensions
 {
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull
@@ -24,52 +27,6 @@ public static class MapErrExtensions
             TOut output = await map.Invoke(err).ConfigureAwait(false);
 
             return Result.Err<TOk, TOut>(output);
-        }
-    }
-
-    extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
-            Func<TErr, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapErrAsync(map).ConfigureAwait(false);
-        }
-
-        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
-            Func<TErr, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.MapErr(map);
-        }
-    }
-
-    extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
-            Func<TErr, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapErrAsync(map).ConfigureAwait(false);
-        }
-
-        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
-            Func<TErr, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.MapErr(map);
         }
     }
 }
