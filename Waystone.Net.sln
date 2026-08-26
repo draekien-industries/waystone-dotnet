@@ -62,6 +62,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.Extensions.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.Observability.Sample", "sample\Waystone.Monads.Observability.Sample\Waystone.Monads.Observability.Sample.csproj", "{28FB0A20-0EDC-4E94-B05F-EDFC581C22CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.PreviousMajor.Sample", "sample\Waystone.Monads.PreviousMajor.Sample\Waystone.Monads.PreviousMajor.Sample.csproj", "{01D1D9B8-DE53-45E5-B38A-B419564786DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.PreviousMajor.Declarations.Sample", "sample\Waystone.Monads.PreviousMajor.Declarations.Sample\Waystone.Monads.PreviousMajor.Declarations.Sample.csproj", "{A6276F8C-A60A-4FAA-932E-63810AFD7760}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -324,6 +328,18 @@ Global
 		{28FB0A20-0EDC-4E94-B05F-EDFC581C22CE}.Release|x64.Build.0 = Release|Any CPU
 		{28FB0A20-0EDC-4E94-B05F-EDFC581C22CE}.Release|x86.ActiveCfg = Release|Any CPU
 		{28FB0A20-0EDC-4E94-B05F-EDFC581C22CE}.Release|x86.Build.0 = Release|Any CPU
+		{01D1D9B8-DE53-45E5-B38A-B419564786DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01D1D9B8-DE53-45E5-B38A-B419564786DA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{01D1D9B8-DE53-45E5-B38A-B419564786DA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{01D1D9B8-DE53-45E5-B38A-B419564786DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01D1D9B8-DE53-45E5-B38A-B419564786DA}.Release|x64.ActiveCfg = Release|Any CPU
+		{01D1D9B8-DE53-45E5-B38A-B419564786DA}.Release|x86.ActiveCfg = Release|Any CPU
+		{A6276F8C-A60A-4FAA-932E-63810AFD7760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6276F8C-A60A-4FAA-932E-63810AFD7760}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A6276F8C-A60A-4FAA-932E-63810AFD7760}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A6276F8C-A60A-4FAA-932E-63810AFD7760}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6276F8C-A60A-4FAA-932E-63810AFD7760}.Release|x64.ActiveCfg = Release|Any CPU
+		{A6276F8C-A60A-4FAA-932E-63810AFD7760}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -350,5 +366,7 @@ Global
 		{35C64EAF-3578-4795-91BA-34F401F442E2} = {67A04439-B9B7-4420-A229-6353EAD7E265}
 		{10542B51-5AAF-438E-B86C-7E9B06E2B6D7} = {5FB28234-858F-4E64-920E-245F92529D8F}
 		{28FB0A20-0EDC-4E94-B05F-EDFC581C22CE} = {F0B7769E-388B-4FA6-B0F4-1599CE75C5D6}
+		{01D1D9B8-DE53-45E5-B38A-B419564786DA} = {F0B7769E-388B-4FA6-B0F4-1599CE75C5D6}
+		{A6276F8C-A60A-4FAA-932E-63810AFD7760} = {F0B7769E-388B-4FA6-B0F4-1599CE75C5D6}
 	EndGlobalSection
 EndGlobal
