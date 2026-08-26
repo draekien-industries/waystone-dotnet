@@ -159,7 +159,7 @@ public static class OptionsCollectionExtensions
     /// when every element is a <see cref="Some{T}" /> — including for an empty
     /// stream. Otherwise a <see cref="None{T}" />.
     /// </returns>
-    public static async Task<Option<IReadOnlyList<T>>> CollectAsync<T>(
+    public static async ValueTask<Option<IReadOnlyList<T>>> CollectAsync<T>(
         this IAsyncEnumerable<Option<T>> options,
         CancellationToken cancellationToken = default) where T : notnull
     {

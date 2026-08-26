@@ -141,7 +141,7 @@ public static class ResultsCollectionExtensions
     /// an empty stream. Otherwise an <see cref="Err{TOk,TErr}" /> carrying the first
     /// error.
     /// </returns>
-    public static async Task<Result<IReadOnlyList<TOk>, TErr>>
+    public static async ValueTask<Result<IReadOnlyList<TOk>, TErr>>
         CollectAsync<TOk, TErr>(
             this IAsyncEnumerable<Result<TOk, TErr>> results,
             CancellationToken cancellationToken = default)
