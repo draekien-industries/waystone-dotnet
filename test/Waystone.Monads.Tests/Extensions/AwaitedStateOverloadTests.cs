@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 /// <remarks>
-/// These twenty overloads exist only because DRA-110 converted the last
+/// These twenty-two overloads exist only because DRA-110 converted the last
 /// hand-written families to generated awaited receivers, and the generator lifts
 /// every overload of the core member rather than the subset that happened to be
 /// written by hand. The hand-written blocks lifted the plain overload and never
@@ -275,4 +275,26 @@ public sealed class AwaitedStateOverloadTests
         mapped.ShouldBe(9);
         fallback.ShouldBe(-1);
     }
+
+    [Fact]
+    public async Task GivenOptionTask_WhenMapOrAsyncWithState_ThenUseTheState()
+    {
+        int mapped = await SomeTask(2).MapOrAsync(State, -1, Sum);
+        int fallback = await NoneTask().MapOrAsync(State, -1, Sum);
+
+        mapped.ShouldBe(9);
+        fallback.ShouldBe(-1);
+    }
+
+    [Fact]
+    public async Task
+        GivenOptionValueTask_WhenMapOrAsyncWithState_ThenUseTheState()
+    {
+        int mapped = await SomeValueTask(2).MapOrAsync(State, -1, Sum);
+        int fallback = await NoneValueTask().MapOrAsync(State, -1, Sum);
+
+        mapped.ShouldBe(9);
+        fallback.ShouldBe(-1);
+    }
 }
+
