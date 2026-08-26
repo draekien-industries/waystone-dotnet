@@ -97,7 +97,10 @@ oversight.
 ## The stack
 
 Built bottom to top with `gh stack init` before the first PR is opened, extended with
-`gh stack add`. All of PRs 1–3 land in `6.6.0`. None carries `!`.
+`gh stack add`. All of PRs 1–3 land in `6.7.0`. None carries `!`.
+
+`6.6.0` shipped while this plan was being drafted, so the version moved before any of
+it was written. Three `feat` titles give one minor bump between them, not three.
 
 | # | PR title | Milestone |
 | --- | --- | --- |
