@@ -1,0 +1,51 @@
+#nullable enable
+Shouldly.OptionAssertions
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!)
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).ShouldBeNoneAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).ShouldBeSomeAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>!).ShouldBeSomeValueAsync(T expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>)
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).ShouldBeNoneAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).ShouldBeSomeAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+Shouldly.OptionAssertions.extension<T>(System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>).ShouldBeSomeValueAsync(T expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+Shouldly.OptionAssertions.extension<T>(Waystone.Monads.Options.Option<T>!)
+Shouldly.OptionAssertions.extension<T>(Waystone.Monads.Options.Option<T>!).ShouldBeNone(string? customMessage = null, string? actualExpression = null) -> void
+Shouldly.OptionAssertions.extension<T>(Waystone.Monads.Options.Option<T>!).ShouldBeSome(string? customMessage = null, string? actualExpression = null) -> T
+Shouldly.OptionAssertions.extension<T>(Waystone.Monads.Options.Option<T>!).ShouldBeSomeValue(T expected, string? customMessage = null, string? actualExpression = null) -> T
+Shouldly.ResultAssertions
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>!)
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>!).ShouldBeErrAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>!).ShouldBeErrValueAsync(TErr expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>!).ShouldBeOkAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>!).ShouldBeOkValueAsync(TOk expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!>)
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!>).ShouldBeErrAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!>).ShouldBeErrValueAsync(TErr expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!>).ShouldBeOkAsync(string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
+Shouldly.ResultAssertions.extension<TOk, TErr>(System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!>).ShouldBeOkValueAsync(TOk expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
+Shouldly.ResultAssertions.extension<TOk, TErr>(Waystone.Monads.Results.Result<TOk, TErr>!)
+Shouldly.ResultAssertions.extension<TOk, TErr>(Waystone.Monads.Results.Result<TOk, TErr>!).ShouldBeErr(string? customMessage = null, string? actualExpression = null) -> TErr
+Shouldly.ResultAssertions.extension<TOk, TErr>(Waystone.Monads.Results.Result<TOk, TErr>!).ShouldBeErrValue(TErr expected, string? customMessage = null, string? actualExpression = null) -> TErr
+Shouldly.ResultAssertions.extension<TOk, TErr>(Waystone.Monads.Results.Result<TOk, TErr>!).ShouldBeOk(string? customMessage = null, string? actualExpression = null) -> TOk
+Shouldly.ResultAssertions.extension<TOk, TErr>(Waystone.Monads.Results.Result<TOk, TErr>!).ShouldBeOkValue(TOk expected, string? customMessage = null, string? actualExpression = null) -> TOk
+static Shouldly.OptionAssertions.ShouldBeNone<T>(this Waystone.Monads.Options.Option<T>! actual, string? customMessage = null, string? actualExpression = null) -> void
+static Shouldly.OptionAssertions.ShouldBeNoneAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask
+static Shouldly.OptionAssertions.ShouldBeNoneAsync<T>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask
+static Shouldly.OptionAssertions.ShouldBeSome<T>(this Waystone.Monads.Options.Option<T>! actual, string? customMessage = null, string? actualExpression = null) -> T
+static Shouldly.OptionAssertions.ShouldBeSomeAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+static Shouldly.OptionAssertions.ShouldBeSomeAsync<T>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+static Shouldly.OptionAssertions.ShouldBeSomeValue<T>(this Waystone.Monads.Options.Option<T>! actual, T expected, string? customMessage = null, string? actualExpression = null) -> T
+static Shouldly.OptionAssertions.ShouldBeSomeValueAsync<T>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! actual, T expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+static Shouldly.OptionAssertions.ShouldBeSomeValueAsync<T>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> actual, T expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<T>
+static Shouldly.ResultAssertions.ShouldBeErr<TOk, TErr>(this Waystone.Monads.Results.Result<TOk, TErr>! actual, string? customMessage = null, string? actualExpression = null) -> TErr
+static Shouldly.ResultAssertions.ShouldBeErrAsync<TOk, TErr>(this System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>! actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+static Shouldly.ResultAssertions.ShouldBeErrAsync<TOk, TErr>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!> actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+static Shouldly.ResultAssertions.ShouldBeErrValue<TOk, TErr>(this Waystone.Monads.Results.Result<TOk, TErr>! actual, TErr expected, string? customMessage = null, string? actualExpression = null) -> TErr
+static Shouldly.ResultAssertions.ShouldBeErrValueAsync<TOk, TErr>(this System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>! actual, TErr expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+static Shouldly.ResultAssertions.ShouldBeErrValueAsync<TOk, TErr>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!> actual, TErr expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TErr>
+static Shouldly.ResultAssertions.ShouldBeOk<TOk, TErr>(this Waystone.Monads.Results.Result<TOk, TErr>! actual, string? customMessage = null, string? actualExpression = null) -> TOk
+static Shouldly.ResultAssertions.ShouldBeOkAsync<TOk, TErr>(this System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>! actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
+static Shouldly.ResultAssertions.ShouldBeOkAsync<TOk, TErr>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!> actual, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
+static Shouldly.ResultAssertions.ShouldBeOkValue<TOk, TErr>(this Waystone.Monads.Results.Result<TOk, TErr>! actual, TOk expected, string? customMessage = null, string? actualExpression = null) -> TOk
+static Shouldly.ResultAssertions.ShouldBeOkValueAsync<TOk, TErr>(this System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TOk, TErr>!>! actual, TOk expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
+static Shouldly.ResultAssertions.ShouldBeOkValueAsync<TOk, TErr>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!> actual, TOk expected, string? customMessage = null, string? actualExpression = null) -> System.Threading.Tasks.ValueTask<TOk>
