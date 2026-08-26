@@ -2,8 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
-public static class MapOrElseExtensions
+[GenerateAwaitedReceivers(typeof(Result<,>))]
+[GenerateAwaitedMember(nameof(Result<,>.MapOrElse))]
+public static partial class MapOrElseExtensions
 {
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull where TErr : notnull
@@ -60,100 +63,6 @@ public static class MapOrElseExtensions
             TOut output = map.Invoke(ok);
 
             return output;
-        }
-    }
-
-    extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> defaultFactory,
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapOrElseAsync(defaultFactory, map)
-               .ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> defaultFactory,
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapOrElseAsync(defaultFactory, map)
-               .ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> defaultFactory,
-            Func<TOk, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapOrElseAsync(defaultFactory, map)
-               .ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> defaultFactory,
-            Func<TOk, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.MapOrElse(defaultFactory, map);
-        }
-    }
-
-    extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> defaultFactory,
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapOrElseAsync(defaultFactory, map)
-               .ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> defaultFactory,
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapOrElseAsync(defaultFactory, map)
-               .ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> defaultFactory,
-            Func<TOk, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapOrElseAsync(defaultFactory, map)
-               .ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> defaultFactory,
-            Func<TOk, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.MapOrElse(defaultFactory, map);
         }
     }
 }

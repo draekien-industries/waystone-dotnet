@@ -2,8 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
-public static class UnwrapOrElseExtensions
+[GenerateAwaitedReceivers(typeof(Result<,>))]
+[GenerateAwaitedMember(nameof(Result<,>.UnwrapOrElse))]
+public static partial class UnwrapOrElseExtensions
 {
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull
@@ -23,46 +26,6 @@ public static class UnwrapOrElseExtensions
                .ConfigureAwait(false);
 
             return output;
-        }
-    }
-
-    extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> valueFactory)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.UnwrapOrElse(valueFactory);
-        }
-
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> valueFactory)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.UnwrapOrElseAsync(valueFactory)
-               .ConfigureAwait(false);
-        }
-    }
-
-    extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> valueFactory)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.UnwrapOrElse(valueFactory);
-        }
-
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> valueFactory)
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.UnwrapOrElseAsync(valueFactory)
-               .ConfigureAwait(false);
         }
     }
 }
