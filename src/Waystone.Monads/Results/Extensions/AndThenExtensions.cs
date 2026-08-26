@@ -13,28 +13,28 @@ public static class AndThenExtensions
         where TOk : notnull where TErr : notnull
     {
         /// <summary>
-        /// Calls <paramref name="factory" /> with the contained value if the result
+        /// Calls <paramref name="resultFactory" /> with the contained value if the result
         /// is an <see cref="Ok{TOk,TErr}" /> and awaits it, otherwise propagates the
         /// error.
         /// </summary>
         /// <remarks>
-        /// <paramref name="factory" /> is not invoked for an
+        /// <paramref name="resultFactory" /> is not invoked for an
         /// <see cref="Err{TOk,TErr}" />. Any exception the returned task faults with
         /// surfaces to the caller unchanged.
         /// </remarks>
         /// <typeparam name="TOut">
-        /// The ok value type of the result produced by <paramref name="factory" />.
+        /// The ok value type of the result produced by <paramref name="resultFactory" />.
         /// </typeparam>
-        /// <param name="factory">
+        /// <param name="resultFactory">
         /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// The result <paramref name="factory" /> produced, or the original error
+        /// The result <paramref name="resultFactory" /> produced, or the original error
         /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>>
-            AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>> factory)
+            AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory)
             where TOut : notnull
         {
             if (result.IsErr)
@@ -46,7 +46,7 @@ public static class AndThenExtensions
 
             TOk ok = result.Expect("Expected Ok but found Err.");
 
-            return await factory.Invoke(ok).ConfigureAwait(false);
+            return await resultFactory.Invoke(ok).ConfigureAwait(false);
         }
     }
 
@@ -55,62 +55,62 @@ public static class AndThenExtensions
     {
         /// <summary>
         /// Awaits the receiver, then calls the asynchronous
-        /// <paramref name="factory" /> with the contained value if the result is an
+        /// <paramref name="resultFactory" /> with the contained value if the result is an
         /// <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
         /// <remarks>
-        /// <paramref name="factory" /> is not invoked for an
+        /// <paramref name="resultFactory" /> is not invoked for an
         /// <see cref="Err{TOk,TErr}" />. The receiver is awaited first, so a faulted
-        /// receiver task throws before <paramref name="factory" /> is reached.
+        /// receiver task throws before <paramref name="resultFactory" /> is reached.
         /// </remarks>
         /// <typeparam name="TOut">
-        /// The ok value type of the result produced by <paramref name="factory" />.
+        /// The ok value type of the result produced by <paramref name="resultFactory" />.
         /// </typeparam>
-        /// <param name="factory">
+        /// <param name="resultFactory">
         /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// The result <paramref name="factory" /> produced, or the original error
+        /// The result <paramref name="resultFactory" /> produced, or the original error
         /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-            Func<TOk, ValueTask<Result<TOut, TErr>>> factory)
+            Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.AndThenAsync(factory).ConfigureAwait(false);
+            return await result.AndThenAsync(resultFactory).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Awaits the receiver, then calls the synchronous
-        /// <paramref name="factory" /> with the contained value if the result is an
+        /// <paramref name="resultFactory" /> with the contained value if the result is an
         /// <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
         /// <remarks>
         /// Pick this over the sibling taking a <see cref="Task{TResult}" />-returning
-        /// factory when the continuation does no I/O; it avoids a second await.
-        /// <paramref name="factory" /> is not invoked for an
+        /// delegate when the continuation does no I/O; it avoids a second await.
+        /// <paramref name="resultFactory" /> is not invoked for an
         /// <see cref="Err{TOk,TErr}" />.
         /// </remarks>
         /// <typeparam name="TOut">
-        /// The ok value type of the result produced by <paramref name="factory" />.
+        /// The ok value type of the result produced by <paramref name="resultFactory" />.
         /// </typeparam>
-        /// <param name="factory">
+        /// <param name="resultFactory">
         /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// The result <paramref name="factory" /> produced, or the original error
+        /// The result <paramref name="resultFactory" /> produced, or the original error
         /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-            Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull
+            Func<TOk, Result<TOut, TErr>> resultFactory) where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.AndThen(factory);
+            return result.AndThen(resultFactory);
         }
     }
 
@@ -119,61 +119,61 @@ public static class AndThenExtensions
     {
         /// <summary>
         /// Awaits the <see cref="ValueTask{TResult}" /> receiver, then calls the
-        /// asynchronous <paramref name="factory" /> with the contained value if the
+        /// asynchronous <paramref name="resultFactory" /> with the contained value if the
         /// result is an <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
         /// <remarks>
         /// The receiver is awaited once, so it must not have been awaited already.
-        /// <paramref name="factory" /> is not invoked for an
+        /// <paramref name="resultFactory" /> is not invoked for an
         /// <see cref="Err{TOk,TErr}" />.
         /// </remarks>
         /// <typeparam name="TOut">
-        /// The ok value type of the result produced by <paramref name="factory" />.
+        /// The ok value type of the result produced by <paramref name="resultFactory" />.
         /// </typeparam>
-        /// <param name="factory">
+        /// <param name="resultFactory">
         /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// The result <paramref name="factory" /> produced, or the original error
+        /// The result <paramref name="resultFactory" /> produced, or the original error
         /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-            Func<TOk, ValueTask<Result<TOut, TErr>>> factory)
+            Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.AndThenAsync(factory).ConfigureAwait(false);
+            return await result.AndThenAsync(resultFactory).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Awaits the <see cref="ValueTask{TResult}" /> receiver, then calls the
-        /// synchronous <paramref name="factory" /> with the contained value if the
+        /// synchronous <paramref name="resultFactory" /> with the contained value if the
         /// result is an <see cref="Ok{TOk,TErr}" />, otherwise propagates the error.
         /// </summary>
         /// <remarks>
         /// The receiver is awaited once, so it must not have been awaited already.
-        /// <paramref name="factory" /> is not invoked for an
+        /// <paramref name="resultFactory" /> is not invoked for an
         /// <see cref="Err{TOk,TErr}" />.
         /// </remarks>
         /// <typeparam name="TOut">
-        /// The ok value type of the result produced by <paramref name="factory" />.
+        /// The ok value type of the result produced by <paramref name="resultFactory" />.
         /// </typeparam>
-        /// <param name="factory">
+        /// <param name="resultFactory">
         /// Produces the next result from the contained ok value.
         /// </param>
         /// <returns>
-        /// The result <paramref name="factory" /> produced, or the original error
+        /// The result <paramref name="resultFactory" /> produced, or the original error
         /// re-wrapped as an <see cref="Err{TOk,TErr}" /> of
         /// <typeparamref name="TOut" />.
         /// </returns>
         public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
-            Func<TOk, Result<TOut, TErr>> factory) where TOut : notnull
+            Func<TOk, Result<TOut, TErr>> resultFactory) where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.AndThen(factory);
+            return result.AndThen(resultFactory);
         }
     }
 }

@@ -10,7 +10,7 @@ public static class OrElseExtensions
         where TErr : notnull
     {
         public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, ValueTask<Result<TOk, TOut>>> factory)
+            Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory)
             where TOut : notnull
         {
             if (result.IsOk)
@@ -22,7 +22,7 @@ public static class OrElseExtensions
 
             TErr err = result.ExpectErr("Expected Err but found Ok.");
 
-            Result<TOk, TOut> output = await factory.Invoke(err)
+            Result<TOk, TOut> output = await resultFactory.Invoke(err)
                .ConfigureAwait(false);
 
             return output;
@@ -34,21 +34,21 @@ public static class OrElseExtensions
         where TErr : notnull
     {
         public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, Result<TOk, TOut>> factory)
+            Func<TErr, Result<TOk, TOut>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.OrElse(factory);
+            return result.OrElse(resultFactory);
         }
 
         public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, ValueTask<Result<TOk, TOut>>> factory)
+            Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.OrElseAsync(factory).ConfigureAwait(false);
+            return await result.OrElseAsync(resultFactory).ConfigureAwait(false);
         }
     }
 
@@ -57,21 +57,21 @@ public static class OrElseExtensions
         where TErr : notnull
     {
         public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, Result<TOk, TOut>> factory)
+            Func<TErr, Result<TOk, TOut>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.OrElse(factory);
+            return result.OrElse(resultFactory);
         }
 
         public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, ValueTask<Result<TOk, TOut>>> factory)
+            Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.OrElseAsync(factory).ConfigureAwait(false);
+            return await result.OrElseAsync(resultFactory).ConfigureAwait(false);
         }
     }
 }

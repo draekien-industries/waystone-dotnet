@@ -10,7 +10,7 @@ public static class UnwrapOrElseExtensions
         where TErr : notnull
     {
         public async ValueTask<TOk> UnwrapOrElseAsync(
-            Func<TErr, Task<TOk>> factory)
+            Func<TErr, Task<TOk>> valueFactory)
         {
             if (result.IsOk)
             {
@@ -19,7 +19,7 @@ public static class UnwrapOrElseExtensions
 
             TErr err = result.ExpectErr("Expected Err but found Ok.");
 
-            TOk output = await factory.Invoke(err)
+            TOk output = await valueFactory.Invoke(err)
                .ConfigureAwait(false);
 
             return output;
@@ -30,18 +30,18 @@ public static class UnwrapOrElseExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> valueFactory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.UnwrapOrElse(factory);
+            return result.UnwrapOrElse(valueFactory);
         }
 
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> valueFactory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.UnwrapOrElseAsync(factory)
+            return await result.UnwrapOrElseAsync(valueFactory)
                .ConfigureAwait(false);
         }
     }
@@ -50,18 +50,18 @@ public static class UnwrapOrElseExtensions
         where TOk : notnull
         where TErr : notnull
     {
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, TOk> valueFactory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.UnwrapOrElse(factory);
+            return result.UnwrapOrElse(valueFactory);
         }
 
-        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> factory)
+        public async ValueTask<TOk> UnwrapOrElseAsync(Func<TErr, Task<TOk>> valueFactory)
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.UnwrapOrElseAsync(factory)
+            return await result.UnwrapOrElseAsync(valueFactory)
                .ConfigureAwait(false);
         }
     }

@@ -86,7 +86,7 @@ public static class IsSomeAndExtensions
         }
     }
 
-    extension<T>(ValueTask<Option<T>> optionValueTask) where T : notnull
+    extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
         /// <summary>
         /// Awaits a value task of <see cref="Option{T}" /> and checks whether it is
@@ -105,7 +105,7 @@ public static class IsSomeAndExtensions
         /// </returns>
         public async ValueTask<bool> IsSomeAndAsync(Func<T, Task<bool>> predicate)
         {
-            Option<T> option = await optionValueTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return await option.IsSomeAndAsync(predicate).ConfigureAwait(false);
         }
@@ -128,7 +128,7 @@ public static class IsSomeAndExtensions
         /// </returns>
         public async ValueTask<bool> IsSomeAndAsync(Func<T, bool> predicate)
         {
-            Option<T> option = await optionValueTask.ConfigureAwait(false);
+            Option<T> option = await optionTask.ConfigureAwait(false);
 
             return option.IsSomeAnd(predicate);
         }
