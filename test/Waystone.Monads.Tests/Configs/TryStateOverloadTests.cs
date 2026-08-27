@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions.Logging.Configs;
 using Fixtures;
 using JetBrains.Annotations;
 using NSubstitute;
@@ -10,7 +11,6 @@ using Options;
 using Results;
 using Results.Errors;
 using Shouldly;
-using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(Option))]

@@ -1,14 +1,14 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public abstract class MonadCodeFix : CodeFixProvider
 {

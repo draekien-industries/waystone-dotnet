@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Shouldly;
-using Waystone.SourceGenerators.AsyncSurface;
 using Xunit;
 
 /// <remarks>

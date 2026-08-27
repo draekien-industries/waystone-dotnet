@@ -1,9 +1,9 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using JetBrains.Annotations;
-using Shouldly;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 [TestSubject(typeof(OptionExtensions))]

@@ -1,11 +1,11 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using JetBrains.Annotations;
-using Monads.Extensions;
-using NSubstitute;
-using Shouldly;
 using System;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using NSubstitute;
+using Results;
+using Shouldly;
 using Xunit;
 
 /// <remarks>
@@ -258,7 +258,7 @@ public sealed class MatchExtensionsTests
     [Fact]
     public async Task GivenNoneTask_WhenOkOrElseAsync_ThenAwaitTheErrorFactory()
     {
-        Results.Result<int, string> result =
+        Result<int, string> result =
             await Task.FromResult(Option.None<int>())
                .OkOrElseAsync(() => Task.FromResult("error"));
 

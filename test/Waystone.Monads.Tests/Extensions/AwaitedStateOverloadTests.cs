@@ -1,12 +1,12 @@
 namespace Waystone.Monads.Extensions;
 
+using System;
+using System.Threading.Tasks;
 using Options;
 using Options.Extensions;
 using Results;
 using Results.Extensions;
 using Shouldly;
-using System;
-using System.Threading.Tasks;
 using Xunit;
 
 /// <remarks>

@@ -3,7 +3,7 @@ namespace Waystone.Monads.Options.Extensions;
 using System;
 using System.Threading.Tasks;
 using Results;
-using Waystone.SourceGenerators;
+using SourceGenerators;
 using static Option;
 #if !DEBUG
 using System.Diagnostics;

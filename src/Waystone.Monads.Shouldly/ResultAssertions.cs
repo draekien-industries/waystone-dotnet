@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Waystone.Monads.Results;
 
 /// <summary>
-/// Asserts on the state and contents of a <see cref="Result{TOk, TErr}" />, on
+/// Asserts on the state and contents of a <see cref="Result{TOk,TErr}" />, on
 /// either a synchronous receiver or one still inside a task.
 /// </summary>
 /// <remarks>

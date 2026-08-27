@@ -1,6 +1,5 @@
 namespace Waystone.Monads.PreviousMajor.Sample;
 
-using System;
 using Waystone.Monads.Configs;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;

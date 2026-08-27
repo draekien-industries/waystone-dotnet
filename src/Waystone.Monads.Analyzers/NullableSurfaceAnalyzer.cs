@@ -1,9 +1,9 @@
 namespace Waystone.Monads.Analyzers;
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class NullableSurfaceAnalyzer : MonadAnalyzer

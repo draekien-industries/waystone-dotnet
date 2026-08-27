@@ -1,9 +1,8 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using JetBrains.Annotations;
-using Monads.Extensions;
-using Shouldly;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 /// <remarks>

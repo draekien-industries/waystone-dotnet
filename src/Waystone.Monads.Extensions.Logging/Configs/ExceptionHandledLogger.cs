@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Diagnostics;
 using Microsoft.Extensions.Logging;
-using Monads.Diagnostics;
 
 internal static class ExceptionHandledLogger
 {

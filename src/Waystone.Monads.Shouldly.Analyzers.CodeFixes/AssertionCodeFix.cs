@@ -1,10 +1,10 @@
 namespace Waystone.Monads.Shouldly.Analyzers;
 
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Threading;
-using System.Threading.Tasks;
 
 public abstract class AssertionCodeFix : CodeFixProvider
 {
