@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latestMajor</LangVersion>
+        <Nullable>enable</Nullable>
+        <!--
+            The package id and the root namespace deliberately differ. The sources
+            declare namespace Shouldly so that a test file's existing using picks the
+            assertions up, and so that a nested Waystone.Monads.Shouldly namespace
+            does not shadow the global Shouldly for files under namespace
+            Waystone.Monads. README.md records why in full; renaming this to match the
+            package id looks tidy and breaks callers silently.
+        -->
+        <RootNamespace>Shouldly</RootNamespace>
+        <!--
+            RS0026 forbids two same-named overloads that both take an optional
+            parameter, because adding one later can silently move a call site
+            between them. Each Async assertion here is declared twice, once on a
+            Task receiver and once on a ValueTask receiver, and both carry the
+            optional customMessage that Shouldly's extension guide asks for. The
+            receivers are disjoint types, so overload resolution is settled by the
+            receiver before customMessage is considered and no call site can move.
+        -->
+        <NoWarn>RS0026</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>Waystone.Monads.Shouldly</Title>
+        <Description>
+            Shouldly assertions for Waystone.Monads, reporting the state and contents of an Option or Result on failure instead of the boolean that was read to check it.
+        </Description>
+        <PackageTags>result pattern option monad aspnetcore rust error handling framework testing assertions shouldly</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="PolySharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Shouldly"/>
+        <PackageReference Include="System.Threading.Tasks.Extensions"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+</Project>

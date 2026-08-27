@@ -20,6 +20,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.Logging\Waystone.Monads.Extensions.Logging.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.FluentValidation\Waystone.Monads.FluentValidation.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly\Waystone.Monads.Shouldly.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 
