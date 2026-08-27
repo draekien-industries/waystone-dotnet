@@ -89,6 +89,12 @@ WM2021 | Usage | Info | Option or Result state is tested through a property patt
 
 ## Release 7.0.0
 
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2022 | Usage | Info | A Task-returning method group is passed to an async chaining step
+
 ### Removed Rules
 
 Rule ID | Category | Severity | Notes

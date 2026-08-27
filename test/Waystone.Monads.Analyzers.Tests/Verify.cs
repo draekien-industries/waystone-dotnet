@@ -32,6 +32,33 @@ internal static class Verify
     }
 
     /// <summary>
+    /// Runs the analyzer over a source that does not compile, asserting on the rule's
+    /// own diagnostics and ignoring the compiler's.
+    /// </summary>
+    /// <remarks>
+    /// For a rule whose subject is a call that failed overload resolution. Every such
+    /// source carries at least one compiler error by construction, and which one it
+    /// carries is the compiler's choice rather than the rule's — listing them here
+    /// would pin the test to CS0411 against CS1503 against CS1501 and assert nothing
+    /// about the analyzer.
+    /// </remarks>
+    public static Task BrokenAnalyzerAsync<TAnalyzer>(
+        string source,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        var test = new AnalyzerTest<TAnalyzer>
+        {
+            TestCode = Wrap(source),
+            CompilerDiagnostics = CompilerDiagnostics.None,
+        };
+
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
+
+    /// <summary>
     /// Runs the analyzer over <paramref name="rawSource" /> without the usings and
     /// the <c>Subject</c> wrapper, for a rule whose subject is a whole compilation
     /// rather than a member.
@@ -248,6 +275,35 @@ internal static class Verify
             source,
             new[] { standing },
             new[] { standing });
+
+    /// <summary>
+    /// Applies the code fix over a source that does not compile, ignoring the
+    /// compiler's diagnostics in both states.
+    /// </summary>
+    /// <remarks>
+    /// The counterpart of <see cref="BrokenAnalyzerAsync{TAnalyzer}" />. The fixed
+    /// state is checked the same way, because the wrap this covers resolves the
+    /// compiler error along with the rule's own diagnostic and asserting on that
+    /// would restate the compiler's behaviour rather than the fix's.
+    /// </remarks>
+    public static Task BrokenCodeFixAsync<TAnalyzer, TCodeFix>(
+        string source,
+        string fixedSource,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+        where TCodeFix : CodeFixProvider, new()
+    {
+        var test = new CodeFixTest<TAnalyzer, TCodeFix>
+        {
+            TestCode = Wrap(source),
+            FixedCode = Wrap(fixedSource),
+            CompilerDiagnostics = CompilerDiagnostics.None,
+        };
+
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
 
     public static Task RawCodeFixAsync<TAnalyzer, TCodeFix>(
         string source,
