@@ -132,6 +132,47 @@ public class RenameArgumentCodeFixTests
                 option.MapOr(map: value => value, {|#0:@default|}: 0);
             """);
 
+    /// <remarks>
+    /// An attribute names its arguments through <c>AttributeArgumentSyntax</c> rather
+    /// than <c>ArgumentSyntax</c>, so CS1739 reaches this fix on a node it cannot
+    /// read at all. It has to decline rather than walk further up the tree.
+    /// </remarks>
+    [Fact]
+    public Task LeavesAnAttributeArgumentAlone() =>
+        Unfixed(
+            """
+            [Obsolete({|#0:mesage|}: "gone")]
+            internal int Call() => 0;
+            """);
+
+    /// <remarks>
+    /// A candidate taking no arguments at all cannot supply a name, and reading its
+    /// first parameter to identify the receiver would be an empty-array access.
+    /// </remarks>
+    [Fact]
+    public Task LeavesAnUnrelatedMethodWithAnEmptyOverloadAlone() =>
+        Unfixed(
+            """
+            internal int Call() => Keep({|#0:valeu|}: 1);
+
+            private static int Keep() => 0;
+
+            private static int Keep(int value) => value;
+            """);
+
+    /// <remarks>
+    /// The named argument sits past the end of one candidate's parameter list, which
+    /// is the shape that would index off the end if the arity were assumed rather
+    /// than checked.
+    /// </remarks>
+    [Fact]
+    public Task LeavesAnArgumentPastACandidatesArityAlone() =>
+        Unfixed(
+            """
+            internal int Unwrap(Option<int> option) =>
+                option.UnwrapOrElse(valueFactory: () => 0, {|#0:bogus|}: 1);
+            """);
+
     private static DiagnosticResult NoSuchParameter =>
         DiagnosticResult.CompilerError("CS1739").WithLocation(0);
 
