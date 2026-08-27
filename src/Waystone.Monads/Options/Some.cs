@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Options;
+﻿namespace Waystone.Monads.Options;
 
 using System;
 using System.Collections.Generic;
@@ -166,9 +166,20 @@ public sealed record Some<T> : Option<T>
         other;
 
     /// <inheritdoc />
+    public override Option<TOut> AndThen<TOut>(
+        Func<T, Option<TOut>> optionFactory) =>
+        Option.NotNull(optionFactory(Value), nameof(optionFactory));
+
+    /// <inheritdoc />
+    public override Option<TOut> AndThen<TState, TOut>(
+        TState state,
+        Func<T, TState, Option<TOut>> optionFactory) =>
+        Option.NotNull(optionFactory(Value, state), nameof(optionFactory));
+
+    /// <inheritdoc />
     public override ValueTask<Option<TOut>> AndThenAsync<TOut>(
         Func<T, ValueTask<Option<TOut>>> optionFactory) =>
-        optionFactory(Value);
+        Option.NotNullAsync(optionFactory(Value), nameof(optionFactory));
 
     /// <inheritdoc />
     public override TOut MapOr<TOut>(TOut defaultValue, Func<T, TOut> map) =>

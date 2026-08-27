@@ -690,4 +690,34 @@ public static class Result
     public static Result<TOk, Error> Err<TOk>(Error error)
         where TOk : notnull =>
         new Err<TOk, Error>(error);
+
+    internal static Result<TOk, TErr> NotNull<TOk, TErr>(
+        Result<TOk, TErr> result,
+        string delegateName)
+        where TOk : notnull
+        where TErr : notnull =>
+        result
+     ?? throw new ArgumentNullException(
+            delegateName,
+            $"The `{delegateName}` delegate returned a null result. Return "
+          + "`Result.Err<TOk, TErr>(error)` to express a failure; a null result "
+          + "is never valid, and the next call against it would throw a "
+          + "`NullReferenceException` far from here.");
+
+    internal static ValueTask<Result<TOk, TErr>> NotNullAsync<TOk, TErr>(
+        ValueTask<Result<TOk, TErr>> result,
+        string delegateName)
+        where TOk : notnull
+        where TErr : notnull =>
+        result.IsCompletedSuccessfully
+            ? new ValueTask<Result<TOk, TErr>>(
+                NotNull(result.Result, delegateName))
+            : AwaitNotNull(result, delegateName);
+
+    private static async ValueTask<Result<TOk, TErr>> AwaitNotNull<TOk, TErr>(
+        ValueTask<Result<TOk, TErr>> result,
+        string delegateName)
+        where TOk : notnull
+        where TErr : notnull =>
+        NotNull(await result.ConfigureAwait(false), delegateName);
 }

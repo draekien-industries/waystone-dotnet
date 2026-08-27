@@ -486,16 +486,8 @@ public abstract record Option<T> where T : notnull
     /// left alone it would surface as a <see cref="NullReferenceException" />
     /// at whatever called into the option next.
     /// </exception>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public Option<TOut> AndThen<TOut>(Func<T, Option<TOut>> optionFactory)
-        where TOut : notnull =>
-        Match(
-            value => Option.NotNull(
-                optionFactory(value),
-                nameof(optionFactory)),
-            Option.None<TOut>);
+    public abstract Option<TOut> AndThen<TOut>(
+        Func<T, Option<TOut>> optionFactory) where TOut : notnull;
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
@@ -531,18 +523,9 @@ public abstract record Option<T> where T : notnull
     /// left alone it would surface as a <see cref="NullReferenceException" />
     /// at whatever called into the option next.
     /// </exception>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public Option<TOut> AndThen<TState, TOut>(
+    public abstract Option<TOut> AndThen<TState, TOut>(
         TState state,
-        Func<T, TState, Option<TOut>> optionFactory) where TOut : notnull =>
-        Match(
-            (state, optionFactory),
-            static (value, s) => Option.NotNull(
-                s.optionFactory(value, s.state),
-                nameof(optionFactory)),
-            static _ => Option.None<TOut>());
+        Func<T, TState, Option<TOut>> optionFactory) where TOut : notnull;
 
     /// <summary>
     /// Awaits <paramref name="optionFactory" /> against the contained value and
@@ -563,6 +546,14 @@ public abstract record Option<T> where T : notnull
     /// Whatever <paramref name="optionFactory" /> produced, or <see cref="None{T}" />
     /// when this option is a <see cref="None{T}" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="optionFactory" /> returns a null option. Returning
+    /// null rather than <see cref="Option.None{T}" /> is never meaningful, and
+    /// left alone it would surface as a <see cref="NullReferenceException" />
+    /// at whatever called into the option next. It is thrown from the call when
+    /// the factory's task had already completed and faults the returned task
+    /// otherwise, so await the result to see it either way.
+    /// </exception>
     public abstract ValueTask<Option<TOut>> AndThenAsync<TOut>(
         Func<T, ValueTask<Option<TOut>>> optionFactory) where TOut : notnull;
 

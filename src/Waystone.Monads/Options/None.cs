@@ -150,6 +150,17 @@ public sealed record None<T> : Option<T>
         Option.None<TOut>();
 
     /// <inheritdoc />
+    public override Option<TOut> AndThen<TOut>(
+        Func<T, Option<TOut>> optionFactory) =>
+        Option.None<TOut>();
+
+    /// <inheritdoc />
+    public override Option<TOut> AndThen<TState, TOut>(
+        TState state,
+        Func<T, TState, Option<TOut>> optionFactory) =>
+        Option.None<TOut>();
+
+    /// <inheritdoc />
     public override ValueTask<Option<TOut>> AndThenAsync<TOut>(
         Func<T, ValueTask<Option<TOut>>> optionFactory) =>
         new ValueTask<Option<TOut>>(Option.None<TOut>());

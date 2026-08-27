@@ -137,6 +137,12 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         Result.Err<TOut, TErr>(Value);
 
     /// <inheritdoc />
+    public override Result<TOut, TErr> AndThen<TState, TOut>(
+        TState state,
+        Func<TOk, TState, Result<TOut, TErr>> resultFactory) =>
+        Result.Err<TOut, TErr>(Value);
+
+    /// <inheritdoc />
     public override ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory) =>
         new ValueTask<Result<TOut, TErr>>(Result.Err<TOut, TErr>(Value));

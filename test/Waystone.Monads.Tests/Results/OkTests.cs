@@ -107,6 +107,31 @@ public class OkTests
     }
 
     [Fact]
+    public void WhenAndThenProducesANullResult_ThenThrow()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Func<Result<int, string>> andThenNull =
+            () => ok.AndThen(_ => default(Result<int, string>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
+    public void GivenState_WhenAndThenProducesANullResult_ThenThrow()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Func<Result<int, string>> andThenNull = () => ok.AndThen(
+            10,
+            static (_, _) => default(Result<int, string>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
     public void WhenOr_ThenReturnOk()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
@@ -303,6 +328,72 @@ public class OkTests
                 Result.Ok<string, string>(x.ToString())));
 
         result.ShouldBe(Result.Ok<string, string>("1"));
+    }
+
+    [Fact]
+    public async Task GivenAPendingFactory_WhenAndThenAsync_ThenReturnOther()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Result<string, string> result = await ok.AndThenAsync(async x =>
+        {
+            await Task.Yield();
+
+            return Result.Ok<string, string>(x.ToString());
+        });
+
+        result.ShouldBe(Result.Ok<string, string>("1"));
+    }
+
+    [Fact]
+    public void
+        GivenACompletedFactory_WhenAndThenAsyncProducesANullResult_ThenThrowFromTheCall()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Action andThenNull = () => _ = ok.AndThenAsync(
+            _ => new ValueTask<Result<int, string>>(
+                default(Result<int, string>)!));
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
+    public async Task
+        GivenAPendingFactory_WhenAndThenAsyncProducesANullResult_ThenFaultTheReturnedTask()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ValueTask<Result<int, string>> pending = ok.AndThenAsync(
+            async ValueTask<Result<int, string>> (_) =>
+            {
+                await Task.Yield();
+
+                return default(Result<int, string>)!;
+            });
+
+        Func<Task> consume = async () => await pending;
+
+        (await consume.ShouldThrowAsync<ArgumentNullException>())
+           .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
+    public async Task GivenAFaultingFactory_WhenAndThenAsync_ThenRethrow()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Func<Task> andThenThrows = async () => await ok.AndThenAsync(
+            async ValueTask<Result<int, string>> (_) =>
+            {
+                await Task.Yield();
+
+                throw new InvalidOperationException("boom");
+            });
+
+        (await andThenThrows.ShouldThrowAsync<InvalidOperationException>())
+           .Message.ShouldBe("boom");
     }
 
     [Fact]
