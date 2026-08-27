@@ -19,7 +19,7 @@ working in — each is loaded when you touch files under it.
 | [src/Waystone.Monads.Shouldly.Analyzers](src/Waystone.Monads.Shouldly.Analyzers/AGENTS.md) | Where the assertion-migration rules ship and why not in the core package |
 | [src/Waystone.Monads.SourceGenerators](src/Waystone.Monads.SourceGenerators/AGENTS.md) | The shipped error code generator contract and emission |
 | [src/Waystone.SourceGenerators](src/Waystone.SourceGenerators/AGENTS.md) | The awaited-receiver generator contract and emission |
-| [test](test/AGENTS.md) | Running the framework matrix, Reqnroll, shared mutable state |
+| [test](test/AGENTS.md) | Running the framework matrix, the shared test configuration, shared mutable state |
 | [.github](.github/AGENTS.md) | Workflow triggers, required checks, coverage gates |
 | [docs](docs/AGENTS.md) | Where a document goes and how it is written |
 

@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 using Xunit;
 
 /// <remarks>
-/// The Reqnroll specs cover the fully-asynchronous shape on both awaited
-/// receivers and nothing else, which was enough while every overload here was
-/// hand-written. Putting the family on the generator makes the rest of the
-/// surface load-bearing, so these are the cases that pin it: each of the three
+/// The fully-asynchronous shape on both awaited receivers was once all this
+/// family had, which was enough while every overload here was hand-written.
+/// Putting the family on the generator makes the rest of the surface
+/// load-bearing, so these are the cases that pin it: each of the three
 /// synchronous-receiver overloads on both branches, and each shape the generator
 /// derives from the core member.
 /// <para>
@@ -264,5 +264,53 @@ public sealed class MatchExtensionsTests
 
         result.ShouldBeErr();
         result.ExpectErr("Expected Err but found Ok.").ShouldBe("error");
+    }
+
+    [Fact]
+    public async Task
+        GivenSomeTask_WhenMatchAsyncWithAsyncBranches_ThenAwaitOnSome()
+    {
+        string result = await Task.FromResult(Option.Some(42))
+           .MatchAsync(
+                value => Task.FromResult("Value is " + value),
+                () => Task.FromResult("No Value"));
+
+        result.ShouldBe("Value is 42");
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenMatchAsyncWithAsyncBranches_ThenAwaitOnNone()
+    {
+        string result = await Task.FromResult(Option.None<int>())
+           .MatchAsync(
+                value => Task.FromResult("Value is " + value),
+                () => Task.FromResult("No Value"));
+
+        result.ShouldBe("No Value");
+    }
+
+    [Fact]
+    public async Task
+        GivenSomeValueTask_WhenMatchAsyncWithAsyncBranches_ThenAwaitOnSome()
+    {
+        string result = await new ValueTask<Option<int>>(Option.Some(100))
+           .MatchAsync(
+                value => Task.FromResult("Value is " + value),
+                () => Task.FromResult("No Value"));
+
+        result.ShouldBe("Value is 100");
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenMatchAsyncWithAsyncBranches_ThenAwaitOnNone()
+    {
+        string result = await new ValueTask<Option<int>>(Option.None<int>())
+           .MatchAsync(
+                value => Task.FromResult("Value is " + value),
+                () => Task.FromResult("No Value"));
+
+        result.ShouldBe("No Value");
     }
 }
