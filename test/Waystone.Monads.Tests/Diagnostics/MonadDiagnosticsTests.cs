@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Fixtures;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Options;
@@ -168,20 +169,6 @@ public sealed class MonadDiagnosticsTests
             {
                 _events.Enqueue(handled);
             }
-        }
-    }
-
-    private sealed class Observer<T>(Action<T> onNext) : IObserver<T>
-    {
-        public void OnCompleted()
-        { }
-
-        public void OnError(Exception error)
-        { }
-
-        public void OnNext(T value)
-        {
-            onNext(value);
         }
     }
 }

@@ -138,3 +138,29 @@ That is the argument for a satellite package whenever a family is additive
 vocabulary rather than core behaviour, and it is why the LINQ names ship in
 `Waystone.Monads.Linq` instead of here. Weigh it before hand-writing a member:
 the surface you are adding is not the surface you typed.
+
+**`MonadOptionsScope.Dispose` restores only when it is the innermost live scope,
+and reports rather than throws.** It compares `ScopedOptions.Value` against the
+instance it installed, which is why the struct holds two fields rather than one —
+a `readonly struct` cannot mark itself disposed, so identity is the only thing it
+can check. Three cases fall out of that comparison and each is deliberate. The
+live scope matches, so restore. `ScopedOptions.Value` is already this scope's
+predecessor, so the restore has happened and a second `Dispose` returns silently,
+which is what keeps an explicit `Dispose` inside a `using` from being reported as
+misuse. Anything else — an outer scope disposed early, or a
+`default(MonadOptionsScope)` — restores nothing and writes
+`MonadDiagnostics.ScopeDisposedOutOfOrderEventName`.
+
+Do not turn that event into a throw. `Dispose` runs from a `using`, so an
+exception there displaces whichever one was already unwinding, and the misuse is
+in the *caller's* disposal order rather than in anything the flow was doing. A
+consumer who wants it fatal subscribes and throws from the subscriber.
+
+Two residues are real and are documented on `Dispose` rather than fixed. Declining
+to restore leaves the early-disposed scope's options in place until the live scope
+is disposed, which then restores them as its own predecessor, so they outlive their
+scope. And a scope that has already declined declines again on every further
+`Dispose`, writing the event each time, because the struct cannot record that it
+reported — so the "safe to call more than once" guarantee covers the restoring path
+only. `MonadOptionsScopeTests` pins both, so a future change that "tidies" either
+fails a test rather than silently changing what the doc comment promises.
