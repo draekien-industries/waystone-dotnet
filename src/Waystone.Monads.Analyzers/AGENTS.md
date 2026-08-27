@@ -93,6 +93,13 @@ seven `WM1` rules back down to warning in its `.editorconfig` — that is the on
 executable statement of the precedence anywhere, and it is also what keeps a project
 full of deliberate misuse building.
 
+**Do not read that sample as evidence that a codebase can adopt `strict` as
+shipped.** It cannot, and neither can that project: nine of the rules `strict` moves
+are overridden straight back down, so what the sample actually validates is the
+`EditorConfigFiles` plumbing, the override precedence, and the `WM2` tier's raise from
+suggestion to warning. A preset's effect on real code is not testable here, because
+the only consumer in the tree is a fixture built to report.
+
 **Do not change a shipped default to make a preset tidier.** The presets are additive
 by construction; a default that moves needs a `### Changed Rules` row in
 `AnalyzerReleases.Unshipped.md` and breaks the build of a consumer who only wanted a

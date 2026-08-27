@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 
 /// <remarks>
@@ -99,7 +98,7 @@ public class PresetTests
     /// </summary>
     /// <remarks>
     /// A consumer's <c>.globalconfig</c> defaults to level 100 and any other global
-    /// config to 0, so anything at or above 0 risks a tie — and Roslyn resolves a tie
+    /// config to 0, so anything at or above 0 risks a tie â€” and Roslyn resolves a tie
     /// by *unsetting* the option, which drops the rule silently back to its shipped
     /// severity rather than reporting a conflict. Read from the text because
     /// <c>AnalyzerConfig.GlobalLevel</c> is internal to Roslyn.
@@ -184,16 +183,5 @@ public class PresetTests
                         parts => parts[1].Trim());
     }
 
-    /// <remarks>
-    /// Case-insensitive because Roslyn lowercases a diagnostic id when it parses
-    /// <c>dotnet_diagnostic.WM1001.severity</c>. Its own <c>TreeOptions</c> dictionary
-    /// is case-insensitive too, so a lookup works either way — but the keys come back
-    /// lowered, and a set that compared them ordinally would report all 29 as unknown.
-    /// </remarks>
-    private static ImmutableHashSet<string> Ids { get; } =
-        typeof(Rules)
-           .GetFields(BindingFlags.Public | BindingFlags.Static)
-           .Where(member => member.FieldType == typeof(DiagnosticDescriptor))
-           .Select(member => ((DiagnosticDescriptor)member.GetValue(null)!).Id)
-           .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+    private static ImmutableHashSet<string> Ids => RuleCatalog.Ids;
 }

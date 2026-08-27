@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 
 /// <remarks>
@@ -106,8 +105,8 @@ public class PresetTests
     /// path-matched section to be resolved against. Roslyn keeps the two kinds apart:
     /// a global config's severities land in <see cref="AnalyzerConfigSet.GlobalConfigOptions" />
     /// and a sectioned one's in the per-path result. Drop <c>is_global</c> and both
-    /// come back empty — the file sets nothing at all and reports no error while doing
-    /// it — so asserting the split pins which half the preset is on. Which ids are on
+    /// come back empty â€” the file sets nothing at all and reports no error while doing
+    /// it â€” so asserting the split pins which half the preset is on. Which ids are on
     /// that half is held by the two tests above; this one only says which half.
     /// </remarks>
     [Theory]
@@ -125,7 +124,7 @@ public class PresetTests
     /// </summary>
     /// <remarks>
     /// A consumer's <c>.globalconfig</c> defaults to level 100 and any other global
-    /// config to 0, so anything at or above 0 risks a tie — and Roslyn resolves a tie
+    /// config to 0, so anything at or above 0 risks a tie â€” and Roslyn resolves a tie
     /// by *unsetting* the option, which drops the rule silently back to its shipped
     /// severity rather than reporting a conflict. A negative level cannot tie with
     /// anything a consumer would write. Read from the text because
@@ -201,7 +200,7 @@ public class PresetTests
     /// <remarks>
     /// Scanned out of the file rather than read off <c>AnalyzerConfig</c>, whose
     /// <c>GlobalSection</c> is internal. A preset carries no <c>[section]</c> header
-    /// by construction, so every key is a global one and a flat scan is exact — and
+    /// by construction, so every key is a global one and a flat scan is exact â€” and
     /// the section-free shape is itself pinned, since a header would put its keys in
     /// this dictionary under a name the callers do not expect.
     /// </remarks>
@@ -223,16 +222,5 @@ public class PresetTests
                         parts => parts[1].Trim());
     }
 
-    /// <remarks>
-    /// Case-insensitive because Roslyn lowercases a diagnostic id when it parses
-    /// <c>dotnet_diagnostic.WM1001.severity</c>. Its own <c>TreeOptions</c> dictionary
-    /// is case-insensitive too, so a lookup works either way — but the keys come back
-    /// lowered, and a set that compared them ordinally would report all 29 as unknown.
-    /// </remarks>
-    private static ImmutableHashSet<string> Ids { get; } =
-        typeof(Rules)
-           .GetFields(BindingFlags.Public | BindingFlags.Static)
-           .Where(member => member.FieldType == typeof(DiagnosticDescriptor))
-           .Select(member => ((DiagnosticDescriptor)member.GetValue(null)!).Id)
-           .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+    private static ImmutableHashSet<string> Ids => RuleCatalog.Ids;
 }
