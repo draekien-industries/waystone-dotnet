@@ -117,10 +117,9 @@ public sealed class AwaitedReceiverCoverageTests
     private static IReadOnlyCollection<string> CoreMemberNames(Type monad) =>
         monad.GetMethods(BindingFlags.Public | BindingFlags.Instance)
              .Where(method => !method.IsSpecialName)
+             .Where(method => !Unawaitable(method))
              .Select(method => method.Name)
-             .Where(
-                  name => !Synthesised.Contains(name)
-                       && !Unawaitable.Contains(name))
+             .Where(name => !Synthesised.Contains(name))
              .Distinct(StringComparer.Ordinal)
              .ToList();
 
@@ -153,31 +152,30 @@ public sealed class AwaitedReceiverCoverageTests
         "<Clone>$",
     };
 
+    /// <summary>
+    /// Checks whether no awaited receiver could forward to
+    /// <paramref name="method" /> whatever the generator did.
+    /// </summary>
     /// <remarks>
-    /// The try-pattern members hand their result back through an <c>out</c>
+    /// A try-pattern member hands its result back through an <c>out</c>
     /// parameter, and C# forbids <c>out</c> on an <c>async</c> method — so an
     /// awaited receiver cannot forward to one. A non-async forwarder does not
     /// rescue it either: the parameter would have to be assigned before the
-    /// receiver's task completed, which is the one thing it cannot do. This is a
-    /// property of the signature rather than of our generator, so no future
-    /// change to the awaited surface closes it, and a caller holding an awaitable
-    /// writes <c>(await task).TryUnwrap(out var value)</c> deliberately.
+    /// receiver's task completed, which is the one thing it cannot do. A caller
+    /// holding an awaitable writes <c>(await task).TryUnwrap(out var value)</c>
+    /// deliberately.
     /// <para>
-    /// Deriving this from the signature instead — excluding any member with an
-    /// <c>out</c> parameter — would be self-maintaining, and is deliberately not
-    /// done. A future member reaching for <c>out</c> may be better redesigned to
-    /// return an <see cref="Option{T}" />, which an awaited receiver *can*
-    /// forward to; a name list fails the test and forces that conversation, where
-    /// a derived rule would accept the <c>out</c> silently. That is the same
-    /// reason <c>Synthesised</c> lists names rather than pattern-matching them.
+    /// Read off the signature rather than listed by name, unlike
+    /// <see cref="Synthesised" />. The impossibility is a property of the
+    /// signature, so the signature is what should state it — and a name would be
+    /// matched after the <c>Select</c> and so exempt *every* overload of it,
+    /// silently dropping a later <c>TryUnwrap&lt;TState&gt;</c> with no <c>out</c>
+    /// parameter out of the guard. The record-synthesised names have no such
+    /// tell and have to be enumerated.
     /// </para>
     /// </remarks>
-    private static readonly HashSet<string> Unawaitable = new(
-        StringComparer.Ordinal)
-    {
-        "TryUnwrap",
-        "TryUnwrapErr",
-    };
+    private static bool Unawaitable(MethodInfo method) =>
+        method.GetParameters().Any(parameter => parameter.IsOut);
 
     /// <summary>
     /// Gets the names of every public extension member across the assembly whose

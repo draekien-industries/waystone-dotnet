@@ -337,19 +337,22 @@ public static class Rules
     /// first would leave the two shapes most worth correcting untouched while
     /// implying the rule had been dealt with.
     /// Type patterns naming <c>Some</c>, <c>None</c>, <c>Ok</c> or <c>Err</c>
-    /// are not in scope here. Those are the same mistake WM2011 reports at a
-    /// declaration, so a type pattern is somebody else's rule rather than a
-    /// shape this one stays quiet on by oversight.
+    /// are not in scope here, and no other rule reports them either. WM2011
+    /// covers a *declaration* naming a case type — <c>Semantics</c>'s
+    /// declaration-position switch has no pattern arm, so a pattern falls
+    /// through it — and its complaint does not carry over anyway, since a
+    /// pattern narrowing to one state is the whole point of writing one.
     /// <para>
     /// As of 7.0.0 those case types carry a <c>Deconstruct</c>, so
     /// <c>option is Some&lt;T&gt;(var value)</c> tests the state and binds the
-    /// value in one construct — which is a better answer to what this rule
-    /// reports than either alternative the message names. The message is left
-    /// alone anyway: both of the alternatives it names are still correct, and it
-    /// covers <c>IsNone</c> and <c>IsErr</c> as well, where the positional
-    /// pattern is not the advice. <c>None</c> has no <c>Deconstruct</c> because
-    /// it carries nothing, so the suggestion would have to vary per property,
-    /// and a shipped message is reworded only when the old one was wrong.
+    /// value in one construct — a better answer to what this rule reports than
+    /// either alternative the message names, and the shape the documentation now
+    /// teaches. The message is left alone anyway: both of the alternatives it
+    /// names are still correct, and it covers <c>IsNone</c> and <c>IsErr</c> as
+    /// well, where the positional pattern is not the advice. <c>None</c> has no
+    /// <c>Deconstruct</c> because it carries nothing, so the suggestion would
+    /// have to vary per property, and a shipped message is reworded only when
+    /// the old one was wrong.
     /// </para>
     /// </remarks>
     public static readonly DiagnosticDescriptor StateCheckedThroughPattern = Idiom(

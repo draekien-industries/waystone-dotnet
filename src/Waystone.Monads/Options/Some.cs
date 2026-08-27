@@ -44,7 +44,10 @@ public sealed record Some<T> : Option<T>
     /// What makes <c>option is Some&lt;T&gt;(var value)</c> and an arm of
     /// <c>option switch { Some&lt;T&gt;(var value) => …, None&lt;T&gt; => … }</c>
     /// compile. <see cref="None{T}" /> deliberately has none — there is nothing
-    /// to bind, and <c>option is None&lt;T&gt;</c> already tests the case.
+    /// to bind, and <c>option is None&lt;T&gt;</c> already tests the case. Note
+    /// that the parenthesised <c>option is None&lt;T&gt;()</c> is therefore a
+    /// compiler error rather than a redundant spelling, since an empty positional
+    /// pattern still needs a <c>Deconstruct</c> to bind against.
     /// <para>
     /// This is the only way to read the value off a <see cref="Some{T}" />
     /// directly; the property behind it is internal, so a caller who wants the

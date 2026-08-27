@@ -330,6 +330,13 @@ public abstract record Option<T> where T : notnull
     /// exists for callers who would rather not name it, and for a
     /// <see langword="var" /> binding that flows on past the <c>if</c>.
     /// </para>
+    /// <para>
+    /// Declared here and not abstract, which is the exception on this type rather
+    /// than the rule. The case test is the member's entire content, so there is
+    /// nothing left for a case to vary — an override pair would be the same two
+    /// lines split across two files. Do not read this as licence for the next
+    /// member: anything a case would answer differently stays abstract.
+    /// </para>
     /// </remarks>
     /// <param name="value">
     /// Receives the contained value when the option is a
