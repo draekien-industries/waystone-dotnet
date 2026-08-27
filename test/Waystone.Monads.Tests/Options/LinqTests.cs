@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Options;
 
+using System;
 using JetBrains.Annotations;
 using Linq;
 using Shouldly;
@@ -90,11 +91,24 @@ public sealed class LinqTests
         Combine(first, second, third).ShouldBe(Option.None<string>());
     }
 
-    [Fact]
-    public void GivenAQueryWithAWhereClause_WhenTheValueFails_ThenShortCircuit()
+    [Theory]
+    [InlineData(4, "even 4")]
+    [InlineData(5, null)]
+    public void GivenAQueryWithAWhereClause_WhenTheValueFailsIt_ThenShortCircuit(
+        int value,
+        string? expected)
     {
-        Describe(Option.Some(4)).ShouldBe(Option.Some("even 4"));
-        Describe(Option.Some(5)).ShouldBe(Option.None<string>());
+        Option<string> described = Describe(Option.Some(value));
+
+        described.ShouldBe(
+            expected is null
+                ? Option.None<string>()
+                : Option.Some(expected));
+    }
+
+    [Fact]
+    public void GivenANone_WhenQueriedWithAWhereClause_ThenNeverTestIt()
+    {
         Describe(Option.None<int>()).ShouldBe(Option.None<string>());
     }
 
@@ -126,14 +140,14 @@ public sealed class LinqTests
         resultCalled.ShouldBeFalse();
     }
 
-    private static Option<int> TrackOption(int value, System.Func<bool> record)
+    private static Option<int> TrackOption(int value, Action record)
     {
         record();
 
         return Option.Some(value);
     }
 
-    private static int TrackValue(int value, System.Func<bool> record)
+    private static int TrackValue(int value, Action record)
     {
         record();
 

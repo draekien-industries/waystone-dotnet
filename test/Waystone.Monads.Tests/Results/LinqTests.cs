@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Results;
 
+using System;
 using JetBrains.Annotations;
 using Linq;
 using Shouldly;
@@ -130,16 +131,14 @@ public sealed class LinqTests
             ? Result.Err<int, string>($"broken at {failing}")
             : Result.Ok<int, string>(clause);
 
-    private static Result<int, string> TrackResult(
-        int value,
-        System.Func<bool> record)
+    private static Result<int, string> TrackResult(int value, Action record)
     {
         record();
 
         return Result.Ok<int, string>(value);
     }
 
-    private static int TrackValue(int value, System.Func<bool> record)
+    private static int TrackValue(int value, Action record)
     {
         record();
 

@@ -159,6 +159,43 @@ public sealed class ParameterNamingTests
         PublicParameters().Count().ShouldBeGreaterThan(500);
     }
 
+    /// <summary>
+    /// Guards the chain test against covering the core assembly alone, which is
+    /// what it did until the satellite packages joined <see cref="Assemblies" />.
+    /// </summary>
+    /// <remarks>
+    /// Verified to fail when the LINQ assembly is dropped from
+    /// <see cref="Assemblies" />, which is the only thing that makes widening the
+    /// scope more than an assertion.
+    /// </remarks>
+    [Fact]
+    public void GivenTheLinqPackage_ThenItsChainStepsShouldBeInspected()
+    {
+        Assembly linq = typeof(Linq.OptionQueryExtensions).Assembly;
+
+        PublicParameters()
+           .Where(parameter => parameter.Member.DeclaringType?.Assembly == linq)
+           .Count(parameter => ChainNameFor(parameter) is not null)
+           .ShouldBeGreaterThan(0);
+    }
+
+    /// <remarks>
+    /// The satellite packages are in scope because the schemes these tests
+    /// enforce are the library's, not one assembly's: a LINQ member forwarding to
+    /// <c>AndThen</c> wants the same <c>optionFactory</c> a caller already knows.
+    /// <para>
+    /// Each package's own API baseline already fails a *rename*, since it records
+    /// parameter names. What only these tests reach is a brand-new member
+    /// introduced with the wrong name, which a baseline accepts as simply another
+    /// row.
+    /// </para>
+    /// </remarks>
+    private static readonly Assembly[] Assemblies =
+    [
+        typeof(Option<>).Assembly,
+        typeof(Linq.OptionQueryExtensions).Assembly,
+    ];
+
     private static readonly HashSet<string> Keywords =
     [
         "abstract", "as", "base", "bool", "break", "byte", "case", "catch",
@@ -211,7 +248,7 @@ public sealed class ParameterNamingTests
     }
 
     private static IEnumerable<ParameterInfo> PublicParameters() =>
-        typeof(Option<>).Assembly.GetExportedTypes()
+        Assemblies.SelectMany(assembly => assembly.GetExportedTypes())
                         .SelectMany(
                              type => type.GetMethods(
                                           BindingFlags.Public
