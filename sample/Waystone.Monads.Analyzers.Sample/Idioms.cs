@@ -12,6 +12,16 @@ internal class Idioms
     internal Option<string> MaybeNullPassedToSome(string? value) =>
         Option.Some(value);
 
+    internal Option<string> ProjectionMayReturnNull(Option<int> option) =>
+        option.Map(Describe);
+
+    internal Option<string> ProjectionMayReturnNullFromALambda(
+        Option<int> option) =>
+        option.Map(value => Describe(value));
+
+    private static string? Describe(int value) =>
+        value > 0 ? value.ToString() : null;
+
     internal int Panics(Option<int> option) => option.Unwrap();
 
     internal int Expects(Option<int> option) => option.Expect("checked");

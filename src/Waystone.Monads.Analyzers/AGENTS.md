@@ -42,6 +42,20 @@ compiler already reported, which is the `WM1002`-alongside-`WM2008` double-repor
 Subclass `MonadCodeFix` with `FixableDiagnosticIds = ["CS0618"]` and bail unless the
 symbol is one of ours, or the fix fires on a consumer's own obsolete API.
 
+**The same reasoning reaches past deprecations: where the compiler already reports
+a pattern, ship the fix and not the rule.** `WM2022` was going to flag a `Map`
+projection that may return null, until compiling the motivating example showed
+`CS8714` already reports it — at *warning* rather than the `Info` the rule would
+have shipped at, and from nullable flow analysis rather than an annotation, so it
+stays quiet on `o => o.Customer ?? new()` and on a suppressed `o => o.Customer!`
+where an annotation-keyed rule would have fired. The rule would have been a
+strictly weaker duplicate. `UseAndThenWithFromNullableCodeFix` registers on
+`CS8714` instead and contributes the one thing the compiler cannot know, which is
+that this library spells the fix `AndThen` with `Option.FromNullable`. No rule id
+was allocated, so `WM2022` is still free. Check what the compiler already says
+before writing a descriptor; on a constrained generic surface like this one it
+says more than you expect.
+
 There is no worked example in the tree right now. `UseGeneratedErrorCodeCodeFix` was
 the one, and it was deleted in the 7.0.0 stack along with the members it rewrote —
 a `CS0618` fixer cannot outlive its own deprecation, because a removed member reports
