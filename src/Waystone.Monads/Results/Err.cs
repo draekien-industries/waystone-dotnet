@@ -95,7 +95,7 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Result<TOut, TErr> AndThen<TOut>(
-        Func<TOk, Result<TOut, TErr>> createOther) =>
+        Func<TOk, Result<TOut, TErr>> resultFactory) =>
         Value;
 
     /// <inheritdoc />
@@ -104,14 +104,14 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Result<TOk, TOut>
-        OrElse<TOut>(Func<TErr, Result<TOk, TOut>> createOther) =>
-        createOther(Value);
+        OrElse<TOut>(Func<TErr, Result<TOk, TOut>> resultFactory) =>
+        resultFactory(Value);
 
     /// <inheritdoc />
     public override Result<TOk, TOut> OrElse<TState, TOut>(
         TState state,
-        Func<TErr, TState, Result<TOk, TOut>> createOther) =>
-        createOther(Value, state);
+        Func<TErr, TState, Result<TOk, TOut>> resultFactory) =>
+        resultFactory(Value, state);
 
     /// <inheritdoc />
     public override TOk Expect(string message) =>
@@ -125,20 +125,20 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         throw UnwrapException.For(this);
 
     /// <inheritdoc />
-    public override TOk UnwrapOr(TOk @default) =>
-        @default;
+    public override TOk UnwrapOr(TOk defaultValue) =>
+        defaultValue;
 
     /// <inheritdoc />
     public override TOk? UnwrapOrDefault() => default;
 
     /// <inheritdoc />
-    public override TOk UnwrapOrElse(Func<TErr, TOk> onErr) =>
-        onErr(Value);
+    public override TOk UnwrapOrElse(Func<TErr, TOk> valueFactory) =>
+        valueFactory(Value);
 
     /// <inheritdoc />
     public override TOk UnwrapOrElse<TState>(
         TState state,
-        Func<TErr, TState, TOk> onErr) => onErr(Value, state);
+        Func<TErr, TState, TOk> valueFactory) => valueFactory(Value, state);
 
     /// <inheritdoc />
     public override TErr UnwrapErr() => Value;
@@ -178,14 +178,14 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override TOut MapOr<TOut>(
-        TOut @default,
-        Func<TOk, TOut> map) => @default;
+        TOut defaultValue,
+        Func<TOk, TOut> map) => defaultValue;
 
     /// <inheritdoc />
     public override TOut MapOr<TState, TOut>(
         TState state,
-        TOut @default,
-        Func<TOk, TState, TOut> map) => @default;
+        TOut defaultValue,
+        Func<TOk, TState, TOut> map) => defaultValue;
 
     /// <inheritdoc />
     public override TOut MapOrDefault<TOut>(Func<TOk, TOut> map) =>
@@ -198,14 +198,14 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override TOut MapOrElse<TOut>(
-        Func<TErr, TOut> createDefault,
-        Func<TOk, TOut> map) => createDefault(Value);
+        Func<TErr, TOut> defaultFactory,
+        Func<TOk, TOut> map) => defaultFactory(Value);
 
     /// <inheritdoc />
     public override TOut MapOrElse<TState, TOut>(
         TState state,
-        Func<TErr, TState, TOut> createDefault,
-        Func<TOk, TState, TOut> map) => createDefault(Value, state);
+        Func<TErr, TState, TOut> defaultFactory,
+        Func<TOk, TState, TOut> map) => defaultFactory(Value, state);
 
     /// <inheritdoc />
     public override Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map) =>

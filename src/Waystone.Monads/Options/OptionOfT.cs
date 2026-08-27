@@ -229,11 +229,11 @@ public abstract record Option<T> where T : notnull
     /// Returns the contained <see cref="Some{T}" /> value or computes it from
     /// a delegate.
     /// </summary>
-    /// <param name="else">
+    /// <param name="valueFactory">
     /// The delegate which computes the <see cref="None{T}" />
     /// value.
     /// </param>
-    public abstract T UnwrapOrElse(Func<T> @else);
+    public abstract T UnwrapOrElse(Func<T> valueFactory);
 
     /// <summary>
     /// Returns the contained <see cref="Some{T}" /> value, or computes it from
@@ -251,7 +251,7 @@ public abstract record Option<T> where T : notnull
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="else">
+    /// <param name="valueFactory">
     /// The delegate which computes the <see cref="None{T}" /> value from the
     /// state.
     /// </param>
@@ -259,7 +259,7 @@ public abstract record Option<T> where T : notnull
     /// The type of the state passed to the delegate. It is unconstrained, so a
     /// null state is permitted.
     /// </typeparam>
-    public abstract T UnwrapOrElse<TState>(TState state, Func<TState, T> @else);
+    public abstract T UnwrapOrElse<TState>(TState state, Func<TState, T> valueFactory);
 
     /// <summary>
     /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c> by
@@ -360,10 +360,10 @@ public abstract record Option<T> where T : notnull
     /// Returns the provided default result (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
-    /// <param name="default">The default value for a <see cref="None{T}" />.</param>
+    /// <param name="defaultValue">The default value for a <see cref="None{T}" />.</param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
-    public abstract TOut MapOr<TOut>(TOut @default, Func<T, TOut> map);
+    public abstract TOut MapOr<TOut>(TOut defaultValue, Func<T, TOut> map);
 
     /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
@@ -376,13 +376,13 @@ public abstract record Option<T> where T : notnull
     /// use this overload.
     /// </remarks>
     /// <param name="state">The value passed to the map function.</param>
-    /// <param name="default">The default value for a <see cref="None{T}" />.</param>
+    /// <param name="defaultValue">The default value for a <see cref="None{T}" />.</param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
     public abstract TOut MapOr<TState, TOut>(
         TState state,
-        TOut @default,
+        TOut defaultValue,
         Func<T, TState, TOut> map);
 
     /// <summary>
@@ -424,13 +424,13 @@ public abstract record Option<T> where T : notnull
     /// Computes a default from a function (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
-    /// <param name="createDefault">
+    /// <param name="defaultFactory">
     /// The function that will create a default value for a
     /// <see cref="None{T}" />.
     /// </param>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
-    public abstract TOut MapOrElse<TOut>(Func<TOut> createDefault, Func<T, TOut> map);
+    public abstract TOut MapOrElse<TOut>(Func<TOut> defaultFactory, Func<T, TOut> map);
 
     /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
@@ -443,7 +443,7 @@ public abstract record Option<T> where T : notnull
     /// use this overload.
     /// </remarks>
     /// <param name="state">The value passed to both functions.</param>
-    /// <param name="createDefault">
+    /// <param name="defaultFactory">
     /// The function that will create a default value for a
     /// <see cref="None{T}" />.
     /// </param>
@@ -452,7 +452,7 @@ public abstract record Option<T> where T : notnull
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
     public abstract TOut MapOrElse<TState, TOut>(
         TState state,
-        Func<TState, TOut> createDefault,
+        Func<TState, TOut> defaultFactory,
         Func<T, TState, TOut> map);
 
     /// <summary>
@@ -535,10 +535,10 @@ public abstract record Option<T> where T : notnull
 
     /// <summary>
     /// Returns the option if it contains a value, otherwise invokes the
-    /// <paramref name="createElse" /> function and returns the result.
+    /// <paramref name="optionFactory" /> function and returns the result.
     /// </summary>
-    /// <param name="createElse">The function that will create the other option.</param>
-    public abstract Option<T> OrElse(Func<Option<T>> createElse);
+    /// <param name="optionFactory">The function that will create the other option.</param>
+    public abstract Option<T> OrElse(Func<Option<T>> optionFactory);
 
     /// <summary>
     /// Returns the option if it contains a value, otherwise invokes a function
@@ -556,7 +556,7 @@ public abstract record Option<T> where T : notnull
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="createElse">
+    /// <param name="optionFactory">
     /// The function that will create the other option from the state.
     /// </param>
     /// <typeparam name="TState">
@@ -565,7 +565,7 @@ public abstract record Option<T> where T : notnull
     /// </typeparam>
     public abstract Option<T> OrElse<TState>(
         TState state,
-        Func<TState, Option<T>> createElse);
+        Func<TState, Option<T>> optionFactory);
 
     /// <summary>
     /// Returns <see cref="Some{T}" /> if exactly one of

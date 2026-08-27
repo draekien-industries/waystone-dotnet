@@ -245,20 +245,20 @@ public abstract record Result<TOk, TErr>
         where TOut : notnull;
 
     /// <summary>
-    /// Calls the <paramref name="createOther" /> if the result is
+    /// Calls the <paramref name="resultFactory" /> if the result is
     /// <see cref="Ok{TOk,TErr}" />, otherwise returns the <see cref="Err{TOk,TErr}" />
     /// value of <see langword="this" /> instance.
     /// </summary>
-    /// <param name="createOther">A function that creates the other result.</param>
+    /// <param name="resultFactory">A function that creates the other result.</param>
     /// <typeparam name="TOut">
     /// The <see cref="Ok{TOk,TErr}" /> value's type of the
     /// other result.
     /// </typeparam>
     public abstract Result<TOut, TErr> AndThen<TOut>(
-        Func<TOk, Result<TOut, TErr>> createOther) where TOut : notnull;
+        Func<TOk, Result<TOut, TErr>> resultFactory) where TOut : notnull;
 
     /// <summary>
-    /// Calls the <paramref name="createOther" /> with <paramref name="state" />
+    /// Calls the <paramref name="resultFactory" /> with <paramref name="state" />
     /// if the result is <see cref="Ok{TOk,TErr}" />, otherwise returns the
     /// <see cref="Err{TOk,TErr}" /> value of <see langword="this" /> instance.
     /// </summary>
@@ -272,7 +272,7 @@ public abstract record Result<TOk, TErr>
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="createOther">A function that creates the other result.</param>
+    /// <param name="resultFactory">A function that creates the other result.</param>
     /// <typeparam name="TState">
     /// The type of the state passed to the function. It is unconstrained, so a
     /// null state is permitted.
@@ -286,9 +286,9 @@ public abstract record Result<TOk, TErr>
 #endif
     public Result<TOut, TErr> AndThen<TState, TOut>(
         TState state,
-        Func<TOk, TState, Result<TOut, TErr>> createOther)
+        Func<TOk, TState, Result<TOut, TErr>> resultFactory)
         where TOut : notnull =>
-        Map(state, createOther).Flatten();
+        Map(state, resultFactory).Flatten();
 
     /// <summary>
     /// Returns <paramref name="other" /> if the result is
@@ -301,7 +301,7 @@ public abstract record Result<TOk, TErr>
         where TOut : notnull;
 
     /// <summary>
-    /// Calls <paramref name="createOther" /> if the result is
+    /// Calls <paramref name="resultFactory" /> if the result is
     /// <see cref="Err{TOk,TErr}" />, otherwise returns the <see cref="Ok{TOk,TErr}" />
     /// value of this result instance.
     /// </summary>
@@ -310,10 +310,10 @@ public abstract record Result<TOk, TErr>
     /// the lazy counterpart to <see cref="Or{TOut}" />, which evaluates its
     /// argument either way.
     /// </remarks>
-    /// <param name="createOther">A function which creates the other result.</param>
+    /// <param name="resultFactory">A function which creates the other result.</param>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
     public abstract Result<TOk, TOut> OrElse<TOut>(
-        Func<TErr, Result<TOk, TOut>> createOther) where TOut : notnull;
+        Func<TErr, Result<TOk, TOut>> resultFactory) where TOut : notnull;
 
     /// <summary>
     /// Calls a function that takes state instead of capturing it if the result
@@ -332,7 +332,7 @@ public abstract record Result<TOk, TErr>
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="createOther">A function which creates the other result.</param>
+    /// <param name="resultFactory">A function which creates the other result.</param>
     /// <typeparam name="TState">
     /// The type of the state passed to the function. It is unconstrained, so a
     /// null state is permitted.
@@ -340,7 +340,7 @@ public abstract record Result<TOk, TErr>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
     public abstract Result<TOk, TOut> OrElse<TState, TOut>(
         TState state,
-        Func<TErr, TState, Result<TOk, TOut>> createOther)
+        Func<TErr, TState, Result<TOk, TOut>> resultFactory)
         where TOut : notnull;
 
     /// <summary>
@@ -399,11 +399,11 @@ public abstract record Result<TOk, TErr>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or a provided
     /// default.
     /// </summary>
-    /// <param name="default">
+    /// <param name="defaultValue">
     /// The default value to return on an
     /// <see cref="Err{TOk,TErr}" />
     /// </param>
-    public abstract TOk UnwrapOr(TOk @default);
+    public abstract TOk UnwrapOr(TOk defaultValue);
 
     /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or the default
@@ -415,11 +415,11 @@ public abstract record Result<TOk, TErr>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
     /// from the callback function.
     /// </summary>
-    /// <param name="onErr">
-    /// The callback function for computing the
-    /// <see cref="Err{TOk,TErr}" /> return value.
+    /// <param name="valueFactory">
+    /// Produces the returned value from the contained error. It runs only on an
+    /// <see cref="Err{TOk,TErr}" />.
     /// </param>
-    public abstract TOk UnwrapOrElse(Func<TErr, TOk> onErr);
+    public abstract TOk UnwrapOrElse(Func<TErr, TOk> valueFactory);
 
     /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or computes it
@@ -437,9 +437,9 @@ public abstract record Result<TOk, TErr>
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="onErr">
-    /// The callback function for computing the
-    /// <see cref="Err{TOk,TErr}" /> return value.
+    /// <param name="valueFactory">
+    /// Produces the returned value from the contained error. It runs only on an
+    /// <see cref="Err{TOk,TErr}" />.
     /// </param>
     /// <typeparam name="TState">
     /// The type of the state passed to the callback. It is unconstrained, so a
@@ -447,7 +447,7 @@ public abstract record Result<TOk, TErr>
     /// </typeparam>
     public abstract TOk UnwrapOrElse<TState>(
         TState state,
-        Func<TErr, TState, TOk> onErr);
+        Func<TErr, TState, TOk> valueFactory);
 
     /// <summary>
     /// Returns the contained <see cref="Err{TOk,TErr}" /> value, consuming
@@ -570,12 +570,12 @@ public abstract record Result<TOk, TErr>
     /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
     /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
     /// </summary>
-    /// <param name="default">
+    /// <param name="defaultValue">
     /// The default value for an <see cref="Err{TOk,TErr}" />
     /// </param>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
-    public abstract TOut MapOr<TOut>(TOut @default, Func<TOk, TOut> map);
+    public abstract TOut MapOr<TOut>(TOut defaultValue, Func<TOk, TOut> map);
 
     /// <summary>
     /// Returns the provided default (if <see cref="Err{TOk,TErr}" />), or
@@ -591,7 +591,7 @@ public abstract record Result<TOk, TErr>
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="default">
+    /// <param name="defaultValue">
     /// The default value for an <see cref="Err{TOk,TErr}" />
     /// </param>
     /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
@@ -602,7 +602,7 @@ public abstract record Result<TOk, TErr>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut MapOr<TState, TOut>(
         TState state,
-        TOut @default,
+        TOut defaultValue,
         Func<TOk, TState, TOut> map);
 
     /// <summary>
@@ -643,11 +643,11 @@ public abstract record Result<TOk, TErr>
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
-    /// by applying fallback function <paramref name="createDefault" /> to a contained
+    /// by applying fallback function <paramref name="defaultFactory" /> to a contained
     /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
     /// a contained <see cref="Ok{TOk,TErr}" /> value.
     /// </summary>
-    /// <param name="createDefault">
+    /// <param name="defaultFactory">
     /// A function to create the default value for an
     /// <see cref="Err{TOk,TErr}" />
     /// </param>
@@ -656,15 +656,15 @@ public abstract record Result<TOk, TErr>
     /// <returns>
     /// What <paramref name="map" /> produces from the contained value on an
     /// <see cref="Ok{TOk,TErr}" />, otherwise what
-    /// <paramref name="createDefault" /> produces from the contained error.
+    /// <paramref name="defaultFactory" /> produces from the contained error.
     /// </returns>
     public abstract TOut MapOrElse<TOut>(
-        Func<TErr, TOut> createDefault,
+        Func<TErr, TOut> defaultFactory,
         Func<TOk, TOut> map);
 
     /// <summary>
     /// Maps a <c>Result&lt;TOk, TErr&gt;</c> to <typeparamref name="TOut" />
-    /// by applying fallback function <paramref name="createDefault" /> to a contained
+    /// by applying fallback function <paramref name="defaultFactory" /> to a contained
     /// <see cref="Err{TOk,TErr}" /> value, or the <paramref name="map" /> function to
     /// a contained <see cref="Ok{TOk,TErr}" /> value.
     /// </summary>
@@ -678,7 +678,7 @@ public abstract record Result<TOk, TErr>
     /// The value the delegates would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="createDefault">
+    /// <param name="defaultFactory">
     /// A function to create the default value for an
     /// <see cref="Err{TOk,TErr}" />
     /// </param>
@@ -690,7 +690,7 @@ public abstract record Result<TOk, TErr>
     /// <typeparam name="TOut">The mapped result value type</typeparam>
     public abstract TOut MapOrElse<TState, TOut>(
         TState state,
-        Func<TErr, TState, TOut> createDefault,
+        Func<TErr, TState, TOut> defaultFactory,
         Func<TOk, TState, TOut> map);
 
     /// <summary>

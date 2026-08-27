@@ -91,12 +91,12 @@ public sealed record None<T> : Option<T>
         default;
 
     /// <inheritdoc />
-    public override T UnwrapOrElse(Func<T> @else) =>
-        @else();
+    public override T UnwrapOrElse(Func<T> valueFactory) =>
+        valueFactory();
 
     /// <inheritdoc />
-    public override T UnwrapOrElse<TState>(TState state, Func<TState, T> @else) =>
-        @else(state);
+    public override T UnwrapOrElse<TState>(TState state, Func<TState, T> valueFactory) =>
+        valueFactory(state);
 
     /// <inheritdoc />
     public override Option<TOut> And<TOut>(Option<TOut> other) =>
@@ -112,14 +112,14 @@ public sealed record None<T> : Option<T>
         Func<T, TState, TOut> map) => Option.None<TOut>();
 
     /// <inheritdoc />
-    public override TOut MapOr<TOut>(TOut @default, Func<T, TOut> map) =>
-        @default;
+    public override TOut MapOr<TOut>(TOut defaultValue, Func<T, TOut> map) =>
+        defaultValue;
 
     /// <inheritdoc />
     public override TOut MapOr<TState, TOut>(
         TState state,
-        TOut @default,
-        Func<T, TState, TOut> map) => @default;
+        TOut defaultValue,
+        Func<T, TState, TOut> map) => defaultValue;
 
     /// <inheritdoc />
     public override TOut MapOrDefault<TOut>(Func<T, TOut> map) =>
@@ -132,14 +132,14 @@ public sealed record None<T> : Option<T>
 
     /// <inheritdoc />
     public override TOut MapOrElse<TOut>(
-        Func<TOut> createDefault,
-        Func<T, TOut> map) => createDefault();
+        Func<TOut> defaultFactory,
+        Func<T, TOut> map) => defaultFactory();
 
     /// <inheritdoc />
     public override TOut MapOrElse<TState, TOut>(
         TState state,
-        Func<TState, TOut> createDefault,
-        Func<T, TState, TOut> map) => createDefault(state);
+        Func<TState, TOut> defaultFactory,
+        Func<T, TState, TOut> map) => defaultFactory(state);
 
     /// <inheritdoc />
     public override Option<T> Inspect(Action<T> action) =>
@@ -164,13 +164,13 @@ public sealed record None<T> : Option<T>
         other;
 
     /// <inheritdoc />
-    public override Option<T> OrElse(Func<Option<T>> createElse) =>
-        createElse();
+    public override Option<T> OrElse(Func<Option<T>> optionFactory) =>
+        optionFactory();
 
     /// <inheritdoc />
     public override Option<T> OrElse<TState>(
         TState state,
-        Func<TState, Option<T>> createElse) => createElse(state);
+        Func<TState, Option<T>> optionFactory) => optionFactory(state);
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>
