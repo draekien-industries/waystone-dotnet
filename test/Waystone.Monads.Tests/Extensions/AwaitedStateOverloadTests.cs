@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 using Xunit;
 
 /// <remarks>
-/// These twenty-two overloads exist only because DRA-110 converted the last
-/// hand-written families to generated awaited receivers, and the generator lifts
-/// every overload of the core member rather than the subset that happened to be
-/// written by hand. The hand-written blocks lifted the plain overload and never
+/// These thirty-two overloads exist only because DRA-110 and DRA-133 converted
+/// every hand-written family to generated awaited receivers, and the generator
+/// lifts every overload of the core member rather than the subset that happened
+/// to be written by hand. The hand-written blocks lifted the plain overload and never
 /// the state one, so a caller on an awaited receiver had no way to avoid a
 /// closure.
 /// <para>
@@ -35,6 +35,9 @@ public sealed class AwaitedStateOverloadTests
 
     private static readonly Func<int, Option<int>> SomeFromState = state =>
         Option.Some(state);
+
+    private static readonly Func<int, int, Option<int>> SomeSum =
+        (value, state) => Option.Some(value + state);
 
     private static readonly Func<int, int> ValueFromState = state => state;
 
@@ -296,5 +299,86 @@ public sealed class AwaitedStateOverloadTests
         mapped.ShouldBe(9);
         fallback.ShouldBe(-1);
     }
+
+    [Fact]
+    public async Task GivenOptionTask_WhenAndThenAsyncWithState_ThenUseTheState()
+    {
+        (await SomeTask(2).AndThenAsync(State, SomeSum)).ShouldBeSomeValue(9);
+        (await NoneTask().AndThenAsync(State, SomeSum)).ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task
+        GivenOptionValueTask_WhenAndThenAsyncWithState_ThenUseTheState()
+    {
+        (await SomeValueTask(2).AndThenAsync(State, SomeSum))
+           .ShouldBeSomeValue(9);
+        (await NoneValueTask().AndThenAsync(State, SomeSum)).ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task GivenOptionTask_WhenFilterAsyncWithState_ThenUseTheState()
+    {
+        (await SomeTask(9).FilterAsync(State, Exceeds)).ShouldBeSomeValue(9);
+        (await SomeTask(3).FilterAsync(State, Exceeds)).ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task
+        GivenOptionValueTask_WhenFilterAsyncWithState_ThenUseTheState()
+    {
+        (await SomeValueTask(9).FilterAsync(State, Exceeds))
+           .ShouldBeSomeValue(9);
+        (await SomeValueTask(3).FilterAsync(State, Exceeds)).ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task GivenOptionTask_WhenMapAsyncWithState_ThenUseTheState()
+    {
+        (await SomeTask(2).MapAsync(State, Sum)).ShouldBeSomeValue(9);
+        (await NoneTask().MapAsync(State, Sum)).ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task
+        GivenOptionValueTask_WhenMapAsyncWithState_ThenUseTheState()
+    {
+        (await SomeValueTask(2).MapAsync(State, Sum)).ShouldBeSomeValue(9);
+        (await NoneValueTask().MapAsync(State, Sum)).ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task GivenResultTask_WhenMapAsyncWithState_ThenUseTheState()
+    {
+        (await OkTask(2).MapAsync(State, Sum)).ShouldBeOkValue(9);
+        (await ErrTask().MapAsync(State, Sum)).ShouldBeErrValue("failed");
+    }
+
+    [Fact]
+    public async Task
+        GivenResultValueTask_WhenMapAsyncWithState_ThenUseTheState()
+    {
+        (await OkValueTask(2).MapAsync(State, Sum)).ShouldBeOkValue(9);
+        (await ErrValueTask().MapAsync(State, Sum)).ShouldBeErrValue("failed");
+    }
+
+    [Fact]
+    public async Task GivenResultTask_WhenMapErrAsyncWithState_ThenUseTheState()
+    {
+        (await ErrTask().MapErrAsync(State, LengthPlusState))
+           .ShouldBeErrValue(13);
+        (await OkTask(2).MapErrAsync(State, LengthPlusState)).ShouldBeOkValue(2);
+    }
+
+    [Fact]
+    public async Task
+        GivenResultValueTask_WhenMapErrAsyncWithState_ThenUseTheState()
+    {
+        (await ErrValueTask().MapErrAsync(State, LengthPlusState))
+           .ShouldBeErrValue(13);
+        (await OkValueTask(2).MapErrAsync(State, LengthPlusState))
+           .ShouldBeOkValue(2);
+    }
 }
+
 

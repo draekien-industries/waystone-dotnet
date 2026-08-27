@@ -2,8 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
-public static class MapExtensions
+[GenerateAwaitedReceivers(typeof(Result<,>))]
+[GenerateAwaitedMember(nameof(Result<,>.Map))]
+public static partial class MapExtensions
 {
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull where TErr : notnull
@@ -23,50 +26,6 @@ public static class MapExtensions
             TOut? output = await map.Invoke(ok).ConfigureAwait(false);
 
             return Result.Ok<TOut, TErr>(output);
-        }
-    }
-
-    extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapAsync(map);
-        }
-
-        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
-            Func<TOk, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.Map(map);
-        }
-    }
-
-    extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.MapAsync(map);
-        }
-
-        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
-            Func<TOk, TOut> map)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.Map(map);
         }
     }
 }
