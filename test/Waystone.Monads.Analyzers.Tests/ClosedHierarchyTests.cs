@@ -52,7 +52,6 @@ public class ClosedHierarchyTests
                 public override ValueTask<T2> MapOrAsync<T2>(T2 defaultValue, Func<T, Task<T2>> map) => throw new Exception();
                 public override T2 MapOrDefault<T2>(Func<T, T2> map) => default!;
                 public override T2 MapOrDefault<TState, T2>(TState state, Func<T, TState, T2> map) => default!;
-                public override ValueTask<T2> MapOrDefaultAsync<T2>(Func<T, Task<T2>> map) => throw new Exception();
                 public override T2? MapOrNull<T2>(Func<T, T2> map) => null;
                 public override ValueTask<T2?> MapOrNullAsync<T2>(Func<T, Task<T2>> map) => throw new Exception();
                 public override T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map) => createDefault();

@@ -657,9 +657,10 @@ public abstract record Option<T> where T : notnull
     /// default of <typeparamref name="TOut" />.
     /// </summary>
     /// <remarks>
-    /// The default is the language default, so a <see cref="None{T}" /> is
-    /// indistinguishable from a mapped value that happens to equal it. Where that
-    /// matters, use <c>MapAsync</c> and keep the option.
+    /// <paramref name="map" /> is not invoked on a <see cref="None{T}" />. When
+    /// <typeparamref name="TOut" /> is a value type the returned default is
+    /// indistinguishable from a mapped zero; use
+    /// <see cref="MapOrNullAsync{TOut}" /> if the caller must tell the two apart.
     /// </remarks>
     /// <param name="map">
     /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
@@ -669,8 +670,11 @@ public abstract record Option<T> where T : notnull
     /// What <paramref name="map" /> produced, or the default of
     /// <typeparamref name="TOut" />.
     /// </returns>
-    public abstract ValueTask<TOut> MapOrDefaultAsync<TOut>(
-        Func<T, Task<TOut>> map) where TOut : notnull;
+    public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(Func<T, Task<TOut>> map)
+        where TOut : notnull =>
+        this is Some<T> some
+            ? await map(some.Value).ConfigureAwait(false)
+            : default;
 
     /// <summary>
     /// Maps the contained value to a nullable value type, using null for a

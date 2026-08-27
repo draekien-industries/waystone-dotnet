@@ -180,11 +180,6 @@ public sealed record None<T> : Option<T>
         Func<T, TState, TOut> map) => default!;
 
     /// <inheritdoc />
-    public override ValueTask<TOut> MapOrDefaultAsync<TOut>(
-        Func<T, Task<TOut>> map) =>
-        new ValueTask<TOut>(default(TOut)!);
-
-    /// <inheritdoc />
     public override TOut? MapOrNull<TOut>(Func<T, TOut> map) => null;
 
     /// <inheritdoc />

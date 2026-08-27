@@ -37,7 +37,7 @@ public sealed record Some<T> : Option<T>
         Value = value;
     }
 
-    private T Value { get; }
+    internal T Value { get; }
 
     /// <inheritdoc />
     public override bool IsSome => true;
@@ -194,11 +194,6 @@ public sealed record Some<T> : Option<T>
     public override TOut MapOrDefault<TState, TOut>(
         TState state,
         Func<T, TState, TOut> map) => map(Value, state);
-
-    /// <inheritdoc />
-    public override async ValueTask<TOut> MapOrDefaultAsync<TOut>(
-        Func<T, Task<TOut>> map) =>
-        await map(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
     public override TOut? MapOrNull<TOut>(Func<T, TOut> map) =>
