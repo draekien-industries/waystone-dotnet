@@ -49,7 +49,7 @@ public sealed class AwaitedReceiverCoverageTests
         IReadOnlyCollection<string> awaited = AwaitedMemberNames(monad);
 
         List<string> uncovered = CoreMemberNames(monad)
-                                .Where(name => !awaited.Contains(name + "Async"))
+                                .Where(name => !awaited.Contains(AwaitedName(name)))
                                 .OrderBy(name => name, StringComparer.Ordinal)
                                 .ToList();
 
@@ -120,6 +120,24 @@ public sealed class AwaitedReceiverCoverageTests
              .Where(name => !Synthesised.Contains(name))
              .Distinct(StringComparer.Ordinal)
              .ToList();
+
+    /// <summary>
+    /// Gets the name the awaited receiver carries for a core member called
+    /// <paramref name="name" />.
+    /// </summary>
+    /// <remarks>
+    /// Mirrors the rule in <c>AwaitedReceiverWriter.EmitMember</c>: the generator
+    /// appends the suffix only when the source member does not already end in it,
+    /// so <c>Map</c> lifts to <c>MapAsync</c> and <c>MapAsync</c> lifts to
+    /// <c>MapAsync</c> rather than <c>MapAsyncAsync</c>. Restating it here rather
+    /// than reading the emitted name back keeps this test an independent
+    /// statement of the naming contract — if the generator changes the rule, the
+    /// two disagree and this fails, which is the point.
+    /// </remarks>
+    private static string AwaitedName(string name) =>
+        name.EndsWith("Async", StringComparison.Ordinal)
+            ? name
+            : name + "Async";
 
     private static readonly HashSet<string> Synthesised = new(
         StringComparer.Ordinal)

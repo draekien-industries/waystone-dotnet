@@ -1,68 +1,20 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
 /// <summary>
-/// Maps an <see cref="Option{T}" /> to a nullable value type, using
-/// <see langword="null" /> rather than <see langword="default" /> for the
-/// <see cref="None{T}" /> case.
+/// Applies <c>MapOrNull</c> and <c>MapOrNullAsync</c> to an
+/// <see cref="Option{T}" /> that is still inside a <see cref="Task{TResult}" />
+/// or <see cref="ValueTask{TResult}" />.
 /// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Option{T}" /> itself, and the awaited-receiver generator emits
+/// each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Option<>))]
-public static partial class MapOrNullExtensions
-{
-    extension<T>(Option<T> option) where T : notnull
-    {
-        /// <summary>
-        /// Applies <paramref name="map" /> to the contained value if the option is a
-        /// <see cref="Some{T}" />, otherwise returns <see langword="null" />.
-        /// </summary>
-        /// <remarks>
-        /// Prefer this to <see cref="Option{T}.MapOrDefault{TOut}" />, which returns
-        /// the default of <typeparamref name="TOut" /> for a
-        /// <see cref="None{T}" /> — for a value type that is indistinguishable from
-        /// a legitimate zero.
-        /// </remarks>
-        /// <typeparam name="TOut">The type of the output value.</typeparam>
-        /// <param name="map">
-        /// A function to transform the value inside the option if it is
-        /// a <see cref="Some{T}" />.
-        /// </param>
-        /// <returns>
-        /// The transformed value if the option was a <see cref="Some{T}" />,
-        /// otherwise <see langword="null" />.
-        /// </returns>
-        public TOut? MapOrNull<TOut>(Func<T, TOut> map) where TOut : struct =>
-            option.Match<TOut?>(value => map.Invoke(value), () => null);
-
-        /// <summary>
-        /// Awaits <paramref name="map" /> against the contained value if the option is
-        /// a <see cref="Some{T}" />, otherwise returns <see langword="null" />.
-        /// </summary>
-        /// <remarks>
-        /// Prefer this to <c>MapOrDefaultAsync</c>, which returns the default of
-        /// <typeparamref name="TOut" /> for a <see cref="None{T}" /> — for a value
-        /// type that is indistinguishable from a legitimate zero.
-        /// </remarks>
-        /// <typeparam name="TOut">The type of the output value.</typeparam>
-        /// <param name="map">
-        /// Asynchronously transforms the contained value. Not invoked when the
-        /// option is a <see cref="None{T}" />.
-        /// </param>
-        /// <returns>
-        /// A <see cref="ValueTask{TResult}" /> containing the transformed value if the
-        /// option was a <see cref="Some{T}" />, otherwise <see langword="null" />.
-        /// </returns>
-        public async ValueTask<TOut?> MapOrNullAsync<TOut>(
-            Func<T, Task<TOut>> map)
-            where TOut : struct
-        {
-            if (option.IsNone) return null;
-
-            T some = option.Expect("Expected Some but found None.");
-
-            return await map.Invoke(some).ConfigureAwait(false);
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Option<>.MapOrNull))]
+[GenerateAwaitedMember(nameof(Option<>.MapOrNullAsync))]
+public static partial class MapOrNullExtensions;
