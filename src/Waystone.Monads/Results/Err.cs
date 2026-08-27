@@ -39,6 +39,28 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     internal TErr Value { get; }
 
+    /// <summary>Binds the error in a positional pattern.</summary>
+    /// <remarks>
+    /// What makes <c>result is Err&lt;TOk, TErr&gt;(var error)</c> and an arm of
+    /// <c>result switch { Ok&lt;TOk, TErr&gt;(var value) => …,
+    /// Err&lt;TOk, TErr&gt;(var error) => … }</c> compile. Unlike
+    /// <see cref="None{T}" />, which carries nothing and so takes no
+    /// deconstructor, the failure case of a result holds the error that explains
+    /// it.
+    /// <para>
+    /// This is the only way to read the error off an
+    /// <see cref="Err{TOk,TErr}" /> directly; the property behind it is
+    /// internal, so a caller who wants the error without naming the case type
+    /// goes through <see cref="Result{TOk,TErr}.TryUnwrapErr" /> or
+    /// <see cref="Result{TOk,TErr}.UnwrapErr" /> instead.
+    /// </para>
+    /// </remarks>
+    /// <param name="error">Receives the error, which is never null.</param>
+    public void Deconstruct(out TErr error)
+    {
+        error = Value;
+    }
+
     /// <inheritdoc />
     public override bool IsOk => false;
 

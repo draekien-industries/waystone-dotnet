@@ -197,9 +197,12 @@ Waystone.Monads.Options.Option
 Waystone.Monads.Options.Option<T>
 Waystone.Monads.Options.Option<T>.MapOrDefaultAsync<TOut>(System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Option<T>.Option(Waystone.Monads.Options.Option<T>! original) -> void
+Waystone.Monads.Options.Option<T>.TryUnwrap(out T value) -> bool
 Waystone.Monads.Options.Some<T>
+Waystone.Monads.Options.Some<T>.Deconstruct(out T value) -> void
 Waystone.Monads.Options.Some<T>.Equals(Waystone.Monads.Options.Some<T>? other) -> bool
 Waystone.Monads.Results.Err<TOk, TErr>
+Waystone.Monads.Results.Err<TOk, TErr>.Deconstruct(out TErr error) -> void
 Waystone.Monads.Results.Err<TOk, TErr>.Equals(Waystone.Monads.Results.Err<TOk, TErr>? other) -> bool
 Waystone.Monads.Results.Errors.Error
 Waystone.Monads.Results.Errors.Error.Code.get -> Waystone.Monads.Results.Errors.ErrorCode!
@@ -356,11 +359,14 @@ Waystone.Monads.Results.Extensions.ResultExtensions.extension<TOk, TErr>(Wayston
 Waystone.Monads.Results.Extensions.ResultExtensions.extension<TOk, TErr>(Waystone.Monads.Results.Result<Waystone.Monads.Results.Result<TOk, TErr>!, TErr>!).Flatten() -> Waystone.Monads.Results.Result<TOk, TErr>!
 Waystone.Monads.Results.Extensions.ResultsCollectionExtensions
 Waystone.Monads.Results.Ok<TOk, TErr>
+Waystone.Monads.Results.Ok<TOk, TErr>.Deconstruct(out TOk value) -> void
 Waystone.Monads.Results.Ok<TOk, TErr>.Equals(Waystone.Monads.Results.Ok<TOk, TErr>? other) -> bool
 Waystone.Monads.Results.Result
 Waystone.Monads.Results.Result<TOk, TErr>
 Waystone.Monads.Results.Result<TOk, TErr>.MapOrDefaultAsync<TOut>(System.Func<TOk, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Results.Result<TOk, TErr>.Result(Waystone.Monads.Results.Result<TOk, TErr>! original) -> void
+Waystone.Monads.Results.Result<TOk, TErr>.TryUnwrap(out TOk value) -> bool
+Waystone.Monads.Results.Result<TOk, TErr>.TryUnwrapErr(out TErr error) -> bool
 abstract Waystone.Monads.Options.Option<T>.<Clone>$() -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.And<TOut>(Waystone.Monads.Options.Option<TOut>! other) -> Waystone.Monads.Options.Option<TOut>!
 abstract Waystone.Monads.Options.Option<T>.AndThen<TOut>(System.Func<T, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!

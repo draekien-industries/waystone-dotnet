@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Exceptions;
 using Options;
@@ -560,6 +561,46 @@ public abstract record Result<TOk, TErr>
     public abstract TOk Unwrap();
 
     /// <summary>
+    /// Checks whether the result is an <see cref="Ok{TOk,TErr}" />, handing back
+    /// its value when it is.
+    /// </summary>
+    /// <remarks>
+    /// The non-throwing counterpart to <see cref="Unwrap" />, for the
+    /// <c>if (result.TryUnwrap(out var value))</c> shape. It differs from
+    /// <see cref="GetOk" /> in what it discards: <see cref="GetOk" /> wraps the
+    /// success value in an option and drops the error, whereas this hands the
+    /// value back unwrapped and leaves the error reachable through
+    /// <see cref="TryUnwrapErr" /> on the same instance.
+    /// <para>
+    /// A positional pattern — <c>result is Ok&lt;TOk, TErr&gt;(var value)</c> —
+    /// does the same job and reads better where the case type can be named,
+    /// which for a result means naming both type arguments.
+    /// </para>
+    /// </remarks>
+    /// <param name="value">
+    /// Receives the success value when the result is an
+    /// <see cref="Ok{TOk,TErr}" />, and the default of
+    /// <typeparamref name="TOk" /> otherwise. Read it only when this returns
+    /// true.
+    /// </param>
+    /// <returns>
+    /// True if the result is an <see cref="Ok{TOk,TErr}" />; false otherwise.
+    /// </returns>
+    public bool TryUnwrap([MaybeNullWhen(false)] out TOk value)
+    {
+        if (this is Ok<TOk, TErr> ok)
+        {
+            value = ok.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or a provided
     /// default.
     /// </summary>
@@ -648,6 +689,38 @@ public abstract record Result<TOk, TErr>
     /// message provided by the <see cref="Ok{TOk,TErr}" />'s value.
     /// </exception>
     public abstract TErr UnwrapErr();
+
+    /// <summary>
+    /// Checks whether the result is an <see cref="Err{TOk,TErr}" />, handing
+    /// back its error when it is.
+    /// </summary>
+    /// <remarks>
+    /// The non-throwing counterpart to <see cref="UnwrapErr" />, and the mirror
+    /// of <see cref="TryUnwrap" />. Note that both are exhaustive over the same
+    /// closed pair, so a false from one implies a true from the other — testing
+    /// both is redundant, and the second call is the one to drop.
+    /// </remarks>
+    /// <param name="error">
+    /// Receives the error when the result is an <see cref="Err{TOk,TErr}" />,
+    /// and the default of <typeparamref name="TErr" /> otherwise. Read it only
+    /// when this returns true.
+    /// </param>
+    /// <returns>
+    /// True if the result is an <see cref="Err{TOk,TErr}" />; false otherwise.
+    /// </returns>
+    public bool TryUnwrapErr([MaybeNullWhen(false)] out TErr error)
+    {
+        if (this is Err<TOk, TErr> err)
+        {
+            error = err.Value;
+
+            return true;
+        }
+
+        error = default;
+
+        return false;
+    }
 
     /// <summary>
     /// Calls a function with a reference to the contained value if

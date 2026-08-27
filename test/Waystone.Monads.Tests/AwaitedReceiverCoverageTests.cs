@@ -109,15 +109,18 @@ public sealed class AwaitedReceiverCoverageTests
     /// </summary>
     /// <remarks>
     /// <c>IsSpecialName</c> drops the property accessors and the operators, and
-    /// the listed names drop what the record declaration synthesises. Declaring
-    /// the exclusions rather than pattern-matching them means a new core member
-    /// is covered by default and a new exclusion is a deliberate edit.
+    /// the listed names drop what the record declaration synthesises and what no
+    /// awaited shape can express. Declaring the exclusions rather than
+    /// pattern-matching them means a new core member is covered by default and a
+    /// new exclusion is a deliberate edit.
     /// </remarks>
     private static IReadOnlyCollection<string> CoreMemberNames(Type monad) =>
         monad.GetMethods(BindingFlags.Public | BindingFlags.Instance)
              .Where(method => !method.IsSpecialName)
              .Select(method => method.Name)
-             .Where(name => !Synthesised.Contains(name))
+             .Where(
+                  name => !Synthesised.Contains(name)
+                       && !Unawaitable.Contains(name))
              .Distinct(StringComparer.Ordinal)
              .ToList();
 
@@ -148,6 +151,32 @@ public sealed class AwaitedReceiverCoverageTests
         "ToString",
         "Deconstruct",
         "<Clone>$",
+    };
+
+    /// <remarks>
+    /// The try-pattern members hand their result back through an <c>out</c>
+    /// parameter, and C# forbids <c>out</c> on an <c>async</c> method — so an
+    /// awaited receiver cannot forward to one. A non-async forwarder does not
+    /// rescue it either: the parameter would have to be assigned before the
+    /// receiver's task completed, which is the one thing it cannot do. This is a
+    /// property of the signature rather than of our generator, so no future
+    /// change to the awaited surface closes it, and a caller holding an awaitable
+    /// writes <c>(await task).TryUnwrap(out var value)</c> deliberately.
+    /// <para>
+    /// Deriving this from the signature instead — excluding any member with an
+    /// <c>out</c> parameter — would be self-maintaining, and is deliberately not
+    /// done. A future member reaching for <c>out</c> may be better redesigned to
+    /// return an <see cref="Option{T}" />, which an awaited receiver *can*
+    /// forward to; a name list fails the test and forces that conversation, where
+    /// a derived rule would accept the <c>out</c> silently. That is the same
+    /// reason <c>Synthesised</c> lists names rather than pattern-matching them.
+    /// </para>
+    /// </remarks>
+    private static readonly HashSet<string> Unawaitable = new(
+        StringComparer.Ordinal)
+    {
+        "TryUnwrap",
+        "TryUnwrapErr",
     };
 
     /// <summary>

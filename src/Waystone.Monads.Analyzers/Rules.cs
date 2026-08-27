@@ -338,8 +338,19 @@ public static class Rules
     /// implying the rule had been dealt with.
     /// Type patterns naming <c>Some</c>, <c>None</c>, <c>Ok</c> or <c>Err</c>
     /// are not in scope here. Those are the same mistake WM2011 reports at a
-    /// declaration, and the case types expose no value to destructure, so a
-    /// type pattern buys nothing this rule needs to talk about.
+    /// declaration, so a type pattern is somebody else's rule rather than a
+    /// shape this one stays quiet on by oversight.
+    /// <para>
+    /// As of 7.0.0 those case types carry a <c>Deconstruct</c>, so
+    /// <c>option is Some&lt;T&gt;(var value)</c> tests the state and binds the
+    /// value in one construct — which is a better answer to what this rule
+    /// reports than either alternative the message names. The message is left
+    /// alone anyway: both of the alternatives it names are still correct, and it
+    /// covers <c>IsNone</c> and <c>IsErr</c> as well, where the positional
+    /// pattern is not the advice. <c>None</c> has no <c>Deconstruct</c> because
+    /// it carries nothing, so the suggestion would have to vary per property,
+    /// and a shipped message is reworded only when the old one was wrong.
+    /// </para>
     /// </remarks>
     public static readonly DiagnosticDescriptor StateCheckedThroughPattern = Idiom(
         "WM2021",

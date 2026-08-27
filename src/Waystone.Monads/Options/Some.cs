@@ -39,6 +39,26 @@ public sealed record Some<T> : Option<T>
 
     internal T Value { get; }
 
+    /// <summary>Binds the contained value in a positional pattern.</summary>
+    /// <remarks>
+    /// What makes <c>option is Some&lt;T&gt;(var value)</c> and an arm of
+    /// <c>option switch { Some&lt;T&gt;(var value) => …, None&lt;T&gt; => … }</c>
+    /// compile. <see cref="None{T}" /> deliberately has none — there is nothing
+    /// to bind, and <c>option is None&lt;T&gt;</c> already tests the case.
+    /// <para>
+    /// This is the only way to read the value off a <see cref="Some{T}" />
+    /// directly; the property behind it is internal, so a caller who wants the
+    /// value without naming the case type goes through
+    /// <see cref="Option{T}.TryUnwrap" /> or
+    /// <see cref="Option{T}.Unwrap" /> instead.
+    /// </para>
+    /// </remarks>
+    /// <param name="value">Receives the contained value, which is never null.</param>
+    public void Deconstruct(out T value)
+    {
+        value = Value;
+    }
+
     /// <inheritdoc />
     public override bool IsSome => true;
 
