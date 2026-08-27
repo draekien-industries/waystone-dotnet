@@ -2,8 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
-public static class UnwrapOrElseExtensions
+[GenerateAwaitedReceivers(typeof(Option<>))]
+[GenerateAwaitedMember(nameof(Option<>.UnwrapOrElse))]
+public static partial class UnwrapOrElseExtensions
 {
     extension<T>(Option<T> option) where T : notnull
     {
@@ -11,47 +14,5 @@ public static class UnwrapOrElseExtensions
             option.IsSome
                 ? option.Expect("Expected Some but found None.")
                 : await valueFactory.Invoke().ConfigureAwait(false);
-    }
-
-    extension<T>(Task<Option<T>> optionTask) where T : notnull
-    {
-        public async ValueTask<T> UnwrapOrElseAsync(Func<T> valueFactory)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return option.IsSome
-                ? option.Expect("Expected Some but found None.")
-                : valueFactory.Invoke();
-        }
-
-        public async ValueTask<T> UnwrapOrElseAsync(Func<Task<T>> valueFactory)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return option.IsSome
-                ? option.Expect("Expected Some but found None.")
-                : await valueFactory.Invoke().ConfigureAwait(false);
-        }
-    }
-
-    extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
-    {
-        public async ValueTask<T> UnwrapOrElseAsync(Func<T> valueFactory)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return option.IsSome
-                ? option.Expect("Expected Some but found None.")
-                : valueFactory.Invoke();
-        }
-
-        public async ValueTask<T> UnwrapOrElseAsync(Func<Task<T>> valueFactory)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return option.IsSome
-                ? option.Expect("Expected Some but found None.")
-                : await valueFactory.Invoke().ConfigureAwait(false);
-        }
     }
 }

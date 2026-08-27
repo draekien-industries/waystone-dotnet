@@ -2,8 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
-public static class OrElseExtensions
+[GenerateAwaitedReceivers(typeof(Result<,>))]
+[GenerateAwaitedMember(nameof(Result<,>.OrElse))]
+public static partial class OrElseExtensions
 {
     extension<TOk, TErr>(Result<TOk, TErr> result)
         where TOk : notnull
@@ -26,52 +29,6 @@ public static class OrElseExtensions
                .ConfigureAwait(false);
 
             return output;
-        }
-    }
-
-    extension<TOk, TErr>(Task<Result<TOk, TErr>> resultTask)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, Result<TOk, TOut>> resultFactory)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.OrElse(resultFactory);
-        }
-
-        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.OrElseAsync(resultFactory).ConfigureAwait(false);
-        }
-    }
-
-    extension<TOk, TErr>(ValueTask<Result<TOk, TErr>> resultTask)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, Result<TOk, TOut>> resultFactory)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return result.OrElse(resultFactory);
-        }
-
-        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory)
-            where TOut : notnull
-        {
-            Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
-
-            return await result.OrElseAsync(resultFactory).ConfigureAwait(false);
         }
     }
 }
