@@ -28,9 +28,15 @@ internal static class StaticForm
 
     /// <summary>
     /// The compatibility static form is the only place a caller can name the
-    /// receiver, so it is the only place <c>DRA-110</c>'s receiver rename on
-    /// <c>IsSomeAnd</c> is observable at all.
+    /// receiver, so this was written to observe <c>DRA-110</c>'s receiver rename on
+    /// <c>IsSomeAnd</c>.
     /// </summary>
+    /// <remarks>
+    /// It no longer measures that. <c>DRA-111</c> deleted the class the call names,
+    /// so the rename is masked by a <c>CS0234</c> that never reaches the argument —
+    /// the receiver rename is now unobservable rather than observable here. Left in
+    /// place because the masking is itself worth counting.
+    /// </remarks>
     internal static ValueTask<bool> ViaQualifiedReceiverName(
         ValueTask<Option<int>> optionValueTask) =>
         Options.Extensions.IsSomeAndExtensions.IsSomeAndAsync(

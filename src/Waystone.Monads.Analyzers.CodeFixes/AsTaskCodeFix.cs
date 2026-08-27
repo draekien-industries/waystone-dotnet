@@ -1,6 +1,5 @@
 namespace Waystone.Monads.Analyzers;
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -84,62 +83,8 @@ public sealed class AsTaskCodeFix : CodeFixProvider
         ExpressionSyntax expression,
         INamedTypeSymbol source,
         SemanticModel model) =>
-        TargetTypesOf(expression, model)
+        ConversionTargets.Of(expression, model)
            .Any(target => AsTaskBridges(source, target));
-
-    private static IEnumerable<ITypeSymbol> TargetTypesOf(
-        ExpressionSyntax expression,
-        SemanticModel model)
-    {
-        if (model.GetTypeInfo(expression).ConvertedType is { } converted)
-        {
-            yield return converted;
-        }
-
-        if (expression.Parent is not ArgumentSyntax argument
-         || argument.Parent is not ArgumentListSyntax arguments
-         || arguments.Parent is not ExpressionSyntax call)
-        {
-            yield break;
-        }
-
-        int position = arguments.Arguments.IndexOf(argument);
-
-        foreach (var candidate in model.GetSymbolInfo(call).CandidateSymbols)
-        {
-            if (candidate is not IMethodSymbol method)
-            {
-                continue;
-            }
-
-            if (ParameterTypeAt(method, position, argument) is { } parameter)
-            {
-                yield return parameter;
-            }
-        }
-    }
-
-    private static ITypeSymbol? ParameterTypeAt(
-        IMethodSymbol method,
-        int position,
-        ArgumentSyntax argument)
-    {
-        var named = argument.NameColon?.Name.Identifier.ValueText;
-
-        var parameter = named is null
-            ? position >= 0 && position < method.Parameters.Length
-                ? method.Parameters[position]
-                : method.Parameters.LastOrDefault(p => p.IsParams)
-            : method.Parameters.FirstOrDefault(p => p.Name == named);
-
-        return parameter switch
-        {
-            null => null,
-            { IsParams: true, Type: IArrayTypeSymbol array } =>
-                array.ElementType,
-            _ => parameter.Type,
-        };
-    }
 
     private static bool AsTaskBridges(
         INamedTypeSymbol source,
