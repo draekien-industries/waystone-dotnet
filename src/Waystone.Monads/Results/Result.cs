@@ -65,7 +65,7 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -143,7 +143,7 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -238,7 +238,7 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -333,7 +333,7 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -453,7 +453,7 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -507,7 +507,7 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -575,7 +575,7 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -645,7 +645,7 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>

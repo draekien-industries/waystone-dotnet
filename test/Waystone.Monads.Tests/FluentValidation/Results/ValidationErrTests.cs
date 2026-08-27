@@ -8,6 +8,7 @@ using Options;
 using Shouldly;
 using Xunit;
 
+[Collection(GlobalMonadOptionsCollection.Name)]
 public class ValidationErrTests
 {
     [Fact]
@@ -96,9 +97,9 @@ public class ValidationErrTests
         }
         finally
         {
-            MonadValidationOptions.Global
-               .UseValidationErrorCode(originalCode)
-               .UseFallbackValidationErrorMessage(originalMessage);
+            MonadOptions.Configure(
+                options => options.UseValidationErrorCode(originalCode)
+                   .UseFallbackValidationErrorMessage(originalMessage));
         }
     }
 }

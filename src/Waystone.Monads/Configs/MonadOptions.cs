@@ -1,90 +1,71 @@
 ﻿namespace Waystone.Monads.Configs;
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Diagnostics;
-using Results.Errors;
 
 /// <summary>Configuration options for the Waystone.Monads library.</summary>
 /// <remarks>
-/// Settings apply process-wide once <see cref="Configure" /> has been called.
-/// Use <see cref="BeginScope(Action{MonadOptions})" /> to override them for one
-/// asynchronous flow instead.
+/// An instance is immutable, and one instance is in effect at a time. Settings
+/// apply process-wide once <see cref="Configure" /> has been called. Use
+/// <see cref="BeginScope(Action{MonadOptionsBuilder})" /> to override them for one asynchronous flow instead.
+/// <para>
+/// Because a snapshot is published whole rather than modified in place, a reader
+/// racing a <see cref="Configure" /> call sees either every old setting or every
+/// new one, never a mixture.
+/// </para>
 /// </remarks>
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
 public sealed class MonadOptions
 {
-    private static readonly Lazy<MonadOptions> Singleton =
-        new(() => new MonadOptions());
+    private static readonly object ConfigureGate = new();
+
+    private static readonly MonadOptions Default =
+        new MonadOptionsBuilder().Build();
 
     internal static readonly AsyncLocal<MonadOptions?> ScopedOptions = new();
 
+    private static MonadOptions _global = Default;
+
     private static volatile bool _scopingHasBeenUsed;
 
-    private ConcurrentDictionary<Type, IMonadOptionsSatellite>? _satellites;
-
-    private MonadOptions()
+    internal MonadOptions(
+        ErrorCodeFactory errorCodeFactory,
+        string fallbackErrorCode,
+        string fallbackErrorMessage,
+        bool catchesCancellation,
+        object?[] satellites)
     {
-        ErrorCodeFactory = new ErrorCodeFactory();
-        FallbackErrorCode = "Unspecified";
-        FallbackErrorMessage = "An unexpected error occurred.";
-        CatchesCancellation = false;
+        ErrorCodeFactory = errorCodeFactory;
+        FallbackErrorCode = fallbackErrorCode;
+        FallbackErrorMessage = fallbackErrorMessage;
+        CatchesCancellation = catchesCancellation;
+        Satellites = satellites;
     }
 
-    private MonadOptions(MonadOptions source)
-    {
-        ErrorCodeFactory = source.ErrorCodeFactory;
-        FallbackErrorCode = source.FallbackErrorCode;
-        FallbackErrorMessage = source.FallbackErrorMessage;
-        CatchesCancellation = source.CatchesCancellation;
-
-        ConcurrentDictionary<Type, IMonadOptionsSatellite>? satellites =
-            source._satellites;
-
-        if (satellites is null)
-        {
-            return;
-        }
-
-        foreach (KeyValuePair<Type, IMonadOptionsSatellite> satellite in
-                 satellites)
-        {
-            Satellites[satellite.Key] = satellite.Value.Clone();
-        }
-    }
-
-    internal static MonadOptions Global => Singleton.Value;
+    internal static MonadOptions Global => Volatile.Read(ref _global);
 
     internal static MonadOptions Current =>
         _scopingHasBeenUsed ? ScopedOptions.Value ?? Global : Global;
 
-    private ConcurrentDictionary<Type, IMonadOptionsSatellite> Satellites =>
-        LazyInitializer.EnsureInitialized(ref _satellites)!;
+    internal ErrorCodeFactory ErrorCodeFactory { get; }
+    internal string FallbackErrorCode { get; }
+    internal string FallbackErrorMessage { get; }
+    internal bool CatchesCancellation { get; }
 
-    internal ErrorCodeFactory ErrorCodeFactory { get; set; }
-    internal string FallbackErrorCode { get; set; }
-    internal string FallbackErrorMessage { get; set; }
-    internal bool CatchesCancellation { get; set; }
+    internal object?[] Satellites { get; }
 
     internal bool Catches(Exception exception) =>
         CatchesCancellation || exception is not OperationCanceledException;
 
-    internal T Satellite<T>(Func<T> create)
-        where T : class, IMonadOptionsSatellite
-    {
-        if (_satellites is { } satellites
-         && satellites.TryGetValue(typeof(T), out IMonadOptionsSatellite? found))
-        {
-            return (T)found;
-        }
+    internal T? Satellite<T>(int slot)
+        where T : class =>
+        MonadOptionsSlot.At<T>(Satellites, slot);
 
-        return (T)Satellites.GetOrAdd(typeof(T), _ => create());
-    }
+    internal MonadOptionsBuilder ToBuilder() => new(this);
 
     internal void Log(
         Exception exception,
@@ -108,41 +89,30 @@ public sealed class MonadOptions
 
     /// <summary>Configures the global options for the Waystone.Monads library.</summary>
     /// <remarks>
-    /// The options are a single process-wide instance, so this affects every
-    /// caller in the process, including work already in flight. Call it once
-    /// during start-up. To change options for one asynchronous flow without
-    /// disturbing the rest, use
-    /// <see cref="BeginScope(Action{MonadOptions})" /> instead.
+    /// The builder arrives carrying the settings already in effect, so this
+    /// accumulates rather than starting over: call it twice, changing one setting
+    /// each time, and both changes are in force. The snapshot it produces replaces
+    /// the previous one for every caller in the process, including work already in
+    /// flight, so call it once during start-up. To change options for one
+    /// asynchronous flow without disturbing the rest, use
+    /// <see cref="BeginScope(Action{MonadOptionsBuilder})" /> instead.
+    /// <para>
+    /// Concurrent calls are serialised against each other, so neither loses its
+    /// changes. Reads are never blocked by one.
+    /// </para>
     /// </remarks>
     /// <param name="configure">
     /// The action that will configure the
-    /// <see cref="MonadOptions" />
+    /// <see cref="MonadOptionsBuilder" />
     /// </param>
-    public static void Configure(Action<MonadOptions> configure)
+    public static void Configure(Action<MonadOptionsBuilder> configure)
     {
-        configure.Invoke(Global);
-    }
-
-    /// <summary>
-    /// Creates a snapshot of the options that are currently in effect, with
-    /// the provided configuration applied on top.
-    /// </summary>
-    /// <remarks>
-    /// Options that the <paramref name="configure" /> action does not set are
-    /// inherited from the options in effect when this method is called. The
-    /// returned instance is detached, so later calls to <see cref="Configure" />
-    /// do not affect it.
-    /// </remarks>
-    /// <param name="configure">
-    /// The action that will configure the returned
-    /// <see cref="MonadOptions" />
-    /// </param>
-    /// <returns>The created <see cref="MonadOptions" />.</returns>
-    internal static MonadOptions Create(Action<MonadOptions> configure)
-    {
-        var options = new MonadOptions(Current);
-        configure.Invoke(options);
-        return options;
+        lock (ConfigureGate)
+        {
+            MonadOptionsBuilder builder = Global.ToBuilder();
+            configure.Invoke(builder);
+            Volatile.Write(ref _global, builder.Build());
+        }
     }
 
     /// <summary>
@@ -153,35 +123,35 @@ public sealed class MonadOptions
     /// The scope applies to work started inside it, including work that
     /// continues after an <c>await</c>. It does not affect work that was already
     /// running when the scope was created, and it does not modify the globally
-    /// configured options. Scopes may be nested, and disposing one restores the
-    /// scope that surrounded it.
+    /// configured options. Settings the action does not touch are inherited from
+    /// the options in effect when the scope opens. Scopes may be nested, and
+    /// disposing one restores the scope that surrounded it.
+    /// <para>
+    /// The first scope opened in a process moves every later options read onto a
+    /// path that consults an <see cref="AsyncLocal{T}" />, and nothing moves it
+    /// back. Prefer <see cref="Configure" /> where a single process-wide setting
+    /// will do.
+    /// </para>
     /// </remarks>
     /// <param name="configure">
     /// The action that will configure the scoped
-    /// <see cref="MonadOptions" />
+    /// <see cref="MonadOptionsBuilder" />
     /// </param>
     /// <returns>
     /// A <see cref="MonadOptionsScope" /> which restores the previous options
     /// when disposed.
     /// </returns>
     public static MonadOptionsScope BeginScope(
-        Action<MonadOptions> configure) =>
+        Action<MonadOptionsBuilder> configure) =>
         BeginScope(Create(configure));
 
-    /// <summary>
-    /// Overrides the options for the current asynchronous flow with the
-    /// provided options until the returned scope is disposed.
-    /// </summary>
-    /// <remarks>
-    /// The provided <paramref name="options" /> are used as they are rather
-    /// than copied, so the caller must pass an instance that nothing else holds.
-    /// Use <see cref="Create" /> to build one.
-    /// </remarks>
-    /// <param name="options">The options to use for the duration of the scope.</param>
-    /// <returns>
-    /// A <see cref="MonadOptionsScope" /> which restores the previous options
-    /// when disposed.
-    /// </returns>
+    internal static MonadOptions Create(Action<MonadOptionsBuilder> configure)
+    {
+        MonadOptionsBuilder builder = Current.ToBuilder();
+        configure.Invoke(builder);
+        return builder.Build();
+    }
+
     internal static MonadOptionsScope BeginScope(MonadOptions options)
     {
         _scopingHasBeenUsed = true;
@@ -190,108 +160,20 @@ public sealed class MonadOptions
         return new MonadOptionsScope(previous, options);
     }
 
-    /// <summary>
-    /// Configures <c>Try</c> and <c>TryAsync</c> to treat a cancellation as a
-    /// failure rather than letting it propagate.
-    /// </summary>
-    /// <remarks>
-    /// By default an <see cref="OperationCanceledException" /> is not caught,
-    /// so it leaves <c>Try</c> and <c>TryAsync</c> untouched and is neither
-    /// logged nor converted. Call this and a cancellation instead produces a
-    /// <see cref="Options.None{T}" /> or an <see cref="Results.Err{TOk,TErr}" />
-    /// like any other exception, which is what versions before 6.0.0 did.
-    /// Prefer the default: a cancelled operation produced no answer, and
-    /// reporting that as an absent or failed value hides the cancellation from
-    /// the caller that requested it.
-    /// <see cref="System.Threading.Tasks.TaskCanceledException" /> derives from
-    /// <see cref="OperationCanceledException" /> and is covered by this option
-    /// too.
-    /// </remarks>
-    /// <returns>
-    /// The <see cref="MonadOptions" /> instance for you to chain additional
-    /// configurations.
-    /// </returns>
-    public MonadOptions UseCancellationAsFailure()
+    internal static void Install(MonadOptions options)
     {
-        CatchesCancellation = true;
-        return this;
-    }
-
-    /// <summary>
-    /// Configures the factory that will be used to create
-    /// <see cref="ErrorCode" /> instances from enums and exceptions.
-    /// </summary>
-    /// <param name="factory">
-    /// The implementation of <see cref="ErrorCodeFactory" /> you
-    /// want the library to use.
-    /// </param>
-    /// <returns>
-    /// The <see cref="MonadOptions" /> instance for you to chain additional
-    /// configurations.
-    /// </returns>
-    public MonadOptions UseErrorCodeFactory(ErrorCodeFactory factory)
-    {
-        ErrorCodeFactory = factory;
-        return this;
-    }
-
-    /// <summary>
-    /// Configures the fallback error code that will be used when a null or
-    /// whitespace value is used to create an <see cref="ErrorCode" /> instance.
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>Unspecified</c>. Surrounding whitespace is trimmed off
-    /// before the value is stored.
-    /// </remarks>
-    /// <param name="errorCode">The fallback error code to use</param>
-    /// <returns>
-    /// The <see cref="MonadOptions" /> instance for you to chain additional
-    /// configurations.
-    /// </returns>
-    /// <exception cref="ArgumentException">
-    /// <paramref name="errorCode" /> is null, empty or whitespace. A fallback
-    /// that is itself unusable would leave nothing to fall back to.
-    /// </exception>
-    public MonadOptions UseFallbackErrorCode(string errorCode)
-    {
-        if (string.IsNullOrWhiteSpace(errorCode))
+        lock (ConfigureGate)
         {
-            throw new ArgumentException(
-                "The fallback error code cannot be null or whitespace.",
-                nameof(errorCode));
+            Volatile.Write(ref _global, options);
         }
-
-        FallbackErrorCode = errorCode.Trim();
-        return this;
     }
 
-    /// <summary>
-    /// Configures the fallback error message that will be used when a null or
-    /// whitespace message is used to create an <see cref="Error" /> instance.
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>An unexpected error occurred.</c> Surrounding whitespace is
-    /// trimmed off before the value is stored.
-    /// </remarks>
-    /// <param name="errorMessage">The fallback error message to use</param>
-    /// <returns>
-    /// The <see cref="MonadOptions" /> instance for you to chain additional
-    /// configurations.
-    /// </returns>
-    /// <exception cref="ArgumentException">
-    /// <paramref name="errorMessage" /> is null, empty or whitespace. A
-    /// fallback that is itself unusable would leave nothing to fall back to.
-    /// </exception>
-    public MonadOptions UseFallbackErrorMessage(string errorMessage)
+    internal static void Reset()
     {
-        if (string.IsNullOrWhiteSpace(errorMessage))
+        lock (ConfigureGate)
         {
-            throw new ArgumentException(
-                "The fallback error message cannot be null or whitespace.",
-                nameof(errorMessage));
+            Volatile.Write(ref _global, Default);
+            ScopedOptions.Value = null;
         }
-
-        FallbackErrorMessage = errorMessage.Trim();
-        return this;
     }
 }

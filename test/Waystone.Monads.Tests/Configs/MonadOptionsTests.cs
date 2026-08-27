@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Shouldly;
 using Xunit;
 
+[Collection(GlobalMonadOptionsCollection.Name)]
 [TestSubject(typeof(MonadOptions))]
 public sealed class MonadOptionsTests
 {

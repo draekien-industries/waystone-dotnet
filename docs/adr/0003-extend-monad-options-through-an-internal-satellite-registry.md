@@ -1,12 +1,12 @@
 ---
 id: 0003
 title: Extend monad options through an internal satellite registry
-status: accepted
+status: superseded
 date: 2026-08-17
 deciders: [william-pei]
 tags: [configuration, package-boundaries, monads]
 supersedes:
-superseded-by:
+superseded-by: 0005-publish-monad-options-as-an-immutable-snapshot
 ---
 
 # 0003 — Extend monad options through an internal satellite registry

@@ -1,9 +1,11 @@
 namespace Waystone.Monads.Results.Errors;
 
 using System;
+using Configs;
 using Shouldly;
 using Xunit;
 
+[Collection(GlobalMonadOptionsCollection.Name)]
 public sealed class ErrorCodeTests
 {
     [Fact]

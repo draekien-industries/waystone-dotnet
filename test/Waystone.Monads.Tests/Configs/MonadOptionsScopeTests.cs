@@ -14,6 +14,7 @@ using Results.Errors;
 using Shouldly;
 using Xunit;
 
+[Collection(GlobalMonadOptionsCollection.Name)]
 [TestSubject(typeof(MonadOptionsScope))]
 public sealed class MonadOptionsScopeTests
 {

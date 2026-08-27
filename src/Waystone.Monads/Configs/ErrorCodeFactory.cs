@@ -12,7 +12,7 @@ using System.Diagnostics;
 /// <remarks>
 /// Override <see cref="FromException" /> to change the code an exception
 /// produces, and install the subclass with
-/// <see cref="MonadOptions.UseErrorCodeFactory" />. Enum codes do not come
+/// <see cref="MonadOptionsBuilder.UseErrorCodeFactory" />. Enum codes do not come
 /// through here: they are settled at compile time by
 /// <see cref="Results.Errors.ErrorCodeCatalogAttribute" />, so a factory cannot
 /// change one.
