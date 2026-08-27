@@ -16,7 +16,7 @@ using Xunit;
 /// delegate received the error rather than the ok value.
 /// </para>
 /// </remarks>
-[TestSubject(typeof(MapErrExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class MapErrExtensionsTests
 {
     [Fact]

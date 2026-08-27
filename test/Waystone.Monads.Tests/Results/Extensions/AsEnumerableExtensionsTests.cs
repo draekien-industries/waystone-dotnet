@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(AsEnumerableExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class AsEnumerableExtensionsTests
 {
     [Fact]

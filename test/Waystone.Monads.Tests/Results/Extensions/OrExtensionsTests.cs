@@ -11,7 +11,7 @@ using Xunit;
 /// part worth pinning: an <see cref="Ok{TOk,TErr}" /> survives with its value
 /// intact but re-typed, which a test asserting only on the error branch would miss.
 /// </remarks>
-[TestSubject(typeof(OrExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class OrExtensionsTests
 {
     [Fact]

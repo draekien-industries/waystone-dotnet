@@ -5,7 +5,7 @@ using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(UnwrapOrElseExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class UnwrapOrElseExtensionsTests
 {
     [Fact]

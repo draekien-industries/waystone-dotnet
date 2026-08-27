@@ -16,11 +16,16 @@ readable.** `Analyse` emits the union of:
   class **whose receiver is not itself awaitable**, lifted onto both awaited
   receivers.
 
-The written half is deliberate: which extension class a core member's async shape
-belongs in is not derivable — the mapping is nearly `{Member}Extensions`, but
-`Unwrap`, `UnwrapOr`, `UnwrapOrDefault` and `Result.UnwrapErr` all live in
-`UnwrapExtensions`. A written list is the strongest available form of "emit exactly
-today's set".
+The written half used to be deliberate for a reason that no longer applies: which
+extension class a core member's async shape belonged in was not derivable, since
+the mapping was nearly `{Member}Extensions` but `Unwrap`, `UnwrapOr`,
+`UnwrapOrDefault` and `Result.UnwrapErr` all lived in `UnwrapExtensions`. DRA-111
+collapsed the per-family classes into `OptionExtensions` and `ResultExtensions`,
+so there is now exactly one destination per monad and no mapping to get wrong.
+
+The list stays anyway, because it still answers a second question the destination
+never did: *which* core members get lifted. It remains the strongest available form
+of "emit exactly today's set".
 
 **A written list is only as good as the list, so a test reads the surface
 instead.** Nothing here notices a core member left off every list — the generator
@@ -53,10 +58,10 @@ prefix.
 
 **The generator writes only the `extension` block; the containing class must be
 `partial`.** Generated shapes land in the same static class as the hand-written
-ones so the baseline entries keep naming `MapExtensions` rather than some new class
-— a rename there would be a public API change. Two blocks of the same receiver
-shape in the same partial class across two files merge without complaint, so the
-generator can add to a class that already hand-writes one. `WSG0001` catches a
+ones so the baseline entries keep naming `OptionExtensions` rather than some new
+class — a rename there would be a public API change. Two blocks of the same
+receiver shape in the same partial class across two files merge without complaint,
+so the generator can add to a class that already hand-writes one. `WSG0001` catches a
 marked class that is not partial, because otherwise the failure is a CS0260
 pointing at generated source.
 
@@ -64,6 +69,18 @@ pointing at generated source.
 RS2008 fails the build without one.
 
 ## Gotchas
+
+**Members sharing a receiver shape do not necessarily share its constraints, and
+`Key` has to say so.** `AwaitedReceiverWriter` groups members into one emitted
+`extension` block per key, then takes the block's constraints from `group[0]`.
+Key on the receiver type and parameter name alone and two members with the same
+receiver but different constraints — `UnwrapOrNull` under `where T : struct`
+beside `Map` under `where T : notnull` — land in one block that carries whichever
+constraint happened to come first. Nothing fails in this repository: the generated
+source compiles, and the break surfaces as `CS0453` in a *consumer*, at a call site
+whose type argument the surviving constraint rejects. `Key` therefore includes the
+rendered block constraints. This was latent until DRA-111 put both families in one
+class; before that no marked class held two same-shape receivers.
 
 **The generated receivers are deliberately not marked as generated code.** Hint
 names end `.AwaitedReceivers.cs`, not `.g.cs`, and the members carry no

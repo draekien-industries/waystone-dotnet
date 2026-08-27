@@ -12,7 +12,7 @@ using Xunit;
 /// it cannot short-circuit: it has to look at both sides to know whether exactly
 /// one is a <see cref="Some{T}" />.
 /// </remarks>
-[TestSubject(typeof(XorExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class XorExtensionsTests
 {
     [Fact]

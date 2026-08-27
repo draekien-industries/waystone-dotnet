@@ -22,7 +22,7 @@ using Xunit;
 /// the baseline is the only other thing that would notice.
 /// </para>
 /// </remarks>
-[TestSubject(typeof(MatchExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class MatchExtensionsTests
 {
     [Fact]

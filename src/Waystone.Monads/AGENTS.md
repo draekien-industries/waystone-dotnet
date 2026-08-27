@@ -106,11 +106,21 @@ test's probe record in the same change. The probe implements every public
 abstract member so that exactly one CS0534 — `OnlyThisAssemblyMayDerive` — is
 left; skip it and the test still fails, but for the wrong reason.
 
-**Merging the per-family extension classes into one cannot be staged.** Two static
-classes that each declare the same extension member for the same receiver make
-every reduced call site `CS0121` ambiguous, and `[Obsolete]` does not remove a
-member from overload resolution — verified with two classes declaring
-`extension(Box box) { int Doubled(); }` and one `box.Doubled()` call site. So the
-old classes cannot sit obsoleted beside the new one during a transition. The move
-would have to be atomic, and deleting a public class is what **deprecate; never
-remove** forbids outside a major.
+**There is one extension class per monad, and merging them was not stageable.**
+`OptionExtensions` and `ResultExtensions` hold everything callable on the type
+that is not declared on the type itself; `OptionsCollectionExtensions` and
+`ResultsCollectionExtensions` are separate only because their receiver is an
+`IEnumerable<T>`. DRA-111 merged the per-family classes in 7.0.0 and had to do it
+atomically: two static classes that each declare the same extension member for the
+same receiver make every reduced call site `CS0121` ambiguous, and `[Obsolete]`
+does not remove a member from overload resolution — verified with two classes
+declaring `extension(Box box) { int Doubled(); }` and one `box.Doubled()` call
+site. So the old classes could not sit obsoleted beside the new one during a
+transition, and deleting a public class is what **deprecate; never remove** forbids
+outside a major.
+
+Adding a family now means adding `[GenerateAwaitedMember(nameof(Option<>.Thing))]`
+to that one class. Hand-write a member there only when its receiver is a
+*particular* option or result — a nested one, a tuple, a value-type payload — or
+when the shape awaits an argument as well as the receiver, which the generator
+cannot reach.

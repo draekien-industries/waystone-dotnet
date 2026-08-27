@@ -6,7 +6,7 @@ using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(OrElseExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class OrElseExtensionsTests
 {
     [Fact]

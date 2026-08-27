@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Waystone.Monads.Exceptions;
 using Xunit;
 
-[TestSubject(typeof(UnwrapExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class UnwrapExtensionsTests
 {
     private static Task<Result<int, string>> OkTask(int value) =>

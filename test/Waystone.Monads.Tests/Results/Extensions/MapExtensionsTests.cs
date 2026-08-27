@@ -12,7 +12,7 @@ using Xunit;
 /// state overload lives in <c>AwaitedStateOverloadTests</c> with the rest of the
 /// lifted ones; the two delegate shapes on each receiver are here.
 /// </remarks>
-[TestSubject(typeof(MapExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class MapExtensionsTests
 {
     [Fact]

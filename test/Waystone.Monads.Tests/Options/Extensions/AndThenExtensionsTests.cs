@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(AndThenExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class AndThenExtensionsTests
 {
     private static readonly Func<int, ValueTask<Option<int>>> AsyncDouble =

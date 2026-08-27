@@ -3,9 +3,10 @@
 using JetBrains.Annotations;
 using Options;
 using Shouldly;
+using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(Result))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class TransposeExtensionsTests
 {
 #region flatten
@@ -74,6 +75,57 @@ public sealed class TransposeExtensionsTests
 
         result.ShouldBeSome();
         result.ShouldBeSomeValue(err);
+    }
+
+    [Fact]
+    public async Task GivenOkOfSomeTask_WhenTransposeAsync_ThenReturnSomeOfOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Option<Result<int, string>> result =
+            await Task.FromResult(ok.Map(Option.Some)).TransposeAsync();
+
+        result.ShouldBeSomeValue(ok);
+    }
+
+    [Fact]
+    public async Task GivenOkOfNoneTask_WhenTransposeAsync_ThenReturnNone()
+    {
+        Result<Option<int>, string> okOfNone =
+            Result.Ok<Option<int>, string>(Option.None<int>());
+
+        Option<Result<int, string>> result =
+            await Task.FromResult(okOfNone).TransposeAsync();
+
+        result.ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task
+        GivenErrValueTask_WhenTransposeAsync_ThenReturnSomeOfErr()
+    {
+        Result<int, string> err = Result.Err<int, string>("failed");
+
+        Option<Result<int, string>> result =
+            await new ValueTask<Result<Option<int>, string>>(
+                    err.Map(Option.Some))
+               .TransposeAsync();
+
+        result.ShouldBeSomeValue(err);
+    }
+
+    [Fact]
+    public async Task
+        GivenOkOfSomeValueTask_WhenTransposeAsync_ThenReturnSomeOfOk()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Option<Result<int, string>> result =
+            await new ValueTask<Result<Option<int>, string>>(
+                    ok.Map(Option.Some))
+               .TransposeAsync();
+
+        result.ShouldBeSomeValue(ok);
     }
 
 #endregion transpose

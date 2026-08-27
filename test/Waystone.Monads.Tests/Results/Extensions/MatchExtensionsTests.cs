@@ -15,7 +15,7 @@ using Xunit;
 /// declared, plus the state overloads the generator picked up from the core
 /// member.
 /// </remarks>
-[TestSubject(typeof(MatchExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class MatchExtensionsTests
 {
     [Fact]

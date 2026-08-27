@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(MapOrElseExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class MapOrElseExtensionsTests
 {
     private static readonly Func<int, Task<string>> AsyncMap =

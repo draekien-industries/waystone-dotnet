@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Waystone.Monads.Results;
 using Xunit;
 
-[TestSubject(typeof(OkOrElseExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class OkOrElseExtensionsTests
 {
     [Fact]
