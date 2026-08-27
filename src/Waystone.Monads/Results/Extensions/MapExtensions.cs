@@ -1,31 +1,20 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>Map</c> and <c>MapAsync</c> to a
+/// <see cref="Result{TOk,TErr}" /> that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Result{TOk,TErr}" /> itself, and the awaited-receiver generator
+/// emits each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.Map))]
-public static partial class MapExtensions
-{
-    extension<TOk, TErr>(Result<TOk, TErr> result)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            if (result.IsErr)
-            {
-                TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-                return Result.Err<TOut, TErr>(err);
-            }
-
-            TOk ok = result.Expect("Expected Ok but found Err.");
-            TOut? output = await map.Invoke(ok).ConfigureAwait(false);
-
-            return Result.Ok<TOut, TErr>(output);
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Result<,>.MapAsync))]
+public static partial class MapExtensions;

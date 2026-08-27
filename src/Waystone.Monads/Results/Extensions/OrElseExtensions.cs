@@ -1,34 +1,20 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>OrElse</c> and <c>OrElseAsync</c> to a
+/// <see cref="Result{TOk,TErr}" /> that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Result{TOk,TErr}" /> itself, and the awaited-receiver generator
+/// emits each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.OrElse))]
-public static partial class OrElseExtensions
-{
-    extension<TOk, TErr>(Result<TOk, TErr> result)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
-            Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory)
-            where TOut : notnull
-        {
-            if (result.IsOk)
-            {
-                TOk ok = result.Expect("Expected Ok but found Err.");
-
-                return Result.Ok<TOk, TOut>(ok);
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            Result<TOk, TOut> output = await resultFactory.Invoke(err)
-               .ConfigureAwait(false);
-
-            return output;
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Result<,>.OrElseAsync))]
+public static partial class OrElseExtensions;
