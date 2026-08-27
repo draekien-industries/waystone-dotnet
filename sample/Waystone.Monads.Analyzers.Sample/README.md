@@ -20,6 +20,14 @@ or silently misbehaves at runtime. Do not fix them.
 in an IDE as suggestions and stay out of build output. Open the file in an IDE to
 see them, or raise one in `.editorconfig` to bring it into the build.
 
+Two members there report no `WM` rule at all. `ProjectionMayReturnNull` and its
+lambda twin project onto a nullable, which the compiler already reports as
+`CS8714` against the `notnull` constraint on `Map`, so a rule of our own would
+only double it. They are here for `UseAndThenWithFromNullableCodeFix`, which
+registers on that compiler diagnostic and offers the `AndThen` with
+`Option.FromNullable` rewrite the compiler has no way to know about. Invoke it in
+an IDE; it is the only place in the tree that fix is reachable by hand.
+
 The `.editorconfig` here enables the two `WM3xxx` migration rules, which ship
 disabled. It is the opt-in a team adopting Option and Result would add while
 converting a codebase.

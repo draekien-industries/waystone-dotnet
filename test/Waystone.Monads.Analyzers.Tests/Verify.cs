@@ -193,6 +193,47 @@ internal static class Verify
         return test.RunAsync();
     }
 
+    /// <summary>
+    /// Runs a fix registered on a compiler diagnostic and states the fixed state's
+    /// diagnostics outright, for a fix that resolves more than the one it is
+    /// registered on.
+    /// </summary>
+    /// <remarks>
+    /// The <c>params</c> overload lets the fixed state inherit, which drops the
+    /// fixable diagnostics and keeps the rest. That is wrong for a nullability fix:
+    /// CS8714 is the fixable one, and the CS8619, CS8621 and CS0029 reported beside
+    /// it come from the same mismatch and go away with it, so inheriting them looks
+    /// for markup the fixed source has no reason to carry. Pass the diagnostics that
+    /// genuinely survive instead, which is none when the fix applies and all of them
+    /// when it declines.
+    /// <para>
+    /// Note that <paramref name="remaining" /> means something different here than in
+    /// the identically shaped <see cref="CodeFixAsync{TAnalyzer,TCodeFix}(string,
+    /// string, DiagnosticResult[], DiagnosticResult[])" /> pair below, which adds to
+    /// an inherited set rather than replacing it.
+    /// </para>
+    /// </remarks>
+    public static Task CompilerCodeFixAsync<TCodeFix>(
+        string source,
+        string fixedSource,
+        DiagnosticResult[] expected,
+        DiagnosticResult[] remaining)
+        where TCodeFix : CodeFixProvider, new()
+    {
+        var test = new CodeFixTest<EmptyDiagnosticAnalyzer, TCodeFix>
+        {
+            TestCode = Wrap(source),
+            FixedCode = Wrap(fixedSource),
+        };
+
+        ExpectNothingAfterTheFix(test);
+
+        test.ExpectedDiagnostics.AddRange(expected);
+        test.FixedState.ExpectedDiagnostics.AddRange(remaining);
+
+        return test.RunAsync();
+    }
+
     public static Task RawCodeFixAsync<TAnalyzer, TCodeFix>(
         string source,
         string fixedSource,

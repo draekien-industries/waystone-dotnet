@@ -89,7 +89,8 @@ public abstract class MonadCodeFix : CodeFixProvider
         ITypeSymbol? typeArgument,
         SemanticModel model,
         int position,
-        MonadSymbols symbols)
+        MonadSymbols symbols,
+        params ExpressionSyntax[] arguments)
     {
         SimpleNameSyntax member = typeArgument is null
             ? SyntaxFactory.IdentifierName(name)
@@ -104,7 +105,12 @@ public abstract class MonadCodeFix : CodeFixProvider
                     SyntaxKind.SimpleMemberAccessExpression,
                     OptionFactoryName(model, position, symbols),
                     member))
-           .WithArgumentList(SyntaxFactory.ArgumentList());
+           .WithArgumentList(
+                SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        arguments.Select(
+                            argument => SyntaxFactory.Argument(
+                                argument.WithoutTrivia())))));
     }
 
     private static ExpressionSyntax OptionFactoryName(
