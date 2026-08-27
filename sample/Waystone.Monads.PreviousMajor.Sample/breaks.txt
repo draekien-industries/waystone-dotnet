@@ -1,0 +1,6 @@
+# v7 break inventory
+
+Written by `capture-breaks.ps1`. Every row is a diagnostic a consumer
+on the previous major gets from the surface in the working tree.
+
+No diagnostics. The previous major still compiles against this tree.
