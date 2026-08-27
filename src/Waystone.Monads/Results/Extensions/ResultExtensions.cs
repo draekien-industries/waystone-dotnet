@@ -1,6 +1,5 @@
 namespace Waystone.Monads.Results.Extensions;
 
-using System;
 using Options;
 using Waystone.SourceGenerators;
 #if !DEBUG
@@ -138,106 +137,6 @@ public static partial class ResultExtensions
 
             return Option.Some(Result.Ok<TOk, TErr>(value));
         }
-    }
-
-    extension<TOk, TErr>(Result<TOk, TErr> result)
-        where TOk : notnull where TErr : notnull
-    {
-        /// <summary>Projects the ok value, under LINQ's name for the operation.</summary>
-        /// <remarks>
-        /// Forwards to
-        /// <see cref="Result{TOk,TErr}.Map{TOut}(Func{TOk,TOut})" /> and
-        /// behaves identically; the two differ only in name. It is here so that a
-        /// <c>select</c> clause binds, and so a reader who knows
-        /// <see cref="System.Linq.Enumerable" /> finds the operation under the name
-        /// they already use. The error is carried through untouched — to project
-        /// that instead, there is no LINQ name and
-        /// <see cref="Result{TOk,TErr}.MapErr{TOut}(Func{TErr,TOut})" /> is
-        /// the only spelling.
-        /// </remarks>
-        /// <typeparam name="TOut">The projected ok value's type.</typeparam>
-        /// <param name="selector">Projects the ok value. Called only for an
-        /// <see cref="Ok{TOk,TErr}" />, and must not return null.</param>
-        /// <returns>
-        /// An <see cref="Ok{TOk,TErr}" /> of the projected value if the result was an
-        /// <see cref="Ok{TOk,TErr}" />, otherwise the original
-        /// <see cref="Err{TOk,TErr}" />.
-        /// </returns>
-        public Result<TOut, TErr> Select<TOut>(Func<TOk, TOut> selector)
-            where TOut : notnull =>
-            result.Map(selector);
-
-        /// <summary>Chains a result-producing step, under LINQ's name for bind.</summary>
-        /// <remarks>
-        /// Forwards to
-        /// <see cref="Result{TOk,TErr}.AndThen{TOut}(Func{TOk,Result{TOut,TErr}})" />.
-        /// This is the overload a method-syntax caller writes; query syntax uses the
-        /// three-argument sibling instead, and a single <c>from</c> never reaches
-        /// this one.
-        /// <para>
-        /// Note that the chained step must fail with the same
-        /// <typeparamref name="TErr" />. A step carrying a different error type has
-        /// to be mapped onto this one first, which is the constraint that makes a
-        /// query over <see cref="Result{TOk,TErr}" /> less pliable than one over
-        /// <see cref="Option{T}" />.
-        /// </para>
-        /// </remarks>
-        /// <typeparam name="TOut">The next step's ok value type.</typeparam>
-        /// <param name="resultFactory">Produces the next result from the ok value.
-        /// Called only for an <see cref="Ok{TOk,TErr}" />, and must not return
-        /// null.</param>
-        /// <returns>
-        /// The result <paramref name="resultFactory" /> produced if this result was an
-        /// <see cref="Ok{TOk,TErr}" />, otherwise the original
-        /// <see cref="Err{TOk,TErr}" />.
-        /// </returns>
-        public Result<TOut, TErr> SelectMany<TOut>(
-            Func<TOk, Result<TOut, TErr>> resultFactory)
-            where TOut : notnull =>
-            result.AndThen(resultFactory);
-
-        /// <summary>Joins two results and projects the pair, as a multi-clause query does.</summary>
-        /// <remarks>
-        /// The shape the compiler requires for a query with more than one
-        /// <c>from</c> clause; nothing else needs it, and a hand-written call is
-        /// almost always clearer as
-        /// <see cref="Result{TOk,TErr}.AndThen{TOut}(Func{TOk,Result{TOut,TErr}})" />.
-        /// Both selectors are threaded through this library's state-passing
-        /// overloads rather than captured, so a query allocates no closure per
-        /// clause.
-        /// <para>
-        /// Short-circuits at the first <see cref="Err{TOk,TErr}" />, and the error
-        /// that surfaces is the first one encountered: if this result is an
-        /// <see cref="Err{TOk,TErr}" /> neither selector runs, and if
-        /// <paramref name="resultFactory" /> yields an
-        /// <see cref="Err{TOk,TErr}" /> then <paramref name="resultSelector" /> does
-        /// not run. Later errors are never collected — this is not a validation
-        /// combinator.
-        /// </para>
-        /// </remarks>
-        /// <typeparam name="TCollection">The joined result's ok value type.</typeparam>
-        /// <typeparam name="TResult">The projected result's ok value type.</typeparam>
-        /// <param name="resultFactory">Produces the result to join, from this
-        /// result's ok value.</param>
-        /// <param name="resultSelector">Combines both ok values. Must not return
-        /// null.</param>
-        /// <returns>
-        /// An <see cref="Ok{TOk,TErr}" /> of the combined value if both results were
-        /// an <see cref="Ok{TOk,TErr}" />, otherwise the first
-        /// <see cref="Err{TOk,TErr}" /> of the two.
-        /// </returns>
-        public Result<TResult, TErr> SelectMany<TCollection, TResult>(
-            Func<TOk, Result<TCollection, TErr>> resultFactory,
-            Func<TOk, TCollection, TResult> resultSelector)
-            where TCollection : notnull where TResult : notnull =>
-            result.AndThen(
-                (resultFactory, resultSelector),
-                static (value, selectors) => selectors.resultFactory(value)
-                   .Map(
-                        (value, selectors.resultSelector),
-                        static (collected, state) => state.resultSelector(
-                            state.value,
-                            collected)));
     }
 
     extension<TOk, TErr>(Result<TOk, TErr> result)

@@ -1,12 +1,11 @@
 namespace Waystone.Monads.Options;
 
-using Extensions;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Linq;
 using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(OptionExtensions))]
+[TestSubject(typeof(OptionQueryExtensions))]
 public sealed class LinqTests
 {
     [Fact]
@@ -125,27 +124,6 @@ public sealed class LinqTests
 
         query.ShouldBe(Option.None<int>());
         resultCalled.ShouldBeFalse();
-    }
-
-    [Fact]
-    public async Task GivenAnAwaitedReceiver_WhenSelectAsync_ThenProjectTheValue()
-    {
-        ValueTask<Option<int>> pending =
-            new ValueTask<Option<int>>(Option.Some(21));
-
-        Option<int> projected = await pending.SelectAsync(value => value * 2);
-
-        projected.ShouldBe(Option.Some(42));
-    }
-
-    [Fact]
-    public async Task GivenAnAwaitedReceiver_WhenWhereAsync_ThenFilterTheValue()
-    {
-        Task<Option<int>> pending = Task.FromResult(Option.Some(42));
-
-        Option<int> filtered = await pending.WhereAsync(value => value < 0);
-
-        filtered.ShouldBe(Option.None<int>());
     }
 
     private static Option<int> TrackOption(int value, System.Func<bool> record)

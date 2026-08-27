@@ -1,11 +1,11 @@
 namespace Waystone.Monads.Results;
 
-using Extensions;
 using JetBrains.Annotations;
+using Linq;
 using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(ResultExtensions))]
+[TestSubject(typeof(ResultQueryExtensions))]
 public sealed class LinqTests
 {
     [Fact]
