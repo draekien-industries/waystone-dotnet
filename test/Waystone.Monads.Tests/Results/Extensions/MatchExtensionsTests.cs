@@ -125,4 +125,228 @@ public sealed class MatchExtensionsTests
 
         onOk.DidNotReceiveWithAnyArgs().Invoke(default);
     }
+
+    [Fact]
+    public async Task
+        GivenOkTask_WhenMatchAsyncWithAsyncOnOkAndAsyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await Task.FromResult(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        await onOk.Received(1).Invoke(10);
+        await onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrTask_WhenMatchAsyncWithAsyncOnOkAndAsyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await Task.FromResult(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        await onErr.Received(1).Invoke("Error");
+        await onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenOkTask_WhenMatchAsyncWithAsyncOnOkAndSyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await Task.FromResult(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        await onOk.Received(1).Invoke(10);
+        onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrTask_WhenMatchAsyncWithAsyncOnOkAndSyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await Task.FromResult(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        onErr.Received(1).Invoke("Error");
+        await onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenOkTask_WhenMatchAsyncWithSyncOnOkAndAsyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await Task.FromResult(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        onOk.Received(1).Invoke(10);
+        await onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrTask_WhenMatchAsyncWithSyncOnOkAndAsyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await Task.FromResult(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        await onErr.Received(1).Invoke("Error");
+        onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenOkTask_WhenMatchAsyncWithSyncOnOkAndSyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await Task.FromResult(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        onOk.Received(1).Invoke(10);
+        onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrTask_WhenMatchAsyncWithSyncOnOkAndSyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await Task.FromResult(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        onErr.Received(1).Invoke("Error");
+        onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenOkValueTask_WhenMatchAsyncWithAsyncOnOkAndAsyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await new ValueTask<Result<int, string>>(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        await onOk.Received(1).Invoke(10);
+        await onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrValueTask_WhenMatchAsyncWithAsyncOnOkAndAsyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await new ValueTask<Result<int, string>>(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        await onErr.Received(1).Invoke("Error");
+        await onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenOkValueTask_WhenMatchAsyncWithAsyncOnOkAndSyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await new ValueTask<Result<int, string>>(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        await onOk.Received(1).Invoke(10);
+        onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrValueTask_WhenMatchAsyncWithAsyncOnOkAndSyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Func<int, Task>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await new ValueTask<Result<int, string>>(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        onErr.Received(1).Invoke("Error");
+        await onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenOkValueTask_WhenMatchAsyncWithSyncOnOkAndAsyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await new ValueTask<Result<int, string>>(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        onOk.Received(1).Invoke(10);
+        await onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrValueTask_WhenMatchAsyncWithSyncOnOkAndAsyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Func<string, Task>>();
+
+        await new ValueTask<Result<int, string>>(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        await onErr.Received(1).Invoke("Error");
+        onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
+
+    [Fact]
+    public async Task
+        GivenOkValueTask_WhenMatchAsyncWithSyncOnOkAndSyncOnErr_ThenInvokeOnOk()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await new ValueTask<Result<int, string>>(Result.Ok<int, string>(10))
+           .MatchAsync(onOk, onErr);
+
+        onOk.Received(1).Invoke(10);
+        onErr.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task
+        GivenErrValueTask_WhenMatchAsyncWithSyncOnOkAndSyncOnErr_ThenInvokeOnErr()
+    {
+        var onOk = Substitute.For<Action<int>>();
+        var onErr = Substitute.For<Action<string>>();
+
+        await new ValueTask<Result<int, string>>(Result.Err<int, string>("Error"))
+           .MatchAsync(onOk, onErr);
+
+        onErr.Received(1).Invoke("Error");
+        onOk.DidNotReceive().Invoke(Arg.Any<int>());
+    }
 }

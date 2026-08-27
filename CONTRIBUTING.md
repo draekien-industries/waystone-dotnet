@@ -19,28 +19,22 @@ below.
 1. Branch off `main`: `git checkout -b feature/my-cool-new-feature`. There is no
    `develop` branch.
 2. Code up a storm.
-3. Add tests. `Waystone.Monads.Tests` uses xUnit v3 with Shouldly. Unit tests
-   sit at the top level, mirroring the namespace they cover. Reqnroll
-   behaviour tests live under `Specs/`, with a `Features/` and `Steps/` pair
-   per area.
+3. Add tests. `Waystone.Monads.Tests` uses xUnit v3 with Shouldly, and a test
+   file mirrors the namespace it covers — a test for
+   `Waystone.Monads.Options.Extensions.MapExtensions` lives in
+   `Options/Extensions/MapExtensionsTests.cs`, declares that namespace, and
+   carries `[TestSubject(typeof(MapExtensions))]`.
 
-   The generated `.feature.cs` files are committed, so build after editing a
-   `.feature` and commit both.
+   Name a test `Given<state>_When<action>_Then<outcome>`. Cases that differ
+   only in a value belong in a `[Theory]` with `[InlineData]` rows rather than
+   in copied `[Fact]`s.
 
-   Features carry an `@option` or `@result` tag, which Reqnroll maps to an
-   xUnit trait. To run one kind on its own:
-
-   ```sh
-   dotnet test --filter "Category=option|Category=result"    # behaviour only
-   dotnet test --filter "Category!=option&Category!=result"  # unit only
-   ```
-
-   Scenarios that differ only in a value or a variant belong in a
-   `Scenario Outline` with an `Examples` table, not in copied scenarios.
-   Shared scenario state goes through the injected `SpecContext` rather than
-   Reqnroll's `ScenarioContext`. Note that Reqnroll binds steps across the
-   whole assembly, so a `Steps` folder scopes nothing — step text has to be
-   unique repository-wide.
+   Assert on an `Option` or a `Result` through the assertions in
+   `Waystone.Monads.Shouldly` — `ShouldBeSomeValue`, `ShouldBeErrValue` and
+   the rest. `test/.editorconfig` raises WMS2001 and WMS2002 to warnings and
+   `test/Directory.Build.props` turns warnings into errors, so a raw
+   `IsSome.ShouldBeTrue()` fails the build. Both rules have a code fix; see
+   [test/AGENTS.md](test/AGENTS.md) for the invocation.
 4. If you are adding or changing an analyzer rule, see
    [Analyzer rules](#analyzer-rules) below.
 5. Run the tests — all target frameworks, not just the default:

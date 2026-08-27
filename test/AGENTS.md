@@ -46,19 +46,23 @@ references, so the compilation sees what a consumer on that framework would.
 
 ## Gotchas
 
+**The Reqnroll specs are gone; their coverage is not.** 186 scenarios across 21
+`.feature` files were translated into xUnit in DRA-135, not deleted — mostly into
+`Options/Extensions` and `Results/Extensions` files that did not exist before.
+Do not reintroduce a spec layer for a family that now has a test class; add the
+case to the class.
+
+One branch fell out of that translation and had to be replaced deliberately:
+`ExceptionHandledLogger.Attach` rejects a listener whose name is not the monad
+listener's, and the only thing reaching that branch was Reqnroll creating a
+`DiagnosticListener` of its own. `MonadLoggingOptionsTests` now creates a foreign
+listener on purpose. Incidental coverage from a test framework is worth checking
+for whenever one leaves.
+
 **`MonadOptions.Global` is a process-wide mutable singleton.** A test that mutates
 it and then asserts on it will flake against tests in other xUnit collections
 running in parallel. Use `MonadOptions.BeginScope` so the override is confined to
 the current asynchronous flow.
-
-**Reqnroll binds step definitions across the whole test assembly.** The
-`Specs/Options/Steps` and `Specs/Results/Steps` folders scope nothing, so step text
-has to be unique across the project and a step class binds happily from the wrong
-folder. When a step is not found, the folder is never the reason.
-
-**A step that switches on a string argument needs a `default` that throws.**
-Without one an unmatched value runs no assertion and the scenario passes. This hid
-three no-op assertions in the Result specs.
 
 **A half-extracted reference-assembly cache fails every analyzer test at once.**
 `Microsoft.CodeAnalysis.Testing` unpacks into `%TEMP%\test-packages\`, and an
