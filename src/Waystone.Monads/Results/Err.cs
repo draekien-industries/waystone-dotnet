@@ -91,12 +91,12 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Result<TOut, TErr> And<TOut>(Result<TOut, TErr> other) =>
-        Value;
+        Result.Err<TOut, TErr>(Value);
 
     /// <inheritdoc />
     public override Result<TOut, TErr> AndThen<TOut>(
         Func<TOk, Result<TOut, TErr>> resultFactory) =>
-        Value;
+        Result.Err<TOut, TErr>(Value);
 
     /// <inheritdoc />
     public override Result<TOk, TOut> Or<TOut>(Result<TOk, TOut> other) =>
@@ -169,12 +169,12 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Result<TOut, TErr> Map<TOut>(Func<TOk, TOut> map) =>
-        Value;
+        Result.Err<TOut, TErr>(Value);
 
     /// <inheritdoc />
     public override Result<TOut, TErr> Map<TState, TOut>(
         TState state,
-        Func<TOk, TState, TOut> map) => Value;
+        Func<TOk, TState, TOut> map) => Result.Err<TOut, TErr>(Value);
 
     /// <inheritdoc />
     public override TOut MapOr<TOut>(
@@ -209,12 +209,13 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map) =>
-        map(Value);
+        Result.Err<TOk, TOut>(map(Value));
 
     /// <inheritdoc />
     public override Result<TOk, TOut> MapErr<TState, TOut>(
         TState state,
-        Func<TErr, TState, TOut> map) => map(Value, state);
+        Func<TErr, TState, TOut> map) =>
+        Result.Err<TOk, TOut>(map(Value, state));
 
     /// <inheritdoc />
     public override IEnumerable<TOk> AsEnumerable() =>

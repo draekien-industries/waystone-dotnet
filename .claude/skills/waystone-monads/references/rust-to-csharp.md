@@ -43,7 +43,6 @@ Do not go looking for the counterpart — there is none.
 | `Partition` | Splits a sequence into successes and failures |
 | The `*Async` surface | Every operation over a `Task` or `ValueTask` receiver |
 | The state overloads | Pass a captured value as an argument so the delegate allocates nothing |
-| Implicit conversions | `T` converts to `Option<T>`; `TOk` or `TErr` converts to `Result<TOk, TErr>` |
 
 ## There is a fourth state here: null
 

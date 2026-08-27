@@ -5,12 +5,13 @@ on the previous major gets from the surface in the working tree.
 
 | Code | Kind | Count |
 | --- | --- | --- |
-| CS0029 | error | 3 |
+| CS0029 | error | 6 |
 | CS0115 | error | 1 |
 | CS0117 | error | 2 |
 | CS0411 | error | 4 |
 | CS1061 | error | 2 |
 | CS1501 | error | 1 |
+| CS1503 | error | 1 |
 | CS1739 | error | 23 |
 
 | Code | File | Line | Message |
@@ -18,6 +19,9 @@ on the previous major gets from the surface in the working tree.
 | CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 25 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<int>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Options.Option<int>>' |
 | CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 33 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<int, string>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Results.Result<int, string>>' |
 | CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 37 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<System.Collections.Generic.IReadOnlyList<int>>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Options.Option<System.Collections.Generic.IReadOnlyList<int>>>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 14 | Cannot implicitly convert type 'int' to 'Waystone.Monads.Options.Option<int>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 16 | Cannot implicitly convert type 'int' to 'Waystone.Monads.Results.Result<int, Waystone.Monads.Results.Errors.Error>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 19 | Cannot implicitly convert type 'Waystone.Monads.Results.Errors.Error' to 'Waystone.Monads.Results.Result<int, Waystone.Monads.Results.Errors.Error>' |
 | CS0115 | sample/Waystone.Monads.PreviousMajor.Declarations.Sample/ErrorCodeFactoryOverride.cs | 15 | 'UpperCaseErrorCodeFactory.FromEnum(Enum)': no suitable method found to override |
 | CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 17 | 'ErrorCode' does not contain a definition for 'FromEnum' |
 | CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 20 | 'Error' does not contain a definition for 'FromEnum' |
@@ -28,6 +32,7 @@ on the previous major gets from the surface in the working tree.
 | CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/Configuration.cs | 22 | 'MonadOptions' does not contain a definition for 'UseExceptionLogger' and no accessible extension method 'UseExceptionLogger' accepting a first argument of type 'MonadOptions' could be found (are you missing a using directive or an assembly reference?) |
 | CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 32 | 'ErrorCodeFactory' does not contain a definition for 'FromEnum' and no accessible extension method 'FromEnum' accepting a first argument of type 'ErrorCodeFactory' could be found (are you missing a using directive or an assembly reference?) |
 | CS1501 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 23 | No overload for method 'Err' takes 2 arguments |
+| CS1503 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 29 | Argument 1: cannot convert from 'int' to 'Waystone.Monads.Options.Option<int>' |
 | CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 33 | The best overload for 'UnwrapOrElse' does not have a parameter named 'else' |
 | CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 36 | The best overload for 'MapOr' does not have a parameter named 'default' |
 | CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 39 | The best overload for 'MapOrElse' does not have a parameter named 'createDefault' |

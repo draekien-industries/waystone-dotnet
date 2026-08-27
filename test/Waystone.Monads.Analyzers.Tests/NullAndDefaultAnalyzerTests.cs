@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Analyzers;
 
+using Microsoft.CodeAnalysis.Testing;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -107,25 +108,34 @@ public class NullAndDefaultAnalyzerTests
                .WithLocation(0)
                .WithArguments("Result<int, string>"));
 
+    /// <summary>
+    /// Replaces the four non-triggers that pinned WM1003 staying quiet on a value
+    /// converted to a monad.
+    /// </summary>
+    /// <remarks>
+    /// Those four asserted an analyzer decision — <c>AnalyzeDefault</c> reads
+    /// <c>info.Type</c> before <c>info.ConvertedType</c>, so a conversion reported
+    /// the source type and failed the monad test. DRA-119 removed the conversions,
+    /// so the position no longer compiles and there is no decision left to pin. What
+    /// is worth pinning instead is that the compiler, not a rule, is what now
+    /// rejects it: a consumer sees <c>CS0029</c> and reaches for the migration fix.
+    /// </remarks>
     [Fact]
-    public Task IgnoresADefaultValueConvertedToAnOption() =>
-        Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
-            "internal Option<int> Make() => 0;");
+    public Task AValueNoLongerConvertsToAMonad() =>
+        Verify.CompilerDiagnosticsAsync(
+            """
+            using Waystone.Monads.Options;
+            using Waystone.Monads.Results;
 
-    [Fact]
-    public Task IgnoresTheDefaultOfAReferenceTypeConvertedToAnOption() =>
-        Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
-            "internal Option<string> Make() => default(string)!;");
+            internal class Subject
+            {
+                internal Option<int> MakeOption() => {|#0:0|};
 
-    [Fact]
-    public Task IgnoresANonDefaultValueConvertedToAnOption() =>
-        Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
-            "internal Option<int> Make() => 1;");
-
-    [Fact]
-    public Task IgnoresADefaultValueConvertedToAResult() =>
-        Verify.NoDiagnosticAsync<NullAndDefaultAnalyzer>(
-            "internal Result<int, string> Make() => 0;");
+                internal Result<int, string> MakeResult() => {|#1:0|};
+            }
+            """,
+            DiagnosticResult.CompilerError("CS0029").WithLocation(0),
+            DiagnosticResult.CompilerError("CS0029").WithLocation(1));
 
     [Fact]
     public Task IgnoresNullForAnUnrelatedType() =>

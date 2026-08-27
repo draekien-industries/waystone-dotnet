@@ -171,12 +171,6 @@ public static class Rules
         "'{0}' has three states where two are meaningful. Flatten it.",
         "Option<Option<T>> distinguishes an absent outer from an absent inner, a distinction callers almost never act on.");
 
-    public static readonly DiagnosticDescriptor ResultWithIdenticalTypeArguments = Idiom(
-        "WM2010",
-        "Do not give a Result identical type arguments",
-        "'{0}' has the same type for its Ok and its Err, which makes both implicit conversions ambiguous",
-        "Result declares an implicit conversion from TOk and another from TErr. When those are the same type the compiler cannot choose, so every implicit conversion becomes a compile error and Ok and Err become indistinguishable to a reader.");
-
     public static readonly DiagnosticDescriptor DerivedMonadTypeDeclared = Idiom(
         "WM2011",
         "Prefer the Option or Result base over one of its cases",

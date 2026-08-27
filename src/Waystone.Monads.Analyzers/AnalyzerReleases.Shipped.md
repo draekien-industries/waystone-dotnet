@@ -86,3 +86,11 @@ WM2020 | Usage | Info | The error code registry lists a code nothing generates
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2021 | Usage | Info | Option or Result state is tested through a property pattern
+
+## Release 7.0.0
+
+### Removed Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2010 | Usage | Info | Result with identical type arguments cannot convert implicitly

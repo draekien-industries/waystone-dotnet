@@ -85,21 +85,6 @@ public sealed class OptionTests
     }
 
     [Fact]
-    public void GivenAnyFactory_WhenBinding_ThenAgreeWithTheConversion()
-    {
-        using (LoggerScope())
-        {
-            Option<int> zero = 0;
-            Option<int> one = 1;
-            Option<Guid> empty = default(Guid);
-
-            Option.Try(() => 0).ShouldBe(zero);
-            Option.Try(() => 1).ShouldBe(one);
-            Option.Try(() => default(Guid)).ShouldBe(empty);
-        }
-    }
-
-    [Fact]
     public void GivenFactoryReturningNull_WhenBinding_ThenReturnNone()
     {
         using (LoggerScope())
@@ -143,30 +128,6 @@ public sealed class OptionTests
             _callback.DidNotReceive()
                .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
         }
-    }
-
-    [Fact]
-    public void WhenImplicitlyCreatingOption_ThenReturnExpected()
-    {
-        Option<int> option1 = 0;
-        Option<int> option2 = 1;
-        Option<string> option3 = string.Empty;
-#pragma warning disable CS8604 // Possible null reference argument.
-
-        // ReSharper disable once PreferConcreteValueOverDefault
-        Option<string> option4 = default(string);
-
-        // ReSharper disable once PreferConcreteValueOverDefault
-        Option<Guid> option5 = default(Guid);
-#pragma warning restore CS8604 // Possible null reference argument.
-        Option<Guid> option6 = Guid.NewGuid();
-
-        option1.ShouldBeSome();
-        option2.ShouldBeSome();
-        option3.ShouldBeSome();
-        option4.ShouldBeNone();
-        option5.ShouldBeSome();
-        option6.ShouldBeSome();
     }
 
     [Fact]

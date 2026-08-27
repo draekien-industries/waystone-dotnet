@@ -101,6 +101,22 @@ public sealed class TryStateOverloadTests
     }
 
     [Fact]
+    public async Task GivenState_WhenOptionTryAsyncReturnsNull_ThenReturnNone()
+    {
+        using (LoggerScope())
+        {
+            Option<string> option = await Option.TryAsync(
+                "x",
+                static _ => Task.FromResult(default(string)!));
+
+            option.ShouldBe(Option.None<string>());
+
+            _logger.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
+    }
+
+    [Fact]
     public void GivenState_WhenResultTrySucceeds_ThenReturnOk()
     {
         var onError = Substitute.For<Func<Exception, string>>();

@@ -718,19 +718,4 @@ public abstract record Option<T> where T : notnull
     public abstract Result<T, TErr> OkOrElse<TState, TErr>(
         TState state,
         Func<TState, TErr> errorFactory) where TErr : notnull;
-
-    /// <summary>
-    /// Implicitly converts a value of type <typeparamref name="T" /> into an
-    /// <see cref="Option{T}" />
-    /// </summary>
-    /// <param name="value">The value of the option</param>
-    /// <returns>
-    /// A <see cref="Some{T}" /> when the value is not null, otherwise a
-    /// <see cref="None{T}" />
-    /// </returns>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public static implicit operator Option<T>(T value) =>
-        value is null ? Option.None<T>() : new Some<T>(value);
 }

@@ -22,6 +22,18 @@ public sealed class ReduceExtensionsTests
     }
 
     [Fact]
+    public async Task GivenReduceProducesNull_WhenReduceAsync_ThenReturnNone()
+    {
+        Option<string> some = Option.Some("a");
+
+        Option<string> result = await some.ReduceAsync(
+            Option.Some("b"),
+            (_, _) => Task.FromResult(default(string)!));
+
+        result.ShouldBeNone();
+    }
+
+    [Fact]
     public async Task GivenOtherIsNone_WhenReduceAsync_ThenReturnThisOption()
     {
         Option<int> some = Option.Some(1);

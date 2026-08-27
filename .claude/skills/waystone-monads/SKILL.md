@@ -279,9 +279,10 @@ The type earns its place only where absence or failure is real.
 
 - `Option<bool>` has three states and almost always wants to be two — model it
   as an enum or split the question.
-- `Result<string, string>` makes both implicit conversions ambiguous and `Ok`
-  indistinguishable from `Err` to a reader (`WM2010`). Give the two sides
-  different types.
+- `Result<string, string>` leaves `Ok` indistinguishable from `Err` to a
+  reader. Give the two sides different types. No rule reports it: `WM2010` was
+  retired in 7.0.0 along with the implicit conversions whose ambiguity was its
+  whole reason to exist.
 - `Option<Option<T>>` distinguishes an absent outer from an absent inner, which
   callers never act on — `Flatten` it (`WM2009`).
 - A helper that only wraps a value already known to be present is indirection,

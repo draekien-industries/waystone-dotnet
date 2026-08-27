@@ -52,8 +52,8 @@ public sealed class CaseDispatchTests
                .ShouldBe(
                     option.Match(
                         value => other.Match<Option<int>>(
-                            otherValue => value + otherValue,
-                            () => value),
+                            otherValue => Option.Some(value + otherValue),
+                            () => Option.Some(value)),
                         () => other));
         }
     }

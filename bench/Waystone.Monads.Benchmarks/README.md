@@ -50,7 +50,7 @@ the escape hatch for a throwaway run you do not want in the tree.
 
 | Class | Covers |
 | --- | --- |
-| `OptionBenchmarks` | `Some`/`None` construction, the implicit conversion, `FromNullable`, `Match`, `Map`, `Filter`, `UnwrapOr`, each on both cases |
+| `OptionBenchmarks` | `Some`/`None` construction, `FromNullable`, `Match`, `Map`, `Filter`, `UnwrapOr`, each on both cases |
 | `ResultBenchmarks` | `Ok`/`Err` construction, `Match`, `Map`, `MapErr`, `UnwrapOr`, each on both cases |
 | `AsyncChainBenchmarks` | A single async link and a three-link chain off a synchronous receiver, on both cases |
 | `HotPathBenchmarks` | The paths that produce a `None` — the factory, a rejecting `Filter`, `Map`/`Zip` on a `None`, `Xor`, and an async short circuit |
@@ -92,8 +92,10 @@ the same size; the extra 48 B is two boxed `int`s, because `Some`'s constructor
 guard calls the static `object.Equals(value, default(T))` and boxes both
 operands. `Ok` has no guard and allocates only itself.
 
-**The implicit conversion pays that tax twice.** `ImplicitConversion` allocates
-120 B: 48 B boxing in the conversion's own `Equals(value, default(T))`, 48 B
+**The implicit conversion pays that tax twice.** The `ImplicitConversion`
+benchmark is gone from the harness — DRA-119 removed the operator it measured in
+7.0.0 — so this row is readable in `artifacts/v5-baseline/` and nowhere else. It
+allocated 120 B: 48 B boxing in the conversion's own `Equals(value, default(T))`, 48 B
 again in the `Some` constructor it calls, and 24 B for the object. That is the
 measurable cost of encoding one invariant in two places. `MapOnSome` allocates
 the same 120 B because `Map` returns a bare value and goes back through the
