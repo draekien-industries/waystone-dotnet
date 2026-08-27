@@ -2,22 +2,31 @@
 
 using System;
 using System.Threading.Tasks;
+using Waystone.SourceGenerators;
 
 /// <summary>
-/// Provides <c>MatchAsync</c> overloads for an <see cref="Option{T}" /> that is
-/// still inside a task.
+/// Provides <c>MatchAsync</c> overloads for an <see cref="Option{T}" /> with an
+/// asynchronous branch, and for one that is still inside a task.
 /// </summary>
-public static class MatchExtensions
+/// <remarks>
+/// Each branch can be synchronous or asynchronous independently, so a caller
+/// awaits only the branch that does work. Picking the overload that matches keeps
+/// the other branch off the task machinery entirely rather than wrapping a ready
+/// value in a completed task.
+/// </remarks>
+[GenerateAwaitedReceivers(typeof(Option<>))]
+[GenerateAwaitedMember(nameof(Option<>.Match))]
+public static partial class MatchExtensions
 {
-    extension<T>(Task<Option<T>> optionTask) where T : notnull
+    extension<T>(Option<T> option) where T : notnull
     {
         /// <summary>
-        /// Awaits a task of <see cref="Option{T}" /> and switches on it, running
-        /// whichever of two asynchronous callbacks matches its case.
+        /// Switches on an <see cref="Option{T}" /> when both branches do
+        /// asynchronous work.
         /// </summary>
         /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. An exception
-        /// from the receiver task propagates before either callback is reached.
+        /// Exactly one callback runs and is awaited; the other is never invoked, so
+        /// the branch that does not match costs nothing.
         /// </remarks>
         /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
         /// <param name="onSome">
@@ -30,22 +39,18 @@ public static class MatchExtensions
         /// <returns>The awaited output of whichever callback ran.</returns>
         public async ValueTask<TOut> MatchAsync<TOut>(
             Func<T, Task<TOut>> onSome,
-            Func<Task<TOut>> onNone)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return await option.Match(onSome, onNone).ConfigureAwait(false);
-        }
+            Func<Task<TOut>> onNone) =>
+            await option.Match(onSome, onNone).ConfigureAwait(false);
 
         /// <summary>
-        /// Awaits a task of <see cref="Option{T}" /> and switches on it with a
-        /// synchronous <see cref="Some{T}" /> callback and an asynchronous
-        /// <see cref="None{T}" /> callback.
+        /// Switches on an <see cref="Option{T}" /> when only the fallback does
+        /// asynchronous work.
         /// </summary>
         /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. Pick this
-        /// overload when only the <see cref="None{T}" /> branch needs to await, so
-        /// the <see cref="Some{T}" /> branch is not forced through a task.
+        /// Exactly one callback runs; the other is never invoked. Reach for this
+        /// when the contained value needs no further work to map — fetching a
+        /// default from a database, say, where the value already in hand does not
+        /// need one.
         /// </remarks>
         /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
         /// <param name="onSome">
@@ -60,8 +65,6 @@ public static class MatchExtensions
             Func<T, TOut> onSome,
             Func<Task<TOut>> onNone)
         {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
             if (option.IsNone) return await onNone().ConfigureAwait(false);
 
             T some = option.Expect("Expected Some but found None.");
@@ -70,14 +73,14 @@ public static class MatchExtensions
         }
 
         /// <summary>
-        /// Awaits a task of <see cref="Option{T}" /> and switches on it with an
-        /// asynchronous <see cref="Some{T}" /> callback and a synchronous
-        /// <see cref="None{T}" /> callback.
+        /// Switches on an <see cref="Option{T}" /> when only the mapping does
+        /// asynchronous work.
         /// </summary>
         /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. Pick this
-        /// overload when the fallback is a plain value and only the
-        /// <see cref="Some{T}" /> branch needs to await.
+        /// Exactly one callback runs; the other is never invoked. This is the
+        /// common shape: the value is worth an asynchronous call and the fallback
+        /// is a constant, which stays a constant rather than becoming a completed
+        /// task.
         /// </remarks>
         /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
         /// <param name="onSome">
@@ -92,160 +95,11 @@ public static class MatchExtensions
             Func<T, Task<TOut>> onSome,
             Func<TOut> onNone)
         {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
             if (option.IsNone) return onNone();
 
             T some = option.Expect("Expected Some but found None.");
 
             return await onSome(some).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Awaits a task of <see cref="Option{T}" /> and switches on it, running
-        /// whichever of two synchronous callbacks matches its case.
-        /// </summary>
-        /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. Only the
-        /// receiver is awaited, so pick this overload when neither branch does
-        /// asynchronous work.
-        /// </remarks>
-        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
-        /// <param name="onSome">
-        /// A synchronous callback for the <see cref="Some{T}" /> case, given the
-        /// contained value.
-        /// </param>
-        /// <param name="onNone">
-        /// A synchronous callback for the <see cref="None{T}" /> case.
-        /// </param>
-        /// <returns>The output of whichever callback ran.</returns>
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<T, TOut> onSome,
-            Func<TOut> onNone)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return option.Match(onSome, onNone);
-        }
-    }
-
-    extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
-    {
-        /// <summary>
-        /// Awaits a value task of <see cref="Option{T}" /> and switches on it,
-        /// running whichever of two asynchronous callbacks matches its case.
-        /// </summary>
-        /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. An exception
-        /// from the receiver task propagates before either callback is reached.
-        /// </remarks>
-        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
-        /// <param name="onSome">
-        /// An asynchronous callback for the <see cref="Some{T}" /> case, given the
-        /// contained value.
-        /// </param>
-        /// <param name="onNone">
-        /// An asynchronous callback for the <see cref="None{T}" /> case.
-        /// </param>
-        /// <returns>The awaited output of whichever callback ran.</returns>
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<T, Task<TOut>> onSome,
-            Func<Task<TOut>> onNone)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return await option.Match(onSome, onNone).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Awaits a value task of <see cref="Option{T}" /> and switches on it with
-        /// a synchronous <see cref="Some{T}" /> callback and an asynchronous
-        /// <see cref="None{T}" /> callback.
-        /// </summary>
-        /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. Pick this
-        /// overload when only the <see cref="None{T}" /> branch needs to await, so
-        /// the <see cref="Some{T}" /> branch is not forced through a task.
-        /// </remarks>
-        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
-        /// <param name="onSome">
-        /// A synchronous callback for the <see cref="Some{T}" /> case, given the
-        /// contained value.
-        /// </param>
-        /// <param name="onNone">
-        /// An asynchronous callback for the <see cref="None{T}" /> case.
-        /// </param>
-        /// <returns>The output of whichever callback ran.</returns>
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<T, TOut> onSome,
-            Func<Task<TOut>> onNone)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            if (option.IsNone) return await onNone().ConfigureAwait(false);
-
-            T some = option.Expect("Expected Some but found None.");
-
-            return onSome(some);
-        }
-
-        /// <summary>
-        /// Awaits a value task of <see cref="Option{T}" /> and switches on it with
-        /// an asynchronous <see cref="Some{T}" /> callback and a synchronous
-        /// <see cref="None{T}" /> callback.
-        /// </summary>
-        /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. Pick this
-        /// overload when the fallback is a plain value and only the
-        /// <see cref="Some{T}" /> branch needs to await.
-        /// </remarks>
-        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
-        /// <param name="onSome">
-        /// An asynchronous callback for the <see cref="Some{T}" /> case, given the
-        /// contained value.
-        /// </param>
-        /// <param name="onNone">
-        /// A synchronous callback for the <see cref="None{T}" /> case.
-        /// </param>
-        /// <returns>The output of whichever callback ran.</returns>
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<T, Task<TOut>> onSome,
-            Func<TOut> onNone)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            if (option.IsNone) return onNone();
-
-            T some = option.Expect("Expected Some but found None.");
-
-            return await onSome(some).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Awaits a value task of <see cref="Option{T}" /> and switches on it,
-        /// running whichever of two synchronous callbacks matches its case.
-        /// </summary>
-        /// <remarks>
-        /// Exactly one callback runs; the other is never invoked. Only the
-        /// receiver is awaited, so pick this overload when neither branch does
-        /// asynchronous work.
-        /// </remarks>
-        /// <typeparam name="TOut">The type both callbacks produce.</typeparam>
-        /// <param name="onSome">
-        /// A synchronous callback for the <see cref="Some{T}" /> case, given the
-        /// contained value.
-        /// </param>
-        /// <param name="onNone">
-        /// A synchronous callback for the <see cref="None{T}" /> case.
-        /// </param>
-        /// <returns>The output of whichever callback ran.</returns>
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<T, TOut> onSome,
-            Func<TOut> onNone)
-        {
-            Option<T> option = await optionTask.ConfigureAwait(false);
-
-            return option.Match(onSome, onNone);
         }
     }
 }
