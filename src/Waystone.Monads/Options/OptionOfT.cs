@@ -14,6 +14,24 @@ using System.Diagnostics;
 /// A type which can be in two states, a <see cref="Some{T}" /> or a
 /// <see cref="None{T}" />.
 /// </summary>
+/// <remarks>
+/// <para>
+/// A projection that returns null throws <see cref="ArgumentNullException" />
+/// rather than producing a <see cref="None{T}" />. Every projection here is
+/// constrained to a non-nullable output, so a null is a broken contract and not
+/// an absent value, and collapsing it to <see cref="None{T}" /> would make the
+/// two indistinguishable — the caller would read "no value" and never learn the
+/// projection was wrong. <see cref="Result{TOk,TErr}" /> has always behaved this
+/// way; this type was the outlier until 7.0.0.
+/// </para>
+/// <para>
+/// When a projection genuinely may yield nothing, say so: project into an option
+/// with <c>AndThen</c> and <see cref="Option.FromNullable{T}(T)" />. That is the
+/// difference between mapping and binding, and it is deliberately explicit. The
+/// two lenient entry points are <see cref="Option.Try{T}" />, whose whole purpose
+/// is to absorb a failure, and <see cref="Option.FromNullable{T}(T)" /> itself.
+/// </para>
+/// </remarks>
 /// <typeparam name="T">The option value's type.</typeparam>
 #if !DEBUG
 [DebuggerStepThrough]
@@ -371,6 +389,11 @@ public abstract record Option<T> where T : notnull
     /// </summary>
     /// <param name="map">The map function.</param>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="map" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
     public abstract Option<TOut> Map<TOut>(Func<T, TOut> map) where TOut : notnull;
 
     /// <summary>
@@ -388,6 +411,11 @@ public abstract record Option<T> where T : notnull
     /// <param name="map">The map function.</param>
     /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="map" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
     public abstract Option<TOut> Map<TState, TOut>(
         TState state,
         Func<T, TState, TOut> map) where TOut : notnull;
@@ -413,6 +441,11 @@ public abstract record Option<T> where T : notnull
     /// <see cref="None{T}" /> when this option is a <see cref="None{T}" /> or the
     /// delegate produced null.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="map" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
     public abstract ValueTask<Option<TOut>> MapAsync<TOut>(
         Func<T, Task<TOut>> map) where TOut : notnull;
 
@@ -447,12 +480,22 @@ public abstract record Option<T> where T : notnull
     /// The option <paramref name="optionFactory" /> produced, or
     /// <see cref="None{T}" /> when this option is a <see cref="None{T}" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="optionFactory" /> returns a null option. Returning
+    /// null rather than <see cref="Option.None{T}" /> is never meaningful, and
+    /// left alone it would surface as a <see cref="NullReferenceException" />
+    /// at whatever called into the option next.
+    /// </exception>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
     public Option<TOut> AndThen<TOut>(Func<T, Option<TOut>> optionFactory)
         where TOut : notnull =>
-        Map(optionFactory).Flatten();
+        Match(
+            value => Option.NotNull(
+                optionFactory(value),
+                nameof(optionFactory)),
+            Option.None<TOut>);
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
@@ -482,13 +525,24 @@ public abstract record Option<T> where T : notnull
     /// The option <paramref name="optionFactory" /> produced, or
     /// <see cref="None{T}" /> when this option is a <see cref="None{T}" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="optionFactory" /> returns a null option. Returning
+    /// null rather than <see cref="Option.None{T}" /> is never meaningful, and
+    /// left alone it would surface as a <see cref="NullReferenceException" />
+    /// at whatever called into the option next.
+    /// </exception>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
     public Option<TOut> AndThen<TState, TOut>(
         TState state,
         Func<T, TState, Option<TOut>> optionFactory) where TOut : notnull =>
-        Map(state, optionFactory).Flatten();
+        Match(
+            (state, optionFactory),
+            static (value, s) => Option.NotNull(
+                s.optionFactory(value, s.state),
+                nameof(optionFactory)),
+            static _ => Option.None<TOut>());
 
     /// <summary>
     /// Awaits <paramref name="optionFactory" /> against the contained value and
@@ -939,6 +993,11 @@ public abstract record Option<T> where T : notnull
     /// <paramref name="zip" /> to the values of both options. Otherwise,
     /// <c>None&lt;TOut&gt;</c> is returned.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="zip" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
     public abstract Option<TOut> ZipWith<TOther, TOut>(
         Option<TOther> other,
         Func<T, TOther, TOut> zip)
@@ -966,6 +1025,11 @@ public abstract record Option<T> where T : notnull
     /// options hold a value, otherwise <see cref="None{T}" />. A null from
     /// <paramref name="zip" /> becomes a <see cref="None{T}" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="zip" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
     public abstract ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
         Option<TOther> other,
         Func<T, TOther, Task<TOut>> zip)
@@ -984,6 +1048,11 @@ public abstract record Option<T> where T : notnull
     /// whichever option is <see cref="Some{T}" /> when only one of them is, and
     /// <see cref="None{T}" /> when neither is.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="reduce" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
     public abstract Option<T> Reduce(Option<T> other, Func<T, T, T> reduce);
 
     /// <summary>
@@ -1006,6 +1075,11 @@ public abstract record Option<T> where T : notnull
     /// <see cref="None{T}" />. A null from <paramref name="reduce" /> becomes a
     /// <see cref="None{T}" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="reduce" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
     public abstract ValueTask<Option<T>> ReduceAsync(
         Option<T> other,
         Func<T, T, Task<T>> reduce);
