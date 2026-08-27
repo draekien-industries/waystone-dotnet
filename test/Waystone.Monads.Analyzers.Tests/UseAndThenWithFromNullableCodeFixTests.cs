@@ -166,14 +166,8 @@ public class UseAndThenWithFromNullableCodeFixTests
     private static DiagnosticResult Constraint(int location) =>
         DiagnosticResult.CompilerWarning("CS8714").WithLocation(location);
 
-    /// <remarks>
-    /// Asserts that the fix declines, by running it over a source whose fixed
-    /// state is the source itself with the diagnostic still standing.
-    /// </remarks>
     private static Task Unfixed(string source) =>
-        Verify.CompilerCodeFixAsync<UseAndThenWithFromNullableCodeFix>(
+        Verify.DeclinedCompilerCodeFixAsync<UseAndThenWithFromNullableCodeFix>(
             source,
-            source,
-            new[] { Constraint(0) },
-            new[] { Constraint(0) });
+            Constraint(0));
 }
