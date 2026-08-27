@@ -38,6 +38,27 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
 
     internal TOk Value { get; }
 
+    /// <summary>Binds the success value in a positional pattern.</summary>
+    /// <remarks>
+    /// What makes <c>result is Ok&lt;TOk, TErr&gt;(var value)</c> and an arm of
+    /// <c>result switch { Ok&lt;TOk, TErr&gt;(var value) => …,
+    /// Err&lt;TOk, TErr&gt;(var error) => … }</c> compile. A pattern over a
+    /// result names both type arguments even though only one is bound, which is
+    /// the cost of the case types being generic in both.
+    /// <para>
+    /// This is the only way to read the value off an
+    /// <see cref="Ok{TOk,TErr}" /> directly; the property behind it is internal,
+    /// so a caller who would rather not name the case type goes through
+    /// <see cref="Result{TOk,TErr}.GetOk" /> or
+    /// <see cref="Result{TOk,TErr}.Unwrap" /> instead.
+    /// </para>
+    /// </remarks>
+    /// <param name="value">Receives the success value, which is never null.</param>
+    public void Deconstruct(out TOk value)
+    {
+        value = Value;
+    }
+
     /// <inheritdoc />
     public override bool IsOk => true;
 
