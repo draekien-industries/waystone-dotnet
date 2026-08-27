@@ -16,6 +16,7 @@ working in — each is loaded when you touch files under it.
 | --- | --- |
 | [src/Waystone.Monads](src/Waystone.Monads/AGENTS.md) | The public API baseline, naming and breakage rules, the closed hierarchies |
 | [src/Waystone.Monads.Analyzers](src/Waystone.Monads.Analyzers/AGENTS.md) | Rule severity policy, Roslyn version targeting, analyzer testing |
+| [src/Waystone.Monads.Shouldly.Analyzers](src/Waystone.Monads.Shouldly.Analyzers/AGENTS.md) | Where the assertion-migration rules ship and why not in the core package |
 | [src/Waystone.Monads.SourceGenerators](src/Waystone.Monads.SourceGenerators/AGENTS.md) | The shipped error code generator contract and emission |
 | [src/Waystone.SourceGenerators](src/Waystone.SourceGenerators/AGENTS.md) | The awaited-receiver generator contract and emission |
 | [test](test/AGENTS.md) | Running the framework matrix, Reqnroll, shared mutable state |
