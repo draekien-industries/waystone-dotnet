@@ -75,7 +75,7 @@ public sealed class RenameArgumentCodeFix : MonadCodeFix
         foreach (var candidate in model.GetSymbolInfo(call).CandidateSymbols)
         {
             if (candidate is not IMethodSymbol method
-             || !IsOurs(method, receiver, symbols))
+             || !symbols.IsMonadCandidate(method, receiver))
             {
                 continue;
             }
@@ -116,28 +116,6 @@ public sealed class RenameArgumentCodeFix : MonadCodeFix
      && method.Parameters.Length == list.Arguments.Count + 1
             ? method.Parameters.RemoveAt(0)
             : method.Parameters;
-
-    /// <summary>
-    /// Checks whether the call is one of this library's, reading the receiver rather
-    /// than asking the method what kind of member it is.
-    /// </summary>
-    /// <remarks>
-    /// <see cref="MonadSymbols.IsMonadMethod" /> is deliberately not used here. It
-    /// reaches an extension through <see cref="IMethodSymbol.IsExtensionMethod" />,
-    /// which is false for an <c>extension</c> block member on the Roslyn the tests
-    /// run against and true on the one the analyzer builds against, so a gate built
-    /// on it goes quiet on the awaited receivers in exactly one of the two. The two
-    /// clauses below cover what it would have covered: the type before the dot in
-    /// reduced form, and the first parameter in the compatibility static form.
-    /// </remarks>
-    private static bool IsOurs(
-        IMethodSymbol method,
-        ITypeSymbol? receiver,
-        MonadSymbols symbols) =>
-        symbols.IsMonad(symbols.UnwrapAwaitable(receiver))
-     || (method.Parameters.Length > 0
-      && symbols.IsMonad(
-             symbols.UnwrapAwaitable(method.Parameters[0].Type)));
 
     /// <summary>
     /// Gets the type of the expression before the dot, or null when the call names

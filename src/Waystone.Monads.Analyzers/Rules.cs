@@ -347,6 +347,23 @@ public static class Rules
         "'{0}' on '{1}' is read through a property pattern, which the rules that report a state check cannot see. Read '{0}' directly, or use '{2}' to test the value in the same call.",
         "A property pattern that reads IsSome, IsNone, IsOk or IsErr is a state check written so that nothing recognises it as one. It costs the reader the vocabulary the library provides for the same question, and it silently opts the call site out of the rules that report a guarded unwrap or a check combined with an unwrap.");
 
+    /// <remarks>
+    /// Info rather than a warning, and deliberately overlapping a compiler error.
+    /// The rule can only fire where overload resolution has already failed, so it
+    /// cannot break a build that compiles today and there is nothing for a consumer
+    /// to weigh — it exists to say what CS0411 does not, which is that the
+    /// parameter wants a <c>ValueTask</c>.
+    /// No code fix offers the return-type change the message names second. Rewriting
+    /// the step's own declaration is safe only where it is already <c>async</c>, and
+    /// it retypes a member every other caller sees, which a fix reading one call site
+    /// cannot judge. The wrap is offered instead, and the message states both.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor TaskReturningAsyncStep = Idiom(
+        "WM2022",
+        "Return ValueTask from an async chaining step",
+        "'{0}' returns '{1}', so it cannot be passed to '{2}', whose step returns a 'ValueTask'. Change '{0}' to return '{3}', or wrap it as '{4}'.",
+        "Every async member of this library returns a ValueTask, so a chaining step takes one too and an async chain composes directly as a step in another chain. A Task-returning method group does not convert to that delegate, and the compiler reports the mismatch as CS0411 — a type inference failure naming neither ValueTask nor the parameter, so nothing in its message says what is actually wrong.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",
