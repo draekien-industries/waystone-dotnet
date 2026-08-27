@@ -10,11 +10,9 @@ using Xunit;
 
 /// <remarks>
 /// DRA-110 settled a naming convention across the public surface and applied it
-/// once. A one-time sweep decays, so these tests hold the two halves of it that
-/// a rename would silently reintroduce. The third half — that a lazy delegate is
-/// named for what it produces — is not asserted yet, because the extension
-/// families still spell it <c>factory</c>, <c>errFunc</c>, <c>elseFunc</c> and
-/// <c>defaultFunc</c>. Add it with the layer that renames them.
+/// once. A one-time sweep decays, so these tests hold the three halves of it that
+/// a rename would silently reintroduce: no keyword, no <c>create</c> prefix, and
+/// a lazy delegate named for what it produces.
 /// </remarks>
 public sealed class ParameterNamingTests
 {
@@ -57,6 +55,56 @@ public sealed class ParameterNamingTests
                                 .Distinct()
                                 .OrderBy(name => name, StringComparer.Ordinal)
                                 .ToList();
+
+        offenders.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// A <c>Func</c> suffix names the parameter's own type. The convention names
+    /// it for what the delegate produces instead, so <c>errFunc</c> became
+    /// <c>errorFactory</c>.
+    /// </summary>
+    [Fact]
+    public void GivenAPublicDelegateParameter_ThenItShouldNotUseAFuncSuffix()
+    {
+        List<string> offenders = PublicParameters()
+                                .Where(
+                                     parameter =>
+                                         parameter.Name?.EndsWith(
+                                             "Func",
+                                             StringComparison.Ordinal)
+                                      == true)
+                                .Select(Describe)
+                                .Distinct()
+                                .OrderBy(name => name, StringComparer.Ordinal)
+                                .ToList();
+
+        offenders.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// A bare <c>factory</c> says the delegate is lazy without saying what it
+    /// produces, which is the whole content of the name.
+    /// </summary>
+    /// <remarks>
+    /// <c>Try</c> keeps it, because its delegate is the operation rather than a
+    /// fallback value, and <c>UseErrorCodeFactory</c> keeps it because its
+    /// argument is not a delegate at all. Both are listed here rather than
+    /// pattern-matched, so adding a third exception is a deliberate edit.
+    /// </remarks>
+    [Fact]
+    public void GivenABareFactoryParameter_ThenOnlyTheKnownMembersShouldHaveOne()
+    {
+        List<string> offenders =
+            PublicParameters()
+               .Where(parameter => parameter.Name == "factory")
+               .Where(
+                    parameter => parameter.Member.Name is not ("Try"
+                        or "UseErrorCodeFactory"))
+               .Select(Describe)
+               .Distinct()
+               .OrderBy(name => name, StringComparer.Ordinal)
+               .ToList();
 
         offenders.ShouldBeEmpty();
     }

@@ -8,12 +8,12 @@ public static class MapOrElseExtensions
     extension<T>(Option<T> option) where T : notnull
     {
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFunc,
+            Func<Task<TOut>> defaultFactory,
             Func<T, Task<TOut>> map)
         {
             if (option.IsNone)
             {
-                return await defaultFunc.Invoke().ConfigureAwait(false);
+                return await defaultFactory.Invoke().ConfigureAwait(false);
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -22,12 +22,12 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TOut> defaultFunc,
+            Func<TOut> defaultFactory,
             Func<T, Task<TOut>> map)
         {
             if (option.IsNone)
             {
-                return defaultFunc.Invoke();
+                return defaultFactory.Invoke();
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -36,12 +36,12 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFunc,
+            Func<Task<TOut>> defaultFactory,
             Func<T, TOut> map)
         {
             if (option.IsNone)
             {
-                return await defaultFunc.Invoke().ConfigureAwait(false);
+                return await defaultFactory.Invoke().ConfigureAwait(false);
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -53,14 +53,14 @@ public static class MapOrElseExtensions
     extension<T>(Task<Option<T>> optionTask) where T : notnull
     {
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TOut> defaultFunc,
+            Func<TOut> defaultFactory,
             Func<T, TOut> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return defaultFunc.Invoke();
+                return defaultFactory.Invoke();
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -69,14 +69,14 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFunc,
+            Func<Task<TOut>> defaultFactory,
             Func<T, Task<TOut>> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return await defaultFunc.Invoke().ConfigureAwait(false);
+                return await defaultFactory.Invoke().ConfigureAwait(false);
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -85,14 +85,14 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TOut> defaultFunc,
+            Func<TOut> defaultFactory,
             Func<T, Task<TOut>> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return defaultFunc.Invoke();
+                return defaultFactory.Invoke();
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -101,14 +101,14 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFunc,
+            Func<Task<TOut>> defaultFactory,
             Func<T, TOut> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return await defaultFunc.Invoke().ConfigureAwait(false);
+                return await defaultFactory.Invoke().ConfigureAwait(false);
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -120,14 +120,14 @@ public static class MapOrElseExtensions
     extension<T>(ValueTask<Option<T>> optionTask) where T : notnull
     {
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TOut> defaultFunc,
+            Func<TOut> defaultFactory,
             Func<T, TOut> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return defaultFunc.Invoke();
+                return defaultFactory.Invoke();
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -136,14 +136,14 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFunc,
+            Func<Task<TOut>> defaultFactory,
             Func<T, Task<TOut>> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return await defaultFunc.Invoke().ConfigureAwait(false);
+                return await defaultFactory.Invoke().ConfigureAwait(false);
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -152,14 +152,14 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TOut> defaultFunc,
+            Func<TOut> defaultFactory,
             Func<T, Task<TOut>> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return defaultFunc.Invoke();
+                return defaultFactory.Invoke();
             }
 
             T some = option.Expect("Expected Some but found None.");
@@ -168,14 +168,14 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFunc,
+            Func<Task<TOut>> defaultFactory,
             Func<T, TOut> map)
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
 
             if (option.IsNone)
             {
-                return await defaultFunc.Invoke().ConfigureAwait(false);
+                return await defaultFactory.Invoke().ConfigureAwait(false);
             }
 
             T some = option.Expect("Expected Some but found None.");

@@ -9,7 +9,7 @@ public static class MapOrElseExtensions
         where TOk : notnull where TErr : notnull
     {
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> factory,
+            Func<TErr, Task<TOut>> defaultFactory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
@@ -17,7 +17,7 @@ public static class MapOrElseExtensions
             {
                 TErr err = result.ExpectErr("Expected Err but found Ok.");
 
-                return await factory.Invoke(err).ConfigureAwait(false);
+                return await defaultFactory.Invoke(err).ConfigureAwait(false);
             }
 
             TOk ok = result.Expect("Expected Ok but found Err.");
@@ -27,7 +27,7 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> factory,
+            Func<TErr, TOut> defaultFactory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
@@ -35,7 +35,7 @@ public static class MapOrElseExtensions
             {
                 TErr err = result.ExpectErr("Expected Err but found Ok.");
 
-                return factory.Invoke(err);
+                return defaultFactory.Invoke(err);
             }
 
             TOk ok = result.Expect("Expected Ok but found Err.");
@@ -45,7 +45,7 @@ public static class MapOrElseExtensions
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> factory,
+            Func<TErr, Task<TOut>> defaultFactory,
             Func<TOk, TOut> map)
             where TOut : notnull
         {
@@ -53,7 +53,7 @@ public static class MapOrElseExtensions
             {
                 TErr err = result.ExpectErr("Expected Err but found Ok.");
 
-                return await factory.Invoke(err).ConfigureAwait(false);
+                return await defaultFactory.Invoke(err).ConfigureAwait(false);
             }
 
             TOk ok = result.Expect("Expected Ok but found Err.");
@@ -67,46 +67,46 @@ public static class MapOrElseExtensions
         where TOk : notnull where TErr : notnull
     {
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> factory,
+            Func<TErr, Task<TOut>> defaultFactory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.MapOrElseAsync(factory, map)
+            return await result.MapOrElseAsync(defaultFactory, map)
                .ConfigureAwait(false);
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> factory,
+            Func<TErr, TOut> defaultFactory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.MapOrElseAsync(factory, map)
+            return await result.MapOrElseAsync(defaultFactory, map)
                .ConfigureAwait(false);
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> factory,
+            Func<TErr, Task<TOut>> defaultFactory,
             Func<TOk, TOut> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.MapOrElseAsync(factory, map)
+            return await result.MapOrElseAsync(defaultFactory, map)
                .ConfigureAwait(false);
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> factory,
+            Func<TErr, TOut> defaultFactory,
             Func<TOk, TOut> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.MapOrElse(factory, map);
+            return result.MapOrElse(defaultFactory, map);
         }
     }
 
@@ -114,46 +114,46 @@ public static class MapOrElseExtensions
         where TOk : notnull where TErr : notnull
     {
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> factory,
+            Func<TErr, Task<TOut>> defaultFactory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.MapOrElseAsync(factory, map)
+            return await result.MapOrElseAsync(defaultFactory, map)
                .ConfigureAwait(false);
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> factory,
+            Func<TErr, TOut> defaultFactory,
             Func<TOk, Task<TOut>> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.MapOrElseAsync(factory, map)
+            return await result.MapOrElseAsync(defaultFactory, map)
                .ConfigureAwait(false);
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> factory,
+            Func<TErr, Task<TOut>> defaultFactory,
             Func<TOk, TOut> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return await result.MapOrElseAsync(factory, map)
+            return await result.MapOrElseAsync(defaultFactory, map)
                .ConfigureAwait(false);
         }
 
         public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> factory,
+            Func<TErr, TOut> defaultFactory,
             Func<TOk, TOut> map)
             where TOut : notnull
         {
             Result<TOk, TErr> result = await resultTask.ConfigureAwait(false);
 
-            return result.MapOrElse(factory, map);
+            return result.MapOrElse(defaultFactory, map);
         }
     }
 }

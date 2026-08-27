@@ -54,6 +54,40 @@ internal static class NamedArguments
     internal static int CoreResultMapOrElse(Result<int, Error> result) =>
         result.MapOrElse(createDefault: error => 0, map: value => value);
 
+    internal static ValueTask<Result<int, Error>> ExtensionOkOrAsync(
+        Task<Option<int>> optionTask) =>
+        optionTask.OkOrAsync(err: Refused);
+
+    internal static ValueTask<Result<int, Error>> ExtensionOkOrElseAsync(
+        Task<Option<int>> optionTask) =>
+        optionTask.OkOrElseAsync(errFunc: () => Refused);
+
+    internal static ValueTask<int> ExtensionUnwrapOrElseAsync(
+        Task<Option<int>> optionTask) =>
+        optionTask.UnwrapOrElseAsync(elseFunc: () => 0);
+
+    internal static ValueTask<Option<int>> ExtensionOptionOrElseAsync(
+        Task<Option<int>> optionTask) =>
+        optionTask.OrElseAsync(elseFunc: () => Option.Some(0));
+
+    internal static ValueTask<int> ExtensionMapOrElseAsync(
+        Task<Option<int>> optionTask) =>
+        optionTask.MapOrElseAsync(defaultFunc: () => 0, map: value => value);
+
+    internal static ValueTask<Option<(int, int)>> ExtensionZipWithAsync(
+        Task<Option<int>> optionTask) =>
+        optionTask.ZipWithAsync(
+            otherOption: Option.Some(1),
+            zip: (left, right) => Task.FromResult((left, right)));
+
+    internal static ValueTask<int> ExtensionResultUnwrapOrElseAsync(
+        Task<Result<int, Error>> resultTask) =>
+        resultTask.UnwrapOrElseAsync(factory: error => 0);
+
+    internal static ValueTask<int> ExtensionResultMapOrElseAsync(
+        Task<Result<int, Error>> resultTask) =>
+        resultTask.MapOrElseAsync(factory: error => 0, map: value => value);
+
     internal static ValueTask<Result<int, Error>> ExtensionAndThenAsync(
         Result<int, Error> result) =>
         result.AndThenAsync(

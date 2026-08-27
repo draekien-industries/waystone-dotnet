@@ -8,10 +8,10 @@ on the previous major gets from the surface in the working tree.
 | CS0029 | error | 3 |
 | CS0115 | error | 1 |
 | CS0117 | error | 2 |
-| CS0411 | error | 6 |
+| CS0411 | error | 4 |
 | CS1061 | error | 2 |
 | CS1501 | error | 1 |
-| CS1739 | error | 10 |
+| CS1739 | error | 21 |
 
 | Code | File | Line | Message |
 | --- | --- | --- | --- |
@@ -23,10 +23,8 @@ on the previous major gets from the surface in the working tree.
 | CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 20 | 'Error' does not contain a definition for 'FromEnum' |
 | CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/Chains.cs | 91 | The type arguments for method 'AndThenExtensions.extension<TOk, TErr>(ValueTask<Result<TOk, TErr>>).AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
 | CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/Chains.cs | 110 | The type arguments for method 'AndThenExtensions.extension<T>(Task<Option<T>>).AndThenAsync<TOut>(Func<T, ValueTask<Option<TOut>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
-| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 59 | The type arguments for method 'AndThenExtensions.extension<TOk, TErr>(Result<TOk, TErr>).AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
-| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 64 | The type arguments for method 'OrElseExtensions.extension<TOk, TErr>(Task<Result<TOk, TErr>>).OrElseAsync<TOut>(Func<TErr, Result<TOk, TOut>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
 | CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 26 | The type arguments for method 'AndThenExtensions.AndThenAsync<TOk, TErr, TOut>(Result<TOk, TErr>, Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
-| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 32 | The type arguments for method 'AndThenExtensions.AndThenAsync<TOk, TErr, TOut>(Result<TOk, TErr>, Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 43 | The type arguments for method 'AndThenExtensions.AndThenAsync<TOk, TErr, TOut>(Result<TOk, TErr>, Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
 | CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/Configuration.cs | 22 | 'MonadOptions' does not contain a definition for 'UseExceptionLogger' and no accessible extension method 'UseExceptionLogger' accepting a first argument of type 'MonadOptions' could be found (are you missing a using directive or an assembly reference?) |
 | CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 32 | 'ErrorCodeFactory' does not contain a definition for 'FromEnum' and no accessible extension method 'FromEnum' accepting a first argument of type 'ErrorCodeFactory' could be found (are you missing a using directive or an assembly reference?) |
 | CS1501 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 23 | No overload for method 'Err' takes 2 arguments |
@@ -39,4 +37,15 @@ on the previous major gets from the surface in the working tree.
 | CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 49 | The best overload for 'UnwrapOr' does not have a parameter named 'default' |
 | CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 52 | The best overload for 'UnwrapOrElse' does not have a parameter named 'onErr' |
 | CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 55 | The best overload for 'MapOrElse' does not have a parameter named 'createDefault' |
-| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 74 | The best overload for 'UnwrapOrAsync' does not have a parameter named 'default' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 59 | The best overload for 'OkOrAsync' does not have a parameter named 'err' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 63 | The best overload for 'OkOrElseAsync' does not have a parameter named 'errFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 67 | The best overload for 'UnwrapOrElseAsync' does not have a parameter named 'elseFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 71 | The best overload for 'OrElseAsync' does not have a parameter named 'elseFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 75 | The best overload for 'MapOrElseAsync' does not have a parameter named 'defaultFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 80 | The best overload for 'ZipWithAsync' does not have a parameter named 'otherOption' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 85 | The best overload for 'UnwrapOrElseAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 89 | The best overload for 'MapOrElseAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 94 | The best overload for 'AndThenAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 99 | The best overload for 'OrElseAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 108 | The best overload for 'UnwrapOrAsync' does not have a parameter named 'default' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 38 | The best overload for 'IsSomeAndAsync' does not have a parameter named 'optionValueTask' |

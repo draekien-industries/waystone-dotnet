@@ -28,4 +28,78 @@ public sealed class MapOrElseExtensionsTests
 
         result.ShouldBe(0);
     }
+
+    [Fact]
+    public async Task
+        GivenNone_WhenMapOrElseAsyncWithASyncDefaultAndAnAsyncMap_ThenReturnTheDefault()
+    {
+        int result = await Option.None<int>()
+                                .MapOrElseAsync(
+                                     () => -1,
+                                     value => Task.FromResult(value + 1));
+
+        result.ShouldBe(-1);
+    }
+
+    [Fact]
+    public async Task
+        GivenNone_WhenMapOrElseAsyncWithAnAsyncDefaultAndASyncMap_ThenReturnTheDefault()
+    {
+        int result = await Option.None<int>()
+                                .MapOrElseAsync(
+                                     () => Task.FromResult(-1),
+                                     value => value + 1);
+
+        result.ShouldBe(-1);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenMapOrElseAsyncWithSyncBranches_ThenReturnTheDefault()
+    {
+        int result = await Task.FromResult(Option.None<int>())
+           .MapOrElseAsync(() => -1, value => value + 1);
+
+        result.ShouldBe(-1);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenMapOrElseAsyncWithASyncDefaultAndAnAsyncMap_ThenReturnTheDefault()
+    {
+        int result = await Task.FromResult(Option.None<int>())
+           .MapOrElseAsync(() => -1, value => Task.FromResult(value + 1));
+
+        result.ShouldBe(-1);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenMapOrElseAsyncWithAnAsyncDefaultAndASyncMap_ThenReturnTheDefault()
+    {
+        int result = await Task.FromResult(Option.None<int>())
+           .MapOrElseAsync(() => Task.FromResult(-1), value => value + 1);
+
+        result.ShouldBe(-1);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenMapOrElseAsyncWithASyncDefaultAndAnAsyncMap_ThenReturnTheDefault()
+    {
+        int result = await new ValueTask<Option<int>>(Option.None<int>())
+           .MapOrElseAsync(() => -1, value => Task.FromResult(value + 1));
+
+        result.ShouldBe(-1);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenMapOrElseAsyncWithAnAsyncDefaultAndASyncMap_ThenReturnTheDefault()
+    {
+        int result = await new ValueTask<Option<int>>(Option.None<int>())
+           .MapOrElseAsync(() => Task.FromResult(-1), value => value + 1);
+
+        result.ShouldBe(-1);
+    }
 }

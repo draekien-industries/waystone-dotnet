@@ -27,6 +27,17 @@ internal static class StaticForm
             result,
             value => Task.FromResult(Result.Ok<int>(value)));
 
+    /// <summary>
+    /// The compatibility static form is the only place a caller can name the
+    /// receiver, so it is the only place <c>DRA-110</c>'s receiver rename on
+    /// <c>IsSomeAnd</c> is observable at all.
+    /// </summary>
+    internal static ValueTask<bool> ViaQualifiedReceiverName(
+        ValueTask<Option<int>> optionValueTask) =>
+        Options.Extensions.IsSomeAndExtensions.IsSomeAndAsync(
+            optionValueTask: optionValueTask,
+            predicate: value => Task.FromResult(value > 0));
+
     internal static ValueTask<Result<int, Error>> ViaQualifiedStaticOnTask(
         Task<Result<int, Error>> resultTask) =>
         AndThenExtensions.AndThenAsync(

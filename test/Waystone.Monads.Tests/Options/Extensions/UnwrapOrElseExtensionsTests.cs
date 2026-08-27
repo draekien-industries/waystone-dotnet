@@ -47,4 +47,24 @@ public sealed class UnwrapOrElseExtensionsTests
 
         result.ShouldBe(2);
     }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenUnwrapOrElseAsyncWithAnAsyncFactory_ThenReturnTheComputedValue()
+    {
+        int result = await Task.FromResult(Option.None<int>())
+           .UnwrapOrElseAsync(() => Task.FromResult(9));
+
+        result.ShouldBe(9);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenUnwrapOrElseAsyncWithAnAsyncFactory_ThenReturnTheComputedValue()
+    {
+        int result = await new ValueTask<Option<int>>(Option.None<int>())
+           .UnwrapOrElseAsync(() => Task.FromResult(9));
+
+        result.ShouldBe(9);
+    }
 }
