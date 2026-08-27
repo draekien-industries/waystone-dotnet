@@ -351,6 +351,18 @@ public static class Option
           + "never valid, and the next call against it would throw a "
           + "`NullReferenceException` far from here.");
 
+    internal static ValueTask<Option<T>> NotNullAsync<T>(
+        ValueTask<Option<T>> option,
+        string delegateName) where T : notnull =>
+        option.IsCompletedSuccessfully
+            ? new ValueTask<Option<T>>(NotNull(option.Result, delegateName))
+            : AwaitNotNull(option, delegateName);
+
+    private static async ValueTask<Option<T>> AwaitNotNull<T>(
+        ValueTask<Option<T>> option,
+        string delegateName) where T : notnull =>
+        NotNull(await option.ConfigureAwait(false), delegateName);
+
     internal static Option<T> SomeOrThrow<T>(T value, string delegateName)
         where T : notnull =>
         value is null

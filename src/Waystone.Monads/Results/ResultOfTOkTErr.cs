@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Exceptions;
-using Extensions;
 using Options;
 #if !DEBUG
 using System.Diagnostics;
@@ -353,6 +352,12 @@ public abstract record Result<TOk, TErr>
     /// The <see cref="Ok{TOk,TErr}" /> value's type of the
     /// other result.
     /// </typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="resultFactory" /> returns a null result. Returning
+    /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful, and
+    /// left alone it would surface as a <see cref="NullReferenceException" />
+    /// at whatever called into the result next.
+    /// </exception>
     public abstract Result<TOut, TErr> AndThen<TOut>(
         Func<TOk, Result<TOut, TErr>> resultFactory) where TOut : notnull;
 
@@ -376,6 +381,14 @@ public abstract record Result<TOk, TErr>
     /// The result <paramref name="resultFactory" /> produced, or the original error
     /// as an <see cref="Err{TOk,TErr}" /> of <typeparamref name="TOut" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="resultFactory" /> returns a null result. Returning
+    /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful, and
+    /// left alone it would surface as a <see cref="NullReferenceException" />
+    /// at whatever called into the result next. It is thrown from the call when
+    /// the factory's task had already completed and faults the returned task
+    /// otherwise, so await the result to see it either way.
+    /// </exception>
     public abstract ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory)
         where TOut : notnull;
@@ -404,6 +417,12 @@ public abstract record Result<TOk, TErr>
     /// The <see cref="Ok{TOk,TErr}" /> value's type of the
     /// other result.
     /// </typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="resultFactory" /> returns a null result. Returning
+    /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful, and
+    /// left alone it would surface as a <see cref="NullReferenceException" />
+    /// at whatever called into the result next.
+    /// </exception>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
@@ -411,7 +430,12 @@ public abstract record Result<TOk, TErr>
         TState state,
         Func<TOk, TState, Result<TOut, TErr>> resultFactory)
         where TOut : notnull =>
-        Map(state, resultFactory).Flatten();
+        Match(
+            (state, resultFactory),
+            static (value, s) => Result.NotNull(
+                s.resultFactory(value, s.state),
+                nameof(resultFactory)),
+            static (error, _) => Result.Err<TOut, TErr>(error));
 
     /// <summary>
     /// Returns <paramref name="other" /> if the result is

@@ -132,12 +132,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override Result<TOut, TErr> AndThen<TOut>(
         Func<TOk, Result<TOut, TErr>> resultFactory) =>
-        resultFactory(Value);
+        Result.NotNull(resultFactory(Value), nameof(resultFactory));
 
     /// <inheritdoc />
     public override ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory) =>
-        resultFactory(Value);
+        Result.NotNullAsync(resultFactory(Value), nameof(resultFactory));
 
     /// <inheritdoc />
     public override Result<TOk, TOut> Or<TOut>(Result<TOk, TOut> other) =>

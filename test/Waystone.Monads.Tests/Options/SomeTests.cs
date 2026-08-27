@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Options;
+﻿namespace Waystone.Monads.Options;
 
 using System;
 using System.Threading.Tasks;
@@ -634,6 +634,71 @@ public sealed class SomeTests
             new ValueTask<Option<int>>(Option.Some(x + 1)));
 
         result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public async Task GivenAPendingFactory_WhenAndThenAsync_ThenReturnMappedOption()
+    {
+        Option<int> some = Option.Some(1);
+
+        Option<int> result = await some.AndThenAsync(async x =>
+        {
+            await Task.Yield();
+
+            return Option.Some(x + 1);
+        });
+
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public void
+        GivenACompletedFactory_WhenAndThenAsyncProducesANullOption_ThenThrowFromTheCall()
+    {
+        Option<int> some = Option.Some(1);
+
+        Action andThenNull = () => _ = some.AndThenAsync(
+            _ => new ValueTask<Option<int>>(default(Option<int>)!));
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public async Task
+        GivenAPendingFactory_WhenAndThenAsyncProducesANullOption_ThenFaultTheReturnedTask()
+    {
+        Option<int> some = Option.Some(1);
+
+        ValueTask<Option<int>> pending = some.AndThenAsync(
+            async ValueTask<Option<int>> (_) =>
+            {
+                await Task.Yield();
+
+                return default(Option<int>)!;
+            });
+
+        Func<Task> consume = async () => await pending;
+
+        (await consume.ShouldThrowAsync<ArgumentNullException>())
+           .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public async Task GivenAFaultingFactory_WhenAndThenAsync_ThenRethrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Task> andThenThrows = async () => await some.AndThenAsync(
+            async ValueTask<Option<int>> (_) =>
+            {
+                await Task.Yield();
+
+                throw new InvalidOperationException("boom");
+            });
+
+        (await andThenThrows.ShouldThrowAsync<InvalidOperationException>())
+           .Message.ShouldBe("boom");
     }
 
     [Fact]

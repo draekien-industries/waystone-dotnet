@@ -563,6 +563,14 @@ public abstract record Option<T> where T : notnull
     /// Whatever <paramref name="optionFactory" /> produced, or <see cref="None{T}" />
     /// when this option is a <see cref="None{T}" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="optionFactory" /> returns a null option. Returning
+    /// null rather than <see cref="Option.None{T}" /> is never meaningful, and
+    /// left alone it would surface as a <see cref="NullReferenceException" />
+    /// at whatever called into the option next. It is thrown from the call when
+    /// the factory's task had already completed and faults the returned task
+    /// otherwise, so await the result to see it either way.
+    /// </exception>
     public abstract ValueTask<Option<TOut>> AndThenAsync<TOut>(
         Func<T, ValueTask<Option<TOut>>> optionFactory) where TOut : notnull;
 
