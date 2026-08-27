@@ -187,7 +187,7 @@ public sealed class MonadOptions
         _scopingHasBeenUsed = true;
         MonadOptions? previous = ScopedOptions.Value;
         ScopedOptions.Value = options;
-        return new MonadOptionsScope(previous);
+        return new MonadOptionsScope(previous, options);
     }
 
     /// <summary>

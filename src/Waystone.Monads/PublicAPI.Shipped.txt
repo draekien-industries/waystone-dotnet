@@ -34,6 +34,15 @@ Waystone.Monads.Diagnostics.MonadDiagnostics
 Waystone.Monads.Diagnostics.MonadKind
 Waystone.Monads.Diagnostics.MonadKind.Option = 0 -> Waystone.Monads.Diagnostics.MonadKind
 Waystone.Monads.Diagnostics.MonadKind.Result = 1 -> Waystone.Monads.Diagnostics.MonadKind
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.<Clone>$() -> Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder!
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.Deconstruct(out Waystone.Monads.Configs.MonadOptions? Scope, out Waystone.Monads.Configs.MonadOptions? Live) -> void
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.Equals(Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? other) -> bool
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.Live.get -> Waystone.Monads.Configs.MonadOptions?
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.Live.init -> void
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.Scope.get -> Waystone.Monads.Configs.MonadOptions?
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.Scope.init -> void
+Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.ScopeDisposedOutOfOrder(Waystone.Monads.Configs.MonadOptions? Scope, Waystone.Monads.Configs.MonadOptions? Live) -> void
 Waystone.Monads.Exceptions.UnmetExpectationException
 Waystone.Monads.Exceptions.UnwrapException
 Waystone.Monads.Exceptions.UnwrapException<T>
@@ -496,12 +505,16 @@ const Waystone.Monads.Diagnostics.MonadDiagnostics.MeterName = "Waystone.Monads"
 const Waystone.Monads.Diagnostics.MonadDiagnostics.MonadTagKey = "waystone.monads.monad" -> string!
 const Waystone.Monads.Diagnostics.MonadDiagnostics.OptionMonadTagValue = "option" -> string!
 const Waystone.Monads.Diagnostics.MonadDiagnostics.ResultMonadTagValue = "result" -> string!
+const Waystone.Monads.Diagnostics.MonadDiagnostics.ScopeDisposedOutOfOrderEventName = "Waystone.Monads.ScopeDisposedOutOfOrder" -> string!
 override Waystone.Monads.Configs.CallerInfo.Equals(object? obj) -> bool
 override Waystone.Monads.Configs.CallerInfo.GetHashCode() -> int
 override Waystone.Monads.Configs.CallerInfo.ToString() -> string!
 override Waystone.Monads.Diagnostics.ExceptionHandled.Equals(object? obj) -> bool
 override Waystone.Monads.Diagnostics.ExceptionHandled.GetHashCode() -> int
 override Waystone.Monads.Diagnostics.ExceptionHandled.ToString() -> string!
+override Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.Equals(object? obj) -> bool
+override Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.GetHashCode() -> int
+override Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.ToString() -> string!
 override Waystone.Monads.Options.None<T>.<Clone>$() -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.And<TOut>(Waystone.Monads.Options.Option<TOut>! other) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.None<T>.AndThen<TOut>(System.Func<T, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
@@ -784,6 +797,8 @@ static Waystone.Monads.Configs.MonadOptions.BeginScope(System.Action<Waystone.Mo
 static Waystone.Monads.Configs.MonadOptions.Configure(System.Action<Waystone.Monads.Configs.MonadOptions!>! configure) -> void
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator !=(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator ==(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
+static Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.operator !=(Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? left, Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? right) -> bool
+static Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.operator ==(Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? left, Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? right) -> bool
 static Waystone.Monads.Options.Extensions.OptionExtensions.AndAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, Waystone.Monads.Options.Option<TOut>! other) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 static Waystone.Monads.Options.Extensions.OptionExtensions.AndAsync<T, TOut>(this System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!> optionTask, Waystone.Monads.Options.Option<TOut>! other) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 static Waystone.Monads.Options.Extensions.OptionExtensions.AndThenAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, System.Func<T, System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>>! optionFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>

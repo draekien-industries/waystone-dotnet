@@ -44,6 +44,17 @@ public static class MonadDiagnostics
     public const string ExceptionHandledEventName =
         "Waystone.Monads.ExceptionHandled";
 
+    /// <summary>The name of the event written when a scope is disposed out of order.</summary>
+    /// <remarks>
+    /// Its payload is a <see cref="ScopeDisposedOutOfOrder" />. The event is the
+    /// only report of the misuse: <see cref="MonadOptionsScope.Dispose" /> declines
+    /// to restore rather than throwing, because throwing from a <c>using</c> would
+    /// displace whatever exception was already unwinding through it. Subscribe and
+    /// throw from the subscriber to make it fatal in a test suite.
+    /// </remarks>
+    public const string ScopeDisposedOutOfOrderEventName =
+        "Waystone.Monads.ScopeDisposedOutOfOrder";
+
     /// <summary>The name of the counter of exceptions the library has swallowed.</summary>
     /// <remarks>
     /// A monotonic <see cref="Counter{T}" /> of <see cref="long" />, counted in
@@ -111,6 +122,18 @@ public static class MonadDiagnostics
             Listener.Write(
                 ExceptionHandledEventName,
                 new ExceptionHandled(exception, callerInfo, monad));
+        }
+    }
+
+    internal static void RecordScopeDisposedOutOfOrder(
+        MonadOptions? scope,
+        MonadOptions? live)
+    {
+        if (Listener.IsEnabled(ScopeDisposedOutOfOrderEventName))
+        {
+            Listener.Write(
+                ScopeDisposedOutOfOrderEventName,
+                new ScopeDisposedOutOfOrder(scope, live));
         }
     }
 
