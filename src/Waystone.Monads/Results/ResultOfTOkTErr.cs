@@ -423,19 +423,10 @@ public abstract record Result<TOk, TErr>
     /// left alone it would surface as a <see cref="NullReferenceException" />
     /// at whatever called into the result next.
     /// </exception>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public Result<TOut, TErr> AndThen<TState, TOut>(
+    public abstract Result<TOut, TErr> AndThen<TState, TOut>(
         TState state,
         Func<TOk, TState, Result<TOut, TErr>> resultFactory)
-        where TOut : notnull =>
-        Match(
-            (state, resultFactory),
-            static (value, s) => Result.NotNull(
-                s.resultFactory(value, s.state),
-                nameof(resultFactory)),
-            static (error, _) => Result.Err<TOut, TErr>(error));
+        where TOut : notnull;
 
     /// <summary>
     /// Returns <paramref name="other" /> if the result is

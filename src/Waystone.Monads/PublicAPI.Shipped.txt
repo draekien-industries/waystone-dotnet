@@ -195,8 +195,6 @@ Waystone.Monads.Options.None<T>.Equals(Waystone.Monads.Options.None<T>? other) -
 Waystone.Monads.Options.None<T>.None() -> void
 Waystone.Monads.Options.Option
 Waystone.Monads.Options.Option<T>
-Waystone.Monads.Options.Option<T>.AndThen<TOut>(System.Func<T, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
-Waystone.Monads.Options.Option<T>.AndThen<TState, TOut>(TState state, System.Func<T, TState, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
 Waystone.Monads.Options.Option<T>.MapOrDefaultAsync<TOut>(System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Option<T>.Option(Waystone.Monads.Options.Option<T>! original) -> void
 Waystone.Monads.Options.Some<T>
@@ -361,11 +359,12 @@ Waystone.Monads.Results.Ok<TOk, TErr>
 Waystone.Monads.Results.Ok<TOk, TErr>.Equals(Waystone.Monads.Results.Ok<TOk, TErr>? other) -> bool
 Waystone.Monads.Results.Result
 Waystone.Monads.Results.Result<TOk, TErr>
-Waystone.Monads.Results.Result<TOk, TErr>.AndThen<TState, TOut>(TState state, System.Func<TOk, TState, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
 Waystone.Monads.Results.Result<TOk, TErr>.MapOrDefaultAsync<TOut>(System.Func<TOk, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Results.Result<TOk, TErr>.Result(Waystone.Monads.Results.Result<TOk, TErr>! original) -> void
 abstract Waystone.Monads.Options.Option<T>.<Clone>$() -> Waystone.Monads.Options.Option<T>!
 abstract Waystone.Monads.Options.Option<T>.And<TOut>(Waystone.Monads.Options.Option<TOut>! other) -> Waystone.Monads.Options.Option<TOut>!
+abstract Waystone.Monads.Options.Option<T>.AndThen<TOut>(System.Func<T, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
+abstract Waystone.Monads.Options.Option<T>.AndThen<TState, TOut>(TState state, System.Func<T, TState, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
 abstract Waystone.Monads.Options.Option<T>.AndThenAsync<TOut>(System.Func<T, System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>>! optionFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 abstract Waystone.Monads.Options.Option<T>.AsEnumerable() -> System.Collections.Generic.IEnumerable<T>!
 abstract Waystone.Monads.Options.Option<T>.Expect(string! message) -> T
@@ -428,6 +427,7 @@ abstract Waystone.Monads.Options.Option<T>.ZipWithAsync<TOther, TOut>(Waystone.M
 abstract Waystone.Monads.Results.Result<TOk, TErr>.<Clone>$() -> Waystone.Monads.Results.Result<TOk, TErr>!
 abstract Waystone.Monads.Results.Result<TOk, TErr>.And<TOut>(Waystone.Monads.Results.Result<TOut, TErr>! other) -> Waystone.Monads.Results.Result<TOut, TErr>!
 abstract Waystone.Monads.Results.Result<TOk, TErr>.AndThen<TOut>(System.Func<TOk, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
+abstract Waystone.Monads.Results.Result<TOk, TErr>.AndThen<TState, TOut>(TState state, System.Func<TOk, TState, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
 abstract Waystone.Monads.Results.Result<TOk, TErr>.AndThenAsync<TOut>(System.Func<TOk, System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>>! resultFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>
 abstract Waystone.Monads.Results.Result<TOk, TErr>.AsEnumerable() -> System.Collections.Generic.IEnumerable<TOk>!
 abstract Waystone.Monads.Results.Result<TOk, TErr>.Expect(string! message) -> TOk
@@ -501,6 +501,8 @@ override Waystone.Monads.Diagnostics.ExceptionHandled.GetHashCode() -> int
 override Waystone.Monads.Diagnostics.ExceptionHandled.ToString() -> string!
 override Waystone.Monads.Options.None<T>.<Clone>$() -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.None<T>.And<TOut>(Waystone.Monads.Options.Option<TOut>! other) -> Waystone.Monads.Options.Option<TOut>!
+override Waystone.Monads.Options.None<T>.AndThen<TOut>(System.Func<T, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
+override Waystone.Monads.Options.None<T>.AndThen<TState, TOut>(TState state, System.Func<T, TState, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.None<T>.AndThenAsync<TOut>(System.Func<T, System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>>! optionFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 override Waystone.Monads.Options.None<T>.AsEnumerable() -> System.Collections.Generic.IEnumerable<T>!
 override Waystone.Monads.Options.None<T>.Equals(object? obj) -> bool
@@ -568,6 +570,8 @@ override Waystone.Monads.Options.Option<T>.GetHashCode() -> int
 override Waystone.Monads.Options.Option<T>.ToString() -> string!
 override Waystone.Monads.Options.Some<T>.<Clone>$() -> Waystone.Monads.Options.Option<T>!
 override Waystone.Monads.Options.Some<T>.And<TOut>(Waystone.Monads.Options.Option<TOut>! other) -> Waystone.Monads.Options.Option<TOut>!
+override Waystone.Monads.Options.Some<T>.AndThen<TOut>(System.Func<T, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
+override Waystone.Monads.Options.Some<T>.AndThen<TState, TOut>(TState state, System.Func<T, TState, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
 override Waystone.Monads.Options.Some<T>.AndThenAsync<TOut>(System.Func<T, System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>>! optionFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 override Waystone.Monads.Options.Some<T>.AsEnumerable() -> System.Collections.Generic.IEnumerable<T>!
 override Waystone.Monads.Options.Some<T>.Equals(object? obj) -> bool
@@ -633,6 +637,7 @@ override Waystone.Monads.Options.Some<T>.ZipWithAsync<TOther, TOut>(Waystone.Mon
 override Waystone.Monads.Results.Err<TOk, TErr>.<Clone>$() -> Waystone.Monads.Results.Result<TOk, TErr>!
 override Waystone.Monads.Results.Err<TOk, TErr>.And<TOut>(Waystone.Monads.Results.Result<TOut, TErr>! other) -> Waystone.Monads.Results.Result<TOut, TErr>!
 override Waystone.Monads.Results.Err<TOk, TErr>.AndThen<TOut>(System.Func<TOk, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
+override Waystone.Monads.Results.Err<TOk, TErr>.AndThen<TState, TOut>(TState state, System.Func<TOk, TState, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
 override Waystone.Monads.Results.Err<TOk, TErr>.AndThenAsync<TOut>(System.Func<TOk, System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>>! resultFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>
 override Waystone.Monads.Results.Err<TOk, TErr>.AsEnumerable() -> System.Collections.Generic.IEnumerable<TOk>!
 override Waystone.Monads.Results.Err<TOk, TErr>.Equals(object? obj) -> bool
@@ -702,6 +707,7 @@ override Waystone.Monads.Results.Errors.ErrorCode.ToString() -> string!
 override Waystone.Monads.Results.Ok<TOk, TErr>.<Clone>$() -> Waystone.Monads.Results.Result<TOk, TErr>!
 override Waystone.Monads.Results.Ok<TOk, TErr>.And<TOut>(Waystone.Monads.Results.Result<TOut, TErr>! other) -> Waystone.Monads.Results.Result<TOut, TErr>!
 override Waystone.Monads.Results.Ok<TOk, TErr>.AndThen<TOut>(System.Func<TOk, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
+override Waystone.Monads.Results.Ok<TOk, TErr>.AndThen<TState, TOut>(TState state, System.Func<TOk, TState, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
 override Waystone.Monads.Results.Ok<TOk, TErr>.AndThenAsync<TOut>(System.Func<TOk, System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>>! resultFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>
 override Waystone.Monads.Results.Ok<TOk, TErr>.AsEnumerable() -> System.Collections.Generic.IEnumerable<TOk>!
 override Waystone.Monads.Results.Ok<TOk, TErr>.Equals(object? obj) -> bool

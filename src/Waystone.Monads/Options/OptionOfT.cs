@@ -486,16 +486,8 @@ public abstract record Option<T> where T : notnull
     /// left alone it would surface as a <see cref="NullReferenceException" />
     /// at whatever called into the option next.
     /// </exception>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public Option<TOut> AndThen<TOut>(Func<T, Option<TOut>> optionFactory)
-        where TOut : notnull =>
-        Match(
-            value => Option.NotNull(
-                optionFactory(value),
-                nameof(optionFactory)),
-            Option.None<TOut>);
+    public abstract Option<TOut> AndThen<TOut>(
+        Func<T, Option<TOut>> optionFactory) where TOut : notnull;
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
@@ -531,18 +523,9 @@ public abstract record Option<T> where T : notnull
     /// left alone it would surface as a <see cref="NullReferenceException" />
     /// at whatever called into the option next.
     /// </exception>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
-    public Option<TOut> AndThen<TState, TOut>(
+    public abstract Option<TOut> AndThen<TState, TOut>(
         TState state,
-        Func<T, TState, Option<TOut>> optionFactory) where TOut : notnull =>
-        Match(
-            (state, optionFactory),
-            static (value, s) => Option.NotNull(
-                s.optionFactory(value, s.state),
-                nameof(optionFactory)),
-            static _ => Option.None<TOut>());
+        Func<T, TState, Option<TOut>> optionFactory) where TOut : notnull;
 
     /// <summary>
     /// Awaits <paramref name="optionFactory" /> against the contained value and

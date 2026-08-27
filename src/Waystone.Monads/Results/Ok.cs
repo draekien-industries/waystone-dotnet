@@ -135,6 +135,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
         Result.NotNull(resultFactory(Value), nameof(resultFactory));
 
     /// <inheritdoc />
+    public override Result<TOut, TErr> AndThen<TState, TOut>(
+        TState state,
+        Func<TOk, TState, Result<TOut, TErr>> resultFactory) =>
+        Result.NotNull(resultFactory(Value, state), nameof(resultFactory));
+
+    /// <inheritdoc />
     public override ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory) =>
         Result.NotNullAsync(resultFactory(Value), nameof(resultFactory));

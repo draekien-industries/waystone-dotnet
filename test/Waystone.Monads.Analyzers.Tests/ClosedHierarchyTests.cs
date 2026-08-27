@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Analyzers;
+﻿namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis.Testing;
 using System.Threading.Tasks;
@@ -46,6 +46,8 @@ public class ClosedHierarchyTests
                 public override Option<T2> Map<TState, T2>(TState state, Func<T, TState, T2> map) => Option.None<T2>();
                 public override ValueTask<Option<T2>> MapAsync<T2>(Func<T, Task<T2>> map) => throw new Exception();
                 public override Option<T2> And<T2>(Option<T2> other) => Option.None<T2>();
+                public override Option<T2> AndThen<T2>(Func<T, Option<T2>> optionFactory) => Option.None<T2>();
+                public override Option<T2> AndThen<TState, T2>(TState state, Func<T, TState, Option<T2>> optionFactory) => Option.None<T2>();
                 public override ValueTask<Option<T2>> AndThenAsync<T2>(Func<T, ValueTask<Option<T2>>> optionFactory) => throw new Exception();
                 public override T2 MapOr<T2>(T2 @default, Func<T, T2> map) => @default;
                 public override T2 MapOr<TState, T2>(TState state, T2 @default, Func<T, TState, T2> map) => @default;
@@ -117,6 +119,7 @@ public class ClosedHierarchyTests
                 public override ValueTask MatchAsync(Action<TOk> onOk, Func<TErr, Task> onErr) => throw new Exception();
                 public override Result<TOut, TErr> And<TOut>(Result<TOut, TErr> other) => throw new Exception();
                 public override Result<TOut, TErr> AndThen<TOut>(Func<TOk, Result<TOut, TErr>> map) => throw new Exception();
+                public override Result<TOut, TErr> AndThen<TState, TOut>(TState state, Func<TOk, TState, Result<TOut, TErr>> resultFactory) => throw new Exception();
                 public override ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory) => throw new Exception();
                 public override Result<TOk, TOut> Or<TOut>(Result<TOk, TOut> other) => other;
                 public override Result<TOk, TOut> OrElse<TOut>(Func<TErr, Result<TOk, TOut>> map) => throw new Exception();
