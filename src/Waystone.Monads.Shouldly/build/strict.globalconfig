@@ -1,0 +1,18 @@
+# Waystone.Monads.Shouldly severity preset: strict
+#
+# Both assertion rules raised to warning, matching what the core package's strict
+# preset does to its own WM2 tier.
+#
+# A suite migrating onto these assertions is the case this is for, and the fix is
+# batch-applicable, so the warnings are a worklist rather than a wall. Expect
+# WMS2001 to report roughly once per raw state assertion — this repository had
+# around 150 — and expect WM2001 to report alongside it on the Unwrap shape. That
+# pair is one problem, and applying the WMS2001 fix resolves both.
+is_global = true
+
+# Below every level a consumer can author, so their own .globalconfig wins on a
+# conflict rather than producing a tie.
+global_level = -1
+
+dotnet_diagnostic.WMS2001.severity = warning
+dotnet_diagnostic.WMS2002.severity = warning

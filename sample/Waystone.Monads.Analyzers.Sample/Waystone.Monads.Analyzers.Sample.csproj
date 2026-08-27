@@ -18,4 +18,15 @@
     <Import Project="..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
     <Import Project="..\..\src\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
 
+    <PropertyGroup Label="Applies the strict severity preset, which is the one line a consumer writes">
+        <WaystoneMonadsRuleset>strict</WaystoneMonadsRuleset>
+    </PropertyGroup>
+
+    <!--
+        Imported by hand because this project takes the library by ProjectReference. A
+        consumer with a PackageReference gets this file from build/ in the nupkg
+        automatically and writes only the property above.
+    -->
+    <Import Project="..\..\src\Waystone.Monads\build\Waystone.Monads.props"/>
+
 </Project>

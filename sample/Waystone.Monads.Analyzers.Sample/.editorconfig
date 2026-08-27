@@ -2,5 +2,29 @@
 
 # The WM3xxx migration rules ship disabled. This is the opt-in a team adopting
 # Option and Result would add while converting a codebase.
+#
+# The strict preset this project applies already enables both at warning, so these
+# two lines now do something they did not before: they hold the pair at suggestion
+# in spite of it. That is the precedence the presets promise — a path-matched
+# .editorconfig section beats any global analyzer config — and this is the only
+# place in the tree where it is executable rather than asserted.
 dotnet_diagnostic.WM3001.severity = suggestion
 dotnet_diagnostic.WM3002.severity = suggestion
+
+# This project exists to demonstrate every rule firing, so it declares the misuse
+# the WM1xxx rules report on purpose. The strict preset raises those seven to
+# error, which would fail this build for doing its job — so they come back down to
+# the warning severity they ship at, which is what they reported here before the
+# preset was applied.
+#
+# Do not read this as the preset being wrong for a real codebase. It is the same
+# override a consumer writes for a directory of deliberately-broken fixtures, and
+# the reason the presets are global configs rather than a second .editorconfig:
+# this section could not win against another one.
+dotnet_diagnostic.WM1001.severity = warning
+dotnet_diagnostic.WM1002.severity = warning
+dotnet_diagnostic.WM1003.severity = warning
+dotnet_diagnostic.WM1005.severity = warning
+dotnet_diagnostic.WM1006.severity = warning
+dotnet_diagnostic.WM1008.severity = warning
+dotnet_diagnostic.WM1011.severity = warning
