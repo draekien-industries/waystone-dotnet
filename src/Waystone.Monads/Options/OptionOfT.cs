@@ -2,6 +2,7 @@ namespace Waystone.Monads.Options;
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Exceptions;
 using Extensions;
 using Results;
@@ -68,6 +69,22 @@ public abstract record Option<T> where T : notnull
         Func<T, TState, bool> predicate);
 
     /// <summary>
+    /// Checks whether the option is a <see cref="Some{T}" /> whose value satisfies
+    /// an asynchronous condition.
+    /// </summary>
+    /// <param name="predicate">
+    /// The condition to evaluate the contained value against. It is not invoked on
+    /// a <see cref="None{T}" />, so a <see cref="None{T}" /> costs no await.
+    /// </param>
+    /// <returns>
+    /// True if the option is a <see cref="Some{T}" /> and the awaited predicate
+    /// returned true; false otherwise, including for every
+    /// <see cref="None{T}" />.
+    /// </returns>
+    public abstract ValueTask<bool> IsSomeAndAsync(
+        Func<T, Task<bool>> predicate);
+
+    /// <summary>
     /// Returns <see langword="true" /> if the option is a
     /// <see cref="None{T}" /> or the value inside of it matches a predicate.
     /// </summary>
@@ -97,6 +114,26 @@ public abstract record Option<T> where T : notnull
     public abstract bool IsNoneOr<TState>(
         TState state,
         Func<T, TState, bool> predicate);
+
+    /// <summary>
+    /// Checks whether the option is a <see cref="None{T}" />, or its contained
+    /// value satisfies an asynchronous condition.
+    /// </summary>
+    /// <remarks>
+    /// The inverse of <see cref="IsSomeAndAsync" /> in the case it lets through
+    /// free: this one treats an absent value as passing, which is what makes it the
+    /// right shape for a validation that only rejects a value it actually has.
+    /// </remarks>
+    /// <param name="predicate">
+    /// The condition to evaluate the contained value against. It is not invoked on
+    /// a <see cref="None{T}" />.
+    /// </param>
+    /// <returns>
+    /// True if the option is a <see cref="None{T}" />, or the awaited predicate
+    /// returned true for the contained value; false otherwise.
+    /// </returns>
+    public abstract ValueTask<bool> IsNoneOrAsync(
+        Func<T, Task<bool>> predicate);
 
     /// <summary>
     /// Performs a <see langword="switch" /> on the option, invoking the
@@ -181,6 +218,52 @@ public abstract record Option<T> where T : notnull
         Action<T, TState> onSome,
         Action<TState> onNone);
 
+    /// <summary>Matches the option, awaiting whichever branch is taken.</summary>
+    /// <remarks>
+    /// The overload to reach for when both branches do real asynchronous work.
+    /// Where only one does, prefer the overload taking the other branch
+    /// synchronously — it avoids wrapping a value in an already-completed task.
+    /// </remarks>
+    /// <param name="onSome">Produces the result from the contained value.</param>
+    /// <param name="onNone">Produces the result when there is no value.</param>
+    /// <typeparam name="TOut">The type both branches produce.</typeparam>
+    /// <returns>Whatever the branch taken produced.</returns>
+    public abstract ValueTask<TOut> MatchAsync<TOut>(
+        Func<T, Task<TOut>> onSome,
+        Func<Task<TOut>> onNone);
+
+    /// <summary>
+    /// Matches the option where only the absent branch is asynchronous.
+    /// </summary>
+    /// <param name="onSome">
+    /// Produces the result from the contained value, synchronously.
+    /// </param>
+    /// <param name="onNone">Produces the result when there is no value.</param>
+    /// <typeparam name="TOut">The type both branches produce.</typeparam>
+    /// <returns>
+    /// Whatever the branch taken produced. A <see cref="Some{T}" /> completes
+    /// synchronously.
+    /// </returns>
+    public abstract ValueTask<TOut> MatchAsync<TOut>(
+        Func<T, TOut> onSome,
+        Func<Task<TOut>> onNone);
+
+    /// <summary>
+    /// Matches the option where only the present branch is asynchronous.
+    /// </summary>
+    /// <param name="onSome">Produces the result from the contained value.</param>
+    /// <param name="onNone">
+    /// Produces the result when there is no value, synchronously.
+    /// </param>
+    /// <typeparam name="TOut">The type both branches produce.</typeparam>
+    /// <returns>
+    /// Whatever the branch taken produced. A <see cref="None{T}" /> completes
+    /// synchronously.
+    /// </returns>
+    public abstract ValueTask<TOut> MatchAsync<TOut>(
+        Func<T, Task<TOut>> onSome,
+        Func<TOut> onNone);
+
     /// <summary>
     /// Returns the contained <see cref="Some{T}" /> value, consuming the
     /// <see cref="Option{T}" />.
@@ -262,6 +345,26 @@ public abstract record Option<T> where T : notnull
     public abstract T UnwrapOrElse<TState>(TState state, Func<TState, T> valueFactory);
 
     /// <summary>
+    /// Returns the contained value, or awaits <paramref name="valueFactory" /> for
+    /// a replacement.
+    /// </summary>
+    /// <remarks>
+    /// A <see cref="Some{T}" /> completes synchronously — the returned
+    /// <see cref="ValueTask{TResult}" /> wraps the value directly rather than
+    /// running a state machine — so this is safe to call on a hot path where the
+    /// option is usually present.
+    /// </remarks>
+    /// <param name="valueFactory">
+    /// Produces the value to return in place of a <see cref="None{T}" />. It is not
+    /// invoked on a <see cref="Some{T}" />.
+    /// </param>
+    /// <returns>
+    /// The contained value if the option is a <see cref="Some{T}" />, otherwise
+    /// whatever <paramref name="valueFactory" /> produced.
+    /// </returns>
+    public abstract ValueTask<T> UnwrapOrElseAsync(Func<Task<T>> valueFactory);
+
+    /// <summary>
     /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c> by
     /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
     /// <see cref="None{T}" /> (if <see cref="None{T}" />).
@@ -288,6 +391,30 @@ public abstract record Option<T> where T : notnull
     public abstract Option<TOut> Map<TState, TOut>(
         TState state,
         Func<T, TState, TOut> map) where TOut : notnull;
+
+    /// <summary>
+    /// Awaits <paramref name="map" /> against the contained value and wraps what it
+    /// produces, or short-circuits to <see cref="None{T}" /> without invoking it.
+    /// </summary>
+    /// <remarks>
+    /// The delegate returns a <see cref="Task{TResult}" /> rather than a
+    /// <see cref="ValueTask{TResult}" /> so that an ordinary <c>async</c> method
+    /// group converts to it by name. Only a chain <em>step</em> — one producing
+    /// another monad — takes a <see cref="ValueTask{TResult}" />, which
+    /// <c>WSG0003</c> enforces.
+    /// </remarks>
+    /// <param name="map">
+    /// Transforms the contained value. It is not invoked on a
+    /// <see cref="None{T}" />, so it may safely be expensive.
+    /// </param>
+    /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+    /// <returns>
+    /// <see cref="Some{T}" /> of what <paramref name="map" /> produced, or
+    /// <see cref="None{T}" /> when this option is a <see cref="None{T}" /> or the
+    /// delegate produced null.
+    /// </returns>
+    public abstract ValueTask<Option<TOut>> MapAsync<TOut>(
+        Func<T, Task<TOut>> map) where TOut : notnull;
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
@@ -364,6 +491,28 @@ public abstract record Option<T> where T : notnull
         Map(state, optionFactory).Flatten();
 
     /// <summary>
+    /// Awaits <paramref name="optionFactory" /> against the contained value and
+    /// returns the option it produces, without nesting.
+    /// </summary>
+    /// <remarks>
+    /// The delegate returns a <see cref="ValueTask{TResult}" /> rather than a
+    /// <see cref="Task{TResult}" /> because it produces another
+    /// <see cref="Option{T}" /> and is therefore a chain step, which lets an
+    /// existing async chain be handed to it by name. <c>WSG0003</c> enforces that.
+    /// </remarks>
+    /// <param name="optionFactory">
+    /// Produces the next option from the contained value. It is not invoked on a
+    /// <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TOut">The value type of the option produced.</typeparam>
+    /// <returns>
+    /// Whatever <paramref name="optionFactory" /> produced, or <see cref="None{T}" />
+    /// when this option is a <see cref="None{T}" />.
+    /// </returns>
+    public abstract ValueTask<Option<TOut>> AndThenAsync<TOut>(
+        Func<T, ValueTask<Option<TOut>>> optionFactory) where TOut : notnull;
+
+    /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
@@ -391,6 +540,28 @@ public abstract record Option<T> where T : notnull
         TState state,
         TOut defaultValue,
         Func<T, TState, TOut> map);
+
+    /// <summary>
+    /// Awaits <paramref name="map" /> against the contained value, or returns
+    /// <paramref name="defaultValue" /> unchanged.
+    /// </summary>
+    /// <remarks>
+    /// <paramref name="defaultValue" /> is evaluated by the caller whether or not it
+    /// is used. Where producing it is not free, prefer the <c>MapOrElseAsync</c>
+    /// overload taking a delegate, which runs only on the branch that needs it.
+    /// <c>WM2016</c> reports the difference.
+    /// </remarks>
+    /// <param name="defaultValue">The value to return for a <see cref="None{T}" />.</param>
+    /// <param name="map">
+    /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+    /// <returns>
+    /// What <paramref name="map" /> produced, or <paramref name="defaultValue" />.
+    /// </returns>
+    public abstract ValueTask<TOut> MapOrAsync<TOut>(
+        TOut defaultValue,
+        Func<T, Task<TOut>> map);
 
     /// <summary>
     /// Returns the <see langword="default" /> of <typeparamref name="TOut" /> (if
@@ -428,6 +599,60 @@ public abstract record Option<T> where T : notnull
         Func<T, TState, TOut> map) where TOut : notnull;
 
     /// <summary>
+    /// Awaits <paramref name="map" /> against the contained value, or returns the
+    /// default of <typeparamref name="TOut" />.
+    /// </summary>
+    /// <remarks>
+    /// The default is the language default, so a <see cref="None{T}" /> is
+    /// indistinguishable from a mapped value that happens to equal it. Where that
+    /// matters, use <c>MapAsync</c> and keep the option.
+    /// </remarks>
+    /// <param name="map">
+    /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+    /// <returns>
+    /// What <paramref name="map" /> produced, or the default of
+    /// <typeparamref name="TOut" />.
+    /// </returns>
+    public abstract ValueTask<TOut> MapOrDefaultAsync<TOut>(
+        Func<T, Task<TOut>> map) where TOut : notnull;
+
+    /// <summary>
+    /// Maps the contained value to a nullable value type, using null for a
+    /// <see cref="None{T}" />.
+    /// </summary>
+    /// <remarks>
+    /// The bridge out of <see cref="Option{T}" /> into <see cref="Nullable{T}" />,
+    /// for handing a value to an API that speaks the latter.
+    /// <typeparamref name="TOut" /> is constrained to a value type precisely so
+    /// that null cannot also be a mapped result, which is what keeps the return
+    /// unambiguous.
+    /// </remarks>
+    /// <param name="map">
+    /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TOut">The value type the delegate produces.</typeparam>
+    /// <returns>
+    /// What <paramref name="map" /> produced, or null for a <see cref="None{T}" />.
+    /// </returns>
+    public abstract TOut? MapOrNull<TOut>(Func<T, TOut> map) where TOut : struct;
+
+    /// <summary>
+    /// Awaits <paramref name="map" /> against the contained value and returns it as
+    /// a nullable value type, using null for a <see cref="None{T}" />.
+    /// </summary>
+    /// <param name="map">
+    /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TOut">The value type the delegate produces.</typeparam>
+    /// <returns>
+    /// What <paramref name="map" /> produced, or null for a <see cref="None{T}" />.
+    /// </returns>
+    public abstract ValueTask<TOut?> MapOrNullAsync<TOut>(
+        Func<T, Task<TOut>> map) where TOut : struct;
+
+    /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
     /// applies a function to the contained value (if <see cref="Some{T}" />).
     /// </summary>
@@ -463,6 +688,57 @@ public abstract record Option<T> where T : notnull
         Func<T, TState, TOut> map);
 
     /// <summary>
+    /// Awaits whichever of <paramref name="map" /> and
+    /// <paramref name="defaultFactory" /> the option selects.
+    /// </summary>
+    /// <param name="defaultFactory">
+    /// Produces the result for a <see cref="None{T}" />. It is not invoked on a
+    /// <see cref="Some{T}" />.
+    /// </param>
+    /// <param name="map">
+    /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+    /// <returns>Whatever the delegate selected produced.</returns>
+    public abstract ValueTask<TOut> MapOrElseAsync<TOut>(
+        Func<Task<TOut>> defaultFactory,
+        Func<T, Task<TOut>> map);
+
+    /// <summary>
+    /// Awaits <paramref name="map" /> against the contained value, falling back to a
+    /// synchronous default.
+    /// </summary>
+    /// <param name="defaultFactory">
+    /// Produces the result for a <see cref="None{T}" />, synchronously.
+    /// </param>
+    /// <param name="map">Transforms the contained value.</param>
+    /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+    /// <returns>
+    /// Whatever the delegate selected produced. A <see cref="None{T}" /> completes
+    /// synchronously.
+    /// </returns>
+    public abstract ValueTask<TOut> MapOrElseAsync<TOut>(
+        Func<TOut> defaultFactory,
+        Func<T, Task<TOut>> map);
+
+    /// <summary>
+    /// Maps the contained value synchronously, falling back to an awaited default.
+    /// </summary>
+    /// <param name="defaultFactory">Produces the result for a <see cref="None{T}" />.</param>
+    /// <param name="map">
+    /// Transforms the contained value, synchronously. It is not invoked on a
+    /// <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+    /// <returns>
+    /// Whatever the delegate selected produced. A <see cref="Some{T}" /> completes
+    /// synchronously.
+    /// </returns>
+    public abstract ValueTask<TOut> MapOrElseAsync<TOut>(
+        Func<Task<TOut>> defaultFactory,
+        Func<T, TOut> map);
+
+    /// <summary>
     /// Calls a function with a reference to the contained value if
     /// <see cref="Some{T}" />
     /// </summary>
@@ -493,6 +769,22 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T> Inspect<TState>(
         TState state,
         Action<T, TState> action);
+
+    /// <summary>
+    /// Awaits <paramref name="action" /> against the contained value and returns
+    /// the option unchanged.
+    /// </summary>
+    /// <remarks>
+    /// For a side effect in the middle of a chain — logging or a metric — where the
+    /// side effect itself is asynchronous. The option is passed through whatever
+    /// the action does, so this can be dropped into a chain without altering it.
+    /// </remarks>
+    /// <param name="action">
+    /// The side effect to run against the contained value. It is not invoked on a
+    /// <see cref="None{T}" />.
+    /// </param>
+    /// <returns>This option, unchanged.</returns>
+    public abstract ValueTask<Option<T>> InspectAsync(Func<T, Task> action);
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
@@ -534,6 +826,21 @@ public abstract record Option<T> where T : notnull
         Func<T, TState, bool> predicate);
 
     /// <summary>
+    /// Keeps the option when its contained value satisfies an asynchronous
+    /// condition, and discards it otherwise.
+    /// </summary>
+    /// <param name="predicate">
+    /// The condition the contained value must satisfy to be kept. It is not invoked
+    /// on a <see cref="None{T}" />.
+    /// </param>
+    /// <returns>
+    /// This option if it is a <see cref="Some{T}" /> whose value passed, otherwise
+    /// <see cref="None{T}" />. A <see cref="None{T}" /> passes through unchanged.
+    /// </returns>
+    public abstract ValueTask<Option<T>> FilterAsync(
+        Func<T, Task<bool>> predicate);
+
+    /// <summary>
     /// Returns the option if it contains a value, otherwise returns
     /// <paramref name="other" />
     /// </summary>
@@ -573,6 +880,27 @@ public abstract record Option<T> where T : notnull
     public abstract Option<T> OrElse<TState>(
         TState state,
         Func<TState, Option<T>> optionFactory);
+
+    /// <summary>
+    /// Returns the option if it contains a value, otherwise awaits
+    /// <paramref name="optionFactory" /> for a replacement option.
+    /// </summary>
+    /// <remarks>
+    /// The delegate returns a <see cref="ValueTask{TResult}" /> rather than a
+    /// <see cref="Task{TResult}" /> because it produces another
+    /// <see cref="Option{T}" /> and is therefore a chain step: an existing async
+    /// chain can be handed to it by name. <c>WSG0003</c> enforces the distinction.
+    /// </remarks>
+    /// <param name="optionFactory">
+    /// Produces the fallback option. It is not invoked on a
+    /// <see cref="Some{T}" />, so a present value costs no await.
+    /// </param>
+    /// <returns>
+    /// This option if it is a <see cref="Some{T}" />, otherwise whatever
+    /// <paramref name="optionFactory" /> produced.
+    /// </returns>
+    public abstract ValueTask<Option<T>> OrElseAsync(
+        Func<ValueTask<Option<T>>> optionFactory);
 
     /// <summary>
     /// Returns <see cref="Some{T}" /> if exactly one of
@@ -617,6 +945,33 @@ public abstract record Option<T> where T : notnull
         where TOther : notnull
         where TOut : notnull;
 
+    /// <summary>
+    /// Combines this option with <paramref name="other" /> by awaiting
+    /// <paramref name="zip" /> against both contained values.
+    /// </summary>
+    /// <remarks>
+    /// Both options must hold a value. Where a single <see cref="Some{T}" /> should
+    /// survive the other side being absent, use <see cref="ReduceAsync" /> instead.
+    /// </remarks>
+    /// <param name="other">The option to combine with.</param>
+    /// <param name="zip">
+    /// Combines the two contained values. It is invoked only when both options are a
+    /// <see cref="Some{T}" />, so a <see cref="None{T}" /> on either side costs no
+    /// await.
+    /// </param>
+    /// <typeparam name="TOther">The value type of the other option.</typeparam>
+    /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+    /// <returns>
+    /// <see cref="Some{T}" /> of what <paramref name="zip" /> produced when both
+    /// options hold a value, otherwise <see cref="None{T}" />. A null from
+    /// <paramref name="zip" /> becomes a <see cref="None{T}" />.
+    /// </returns>
+    public abstract ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
+        Option<TOther> other,
+        Func<T, TOther, Task<TOut>> zip)
+        where TOther : notnull
+        where TOut : notnull;
+
     /// <summary>Merges the current option with another option.</summary>
     /// <remarks>
     /// Unlike <see cref="ZipWith{TOther,TOut}" />, an option that is a
@@ -630,6 +985,30 @@ public abstract record Option<T> where T : notnull
     /// <see cref="None{T}" /> when neither is.
     /// </returns>
     public abstract Option<T> Reduce(Option<T> other, Func<T, T, T> reduce);
+
+    /// <summary>
+    /// Merges this option with <paramref name="other" />, awaiting
+    /// <paramref name="reduce" /> only when both hold a value.
+    /// </summary>
+    /// <remarks>
+    /// Unlike <c>ZipWithAsync</c>, a <see cref="Some{T}" /> survives a
+    /// <see cref="None{T}" /> on the other side and is returned unchanged, so the
+    /// delegate runs only when there are genuinely two values to combine.
+    /// </remarks>
+    /// <param name="other">The option to merge with.</param>
+    /// <param name="reduce">
+    /// Combines the two contained values. It is invoked only when both options are a
+    /// <see cref="Some{T}" />.
+    /// </param>
+    /// <returns>
+    /// <see cref="Some{T}" /> of the combined value when both hold one, otherwise
+    /// whichever single <see cref="Some{T}" /> there was, otherwise
+    /// <see cref="None{T}" />. A null from <paramref name="reduce" /> becomes a
+    /// <see cref="None{T}" />.
+    /// </returns>
+    public abstract ValueTask<Option<T>> ReduceAsync(
+        Option<T> other,
+        Func<T, T, Task<T>> reduce);
 
     /// <summary>Returns a sequence over the possibly contained value.</summary>
     /// <returns>
@@ -718,4 +1097,21 @@ public abstract record Option<T> where T : notnull
     public abstract Result<T, TErr> OkOrElse<TState, TErr>(
         TState state,
         Func<TState, TErr> errorFactory) where TErr : notnull;
+
+    /// <summary>
+    /// Converts the option into a <see cref="Result{TOk, TErr}" />, awaiting
+    /// <paramref name="errorFactory" /> only when there is no value.
+    /// </summary>
+    /// <param name="errorFactory">
+    /// Produces the error for a <see cref="None{T}" />. It is not invoked on a
+    /// <see cref="Some{T}" />, so a present value costs no await.
+    /// </param>
+    /// <typeparam name="TErr">The error type of the result produced.</typeparam>
+    /// <returns>
+    /// An <see cref="Ok{TOk, TErr}" /> holding the contained value, or an
+    /// <see cref="Err{TOk, TErr}" /> holding what <paramref name="errorFactory" />
+    /// produced.
+    /// </returns>
+    public abstract ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
+        Func<Task<TErr>> errorFactory) where TErr : notnull;
 }

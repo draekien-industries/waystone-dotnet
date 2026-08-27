@@ -1,30 +1,20 @@
-﻿namespace Waystone.Monads.Options.Extensions;
+namespace Waystone.Monads.Options.Extensions;
 
-using System;
 using System.Threading.Tasks;
-using Results;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>OkOrElse</c> and <c>OkOrElseAsync</c> to an
+/// <see cref="Option{T}" /> that is still inside a <see cref="Task{TResult}" />
+/// or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Option{T}" /> itself, and the awaited-receiver generator emits
+/// each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Option<>))]
 [GenerateAwaitedMember(nameof(Option<>.OkOrElse))]
-public static partial class OkOrElseExtensions
-{
-    extension<T>(Option<T> option) where T : notnull
-    {
-        public async ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
-            Func<Task<TErr>> errorFactory)
-            where TErr : notnull
-        {
-            if (option.IsSome)
-            {
-                T some = option.Expect("Expected Some but found None.");
-
-                return Result.Ok<T, TErr>(some);
-            }
-
-            TErr err = await errorFactory.Invoke().ConfigureAwait(false);
-
-            return Result.Err<T, TErr>(err);
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Option<>.OkOrElseAsync))]
+public static partial class OkOrElseExtensions;

@@ -1,23 +1,20 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>Inspect</c> and <c>InspectAsync</c> to an
+/// <see cref="Option{T}" /> that is still inside a <see cref="Task{TResult}" />
+/// or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Option{T}" /> itself, and the awaited-receiver generator emits
+/// each onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Option<>))]
 [GenerateAwaitedMember(nameof(Option<>.Inspect))]
-public static partial class InspectExtensions
-{
-    extension<T>(Option<T> option) where T : notnull
-    {
-        public async ValueTask<Option<T>> InspectAsync(Func<T, Task> action)
-        {
-            if (option.IsNone) return option;
-
-            T some = option.Expect("Expected Some but found None.");
-            await action.Invoke(some).ConfigureAwait(false);
-
-            return option;
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Option<>.InspectAsync))]
+public static partial class InspectExtensions;

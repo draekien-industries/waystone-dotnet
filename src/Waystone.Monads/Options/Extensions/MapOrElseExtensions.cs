@@ -1,55 +1,20 @@
-﻿namespace Waystone.Monads.Options.Extensions;
+namespace Waystone.Monads.Options.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>MapOrElse</c> and <c>MapOrElseAsync</c> to an
+/// <see cref="Option{T}" /> that is still inside a <see cref="Task{TResult}" />
+/// or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Option{T}" /> itself, and the awaited-receiver generator emits
+/// each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Option<>))]
 [GenerateAwaitedMember(nameof(Option<>.MapOrElse))]
-public static partial class MapOrElseExtensions
-{
-    extension<T>(Option<T> option) where T : notnull
-    {
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFactory,
-            Func<T, Task<TOut>> map)
-        {
-            if (option.IsNone)
-            {
-                return await defaultFactory.Invoke().ConfigureAwait(false);
-            }
-
-            T some = option.Expect("Expected Some but found None.");
-
-            return await map.Invoke(some).ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TOut> defaultFactory,
-            Func<T, Task<TOut>> map)
-        {
-            if (option.IsNone)
-            {
-                return defaultFactory.Invoke();
-            }
-
-            T some = option.Expect("Expected Some but found None.");
-
-            return await map.Invoke(some).ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<Task<TOut>> defaultFactory,
-            Func<T, TOut> map)
-        {
-            if (option.IsNone)
-            {
-                return await defaultFactory.Invoke().ConfigureAwait(false);
-            }
-
-            T some = option.Expect("Expected Some but found None.");
-
-            return map.Invoke(some);
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Option<>.MapOrElseAsync))]
+public static partial class MapOrElseExtensions;

@@ -482,6 +482,17 @@ public sealed class SomeTests
     }
 
     [Fact]
+    public async Task WhenMapAsyncProducesNull_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Task> mapToNull = async () =>
+            await some.MapAsync(_ => Task.FromResult(default(string)!));
+
+        await mapToNull.ShouldThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
     public async Task WhenMapOrAsync_ThenReturnMappedValue()
     {
         Option<int> some = Option.Some(1);
@@ -682,6 +693,19 @@ public sealed class SomeTests
             (x, y) => Task.FromResult(x + y));
 
         result.ShouldBeSomeValue(3);
+    }
+
+    [Fact]
+    public async Task GivenOtherIsSome_WhenZipWithAsyncProducesNull_ThenThrow()
+    {
+        Option<int> self = Option.Some(1);
+        Option<int> other = Option.Some(2);
+
+        Func<Task> zipToNull = async () => await self.ZipWithAsync(
+            other,
+            (_, _) => Task.FromResult(default(string)!));
+
+        await zipToNull.ShouldThrowAsync<ArgumentNullException>();
     }
 
     [Fact]

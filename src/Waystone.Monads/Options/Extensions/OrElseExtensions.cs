@@ -1,21 +1,20 @@
-﻿namespace Waystone.Monads.Options.Extensions;
+namespace Waystone.Monads.Options.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>OrElse</c> and <c>OrElseAsync</c> to an <see cref="Option{T}" />
+/// that is still inside a <see cref="Task{TResult}" /> or
+/// <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Option{T}" /> itself, and the awaited-receiver generator emits
+/// each onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Option<>))]
 [GenerateAwaitedMember(nameof(Option<>.OrElse))]
-public static partial class OrElseExtensions
-{
-    extension<T>(Option<T> option) where T : notnull
-    {
-        public async ValueTask<Option<T>> OrElseAsync(
-            Func<ValueTask<Option<T>>> optionFactory)
-        {
-            if (option.IsSome) return option;
-
-            return await optionFactory.Invoke().ConfigureAwait(false);
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Option<>.OrElseAsync))]
+public static partial class OrElseExtensions;
