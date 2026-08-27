@@ -1,14 +1,14 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Composition;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Composition;
-using System.Linq;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class UseLazyVariantCodeFix : MonadCodeFix

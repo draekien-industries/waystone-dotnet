@@ -1,11 +1,11 @@
 namespace Waystone.Monads.Shouldly.Analyzers;
 
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Immutable;
-using System.Linq;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RawAssertionAnalyzer : AssertionAnalyzer

@@ -1,11 +1,11 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
+using System.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Immutable;
-using System.Composition;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class UseNoneCodeFix : MonadCodeFix

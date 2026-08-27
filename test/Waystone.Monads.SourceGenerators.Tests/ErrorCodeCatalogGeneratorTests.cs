@@ -1,9 +1,7 @@
 namespace Waystone.Monads.SourceGenerators;
 
-using System;
 using System.Linq;
 using Shouldly;
-using Waystone.Monads.Results.Errors;
 using Xunit;
 
 public sealed class ErrorCodeCatalogGeneratorTests

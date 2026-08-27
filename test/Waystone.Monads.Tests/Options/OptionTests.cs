@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Configs;
 using Fixtures;
 using JetBrains.Annotations;
+using Monads.Extensions.Logging.Configs;
 using NSubstitute;
 using Shouldly;
-using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(Option))]

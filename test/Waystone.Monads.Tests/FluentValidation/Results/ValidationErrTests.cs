@@ -3,7 +3,6 @@ namespace Waystone.Monads.FluentValidation.Results;
 using Configs;
 using global::FluentValidation.Results;
 using Monads.Configs;
-using Monads.Extensions;
 using Monads.Results.Errors;
 using Options;
 using Shouldly;

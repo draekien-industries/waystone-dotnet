@@ -1,8 +1,8 @@
 namespace Waystone.Monads.Assertions;
 
-using Shouldly;
 using System;
 using System.Threading.Tasks;
+using Shouldly;
 
 /// <remarks>
 /// The asynchronous half is written out rather than delegating to

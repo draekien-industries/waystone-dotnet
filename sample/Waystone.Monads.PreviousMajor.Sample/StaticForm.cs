@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
-using Waystone.Monads.Results.Extensions;
 using static Waystone.Monads.Options.Option;
 
 /// <summary>

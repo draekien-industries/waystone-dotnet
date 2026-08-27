@@ -1,11 +1,11 @@
 namespace Waystone.Monads.Analyzers;
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LazyVariantAnalyzer : MonadAnalyzer

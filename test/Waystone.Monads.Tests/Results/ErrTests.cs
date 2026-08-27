@@ -3,7 +3,6 @@
 using System;
 using System.Threading.Tasks;
 using Exceptions;
-using Extensions;
 using JetBrains.Annotations;
 using NSubstitute;
 using Options;

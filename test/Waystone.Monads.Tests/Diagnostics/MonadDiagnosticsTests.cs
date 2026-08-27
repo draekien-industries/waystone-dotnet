@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Configs;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Options;

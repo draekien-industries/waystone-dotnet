@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Configs;
+﻿namespace Waystone.Monads.Configs;
 
 using System;
 using System.Collections.Concurrent;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Diagnostics;
-using Options;
 using Results.Errors;
 
 /// <summary>Configuration options for the Waystone.Monads library.</summary>

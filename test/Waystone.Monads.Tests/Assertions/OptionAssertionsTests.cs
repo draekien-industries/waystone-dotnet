@@ -1,8 +1,8 @@
 namespace Waystone.Monads.Assertions;
 
+using System.Threading.Tasks;
 using Options;
 using Shouldly;
-using System.Threading.Tasks;
 using Xunit;
 
 /// <remarks>
