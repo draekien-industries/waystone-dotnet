@@ -1,18 +1,21 @@
 namespace Waystone.Monads;
 
 using Options;
+using Results;
 using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit;
 
 /// <remarks>
 /// DRA-110 settled a naming convention across the public surface and applied it
-/// once. A one-time sweep decays, so these tests hold the three halves of it that
-/// a rename would silently reintroduce: no keyword, no <c>create</c> prefix, and
-/// a lazy delegate named for what it produces.
+/// once. A one-time sweep decays, so these tests hold the four halves of it that
+/// a rename would silently reintroduce: no keyword, no <c>create</c> prefix, a
+/// lazy delegate named for what it produces, and a chain step named for the monad
+/// it produces.
 /// </remarks>
 public sealed class ParameterNamingTests
 {
@@ -110,6 +113,44 @@ public sealed class ParameterNamingTests
     }
 
     /// <summary>
+    /// A delegate returning one of the library's own monads is a chain step, and
+    /// the chain scheme names it for the monad it produces. The name is the only
+    /// thing distinguishing it from a boundary delegate at a call site, and the
+    /// two want different awaitables: <c>MapAsync</c> takes a
+    /// <see cref="Task{TResult}" /> and <c>AndThenAsync</c> a
+    /// <see cref="ValueTask{TResult}" />, yet both called the parameter
+    /// <c>map</c> until DRA-110.
+    /// </summary>
+    [Fact]
+    public void
+        GivenAChainShapedDelegateParameter_ThenItShouldBeNamedForItsMonad()
+    {
+        List<string> offenders =
+            PublicParameters()
+               .Where(
+                    parameter => ChainNameFor(parameter) is { } expected
+                              && parameter.Name != expected)
+               .Select(Describe)
+               .Distinct()
+               .OrderBy(name => name, StringComparer.Ordinal)
+               .ToList();
+
+        offenders.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// Guards the chain test above against passing because no parameter matched
+    /// its filter rather than because every match was named correctly.
+    /// </summary>
+    [Fact]
+    public void GivenThePublicSurface_ThenThereShouldBeChainStepsToInspect()
+    {
+        PublicParameters()
+           .Count(parameter => ChainNameFor(parameter) is not null)
+           .ShouldBeGreaterThan(20);
+    }
+
+    /// <summary>
     /// Guards the two tests above against passing because they inspected nothing.
     /// </summary>
     [Fact]
@@ -132,6 +173,42 @@ public sealed class ParameterNamingTests
         "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using",
         "virtual", "void", "volatile", "while",
     ];
+
+    private static string? ChainNameFor(ParameterInfo parameter)
+    {
+        Type type = parameter.ParameterType;
+
+        if (!type.IsGenericType
+         || type.GetGenericTypeDefinition().FullName?.StartsWith(
+                "System.Func`",
+                StringComparison.Ordinal)
+         != true)
+        {
+            return null;
+        }
+
+        Type[] arguments = type.GetGenericArguments();
+        Type produced = Unwrap(arguments[arguments.Length - 1]);
+
+        if (!produced.IsGenericType) return null;
+
+        Type definition = produced.GetGenericTypeDefinition();
+
+        if (definition == typeof(Option<>)) return "optionFactory";
+
+        return definition == typeof(Result<,>) ? "resultFactory" : null;
+    }
+
+    private static Type Unwrap(Type type)
+    {
+        if (!type.IsGenericType) return type;
+
+        Type definition = type.GetGenericTypeDefinition();
+
+        return definition == typeof(Task<>) || definition == typeof(ValueTask<>)
+            ? type.GetGenericArguments()[0]
+            : type;
+    }
 
     private static IEnumerable<ParameterInfo> PublicParameters() =>
         typeof(Option<>).Assembly.GetExportedTypes()

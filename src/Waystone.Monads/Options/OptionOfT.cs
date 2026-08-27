@@ -304,32 +304,33 @@ public abstract record Option<T> where T : notnull
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
-    /// otherwise calls <paramref name="map" /> with the wrapped value and returns
-    /// the result.
+    /// otherwise calls <paramref name="optionFactory" /> with the wrapped
+    /// value and returns the result.
     /// </summary>
     /// <remarks>
     /// Often used to chain fallible operations that may return
     /// <see cref="None{T}" />.
     /// </remarks>
-    /// <param name="map">
-    /// A transform function to apply to the inner value if the
-    /// option is a <see cref="Some{T}" />.
+    /// <param name="optionFactory">
+    /// Produces the option to return from the wrapped value. It runs only on
+    /// a <see cref="Some{T}" />.
     /// </param>
     /// <typeparam name="TOut">The type of the value contained in the resulting option.</typeparam>
     /// <returns>
-    /// A flattened <see cref="Option{TOut}" /> resulting from applying the
-    /// transform function and flattening the nested option.
+    /// The option <paramref name="optionFactory" /> produced, or
+    /// <see cref="None{T}" /> when this option is a <see cref="None{T}" />.
     /// </returns>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
-    public Option<TOut> AndThen<TOut>(Func<T, Option<TOut>> map) where TOut : notnull =>
-        Map(map).Flatten();
+    public Option<TOut> AndThen<TOut>(Func<T, Option<TOut>> optionFactory)
+        where TOut : notnull =>
+        Map(optionFactory).Flatten();
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is a <see cref="None{T}" />,
-    /// otherwise calls <paramref name="map" /> with the wrapped value and the
-    /// <paramref name="state" /> and returns the result.
+    /// otherwise calls <paramref name="optionFactory" /> with the wrapped
+    /// value and the <paramref name="state" /> and returns the result.
     /// </summary>
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
@@ -337,24 +338,30 @@ public abstract record Option<T> where T : notnull
     /// allocates no closure. <c>WM2017</c> reports a capturing call that could
     /// use this overload.
     /// </remarks>
-    /// <param name="state">The value passed to the map function.</param>
-    /// <param name="map">
-    /// A transform function to apply to the inner value if the
-    /// option is a <see cref="Some{T}" />.
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
     /// </param>
-    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <param name="optionFactory">
+    /// Produces the option to return from the wrapped value. It runs only on
+    /// a <see cref="Some{T}" />.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state handed to <paramref name="optionFactory" />. It is
+    /// unconstrained, so a null state is permitted.
+    /// </typeparam>
     /// <typeparam name="TOut">The type of the value contained in the resulting option.</typeparam>
     /// <returns>
-    /// A flattened <see cref="Option{TOut}" /> resulting from applying the
-    /// transform function and flattening the nested option.
+    /// The option <paramref name="optionFactory" /> produced, or
+    /// <see cref="None{T}" /> when this option is a <see cref="None{T}" />.
     /// </returns>
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
     public Option<TOut> AndThen<TState, TOut>(
         TState state,
-        Func<T, TState, Option<TOut>> map) where TOut : notnull =>
-        Map(state, map).Flatten();
+        Func<T, TState, Option<TOut>> optionFactory) where TOut : notnull =>
+        Map(state, optionFactory).Flatten();
 
     /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or

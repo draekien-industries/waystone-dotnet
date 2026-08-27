@@ -18,7 +18,10 @@ using Waystone.Monads.Results.Extensions;
 /// <c>onSome</c>, <c>onNone</c>, <c>onOk</c> and <c>onErr</c>, because those are
 /// branch handlers rather than factories; <c>Try</c> keeps <c>factory</c>,
 /// because its delegate is the operation rather than a fallback value; and
-/// <c>Map</c> keeps <c>map</c>. A <c>CS1739</c> against any of them means the
+/// <c>Map</c> keeps <c>map</c>, because its delegate returns an arbitrary type
+/// rather than another option. That last one is the pair to watch: <c>AndThen</c>
+/// takes the same name to <c>optionFactory</c> precisely because its delegate
+/// returns an <c>Option</c>. A <c>CS1739</c> against any of the controls means the
 /// rename reached further than it was meant to.
 /// </remarks>
 internal static class NamedArguments
@@ -34,6 +37,19 @@ internal static class NamedArguments
 
     internal static int CoreMapOrElse(Option<int> option) =>
         option.MapOrElse(createDefault: () => 0, map: value => value);
+
+    internal static Option<int> CoreAndThenOnOption(Option<int> option) =>
+        option.AndThen(map: value => Option.Some(value + 1));
+
+    /// <summary>
+    /// The hand-written Option family forwards to the core member but is not
+    /// generated, so its rename is a second edit rather than a consequence of the
+    /// first — and a second call site to break.
+    /// </summary>
+    internal static ValueTask<Option<int>> ExtensionAndThenAsyncOnOption(
+        Option<int> option) =>
+        option.AndThenAsync(
+            map: value => new ValueTask<Option<int>>(Option.Some(value + 1)));
 
     internal static Option<int> CoreOrElse(Option<int> option) =>
         option.OrElse(createElse: Option.None<int>);
