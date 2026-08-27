@@ -161,10 +161,10 @@ public class AsyncDelegateAnalyzerTests
     public Task IgnoresTryAsync() =>
         Verify.NoDiagnosticAsync<AsyncDelegateAnalyzer>(
             """
-            internal Task<Option<int>> Make() =>
+            internal ValueTask<Option<int>> Make() =>
                 Option.TryAsync(() => Task.FromResult(42));
 
-            internal Task<Result<int, string>> Fallible() =>
+            internal ValueTask<Result<int, string>> Fallible() =>
                 Result.TryAsync(
                     () => Task.FromResult(42),
                     error => error.Message);

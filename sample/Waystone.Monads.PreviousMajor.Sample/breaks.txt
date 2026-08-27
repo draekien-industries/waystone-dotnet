@@ -5,6 +5,7 @@ on the previous major gets from the surface in the working tree.
 
 | Code | Kind | Count |
 | --- | --- | --- |
+| CS0029 | error | 3 |
 | CS0115 | error | 1 |
 | CS0117 | error | 2 |
 | CS1061 | error | 2 |
@@ -12,6 +13,9 @@ on the previous major gets from the surface in the working tree.
 
 | Code | File | Line | Message |
 | --- | --- | --- | --- |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 25 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<int>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Options.Option<int>>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 33 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<int, string>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Results.Result<int, string>>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 37 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<System.Collections.Generic.IReadOnlyList<int>>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Options.Option<System.Collections.Generic.IReadOnlyList<int>>>' |
 | CS0115 | sample/Waystone.Monads.PreviousMajor.Declarations.Sample/ErrorCodeFactoryOverride.cs | 15 | 'UpperCaseErrorCodeFactory.FromEnum(Enum)': no suitable method found to override |
 | CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 17 | 'ErrorCode' does not contain a definition for 'FromEnum' |
 | CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 20 | 'Error' does not contain a definition for 'FromEnum' |

@@ -147,7 +147,7 @@ public static class Result
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static async Task<Result<TOk, TErr>> TryAsync<TOk, TErr>(
+    public static async ValueTask<Result<TOk, TErr>> TryAsync<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError,
         [CallerMemberName] string callerMemberName = "",
@@ -337,7 +337,7 @@ public static class Result
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static async Task<Result<TOk, TErr>> TryAsync<TState, TOk, TErr>(
+    public static async ValueTask<Result<TOk, TErr>> TryAsync<TState, TOk, TErr>(
         TState state,
         Func<TState, Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError,
@@ -511,7 +511,7 @@ public static class Result
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static Task<Result<TOk, Error>> TryAsync<TOk>(
+    public static ValueTask<Result<TOk, Error>> TryAsync<TOk>(
         Func<Task<TOk>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
         [CallerLineNumber] int callerLineNumber = 0,
@@ -649,7 +649,7 @@ public static class Result
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static Task<Result<TOk, Error>> TryAsync<TState, TOk>(
+    public static ValueTask<Result<TOk, Error>> TryAsync<TState, TOk>(
         TState state,
         Func<TState, Task<TOk>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",

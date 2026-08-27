@@ -27,7 +27,7 @@ public sealed class OptionTests
     [Fact]
     public async Task GivenAsyncFactory_WhenBinding_ReturnSome()
     {
-        Task<Option<int>> optionTask =
+        ValueTask<Option<int>> optionTask =
             Option.TryAsync(() => Task.FromResult(42));
 
         Option<int> option = await optionTask;
@@ -41,7 +41,7 @@ public sealed class OptionTests
     {
         using (LoggerScope())
         {
-            Task<Option<int>> optionTask = Option.TryAsync<int>(async () =>
+            ValueTask<Option<int>> optionTask = Option.TryAsync<int>(async () =>
             {
                 await Task.Delay(10, TestContext.Current.CancellationToken);
 

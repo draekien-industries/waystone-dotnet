@@ -107,7 +107,7 @@ public static class Option
     /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </remarks>
-    public static async Task<Option<T>> TryAsync<T>(
+    public static async ValueTask<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
         [CallerLineNumber] int callerLineNumber = 0,
@@ -251,7 +251,7 @@ public static class Option
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static async Task<Option<T>> TryAsync<TState, T>(
+    public static async ValueTask<Option<T>> TryAsync<TState, T>(
         TState state,
         Func<TState, Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",

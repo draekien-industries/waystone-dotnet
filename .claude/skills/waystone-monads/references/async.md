@@ -28,22 +28,22 @@ Each `*Async` member takes both a synchronous and an asynchronous delegate, so
 `MapAsync` accepts `Func<T, TOut>` as well as `Func<T, Task<TOut>>`. A step that
 does not itself need to await still belongs in the chain.
 
-## Async members return ValueTask, with two exceptions
+## Async members return ValueTask
 
-Every `*Async` member that chains off a monad returns `ValueTask` or
-`ValueTask<T>` — `MapAsync`, `AndThenAsync`, `MatchAsync`, `UnwrapOrAsync` and
-the rest. Assume `ValueTask` unless the member is one of these two:
+Every `*Async` member returns `ValueTask` or `ValueTask<T>` — `MapAsync`,
+`AndThenAsync`, `MatchAsync`, `UnwrapOrAsync` and the rest. There is no member
+left to check.
 
-| Returns `Task` | Why |
-| --- | --- |
-| `Option.TryAsync`, `Result.TryAsync` | Static factories, not extensions |
-| `CollectAsync` | Consumes an `IAsyncEnumerable`, so it is a genuinely async gather rather than a continuation on a chain |
+From 7.0.0 that includes the two that used to be exceptions: `Option.TryAsync`
+and `Result.TryAsync`, which are static factories rather than extensions, and
+`CollectAsync`, which consumes an `IAsyncEnumerable`. Both returned `Task` up to
+6.x. The reason they changed is not consistency — a `TryAsync` is the first link
+in most chains, so a `Task` there is the one link that cannot compose.
 
-Never call `.AsTask()` on either — both already hand back a `Task`. Going the
-other way, `.AsTask()` is the conversion where a foreign API genuinely demands a
-`Task`, and the compiler's own type-mismatch diagnostic offers it as a fix. It is
-**not** a way to feed one async chain into another, which no member here
-supports.
+`.AsTask()` is the conversion where a foreign API genuinely demands a `Task` —
+`Should.ThrowAsync` taking a `Func<Task>`, say — and the compiler's own
+type-mismatch diagnostic offers it as a fix. It is **not** a way to feed one async
+chain into another, which no member here supports.
 
 ## A chain trips CA2012, and the chain is still right
 
