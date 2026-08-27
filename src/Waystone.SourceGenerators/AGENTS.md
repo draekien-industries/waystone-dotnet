@@ -18,9 +18,21 @@ readable.** `Analyse` emits the union of:
 
 The written half is deliberate: which extension class a core member's async shape
 belongs in is not derivable — the mapping is nearly `{Member}Extensions`, but
-`UnwrapOr` and `UnwrapOrDefault` live in `UnwrapExtensions`, and `Or`/`Xor` have no
-class at all. A written list is the strongest available form of "emit exactly
+`Unwrap`, `UnwrapOr`, `UnwrapOrDefault` and `Result.UnwrapErr` all live in
+`UnwrapExtensions`. A written list is the strongest available form of "emit exactly
 today's set".
+
+**A written list is only as good as the list, so a test reads the surface
+instead.** Nothing here notices a core member left off every list — the generator
+emits what it is told and says nothing about the rest, so the failure is a missing
+overload rather than a diagnostic. Seven members reached 7.0.0 that way, and the
+two causes need distinguishing because they suggest different fixes: `Option.Or`,
+`Option.Xor` and `Result.Or` had no destination class, while `Option.Zip`,
+`Result.And`, `Result.GetOk` and `Result.GetErr` each had one and were simply not
+listed in it. `AwaitedReceiverCoverageTests` in `Waystone.Monads.Tests` now fails
+when a public core member has no `…Async` reachable from either awaited receiver.
+It asserts on the emitted surface rather than on the attributes, so it covers both
+causes and a hand-written family equally.
 
 The lifted half is what carries the shapes the core member does not have — an
 async-delegate overload, say, which exists only as an extension. It is also the
