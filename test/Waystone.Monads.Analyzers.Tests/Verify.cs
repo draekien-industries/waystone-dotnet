@@ -234,6 +234,21 @@ internal static class Verify
         return test.RunAsync();
     }
 
+    /// <summary>
+    /// Asserts that a fix registered on a compiler diagnostic declines, by running it
+    /// over a source whose fixed state is the source itself with
+    /// <paramref name="standing" /> still reported.
+    /// </summary>
+    public static Task DeclinedCompilerCodeFixAsync<TCodeFix>(
+        string source,
+        DiagnosticResult standing)
+        where TCodeFix : CodeFixProvider, new() =>
+        CompilerCodeFixAsync<TCodeFix>(
+            source,
+            source,
+            new[] { standing },
+            new[] { standing });
+
     public static Task RawCodeFixAsync<TAnalyzer, TCodeFix>(
         string source,
         string fixedSource,

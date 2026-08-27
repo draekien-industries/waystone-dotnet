@@ -21,6 +21,16 @@ rewrites `breaks.txt` as a count-by-code table and a row per diagnostic. It exit
 the attribution: this break arrived with this change. Rebuilt only at the end of
 the stack, it proves the final state and attributes nothing.
 
+**A missed re-capture is worse than no file, because the rows stay plausible.**
+The layer collapsing the per-family extension classes did not re-run this script,
+and the inventory went on naming `AndThenExtensions` and `IsSomeAndExtensions` for
+a further nineteen layers — five rows attributed to `CS0411` and `CS1739` that had
+become `CS0103` and `CS0234`, all of them still reading like real measurements.
+[DRA-126](https://linear.app/draekien-industries/issue/DRA-126) scoped a fixer
+against `CS0246` off the back of it, which is a diagnostic this break never emits.
+Re-run the script whenever a type or member leaves the public surface, and read the
+count table rather than trusting that the row you care about is current.
+
 ## Why it is not in the build
 
 The project is listed in `Waystone.Net.sln` with `ActiveCfg` lines and **no**
