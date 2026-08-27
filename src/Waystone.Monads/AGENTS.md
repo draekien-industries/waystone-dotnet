@@ -124,3 +124,17 @@ to that one class. Hand-write a member there only when its receiver is a
 *particular* option or result — a nested one, a tuple, a value-type payload — or
 when the shape awaits an argument as well as the receiver, which the generator
 cannot reach.
+
+**A hand-written member in those classes costs roughly three baseline rows and
+gains an `…Async` pair you did not ask for.** The generator lifts hand-written
+extension members onto both awaited receivers automatically — no attribute, and
+`Waystone.SourceGenerators` has no exclude, ignore or skip concept, so there is
+no opting out short of changing the generator. Measured on DRA-121: seven
+members in `extension` blocks produced 42 rows, 26 of them the automatic async
+shapes. The same seven as classic `static (this T)` extension methods in a
+separate package produced 9.
+
+That is the argument for a satellite package whenever a family is additive
+vocabulary rather than core behaviour, and it is why the LINQ names ship in
+`Waystone.Monads.Linq` instead of here. Weigh it before hand-writing a member:
+the surface you are adding is not the surface you typed.
