@@ -5,7 +5,7 @@ using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(AndThenExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class AndThenExtensionsTests
 {
     private static Task<Result<int, string>> OkTask(int value) =>

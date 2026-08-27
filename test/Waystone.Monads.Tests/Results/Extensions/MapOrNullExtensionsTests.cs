@@ -5,7 +5,7 @@ using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(MapOrNullExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class MapOrNullExtensionsTests
 {
     [Fact]

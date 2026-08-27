@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(FilterExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class FilterExtensionsTests
 {
     private static Func<int, Task<bool>> AsyncPredicate(bool result) =>

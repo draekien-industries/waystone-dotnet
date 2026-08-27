@@ -7,7 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(ReduceExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class ReduceExtensionsTests
 {
     [Fact]

@@ -11,7 +11,7 @@ using Xunit;
 /// closing the same one on <c>MapExtensions</c> and <c>MapErrExtensions</c>. The
 /// state overload is covered in <c>AwaitedStateOverloadTests</c>.
 /// </remarks>
-[TestSubject(typeof(MapOrExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class MapOrExtensionsTests
 {
     [Fact]

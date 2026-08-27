@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Waystone.Monads.Exceptions;
 using Xunit;
 
-[TestSubject(typeof(ExpectExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class ExpectExtensionsTests
 {
     private const string ExpectedOk = "Expected an Ok Result";

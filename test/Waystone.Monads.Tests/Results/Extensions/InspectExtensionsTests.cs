@@ -7,7 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(InspectExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class InspectExtensionsTests
 {
     [Fact]

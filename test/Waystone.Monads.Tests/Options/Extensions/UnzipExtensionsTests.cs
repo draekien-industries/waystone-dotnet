@@ -6,7 +6,7 @@ using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(UnzipExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class UnzipExtensionsTests
 {
     [Fact]

@@ -11,7 +11,7 @@ using Xunit;
 /// as two cases and is one: an outer <c>Err</c> has no inner result to hold, so
 /// both were the same call.
 /// </remarks>
-[TestSubject(typeof(FlattenExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class FlattenExtensionsTests
 {
     private static Result<Result<int, string>, string> OuterOk(

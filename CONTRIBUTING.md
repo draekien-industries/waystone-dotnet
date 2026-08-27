@@ -20,10 +20,12 @@ below.
    `develop` branch.
 2. Code up a storm.
 3. Add tests. `Waystone.Monads.Tests` uses xUnit v3 with Shouldly, and a test
-   file mirrors the namespace it covers — a test for
-   `Waystone.Monads.Options.Extensions.MapExtensions` lives in
+   file mirrors the namespace it covers — a test for `Map` on
+   `Waystone.Monads.Options.Extensions.OptionExtensions` lives in
    `Options/Extensions/MapExtensionsTests.cs`, declares that namespace, and
-   carries `[TestSubject(typeof(MapExtensions))]`.
+   carries `[TestSubject(typeof(OptionExtensions))]`. There is one extension
+   class per monad, so the file name tracks the family under test rather than
+   the class.
 
    Name a test `Given<state>_When<action>_Then<outcome>`. Cases that differ
    only in a value belong in a `[Theory]` with `[InlineData]` rows rather than

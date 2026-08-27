@@ -13,8 +13,8 @@ using Xunit;
 /// identically named overloads, so a test written against <c>Task</c> compiles and
 /// passes while leaving these unrun.
 /// </summary>
-[TestSubject(typeof(MapExtensions))]
-[TestSubject(typeof(MapOrExtensions))]
+[TestSubject(typeof(OptionExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class ValueTaskReceiverSyncMapTests
 {
     [Fact]

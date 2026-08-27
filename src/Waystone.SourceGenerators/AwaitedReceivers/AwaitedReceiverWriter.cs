@@ -53,7 +53,9 @@ internal static class AwaitedReceiverWriter
     private static string Key(AwaitedMember member) =>
         member.ReceiverType.ToDisplayString(Display.Format)
       + " "
-      + member.ReceiverParameterName;
+      + member.ReceiverParameterName
+      + " "
+      + string.Join(" ", TypeParameters.Constraints(member.BlockTypeParameters));
 
     private static void EmitBlock(
         StringBuilder writer,

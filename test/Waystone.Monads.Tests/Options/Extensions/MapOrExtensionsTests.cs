@@ -5,7 +5,7 @@ using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(MapOrExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class MapOrExtensionsTests
 {
     private const string Fallback = "defaultValue";

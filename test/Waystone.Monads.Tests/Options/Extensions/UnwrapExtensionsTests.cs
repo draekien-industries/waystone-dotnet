@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Waystone.Monads.Exceptions;
 using Xunit;
 
-[TestSubject(typeof(UnwrapExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class UnwrapExtensionsTests
 {
     [Fact]

@@ -10,7 +10,7 @@ using Xunit;
 /// The overloads taking the other option inside a task had no tests at all until
 /// DRA-110 renamed their parameters and the coverage gate found them.
 /// </remarks>
-[TestSubject(typeof(ZipWithExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class ZipWithExtensionsTests
 {
     [Fact]
