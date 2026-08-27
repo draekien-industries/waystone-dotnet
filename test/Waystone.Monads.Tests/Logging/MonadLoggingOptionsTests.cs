@@ -151,7 +151,7 @@ public sealed class MonadLoggingOptionsTests
                     options => options.UseLoggerFactoryFrom(provider)));
 
         thrown.Message.ShouldContain(
-            nameof(MonadOptionsExtensions.UseLoggerFactory));
+            nameof(MonadOptionsBuilderExtensions.UseLoggerFactory));
     }
 
     [Fact]

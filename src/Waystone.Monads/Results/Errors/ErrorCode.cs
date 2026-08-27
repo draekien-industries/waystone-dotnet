@@ -19,7 +19,7 @@ public record ErrorCode
     /// <remarks>
     /// Surrounding whitespace is trimmed off. A value that is null, empty or
     /// whitespace is replaced by the fallback configured through
-    /// <see cref="MonadOptions.UseFallbackErrorCode" />, so this never throws and
+    /// <see cref="MonadOptionsBuilder.UseFallbackErrorCode" />, so this never throws and
     /// <see cref="Value" /> is never null or blank. Default fallback:
     /// <c>Unspecified</c>.
     /// </remarks>

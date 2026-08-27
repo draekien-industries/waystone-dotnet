@@ -361,3 +361,50 @@ Read this table against the exception, not against the counter. A thrown
 exception costs 3.2 µs and 480 B before anything of ours runs; 40 B on top of it,
 paid only by a consumer who asked to observe, is under nine percent of an
 allocation they had already decided to accept.
+
+## The immutable options snapshot
+
+`artifacts/dra-155-before/` and `artifacts/dra-155/` hold the two runs, same
+machine and settings. DRA-155 replaced the mutable `MonadOptions` singleton with
+an immutable snapshot published by atomic swap, and moved satellite storage from a
+`ConcurrentDictionary` keyed by type, cloned entry by entry on scope entry, to an
+`object?[]` indexed by slot and carried forward by reference.
+
+| Call | before | after | Δ |
+| -- | --: | --: | --: |
+| read the fallback code | 24 B | 24 B | 0 B |
+| scope entry and exit, no satellite attached | 128 B | 192 B | **+64 B** |
+| scope entry and exit, one satellite attached | 1280 B | 192 B | **−1088 B** |
+| `Configure` the global | 0 B | 120 B | **+120 B** |
+
+**The read path did not move, and the 24 B is not the read.** `MonadOptions.Current`
+and `Satellite<T>` are a field read and a bounds-checked array index on both sides
+and allocate nothing. The 24 B is the `ErrorCode` the benchmark has to construct to
+observe the read at all, because the options are internal — it is identical in both
+columns and should be read as the instrument, not the measurement.
+
+**A satellite costs nothing at scope entry now, where it used to cost more than
+everything else combined.** 1280 B down to 192 B, and the 192 B is the same figure
+as the no-satellite row: entering a scope that does not reconfigure the satellite
+copies one array reference. The old path allocated a `ConcurrentDictionary` and
+called `Clone` on every attached satellite whether or not the scope touched it,
+which is where the other 1088 B went. This is the row the redesign was for.
+
+**Scope entry without a satellite is 64 B worse, and that is a real regression.**
+The old `BeginScope` went straight to a copy constructor; the new one goes through
+`ToBuilder()` and `Build()`, and the builder is a second object on the path. It was
+accepted rather than optimised away: it is what lets a scope inherit the settings it
+does not mention, and it is the same code path `Configure` uses, so there is one
+snapshot-assembly mechanism instead of two. A scope with any satellite attached is
+far ahead regardless.
+
+**`Configure` went from free to 120 B, and from 0.9 ns to 18 ns.** The old one
+invoked the caller's action against the live singleton, which is exactly the
+behaviour ADR 0005 removed — allocating nothing was the symptom, not the feature. A
+reader racing it could see a new fallback code beside an old fallback message. 120 B
+and 17 ns, once, on a start-up path, is the price of that never happening, and it is
+the one row where the before column is better for a reason nobody should want back.
+
+Read the allocation column. These are `--job short` numbers and the means carry wide
+error bars — `ScopeEntryAndExit` reported ±21 ns on a 24 ns mean in the before run —
+but the allocation figures are deterministic and every claim above rests on them.

@@ -23,7 +23,7 @@ public record Error
     /// The two arguments are treated differently, deliberately. Surrounding
     /// whitespace is trimmed off the message, and a message that is null, empty or
     /// whitespace is replaced by the fallback configured through
-    /// <see cref="MonadOptions.UseFallbackErrorMessage" />, so
+    /// <see cref="MonadOptionsBuilder.UseFallbackErrorMessage" />, so
     /// <see cref="Message" /> is never null or blank. Default fallback:
     /// <c>An unexpected error occurred.</c> Pass a real message; the fallback says
     /// nothing about what actually failed. A null <paramref name="code" /> throws,

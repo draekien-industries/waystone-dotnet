@@ -12,10 +12,11 @@ Waystone.Monads.Configs.CallerInfo.MemberName.init -> void
 Waystone.Monads.Configs.ErrorCodeFactory
 Waystone.Monads.Configs.ErrorCodeFactory.ErrorCodeFactory() -> void
 Waystone.Monads.Configs.MonadOptions
-Waystone.Monads.Configs.MonadOptions.UseCancellationAsFailure() -> Waystone.Monads.Configs.MonadOptions!
-Waystone.Monads.Configs.MonadOptions.UseErrorCodeFactory(Waystone.Monads.Configs.ErrorCodeFactory! factory) -> Waystone.Monads.Configs.MonadOptions!
-Waystone.Monads.Configs.MonadOptions.UseFallbackErrorCode(string! errorCode) -> Waystone.Monads.Configs.MonadOptions!
-Waystone.Monads.Configs.MonadOptions.UseFallbackErrorMessage(string! errorMessage) -> Waystone.Monads.Configs.MonadOptions!
+Waystone.Monads.Configs.MonadOptionsBuilder
+Waystone.Monads.Configs.MonadOptionsBuilder.UseCancellationAsFailure() -> Waystone.Monads.Configs.MonadOptionsBuilder!
+Waystone.Monads.Configs.MonadOptionsBuilder.UseErrorCodeFactory(Waystone.Monads.Configs.ErrorCodeFactory! factory) -> Waystone.Monads.Configs.MonadOptionsBuilder!
+Waystone.Monads.Configs.MonadOptionsBuilder.UseFallbackErrorCode(string! errorCode) -> Waystone.Monads.Configs.MonadOptionsBuilder!
+Waystone.Monads.Configs.MonadOptionsBuilder.UseFallbackErrorMessage(string! errorMessage) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsScope
 Waystone.Monads.Configs.MonadOptionsScope.Dispose() -> void
 Waystone.Monads.Configs.MonadOptionsScope.MonadOptionsScope() -> void
@@ -793,8 +794,8 @@ override sealed Waystone.Monads.Results.Err<TOk, TErr>.Equals(Waystone.Monads.Re
 override sealed Waystone.Monads.Results.Ok<TOk, TErr>.Equals(Waystone.Monads.Results.Result<TOk, TErr>? other) -> bool
 static Waystone.Monads.Configs.CallerInfo.operator !=(Waystone.Monads.Configs.CallerInfo? left, Waystone.Monads.Configs.CallerInfo? right) -> bool
 static Waystone.Monads.Configs.CallerInfo.operator ==(Waystone.Monads.Configs.CallerInfo? left, Waystone.Monads.Configs.CallerInfo? right) -> bool
-static Waystone.Monads.Configs.MonadOptions.BeginScope(System.Action<Waystone.Monads.Configs.MonadOptions!>! configure) -> Waystone.Monads.Configs.MonadOptionsScope
-static Waystone.Monads.Configs.MonadOptions.Configure(System.Action<Waystone.Monads.Configs.MonadOptions!>! configure) -> void
+static Waystone.Monads.Configs.MonadOptions.BeginScope(System.Action<Waystone.Monads.Configs.MonadOptionsBuilder!>! configure) -> Waystone.Monads.Configs.MonadOptionsScope
+static Waystone.Monads.Configs.MonadOptions.Configure(System.Action<Waystone.Monads.Configs.MonadOptionsBuilder!>! configure) -> void
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator !=(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator ==(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
 static Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.operator !=(Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? left, Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? right) -> bool

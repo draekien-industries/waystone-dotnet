@@ -34,7 +34,7 @@ using System;
 /// <see cref="ErrorCodeFormatAttribute" /> says otherwise. Whichever applies is
 /// read at compile time and baked into the constants, so the codes an enum
 /// produces are fixed by its source and cannot be changed from configuration —
-/// <see cref="Configs.MonadOptions.UseErrorCodeFactory" /> reaches only the codes
+/// <see cref="Configs.MonadOptionsBuilder.UseErrorCodeFactory" /> reaches only the codes
 /// derived from exceptions.
 /// </para>
 /// <para>

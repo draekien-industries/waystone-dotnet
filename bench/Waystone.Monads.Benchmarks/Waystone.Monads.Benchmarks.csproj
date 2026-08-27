@@ -15,6 +15,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.FluentValidation\Waystone.Monads.FluentValidation.csproj"/>
     </ItemGroup>
 
 </Project>

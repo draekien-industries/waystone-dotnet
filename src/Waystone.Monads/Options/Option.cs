@@ -48,7 +48,7 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </remarks>
     public static Option<T> Try<T>(
@@ -104,7 +104,7 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </remarks>
     public static async ValueTask<Option<T>> TryAsync<T>(
@@ -173,7 +173,7 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -247,7 +247,7 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>

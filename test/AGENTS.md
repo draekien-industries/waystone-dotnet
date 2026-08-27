@@ -59,10 +59,28 @@ listener's, and the only thing reaching that branch was Reqnroll creating a
 listener on purpose. Incidental coverage from a test framework is worth checking
 for whenever one leaves.
 
-**`MonadOptions.Global` is a process-wide mutable singleton.** A test that mutates
-it and then asserts on it will flake against tests in other xUnit collections
-running in parallel. Use `MonadOptions.BeginScope` so the override is confined to
-the current asynchronous flow.
+**`MonadOptions.Global` is process-wide.** Prefer `MonadOptions.BeginScope`, which
+confines the override to the current asynchronous flow and needs no coordination
+with anything. A test that genuinely needs the global — because it is testing
+publication itself, or reads a fallback the global supplies — must carry
+`[Collection(GlobalMonadOptionsCollection.Name)]`, which serialises it against
+every other class that does. The collection is not optional bookkeeping: it is the
+only thing stopping these classes from racing, and `ErrorCodeTests` and
+`ErrorTests` are in it because they assert on the *default* fallbacks, which a
+parallel class configuring the global would change under them.
+
+Inside that collection, call `MonadOptions.Reset()` from the constructor rather
+than capturing and restoring by hand. Reset swaps in the same default snapshot the
+type built at start-up, so it covers a setting added later; a hand-written restore
+of each scalar does not. `MonadOptionsResetIsolationTests` and its `…PairTests`
+sibling exist as a pair for that reason — each resets on entry, so neither sees the
+other's configuration whichever order the runner picks, which is the property no
+single class can demonstrate. Do not merge them.
+
+Reset clears the calling flow's open scope and nothing else. It cannot clear
+another flow's `AsyncLocal`, and it deliberately leaves the `_scopingHasBeenUsed`
+latch set, so a suite that has opened one scope keeps paying for the scoped read
+path for the rest of the run.
 
 **A half-extracted reference-assembly cache fails every analyzer test at once.**
 `Microsoft.CodeAnalysis.Testing` unpacks into `%TEMP%\test-packages\`, and an

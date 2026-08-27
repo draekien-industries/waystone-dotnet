@@ -64,7 +64,7 @@ public static class MonadDiagnostics
     /// It counts only exceptions <c>Try</c> and <c>TryAsync</c> caught, so an
     /// exception the library let propagate never reaches it. A cancellation is
     /// among those unless
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> has been called, which
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> has been called, which
     /// makes it a caught exception like any other and therefore counted.
     /// </para>
     /// </remarks>
