@@ -47,12 +47,12 @@ public sealed class UseNoneCodeFix : MonadCodeFix
 
         var value = arguments[0];
 
-        var replacement = OptionFactoryCall(
+        var replacement = FactoryCall(
+            symbols.OptionFactory,
             "None",
-            value,
+            ImmutableArray.Create(value),
             model,
-            target.SpanStart,
-            symbols);
+            target.SpanStart);
 
         context.RegisterCodeFix(
             CodeAction.Create(

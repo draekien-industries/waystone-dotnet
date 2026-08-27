@@ -65,12 +65,12 @@ public sealed class UseAndThenWithFromNullableCodeFix : MonadCodeFix
                         projection,
                         projection.WithExpression(
                             lambda.WithExpressionBody(
-                                OptionFactoryCall(
+                                FactoryCall(
+                                    symbols.OptionFactory,
                                     "FromNullable",
-                                    typeArgument: null,
+                                    ImmutableArray<ITypeSymbol>.Empty,
                                     model,
                                     access.SpanStart,
-                                    symbols,
                                     projected))))));
 
         context.RegisterCodeFix(
