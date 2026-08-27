@@ -1,68 +1,20 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>MapOrElse</c> and <c>MapOrElseAsync</c> to a
+/// <see cref="Result{TOk,TErr}" /> that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Result{TOk,TErr}" /> itself, and the awaited-receiver generator
+/// emits each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.MapOrElse))]
-public static partial class MapOrElseExtensions
-{
-    extension<TOk, TErr>(Result<TOk, TErr> result)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> defaultFactory,
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            if (result.IsErr)
-            {
-                TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-                return await defaultFactory.Invoke(err).ConfigureAwait(false);
-            }
-
-            TOk ok = result.Expect("Expected Ok but found Err.");
-            TOut output = await map.Invoke(ok).ConfigureAwait(false);
-
-            return output;
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, TOut> defaultFactory,
-            Func<TOk, Task<TOut>> map)
-            where TOut : notnull
-        {
-            if (result.IsErr)
-            {
-                TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-                return defaultFactory.Invoke(err);
-            }
-
-            TOk ok = result.Expect("Expected Ok but found Err.");
-            TOut output = await map.Invoke(ok).ConfigureAwait(false);
-
-            return output;
-        }
-
-        public async ValueTask<TOut> MapOrElseAsync<TOut>(
-            Func<TErr, Task<TOut>> defaultFactory,
-            Func<TOk, TOut> map)
-            where TOut : notnull
-        {
-            if (result.IsErr)
-            {
-                TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-                return await defaultFactory.Invoke(err).ConfigureAwait(false);
-            }
-
-            TOk ok = result.Expect("Expected Ok but found Err.");
-            TOut output = map.Invoke(ok);
-
-            return output;
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Result<,>.MapOrElseAsync))]
+public static partial class MapOrElseExtensions;

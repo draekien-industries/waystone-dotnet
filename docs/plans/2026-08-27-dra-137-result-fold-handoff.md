@@ -79,6 +79,29 @@ Three cannot fold, for two structural reasons:
 A constraint on the *method's* own type parameter is fine —
 `MapOrNull<TOut> where TOut : struct` moved without trouble on `Option`.
 
+### One member moved as a concrete base member rather than an abstract one
+
+`MapOrDefaultAsync` returns `ValueTask<TOut?>` under `where TOut : notnull`, and
+that cannot be an abstract member. An *override* inherits its constraints rather
+than restating them, so Roslyn cannot tell whether `TOut?` means a
+nullable-reference annotation or `Nullable<TOut>`, and errors `CS0453`. Spelling
+the override `ValueTask<TOut>` instead is `CS8609`, because a generic type
+argument is invariant — so an abstract declaration costs either the `?` on the
+published return or a suppression.
+
+A **non-abstract** member on `Result<TOk, TErr>` has no such problem: it declares
+its own `where TOut : notnull`, so `ValueTask<TOut?>` is legal, and there is no
+override to spell. It pattern-matches the sealed case directly —
+`this is Ok<TOk, TErr> ok ? await map(ok.Value) : default` — which is not the
+guard this layer exists to delete. That guard was a *re-derivation* of what
+virtual dispatch had already decided; with no dispatch to lean on, this is the
+primary branch, and the closed hierarchy makes it exhaustive.
+
+The synchronous `MapOrDefault` stays abstract and is unaffected: a bare `TOut`
+against a base `TOut?` is a safe narrowing and silent, which is why
+`Err.MapOrDefault` reads `default!`. That is a language limitation, not a style
+choice — do not "fix" it to `TOut?`/`default`, it does not compile.
+
 ## The trap: eleven of the twenty ship undocumented
 
 `Map`, `MapErr`, `MapOr`, `MapOrElse` ×3, `Match` ×4, `OrElse` and `UnwrapOrElse`

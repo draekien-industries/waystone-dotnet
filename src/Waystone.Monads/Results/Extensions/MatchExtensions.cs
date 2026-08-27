@@ -1,84 +1,20 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>Match</c> and <c>MatchAsync</c> to a
+/// <see cref="Result{TOk,TErr}" /> that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Result{TOk,TErr}" /> itself, and the awaited-receiver generator
+/// emits each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.Match))]
-public static partial class MatchExtensions
-{
-    extension<TOk, TErr>(Result<TOk, TErr> result)
-        where TOk : notnull where TErr : notnull
-    {
-        public async ValueTask MatchAsync(
-            Func<TOk, Task> onOk,
-            Func<TErr, Task> onErr)
-        {
-            if (result.IsOk)
-            {
-                TOk ok = result.Expect("Expected Ok but found Err.");
-
-                await onOk.Invoke(ok).ConfigureAwait(false);
-
-                return;
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            await onErr.Invoke(err).ConfigureAwait(false);
-        }
-
-        public async ValueTask MatchAsync(
-            Func<TOk, Task> onOk,
-            Action<TErr> onErr)
-        {
-            if (result.IsOk)
-            {
-                TOk ok = result.Expect("Expected Ok but found Err.");
-
-                await onOk.Invoke(ok).ConfigureAwait(false);
-
-                return;
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            onErr.Invoke(err);
-        }
-
-        public async ValueTask MatchAsync(
-            Action<TOk> onOk,
-            Func<TErr, Task> onErr)
-        {
-            if (result.IsOk)
-            {
-                TOk ok = result.Expect("Expected Ok but found Err.");
-
-                onOk.Invoke(ok);
-
-                return;
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            await onErr.Invoke(err).ConfigureAwait(false);
-        }
-
-        public async ValueTask<TOut> MatchAsync<TOut>(
-            Func<TOk, Task<TOut>> onOk,
-            Func<TErr, Task<TOut>> onErr)
-        {
-            if (result.IsOk)
-            {
-                TOk ok = result.Expect("Expected Ok but found Err.");
-
-                return await onOk.Invoke(ok).ConfigureAwait(false);
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            return await onErr.Invoke(err).ConfigureAwait(false);
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Result<,>.MatchAsync))]
+public static partial class MatchExtensions;

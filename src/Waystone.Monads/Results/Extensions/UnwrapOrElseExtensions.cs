@@ -1,31 +1,20 @@
 ﻿namespace Waystone.Monads.Results.Extensions;
 
-using System;
 using System.Threading.Tasks;
 using Waystone.SourceGenerators;
 
+/// <summary>
+/// Applies <c>UnwrapOrElse</c> and <c>UnwrapOrElseAsync</c> to a
+/// <see cref="Result{TOk,TErr}" /> that is still inside a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" />.
+/// </summary>
+/// <remarks>
+/// Nothing here is hand-written. Every member named below is declared on
+/// <see cref="Result{TOk,TErr}" /> itself, and the awaited-receiver generator
+/// emits each overload onto a <see cref="Task{TResult}" /> and a
+/// <see cref="ValueTask{TResult}" /> receiver.
+/// </remarks>
 [GenerateAwaitedReceivers(typeof(Result<,>))]
 [GenerateAwaitedMember(nameof(Result<,>.UnwrapOrElse))]
-public static partial class UnwrapOrElseExtensions
-{
-    extension<TOk, TErr>(Result<TOk, TErr> result)
-        where TOk : notnull
-        where TErr : notnull
-    {
-        public async ValueTask<TOk> UnwrapOrElseAsync(
-            Func<TErr, Task<TOk>> valueFactory)
-        {
-            if (result.IsOk)
-            {
-                return result.Expect("Expected Ok but found Err.");
-            }
-
-            TErr err = result.ExpectErr("Expected Err but found Ok.");
-
-            TOk output = await valueFactory.Invoke(err)
-               .ConfigureAwait(false);
-
-            return output;
-        }
-    }
-}
+[GenerateAwaitedMember(nameof(Result<,>.UnwrapOrElseAsync))]
+public static partial class UnwrapOrElseExtensions;
