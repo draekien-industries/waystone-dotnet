@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Diagnostics;
 using FluentValidation.Configs;
+using Fixtures;
 using JetBrains.Annotations;
 using Results.Errors;
 using Shouldly;
@@ -330,14 +331,17 @@ public sealed class MonadOptionsScopeTests
 
     [Fact]
     public void
-        GivenNothingIsListening_WhenTheOuterIsDisposedFirst_ThenLeaveTheInnerInEffect()
+        GivenTheOuterAlreadyDeclined_WhenDisposedAgain_ThenWriteTheEventAgain()
     {
-        MonadOptionsScope outer = BeginScope("unobserved.outer");
-        BeginScope("unobserved.inner");
+        using var recorder = new ScopeEventRecorder("again");
+
+        MonadOptionsScope outer = BeginScope("again.outer");
+        BeginScope("again.inner");
 
         outer.Dispose();
+        outer.Dispose();
 
-        ResolveFallbackCode().ShouldBe("unobserved.inner");
+        recorder.Recorded().Count.ShouldBe(2);
 
         ClearScopedOptions();
     }
@@ -425,20 +429,6 @@ public sealed class MonadOptionsScopeTests
             {
                 _events.Enqueue(disposed);
             }
-        }
-    }
-
-    private sealed class Observer<T>(Action<T> onNext) : IObserver<T>
-    {
-        public void OnCompleted()
-        { }
-
-        public void OnError(Exception error)
-        { }
-
-        public void OnNext(T value)
-        {
-            onNext(value);
         }
     }
 }

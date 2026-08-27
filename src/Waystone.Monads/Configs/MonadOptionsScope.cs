@@ -48,9 +48,13 @@ public readonly struct MonadOptionsScope : IDisposable
     /// test suite even if never in production.
     /// </para>
     /// <para>
-    /// Safe to call more than once. A second call finds the options it already
-    /// restored and returns without writing the event, so an explicit
-    /// <c>Dispose</c> inside a <c>using</c> is not reported as misuse.
+    /// Safe to call more than once, and quiet about it on the path that restored:
+    /// a second call finds the options it already put back and returns without
+    /// writing anything, so an explicit <c>Dispose</c> inside a <c>using</c> is
+    /// never reported as misuse. A scope that already declined has no such
+    /// guarantee — a <c>readonly struct</c> cannot record that it reported, so
+    /// every further <c>Dispose</c> writes the event again. Deduplicate in the
+    /// subscriber if that matters; the events are identical.
     /// </para>
     /// </remarks>
     public void Dispose()
