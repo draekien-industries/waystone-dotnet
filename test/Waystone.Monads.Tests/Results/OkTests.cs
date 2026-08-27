@@ -358,19 +358,29 @@ public class OkTests
                    .ParamName.ShouldBe("resultFactory");
     }
 
+    /// <summary>
+    /// The gate holds the factory's task incomplete until after the call returns,
+    /// which is what puts the guard on its awaiting path. <c>await Task.Yield()</c>
+    /// does not: on an idle thread pool it can resume before the guard reads
+    /// <c>IsCompletedSuccessfully</c>, and the throw then lands at the call
+    /// instead.
+    /// </summary>
     [Fact]
     public async Task
         GivenAPendingFactory_WhenAndThenAsyncProducesANullResult_ThenFaultTheReturnedTask()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
+        var gate = new TaskCompletionSource<bool>();
 
         ValueTask<Result<int, string>> pending = ok.AndThenAsync(
             async ValueTask<Result<int, string>> (_) =>
             {
-                await Task.Yield();
+                await gate.Task;
 
                 return default(Result<int, string>)!;
             });
+
+        gate.SetResult(true);
 
         Func<Task> consume = async () => await pending;
 
