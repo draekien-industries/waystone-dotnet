@@ -13,20 +13,6 @@ public sealed class ErrorCodeFactoryTests
         _sut = new ErrorCodeFactory();
     }
 
-    public enum TestErrorCodes
-    {
-        Failure
-    }
-
-    [Fact]
-    public void WhenInvokingFromEnum_ThenReturnExpectedCode()
-    {
-#pragma warning disable CS0618
-        var result = _sut.FromEnum(TestErrorCodes.Failure);
-#pragma warning restore CS0618
-        result.Value.ShouldBe($"{nameof(TestErrorCodes)}.Failure");
-    }
-
     [Fact]
     public void GivenNamedException_WhenInvokingFromException_ThenStripExceptionSuffixFromCode()
     {

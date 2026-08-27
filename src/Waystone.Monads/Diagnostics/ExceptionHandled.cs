@@ -12,8 +12,9 @@ using Configs;
 /// Subscribers receive this boxed as <see cref="object" />, since
 /// <see cref="DiagnosticListener" /> is untyped; cast to this record to read it.
 /// The event fires only for an exception the library swallowed, never for one it
-/// let propagate, and it fires before the obsolete
-/// <c>MonadOptions.UseExceptionLogger</c> delegate, if one is still registered.
+/// let propagate. It is the sole hook for observing one:
+/// <c>Waystone.Monads.Extensions.Logging</c> is a subscriber like any other, so
+/// installing it displaces nothing and adds nothing you cannot reach here.
 /// <para>
 /// A subscriber runs synchronously on the thread that threw, still inside the
 /// <c>catch</c>, and before the caller receives its <c>None</c> or <c>Err</c>.

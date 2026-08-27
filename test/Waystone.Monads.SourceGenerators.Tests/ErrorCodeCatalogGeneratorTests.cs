@@ -140,7 +140,7 @@ public sealed class ErrorCodeCatalogGeneratorTests
     }
 
     [Fact]
-    public void MatchesTheDefaultFactoryForEveryMember()
+    public void EmitsTheDefaultSchemeForEveryMember()
     {
         Verify.Run(
                 """
@@ -150,10 +150,7 @@ public sealed class ErrorCodeCatalogGeneratorTests
                     NotFound,
                 }
                 """)
-#pragma warning disable CS0618
-              .Source.ShouldContain(
-                   $"= \"{ErrorCode.FromEnum(Fixture.OrderError.NotFound).Value}\";");
-#pragma warning restore CS0618
+              .Source.ShouldContain("= \"OrderError.NotFound\";");
     }
 
     [Fact]

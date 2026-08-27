@@ -12,17 +12,14 @@ using Xunit;
 /// </summary>
 public sealed class GeneratedErrorCodeTests
 {
-#pragma warning disable CS0618
     [Fact]
-    public void TheConstantMatchesTheRuntimeFactory() =>
-        ShipmentErrorCatalog.Names.NotFound.ShouldBe(
-            ErrorCode.FromEnum(ShipmentError.NotFound).Value);
+    public void TheConstantCarriesTheDefaultScheme() =>
+        ShipmentErrorCatalog.Names.NotFound.ShouldBe("ShipmentError.NotFound");
 
     [Fact]
-    public void TheErrorCodeMatchesTheRuntimeFactory() =>
+    public void TheCodeCarriesTheDefaultScheme() =>
         ShipmentErrorCatalog.Codes.AlreadyShipped.ShouldBe(
-            ErrorCode.FromEnum(ShipmentError.AlreadyShipped));
-#pragma warning restore CS0618
+            new ErrorCode("ShipmentError.AlreadyShipped"));
 
     [Fact]
     public void TheErrorFactoryCarriesTheCodeAndMessage()
@@ -50,11 +47,9 @@ public sealed class GeneratedErrorCodeTests
     }
 
     /// <summary>
-    /// The generated members never consult the configured
-    /// <see cref="Waystone.Monads.Configs.ErrorCodeFactory" />, including on the
-    /// fallback path. Under the default factory that is indistinguishable from
-    /// calling it, which is why this asserts against the literal string rather than
-    /// against <see cref="ErrorCode.FromEnum" />.
+    /// A value with no declared member still gets the scheme applied rather than
+    /// falling back to the enum's own <c>ToString</c>, so a code read off the wire
+    /// keeps the same shape whether or not it maps to a member.
     /// </summary>
     [Fact]
     public void AnUndeclaredValueGetsTheSameSchemeApplied()
@@ -70,6 +65,12 @@ public sealed class GeneratedErrorCodeTests
     /// either path. This is the test that would have caught the fallback arm
     /// consulting the factory while the declared members did not.
     /// </summary>
+    /// <remarks>
+    /// The <c>FromException</c> assertion is the control, not an afterthought: it is
+    /// the only remaining way to observe that the factory was installed at all.
+    /// Without it a scope that silently failed to apply would pass this test while
+    /// proving nothing.
+    /// </remarks>
     [Fact]
     public void ACustomFactoryChangesNothingTheGeneratedMembersReturn()
     {
@@ -82,19 +83,15 @@ public sealed class GeneratedErrorCodeTests
             ((ShipmentError)99).ToErrorCodeName()
                                .ShouldBe("ShipmentError.99");
 
-#pragma warning disable CS0618
-            ErrorCode.FromEnum(ShipmentError.NotFound)
-                     .Value.ShouldBe("custom.ShipmentError.NotFound");
-#pragma warning restore CS0618
+            ErrorCode.FromException(new System.InvalidOperationException())
+                     .Value.ShouldBe("custom.InvalidOperation");
         }
     }
 
     private sealed class PrefixingFactory : ErrorCodeFactory
     {
-#pragma warning disable CS0672
-        public override ErrorCode FromEnum(System.Enum @enum) =>
-#pragma warning restore CS0672
-            new ErrorCode($"custom.{@enum.GetType().Name}.{@enum}");
+        public override ErrorCode FromException(System.Exception exception) =>
+            new ErrorCode($"custom.{base.FromException(exception).Value}");
     }
 }
 

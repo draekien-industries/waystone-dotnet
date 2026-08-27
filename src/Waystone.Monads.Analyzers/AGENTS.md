@@ -41,7 +41,13 @@ tier ships `Disabled`, so a rule there never fires; an enabled rule reports what
 compiler already reported, which is the `WM1002`-alongside-`WM2008` double-report.
 Subclass `MonadCodeFix` with `FixableDiagnosticIds = ["CS0618"]` and bail unless the
 symbol is one of ours, or the fix fires on a consumer's own obsolete API.
-`UseGeneratedErrorCodeCodeFix` is the worked example.
+
+There is no worked example in the tree right now. `UseGeneratedErrorCodeCodeFix` was
+the one, and it was deleted in the 7.0.0 stack along with the members it rewrote —
+a `CS0618` fixer cannot outlive its own deprecation, because a removed member reports
+`CS0117` or `CS1501` and the fixer has no symbol left to key on. Read it out of
+history rather than reinventing the shape, and expect to delete the next one the same
+way.
 
 ## Gotchas
 

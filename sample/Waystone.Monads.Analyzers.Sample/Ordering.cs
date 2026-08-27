@@ -54,8 +54,8 @@ internal class Ordering
     /// The pipeline's failures reach the caller as codes, so the boundary decides
     /// what to do with a code rather than with an exception type. The
     /// <c>case</c> labels are what make this method possible at all — a label
-    /// needs a compile-time constant, which is what
-    /// <c>Names</c> gives you and <c>ErrorCode.FromEnum</c> cannot.
+    /// needs a compile-time constant, which is what <c>Names</c> gives you and no
+    /// code worked out at run time can.
     /// </summary>
     internal int StatusCodeFor(Error error)
     {

@@ -14,7 +14,6 @@ Waystone.Monads.Configs.ErrorCodeFactory.ErrorCodeFactory() -> void
 Waystone.Monads.Configs.MonadOptions
 Waystone.Monads.Configs.MonadOptions.UseCancellationAsFailure() -> Waystone.Monads.Configs.MonadOptions!
 Waystone.Monads.Configs.MonadOptions.UseErrorCodeFactory(Waystone.Monads.Configs.ErrorCodeFactory! factory) -> Waystone.Monads.Configs.MonadOptions!
-Waystone.Monads.Configs.MonadOptions.UseExceptionLogger(System.Action<System.Exception!, Waystone.Monads.Configs.CallerInfo!>! action) -> Waystone.Monads.Configs.MonadOptions!
 Waystone.Monads.Configs.MonadOptions.UseFallbackErrorCode(string! errorCode) -> Waystone.Monads.Configs.MonadOptions!
 Waystone.Monads.Configs.MonadOptions.UseFallbackErrorMessage(string! errorMessage) -> Waystone.Monads.Configs.MonadOptions!
 Waystone.Monads.Configs.MonadOptionsScope
@@ -921,11 +920,9 @@ static Waystone.Monads.Options.Some<T>.operator !=(Waystone.Monads.Options.Some<
 static Waystone.Monads.Options.Some<T>.operator ==(Waystone.Monads.Options.Some<T>? left, Waystone.Monads.Options.Some<T>? right) -> bool
 static Waystone.Monads.Results.Err<TOk, TErr>.operator !=(Waystone.Monads.Results.Err<TOk, TErr>? left, Waystone.Monads.Results.Err<TOk, TErr>? right) -> bool
 static Waystone.Monads.Results.Err<TOk, TErr>.operator ==(Waystone.Monads.Results.Err<TOk, TErr>? left, Waystone.Monads.Results.Err<TOk, TErr>? right) -> bool
-static Waystone.Monads.Results.Errors.Error.FromEnum(System.Enum! value, string! message) -> Waystone.Monads.Results.Errors.Error!
 static Waystone.Monads.Results.Errors.Error.FromException(System.Exception! exception) -> Waystone.Monads.Results.Errors.Error!
 static Waystone.Monads.Results.Errors.Error.operator !=(Waystone.Monads.Results.Errors.Error? left, Waystone.Monads.Results.Errors.Error? right) -> bool
 static Waystone.Monads.Results.Errors.Error.operator ==(Waystone.Monads.Results.Errors.Error? left, Waystone.Monads.Results.Errors.Error? right) -> bool
-static Waystone.Monads.Results.Errors.ErrorCode.FromEnum(System.Enum! value) -> Waystone.Monads.Results.Errors.ErrorCode!
 static Waystone.Monads.Results.Errors.ErrorCode.FromException(System.Exception! exception) -> Waystone.Monads.Results.Errors.ErrorCode!
 static Waystone.Monads.Results.Errors.ErrorCode.implicit operator Waystone.Monads.Results.Errors.ErrorCode!(string! value) -> Waystone.Monads.Results.Errors.ErrorCode!
 static Waystone.Monads.Results.Errors.ErrorCode.implicit operator string!(Waystone.Monads.Results.Errors.ErrorCode! value) -> string!
@@ -1062,7 +1059,6 @@ static Waystone.Monads.Results.Extensions.UnwrapOrNullExtensions.UnwrapOrNullAsy
 static Waystone.Monads.Results.Ok<TOk, TErr>.operator !=(Waystone.Monads.Results.Ok<TOk, TErr>? left, Waystone.Monads.Results.Ok<TOk, TErr>? right) -> bool
 static Waystone.Monads.Results.Ok<TOk, TErr>.operator ==(Waystone.Monads.Results.Ok<TOk, TErr>? left, Waystone.Monads.Results.Ok<TOk, TErr>? right) -> bool
 static Waystone.Monads.Results.Result.Err<TOk, TErr>(TErr value) -> Waystone.Monads.Results.Result<TOk, TErr>!
-static Waystone.Monads.Results.Result.Err<TOk>(System.Enum! code, string! message) -> Waystone.Monads.Results.Result<TOk, Waystone.Monads.Results.Errors.Error!>!
 static Waystone.Monads.Results.Result.Err<TOk>(Waystone.Monads.Results.Errors.Error! error) -> Waystone.Monads.Results.Result<TOk, Waystone.Monads.Results.Errors.Error!>!
 static Waystone.Monads.Results.Result.Ok<TOk, TErr>(TOk value) -> Waystone.Monads.Results.Result<TOk, TErr>!
 static Waystone.Monads.Results.Result.Ok<TOk>(TOk value) -> Waystone.Monads.Results.Result<TOk, Waystone.Monads.Results.Errors.Error!>!
@@ -1082,7 +1078,6 @@ virtual Waystone.Monads.Configs.CallerInfo.<Clone>$() -> Waystone.Monads.Configs
 virtual Waystone.Monads.Configs.CallerInfo.EqualityContract.get -> System.Type!
 virtual Waystone.Monads.Configs.CallerInfo.Equals(Waystone.Monads.Configs.CallerInfo? other) -> bool
 virtual Waystone.Monads.Configs.CallerInfo.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual Waystone.Monads.Configs.ErrorCodeFactory.FromEnum(System.Enum! enum) -> Waystone.Monads.Results.Errors.ErrorCode!
 virtual Waystone.Monads.Configs.ErrorCodeFactory.FromException(System.Exception! exception) -> Waystone.Monads.Results.Errors.ErrorCode!
 virtual Waystone.Monads.Options.Option<T>.EqualityContract.get -> System.Type!
 virtual Waystone.Monads.Options.Option<T>.Equals(Waystone.Monads.Options.Option<T>? other) -> bool
