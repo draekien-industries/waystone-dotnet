@@ -1,0 +1,17 @@
+# Waystone.Monads.Shouldly severity preset: recommended
+#
+# Both assertion rules stay at their shipped suggestion severity. There is no WMS1
+# tier and there should not be one — every rule here fires on a test that passes,
+# so none of them has earned a build failure.
+#
+# This file therefore changes nothing, and it exists so that a consumer who sets
+# WaystoneMonadsRuleset once gets a defined answer from every Waystone package
+# rather than an error from this one.
+is_global = true
+
+# Below every level a consumer can author, so their own .globalconfig wins on a
+# conflict rather than producing a tie.
+global_level = -1
+
+dotnet_diagnostic.WMS2001.severity = suggestion
+dotnet_diagnostic.WMS2002.severity = suggestion

@@ -34,6 +34,16 @@ in the core analyzer area. The paired obligations there apply here too, against 
 directory's own `AnalyzerReleases.{Shipped,Unshipped}.md` and this area's own
 `RulesTests`.
 
+**A new rule needs a row in both severity presets**, under
+`src/Waystone.Monads.Shouldly/build/`. This area's `PresetTests` mirrors the core
+one's and fails on a descriptor with no entry. The presets read the *same*
+`WaystoneMonadsRuleset` property the core package reads, so a consumer sets one
+posture for every Waystone package they installed — which means the two packages'
+files have to agree about what each tier name means. `recommended` changes nothing
+here, because there is no misuse tier to promote into; `strict` raises both rules to
+warning. Read [Waystone.Monads.Analyzers](../Waystone.Monads.Analyzers/AGENTS.md) for
+why the files are global configs and why `global_level` is negative.
+
 ## Gotchas
 
 **`IInvocationOperation.TargetMethod` arrives unreduced for an extension method.** Its

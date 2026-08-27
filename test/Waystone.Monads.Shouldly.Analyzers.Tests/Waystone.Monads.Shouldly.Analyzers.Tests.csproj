@@ -11,6 +11,18 @@
         <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly.Analyzers.CodeFixes\Waystone.Monads.Shouldly.Analyzers.CodeFixes.csproj"/>
     </ItemGroup>
 
+    <!--
+        The shipped preset files, copied so PresetTests reads what the nupkg carries
+        rather than a second copy that could drift. Named *.globalconfig rather than
+        .globalconfig, so the SDK does not glob them into this project's own
+        EditorConfigFiles and apply them to the tests.
+    -->
+    <ItemGroup>
+        <Content Include="..\..\src\Waystone.Monads.Shouldly\build\*.globalconfig"
+                 Link="presets\%(Filename)%(Extension)"
+                 CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing"/>

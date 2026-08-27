@@ -1,0 +1,42 @@
+<Project>
+
+    <!--
+        Applies one of the packed severity presets. Nothing happens unless the
+        consuming project opts in:
+
+            <PropertyGroup>
+                <WaystoneMonadsRuleset>recommended</WaystoneMonadsRuleset>
+            </PropertyGroup>
+
+        The shipped defaults are deliberately quiet, and a package that raised a
+        consumer's severities because they took a version bump would be the thing
+        this file exists to avoid. So the unset value is 'none' and it stays that
+        way until somebody asks.
+
+        This lives in build/ rather than buildTransitive/ on purpose. A
+        PackageReference's default PrivateAssets excludes analyzers, so the rules
+        themselves do not reach a project that only depends on this package
+        transitively. A preset that flowed further than the analyzers would set
+        severities for rules nothing in that project reports.
+    -->
+
+    <PropertyGroup>
+        <WaystoneMonadsRuleset Condition="'$(WaystoneMonadsRuleset)' == ''">none</WaystoneMonadsRuleset>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(WaystoneMonadsRuleset)' == 'recommended' Or '$(WaystoneMonadsRuleset)' == 'strict'">
+        <EditorConfigFiles Include="$(MSBuildThisFileDirectory)$(WaystoneMonadsRuleset).globalconfig"/>
+    </ItemGroup>
+
+    <!--
+        The values are matched by name rather than turned into a file path, so a typo
+        fails here with the list of what is available instead of reaching the compiler
+        as a missing analyzer config.
+    -->
+    <Target Name="WaystoneMonadsValidateRuleset"
+            BeforeTargets="CoreCompile"
+            Condition="'$(WaystoneMonadsRuleset)' != 'none' And '$(WaystoneMonadsRuleset)' != 'recommended' And '$(WaystoneMonadsRuleset)' != 'strict'">
+        <Error Text="WaystoneMonadsRuleset is '$(WaystoneMonadsRuleset)'. Valid values are 'recommended', 'strict', or 'none' to apply no preset."/>
+    </Target>
+
+</Project>

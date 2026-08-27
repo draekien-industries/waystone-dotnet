@@ -1,0 +1,62 @@
+# Waystone.Monads severity preset: strict
+#
+# The posture of a codebase adopting the library wholesale. WM1 misuse rules are
+# errors, the WM2 idiom rules are warnings, and both WM3 migration aids are on at
+# warning so the code that has not been converted yet is visible.
+#
+# Expect this to report on an existing codebase, and expect the WM3 pair to report
+# the most by a wide margin — they fire on every nullable return and every throw,
+# converted or not. A team that wants the idiom rules enforced without that noise
+# wants recommended plus a WM2 raise of its own, not this.
+#
+# Opt in from the consuming project:
+#
+#     <WaystoneMonadsRuleset>strict</WaystoneMonadsRuleset>
+#
+# This is a global analyzer config rather than an .editorconfig section for a
+# reason that is not stylistic: WM2020 is reported against ErrorCodes.txt, which
+# has no syntax tree, and Roslyn resolves dotnet_diagnostic severities per tree.
+# A path-matched section cannot reach it, not even [*], so an .editorconfig
+# fragment could not raise this tier as claimed.
+is_global = true
+
+# Below every level a consumer can author, so their own .globalconfig wins on a
+# conflict rather than producing a tie. A path-matched .editorconfig section beats
+# any global config regardless, so overriding one rule stays a two-line edit.
+global_level = -1
+
+# Misuse — raised to error.
+dotnet_diagnostic.WM1001.severity = error
+dotnet_diagnostic.WM1002.severity = error
+dotnet_diagnostic.WM1003.severity = error
+dotnet_diagnostic.WM1005.severity = error
+dotnet_diagnostic.WM1006.severity = error
+dotnet_diagnostic.WM1008.severity = error
+dotnet_diagnostic.WM1011.severity = error
+
+# Idiom — raised to warning.
+dotnet_diagnostic.WM2001.severity = warning
+dotnet_diagnostic.WM2002.severity = warning
+dotnet_diagnostic.WM2003.severity = warning
+dotnet_diagnostic.WM2004.severity = warning
+dotnet_diagnostic.WM2005.severity = warning
+dotnet_diagnostic.WM2006.severity = warning
+dotnet_diagnostic.WM2007.severity = warning
+dotnet_diagnostic.WM2008.severity = warning
+dotnet_diagnostic.WM2009.severity = warning
+dotnet_diagnostic.WM2011.severity = warning
+dotnet_diagnostic.WM2012.severity = warning
+dotnet_diagnostic.WM2013.severity = warning
+dotnet_diagnostic.WM2015.severity = warning
+dotnet_diagnostic.WM2016.severity = warning
+dotnet_diagnostic.WM2017.severity = warning
+dotnet_diagnostic.WM2018.severity = warning
+dotnet_diagnostic.WM2019.severity = warning
+dotnet_diagnostic.WM2020.severity = warning
+dotnet_diagnostic.WM2021.severity = warning
+dotnet_diagnostic.WM2022.severity = warning
+
+# Adoption — enabled at warning. A severity of anything but none is what enables a
+# rule that ships disabled; there is no separate switch.
+dotnet_diagnostic.WM3001.severity = warning
+dotnet_diagnostic.WM3002.severity = warning
