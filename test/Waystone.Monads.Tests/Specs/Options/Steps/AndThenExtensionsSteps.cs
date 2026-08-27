@@ -16,7 +16,7 @@ public class AndThenExtensionsSteps(SpecContext context)
     public void GivenAnAsyncMapFunctionThatReturnsASomeWithValueMultipliedByInt(
         int value)
     {
-        context.SetSlot<Func<int, Task<Option<int>>>>(async x =>
+        context.SetSlot<Func<int, ValueTask<Option<int>>>>(async x =>
             {
                 await Task.Yield();
 
@@ -28,7 +28,8 @@ public class AndThenExtensionsSteps(SpecContext context)
     public async Task WhenInvokingAsyncAndThenOnOptionTask()
     {
         var option = context.Subject<Task<Option<int>>>();
-        var map = context.Slot<Func<int, Task<Option<int>>>>(SpecContext.MapSlot);
+        var map = context.Slot<Func<int, ValueTask<Option<int>>>>(
+            SpecContext.MapSlot);
 
         Option<int> result =
             await option.AndThenAsync(map).ConfigureAwait(false);
@@ -40,7 +41,8 @@ public class AndThenExtensionsSteps(SpecContext context)
     public async Task WhenInvokingAsyncAndThenOnOption()
     {
         var option = context.Subject<Option<int>>();
-        var map = context.Slot<Func<int, Task<Option<int>>>>(SpecContext.MapSlot);
+        var map = context.Slot<Func<int, ValueTask<Option<int>>>>(
+            SpecContext.MapSlot);
 
         Option<int> result =
             await option.AndThenAsync(map).ConfigureAwait(false);
@@ -51,7 +53,7 @@ public class AndThenExtensionsSteps(SpecContext context)
     [Given("an async map function that returns a None")]
     public void GivenAnAsyncMapFunctionThatReturnsANone()
     {
-        context.SetSlot<Func<int, Task<Option<int>>>>(async _ =>
+        context.SetSlot<Func<int, ValueTask<Option<int>>>>(async _ =>
             {
                 await Task.Yield();
 
@@ -77,7 +79,8 @@ public class AndThenExtensionsSteps(SpecContext context)
     public async Task WhenInvokingAsyncAndThenOnOptionValueTask()
     {
         var option = context.Subject<ValueTask<Option<int>>>();
-        var map = context.Slot<Func<int, Task<Option<int>>>>(SpecContext.MapSlot);
+        var map = context.Slot<Func<int, ValueTask<Option<int>>>>(
+            SpecContext.MapSlot);
 
         Option<int> result =
             await option.AndThenAsync(map).ConfigureAwait(false);

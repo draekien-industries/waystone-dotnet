@@ -16,4 +16,5 @@ WSG0002 | Usage | Error | A generated member name matches nothing on the receive
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+WSG0003 | Usage | Error | A public delegate parameter must not return a Task of Option or Result
 WSG0004 | Usage | Error | A public member must not return a Task of Option or Result

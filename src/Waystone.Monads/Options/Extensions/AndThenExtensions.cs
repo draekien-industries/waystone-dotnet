@@ -34,7 +34,7 @@ public static class AndThenExtensions
         /// when the option was a <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
-            Func<T, Task<Option<TOut>>> map)
+            Func<T, ValueTask<Option<TOut>>> map)
             where TOut : notnull
         {
             if (option.IsNone) return Option.None<TOut>();
@@ -69,7 +69,7 @@ public static class AndThenExtensions
         /// when the option was a <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
-            Func<T, Task<Option<TOut>>> map)
+            Func<T, ValueTask<Option<TOut>>> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);
@@ -139,7 +139,7 @@ public static class AndThenExtensions
         /// when the option was a <see cref="None{T}" />.
         /// </returns>
         public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
-            Func<T, Task<Option<TOut>>> map)
+            Func<T, ValueTask<Option<TOut>>> map)
             where TOut : notnull
         {
             Option<T> option = await optionTask.ConfigureAwait(false);

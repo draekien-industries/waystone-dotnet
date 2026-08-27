@@ -108,20 +108,24 @@ consequences are what the file exists to pin:
   at the first failure and `Partition` reports all of them.
 
 `BillAsync` is the boundary worth reading closely. Async **steps** compose: an
-async step is `T → Task<Result<U, Error>>`, which is what an I/O method returns
-anyway, so `AndThenAsync` takes `ReserveAsync` by name — and the synchronous
-`Validated` drops into the same chain untouched, because each `*Async` member
-accepts a synchronous delegate too.
+async step is `T → ValueTask<Result<U, Error>>`, so `AndThenAsync` takes
+`QuotedAsync` by name — and the synchronous `Validated` drops into the same chain
+untouched, because each `*Async` member accepts a synchronous delegate too.
 
-Async **chains** do not compose. The chain hands back a `ValueTask`, and no
-`*Async` member accepts a `ValueTask`-returning delegate, so `BillAsync` cannot
-itself be a step. Handing it to `AndThenAsync` fails as `CS0411` — "the type
+Async **chains** compose too, and `QuotedAsync` is the proof: it is itself a
+two-link chain, and `BillAsync` consumes it as a method group without knowing
+that. Up to 6.x it could not be. Every step parameter took a `Task`-returning
+delegate while every member returned a `ValueTask`, so a chain was terminal, and
+this file carried a caveat saying to reuse async steps rather than async chains.
+7.0.0 moved those parameters to `ValueTask` and the caveat is gone.
+
+The one thing to get right is that an async step must be **declared**
+`ValueTask`. A `Task`-returning method group fails as `CS0411` — "the type
 arguments cannot be inferred from the usage" — reported against the call site and
-naming neither `ValueTask` nor the step, so it reads like a generics problem
-rather than the design constraint it is. Reuse the async steps, not the async
-chain. `.AsTask()` would buy composability, and costs less than it looks — nothing
-when the chain suspends, one small allocation when it completes synchronously — but
-paying it is the signal the unit of reuse was picked wrong.
+naming neither `ValueTask` nor the parameter, so it reads like a generics problem
+rather than the one-word fix it is. Only the step-shaped parameters moved:
+`MapAsync(client.GetStringAsync)` still binds, because a delegate returning an
+arbitrary type keeps `Task`.
 
 ## Trying the code fixes
 

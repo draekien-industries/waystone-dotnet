@@ -18,7 +18,7 @@ public class AndThenExtensionsSteps(SpecContext context)
         var result = context.Subject<Task<Result<int, string>>>();
 
         var asyncDelegate =
-            context.Slot<Func<int, Task<Result<int, string>>>>(type == "OK"
+            context.Slot<Func<int, ValueTask<Result<int, string>>>>(type == "OK"
                     ? SpecContext.AsyncOkSlot
                     : SpecContext.AsyncErrorSlot);
 
@@ -53,7 +53,7 @@ public class AndThenExtensionsSteps(SpecContext context)
         var result = context.Subject<ValueTask<Result<int, string>>>();
 
         var asyncDelegate =
-            context.Slot<Func<int, Task<Result<int, string>>>>(oK == "OK"
+            context.Slot<Func<int, ValueTask<Result<int, string>>>>(oK == "OK"
                     ? SpecContext.AsyncOkSlot
                     : SpecContext.AsyncErrorSlot);
 

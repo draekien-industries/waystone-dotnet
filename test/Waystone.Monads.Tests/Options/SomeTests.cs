@@ -411,10 +411,12 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         Option<int> resultOr =
-            await some.OrElseAsync(() => Task.FromResult(Option.Some(2)));
+            await some.OrElseAsync(
+                () => new ValueTask<Option<int>>(Option.Some(2)));
 
         Option<int> resultOrElse =
-            await some.OrElseAsync(() => Task.FromResult(Option.Some(2)));
+            await some.OrElseAsync(
+                () => new ValueTask<Option<int>>(Option.Some(2)));
 
         resultOr.ShouldBe(some);
         resultOrElse.ShouldBe(some);
@@ -572,7 +574,7 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         Option<int> result = await some.AndThenAsync(x =>
-            Task.FromResult(Option.Some(x + 1)));
+            new ValueTask<Option<int>>(Option.Some(x + 1)));
 
         result.Unwrap().ShouldBe(2);
     }

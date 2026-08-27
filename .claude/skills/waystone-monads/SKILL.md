@@ -337,7 +337,7 @@ compiles against nothing.
 | --- | --- |
 | [references/async.md](references/async.md) | The chain crosses an `await`, or `Try`/`TryAsync` is involved. The `*Async` members extend `Task<Option<T>>`, so a chain need not be broken into locals — and an async delegate handed to a synchronous member compiles silently while catching nothing |
 | [references/sequences.md](references/sequences.md) | Working over an `IEnumerable` of monads — `Collect`, `Partition`, `Flatten` — or combining two with `Zip`, `Reduce` or `Xor`, several of which invert the obvious expectation |
-| [references/reusable-chains.md](references/reusable-chains.md) | Extracting a chain for reuse, or a chain has to vary by caller. Why an async chain is terminal and cannot be a step — and why `.AsTask()` is the wrong answer to that — where a variation point goes, why a library of composed `Func` values is worse than the chain, and how many tests a chain needs once its steps are tested |
+| [references/reusable-chains.md](references/reusable-chains.md) | Extracting a chain for reuse, or a chain has to vary by caller. Why an async step must be declared `ValueTask` for a chain to compose as one, which parameters moved in 7.0.0 and which deliberately did not, where a variation point goes, why a library of composed `Func` values is worse than the chain, and how many tests a chain needs once its steps are tested |
 | [references/nesting.md](references/nesting.md) | A monad has ended up inside another. Which shape to reach for, what `Transpose` maps to what in both directions, and when the nesting should be resolved with `OkOr` instead of preserved |
 | [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension, and never through the obsolete `FromEnum` factories |
 | [references/rust-to-csharp.md](references/rust-to-csharp.md) | Porting Rust, or a Rust idiom has no obvious C# spelling |
@@ -373,10 +373,11 @@ Run over the code just written and rewrite each of these where it appears:
 - [ ] Every step taking two parameters — reshaped to one in, one monad out, so
       the chain takes it as a method group rather than a lambda
 - [ ] Every run of steps repeated across chains — extracted into a named chain
-      and reused as a method group, or, if any step awaits, extracted as steps
-      rather than as a chain
-- [ ] Every `.AsTask()` reached for to make an async chain composable — reverted,
-      and the reuse moved down to the steps
+      and reused as a method group, whether or not any step awaits
+- [ ] Every async step declared `Task` — redeclared `ValueTask`, so a chain can
+      take it by name; only a delegate returning a non-monad keeps `Task`
+- [ ] Every `.AsTask()` reached for to make an async chain composable — removed,
+      since 7.0.0 needs no conversion there
 - [ ] Every `UseExceptionLogger` call — migrated onto the logging package, not
       suppressed
 - [ ] Every observability name written as a literal — replaced with the

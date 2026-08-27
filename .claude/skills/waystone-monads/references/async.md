@@ -42,8 +42,10 @@ in most chains, so a `Task` there is the one link that cannot compose.
 
 `.AsTask()` is the conversion where a foreign API genuinely demands a `Task` —
 `Should.ThrowAsync` taking a `Func<Task>`, say — and the compiler's own
-type-mismatch diagnostic offers it as a fix. It is **not** a way to feed one async
-chain into another, which no member here supports.
+type-mismatch diagnostic offers it as a fix. It is **not** needed to feed one
+async chain into another: from 7.0.0 `AndThenAsync` and `OrElseAsync` take a
+`ValueTask`-returning delegate, so a chain composes as a step with no conversion
+at all. See [reusable-chains.md](reusable-chains.md).
 
 ## A chain trips CA2012, and the chain is still right
 
@@ -62,6 +64,21 @@ the one consumption `ValueTask` allows is the one it gets. Suppress `CA2012` whe
 the chain lives rather than breaking the chain into locals to satisfy it, because
 a local is the thing `ValueTask` genuinely must not be stored in — satisfying the
 rule that way is what would introduce the bug it warns about.
+
+It is silent at `CA2012`'s default severity, so this only surfaces for a project
+on `AnalysisMode: All` or one that raises the rule. Scope the suppression to the
+files that hold chains rather than switching it off everywhere:
+
+```ini
+# Chained *Async calls consume the intermediate ValueTask as a reduced extension
+# receiver, which CA2012 does not recognise. Each member awaits it exactly once.
+[**/*Pipeline.cs]
+dotnet_diagnostic.CA2012.severity = none
+```
+
+Nothing in the library can fix this. The rule reads the receiver position, and
+there is no declaration on our side that changes what it sees — which is why
+7.0.0 makes an async chain composable without making `CA2012` stop firing.
 
 ## An async delegate in a synchronous member is silent
 

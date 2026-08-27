@@ -8,6 +8,7 @@ on the previous major gets from the surface in the working tree.
 | CS0029 | error | 3 |
 | CS0115 | error | 1 |
 | CS0117 | error | 2 |
+| CS0411 | error | 6 |
 | CS1061 | error | 2 |
 | CS1501 | error | 1 |
 
@@ -19,6 +20,12 @@ on the previous major gets from the surface in the working tree.
 | CS0115 | sample/Waystone.Monads.PreviousMajor.Declarations.Sample/ErrorCodeFactoryOverride.cs | 15 | 'UpperCaseErrorCodeFactory.FromEnum(Enum)': no suitable method found to override |
 | CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 17 | 'ErrorCode' does not contain a definition for 'FromEnum' |
 | CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 20 | 'Error' does not contain a definition for 'FromEnum' |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/Chains.cs | 91 | The type arguments for method 'AndThenExtensions.extension<TOk, TErr>(ValueTask<Result<TOk, TErr>>).AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/Chains.cs | 110 | The type arguments for method 'AndThenExtensions.extension<T>(Task<Option<T>>).AndThenAsync<TOut>(Func<T, ValueTask<Option<TOut>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 33 | The type arguments for method 'AndThenExtensions.extension<TOk, TErr>(Result<TOk, TErr>).AndThenAsync<TOut>(Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 42 | The type arguments for method 'OrElseExtensions.extension<TOk, TErr>(Task<Result<TOk, TErr>>).OrElseAsync<TOut>(Func<TErr, Result<TOk, TOut>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 26 | The type arguments for method 'AndThenExtensions.AndThenAsync<TOk, TErr, TOut>(Result<TOk, TErr>, Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 32 | The type arguments for method 'AndThenExtensions.AndThenAsync<TOk, TErr, TOut>(Result<TOk, TErr>, Func<TOk, ValueTask<Result<TOut, TErr>>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
 | CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/Configuration.cs | 22 | 'MonadOptions' does not contain a definition for 'UseExceptionLogger' and no accessible extension method 'UseExceptionLogger' accepting a first argument of type 'MonadOptions' could be found (are you missing a using directive or an assembly reference?) |
 | CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 32 | 'ErrorCodeFactory' does not contain a definition for 'FromEnum' and no accessible extension method 'FromEnum' accepting a first argument of type 'ErrorCodeFactory' could be found (are you missing a using directive or an assembly reference?) |
 | CS1501 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 23 | No overload for method 'Err' takes 2 arguments |
