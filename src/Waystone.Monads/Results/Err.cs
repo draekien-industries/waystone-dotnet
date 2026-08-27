@@ -50,8 +50,8 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <para>
     /// This is the only way to read the error off an
     /// <see cref="Err{TOk,TErr}" /> directly; the property behind it is
-    /// internal, so a caller who wants the error without naming the case type
-    /// goes through <see cref="Result{TOk,TErr}.TryUnwrapErr" /> or
+    /// internal, so a caller who would rather not name the case type goes
+    /// through <see cref="Result{TOk,TErr}.GetErr" /> or
     /// <see cref="Result{TOk,TErr}.UnwrapErr" /> instead.
     /// </para>
     /// </remarks>

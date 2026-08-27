@@ -24,6 +24,21 @@ public sealed class PatternMatchingTests
     }
 
     [Fact]
+    public void GivenASomeOfAReferenceType_WhenBinding_ThenTheValueIsNotNullable()
+    {
+        Option<string> option = Option.Some("abc");
+
+        if (option is Some<string>(var value))
+        {
+            value.Length.ShouldBe(3);
+        }
+        else
+        {
+            Assert.Fail("The positional pattern did not match a Some.");
+        }
+    }
+
+    [Fact]
     public void GivenANone_WhenMatchingASomePositionalPattern_ThenDoNotMatch()
     {
         Option<int> option = Option.None<int>();
@@ -44,49 +59,6 @@ public sealed class PatternMatchingTests
     {
         DescribeByStatement(Option.Some(42)).ShouldBe("some 42");
         DescribeByStatement(Option.None<int>()).ShouldBe("none");
-    }
-
-    [Fact]
-    public void GivenASome_WhenTryingToUnwrap_ThenReturnTrueAndTheValue()
-    {
-        Option<int> option = Option.Some(42);
-
-        option.TryUnwrap(out var value).ShouldBeTrue();
-        value.ShouldBe(42);
-    }
-
-    [Fact]
-    public void GivenANone_WhenTryingToUnwrap_ThenReturnFalseAndTheDefault()
-    {
-        Option<int> option = Option.None<int>();
-
-        option.TryUnwrap(out var value).ShouldBeFalse();
-        value.ShouldBe(0);
-    }
-
-    [Fact]
-    public void
-        GivenANoneOfAReferenceType_WhenTryingToUnwrap_ThenReturnFalseAndNull()
-    {
-        Option<string> option = Option.None<string>();
-
-        option.TryUnwrap(out var value).ShouldBeFalse();
-        value.ShouldBeNull();
-    }
-
-    [Fact]
-    public void GivenASome_WhenTryUnwrapSucceeds_ThenTheValueIsNotNullable()
-    {
-        Option<string> option = Option.Some("abc");
-
-        if (!option.TryUnwrap(out var value))
-        {
-            Assert.Fail("TryUnwrap did not succeed for a Some.");
-
-            return;
-        }
-
-        value.Length.ShouldBe(3);
     }
 
     private static string Describe(Option<int> option) =>

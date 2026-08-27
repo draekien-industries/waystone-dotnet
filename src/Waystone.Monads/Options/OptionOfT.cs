@@ -2,7 +2,6 @@ namespace Waystone.Monads.Options;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Exceptions;
 using Extensions;
@@ -311,52 +310,6 @@ public abstract record Option<T> where T : notnull
     /// <see cref="None{T}" />
     /// </exception>
     public abstract T Unwrap();
-
-    /// <summary>
-    /// Checks whether the option is a <see cref="Some{T}" />, handing back its
-    /// value when it is.
-    /// </summary>
-    /// <remarks>
-    /// The non-throwing counterpart to <see cref="Unwrap" />, for the
-    /// <c>if (option.TryUnwrap(out var value))</c> shape. Prefer it over
-    /// testing <see cref="IsSome" /> and then unwrapping, which reads the state
-    /// twice and leaves the throwing call in the source; and prefer it over
-    /// <see cref="Match{TOut}(Func{T,TOut},Func{TOut})" /> where the absent case
-    /// has no value to produce, since a lambda pair cannot express an early
-    /// return.
-    /// <para>
-    /// A positional pattern — <c>option is Some&lt;T&gt;(var value)</c> — does the
-    /// same job and reads better where the case type can be named. This member
-    /// exists for callers who would rather not name it, and for a
-    /// <see langword="var" /> binding that flows on past the <c>if</c>.
-    /// </para>
-    /// <para>
-    /// Declared here and not abstract, which is the exception on this type rather
-    /// than the rule. The case test is the member's entire content, so there is
-    /// nothing left for a case to vary — an override pair would be the same two
-    /// lines split across two files. Do not read this as licence for the next
-    /// member: anything a case would answer differently stays abstract.
-    /// </para>
-    /// </remarks>
-    /// <param name="value">
-    /// Receives the contained value when the option is a
-    /// <see cref="Some{T}" />, and the default of <typeparamref name="T" />
-    /// otherwise. Read it only when this returns true.
-    /// </param>
-    /// <returns>True if the option is a <see cref="Some{T}" />; false otherwise.</returns>
-    public bool TryUnwrap([MaybeNullWhen(false)] out T value)
-    {
-        if (this is Some<T> some)
-        {
-            value = some.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
 
     /// <summary>
     /// Returns the contained <see cref="Some{T}" /> value or a provided

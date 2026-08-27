@@ -48,8 +48,8 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     /// <para>
     /// This is the only way to read the value off an
     /// <see cref="Ok{TOk,TErr}" /> directly; the property behind it is internal,
-    /// so a caller who wants the value without naming the case type goes through
-    /// <see cref="Result{TOk,TErr}.TryUnwrap" /> or
+    /// so a caller who would rather not name the case type goes through
+    /// <see cref="Result{TOk,TErr}.GetOk" /> or
     /// <see cref="Result{TOk,TErr}.Unwrap" /> instead.
     /// </para>
     /// </remarks>

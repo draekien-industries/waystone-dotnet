@@ -50,9 +50,9 @@ public sealed record Some<T> : Option<T>
     /// pattern still needs a <c>Deconstruct</c> to bind against.
     /// <para>
     /// This is the only way to read the value off a <see cref="Some{T}" />
-    /// directly; the property behind it is internal, so a caller who wants the
-    /// value without naming the case type goes through
-    /// <see cref="Option{T}.TryUnwrap" /> or
+    /// directly; the property behind it is internal, so a caller who would
+    /// rather not name the case type goes through
+    /// <see cref="Option{T}.Match{TOut}(Func{T,TOut},Func{TOut})" /> or
     /// <see cref="Option{T}.Unwrap" /> instead.
     /// </para>
     /// </remarks>

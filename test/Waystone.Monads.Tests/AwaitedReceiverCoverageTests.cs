@@ -109,15 +109,13 @@ public sealed class AwaitedReceiverCoverageTests
     /// </summary>
     /// <remarks>
     /// <c>IsSpecialName</c> drops the property accessors and the operators, and
-    /// the listed names drop what the record declaration synthesises and what no
-    /// awaited shape can express. Declaring the exclusions rather than
-    /// pattern-matching them means a new core member is covered by default and a
-    /// new exclusion is a deliberate edit.
+    /// the listed names drop what the record declaration synthesises. Declaring
+    /// the exclusions rather than pattern-matching them means a new core member
+    /// is covered by default and a new exclusion is a deliberate edit.
     /// </remarks>
     private static IReadOnlyCollection<string> CoreMemberNames(Type monad) =>
         monad.GetMethods(BindingFlags.Public | BindingFlags.Instance)
              .Where(method => !method.IsSpecialName)
-             .Where(method => !Unawaitable(method))
              .Select(method => method.Name)
              .Where(name => !Synthesised.Contains(name))
              .Distinct(StringComparer.Ordinal)
@@ -151,31 +149,6 @@ public sealed class AwaitedReceiverCoverageTests
         "Deconstruct",
         "<Clone>$",
     };
-
-    /// <summary>
-    /// Checks whether no awaited receiver could forward to
-    /// <paramref name="method" /> whatever the generator did.
-    /// </summary>
-    /// <remarks>
-    /// A try-pattern member hands its result back through an <c>out</c>
-    /// parameter, and C# forbids <c>out</c> on an <c>async</c> method — so an
-    /// awaited receiver cannot forward to one. A non-async forwarder does not
-    /// rescue it either: the parameter would have to be assigned before the
-    /// receiver's task completed, which is the one thing it cannot do. A caller
-    /// holding an awaitable writes <c>(await task).TryUnwrap(out var value)</c>
-    /// deliberately.
-    /// <para>
-    /// Read off the signature rather than listed by name, unlike
-    /// <see cref="Synthesised" />. The impossibility is a property of the
-    /// signature, so the signature is what should state it — and a name would be
-    /// matched after the <c>Select</c> and so exempt *every* overload of it,
-    /// silently dropping a later <c>TryUnwrap&lt;TState&gt;</c> with no <c>out</c>
-    /// parameter out of the guard. The record-synthesised names have no such
-    /// tell and have to be enumerated.
-    /// </para>
-    /// </remarks>
-    private static bool Unawaitable(MethodInfo method) =>
-        method.GetParameters().Any(parameter => parameter.IsOut);
 
     /// <summary>
     /// Gets the names of every public extension member across the assembly whose
