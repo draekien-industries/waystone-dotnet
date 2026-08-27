@@ -88,8 +88,8 @@ public sealed class ErrorResultFactoriesSteps(SpecContext context)
     {
         var result = context.Outcome<Result<int, Error>>();
 
-        result.IsOk.ShouldBeTrue();
-        result.Unwrap().ShouldBe(expected);
+        result.ShouldBeOk();
+        result.ShouldBeOkValue(expected);
     }
 
     [Then(
@@ -100,7 +100,7 @@ public sealed class ErrorResultFactoriesSteps(SpecContext context)
     {
         var result = context.Outcome<Result<int, Error>>();
 
-        result.IsErr.ShouldBeTrue();
+        result.ShouldBeErr();
 
         Error error = result.UnwrapErr();
         error.Code.Value.ShouldBe(code);

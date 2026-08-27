@@ -30,18 +30,18 @@ public sealed class SomeTests
     public void GivenTheDefaultOfAValueType_WhenCreatingSome_ThenReturnSome()
     {
         Option.Some(0).ShouldBe(Option.Some(0));
-        Option.Some(0).Unwrap().ShouldBe(0);
+        Option.Some(0).ShouldBeSomeValue(0);
         Option.Some(false).Unwrap().ShouldBeFalse();
-        Option.Some('\0').Unwrap().ShouldBe('\0');
-        Option.Some(default(Guid)).Unwrap().ShouldBe(Guid.Empty);
-        Option.Some(TimeSpan.Zero).Unwrap().ShouldBe(TimeSpan.Zero);
-        Option.Some(DateTime.MinValue).Unwrap().ShouldBe(DateTime.MinValue);
+        Option.Some('\0').ShouldBeSomeValue('\0');
+        Option.Some(default(Guid)).ShouldBeSomeValue(Guid.Empty);
+        Option.Some(TimeSpan.Zero).ShouldBeSomeValue(TimeSpan.Zero);
+        Option.Some(DateTime.MinValue).ShouldBeSomeValue(DateTime.MinValue);
     }
 
     [Fact]
     public void GivenTheDefaultOfAValueType_WhenCreatingSome_ThenItIsNotNone()
     {
-        Option.Some(0).IsSome.ShouldBeTrue();
+        Option.Some(0).ShouldBeSome();
         Option.Some(0).ShouldNotBe(Option.None<int>());
     }
 
@@ -50,10 +50,9 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
 
-        some.IsSome.ShouldBeTrue();
-        some.IsNone.ShouldBeFalse();
+        some.ShouldBeSome();
 
-        some.Unwrap().ShouldBe(1);
+        some.ShouldBeSomeValue(1);
         some.UnwrapOr(10).ShouldBe(1);
         some.UnwrapOrDefault().ShouldBe(1);
         some.UnwrapOrElse(() => 10).ShouldBe(1);
@@ -157,7 +156,7 @@ public sealed class SomeTests
 
         Option<int> result = some.Map(x => x + 1);
 
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
     }
 
     [Fact]
@@ -197,7 +196,7 @@ public sealed class SomeTests
 
         Option<int> result = some.Map(10, static (x, state) => x + state);
 
-        result.Unwrap().ShouldBe(11);
+        result.ShouldBeSomeValue(11);
     }
 
     [Fact]
@@ -458,7 +457,7 @@ public sealed class SomeTests
 
         Option<int> result = await some.MapAsync(x => Task.FromResult(x + 1));
 
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
     }
 
     [Fact]
@@ -553,7 +552,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         Option<int> result = some.AndThen(x => Option.Some(x + 1));
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
     }
 
     [Fact]
@@ -565,7 +564,7 @@ public sealed class SomeTests
             10,
             static (x, state) => Option.Some(x + state));
 
-        result.Unwrap().ShouldBe(11);
+        result.ShouldBeSomeValue(11);
     }
 
     [Fact]
@@ -576,7 +575,7 @@ public sealed class SomeTests
         Option<int> result = await some.AndThenAsync(x =>
             new ValueTask<Option<int>>(Option.Some(x + 1)));
 
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
     }
 
     [Fact]

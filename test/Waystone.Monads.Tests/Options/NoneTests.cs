@@ -19,8 +19,7 @@ public class NoneTest
     {
         Option<int> none = Option.None<int>();
 
-        none.IsSome.ShouldBeFalse();
-        none.IsNone.ShouldBeTrue();
+        none.ShouldBeNone();
 
         none.IsSomeAnd(_ => true).ShouldBeFalse();
         none.IsNoneOr(_ => false).ShouldBeTrue();

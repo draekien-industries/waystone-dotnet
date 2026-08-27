@@ -262,7 +262,7 @@ public sealed class MatchExtensionsTests
             await Task.FromResult(Option.None<int>())
                .OkOrElseAsync(() => Task.FromResult("error"));
 
-        result.IsErr.ShouldBeTrue();
+        result.ShouldBeErr();
         result.ExpectErr("Expected Err but found Ok.").ShouldBe("error");
     }
 }

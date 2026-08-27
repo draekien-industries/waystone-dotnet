@@ -30,7 +30,7 @@ public sealed class InspectErrExtensionsTests
         await Task.FromResult(Result.Ok<int, string>(1))
            .InspectErrAsync(action);
 
-        action.DidNotReceiveWithAnyArgs().Invoke(default);
+        action.DidNotReceiveWithAnyArgs().Invoke(default!);
     }
 
     [Fact]

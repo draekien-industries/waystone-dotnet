@@ -1,9 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <!--
+    Drops net472 and net481 from the matrix in test/Directory.Build.props, which
+    every other test project inherits. The subject depends on ASP.NET Core and so
+    ships net8.0 and net10.0 only, and neither .NET Framework target can restore
+    against it (NU1201). net9.0 stays: it resolves the net8.0 asset, so the tests
+    cover the runtime a net9.0 consumer would actually get.
+    -->
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
-        <Nullable>enable</Nullable>
-        <IsPackable>false</IsPackable>
+        <TargetFrameworks>net8.0;net9.0;net10.0;</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>

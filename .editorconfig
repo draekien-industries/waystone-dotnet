@@ -15,6 +15,15 @@ tab_width = 4
 dotnet_sort_system_directives_first = true
 csharp_using_directive_placement = inside_namespace
 
+# 80 is what the code was already written to: measured across src and test, the
+# 95th percentile line is exactly 80 characters. It records the existing target
+# rather than imposing a new one. Nothing in the build enforces this — Roslyn
+# ignores max_line_length and only the IDE and reformatter read it — so the
+# ~1600 longer lines already in the tree are not errors, and two thirds of them
+# are XML doc prose or embedded source strings that should not be wrapped
+# anyway. Wrap when you touch a line, not in a sweep of its own.
+max_line_length = 80
+
 [src/Waystone.Monads.Analyzers*/**.cs]
 
 # Microsoft.CodeAnalysis.Analyzers ships these off by default. They are the

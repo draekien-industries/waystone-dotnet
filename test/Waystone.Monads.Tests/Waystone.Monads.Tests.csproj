@@ -1,20 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Nullable>enable</Nullable>
-        <LangVersion>latestMajor</LangVersion>
-        <ImplicitUsings>disable</ImplicitUsings>
-        <IsPackable>false</IsPackable>
         <RootNamespace>Waystone.Monads</RootNamespace>
-        <OutputType>Exe</OutputType>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OS)' == 'Unix'">
-        <TargetFrameworks>net8.0;net9.0;net10.0;</TargetFrameworks>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-        <TargetFrameworks>net8.0;net9.0;net10.0;net472;net481;</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,8 +18,6 @@
         <PackageReference Include="JetBrains.Annotations"/>
         <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="System.Net.Http"/>
-        <PackageReference Include="System.Text.RegularExpressions"/>
         <PackageReference Include="xunit.runner.visualstudio">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -45,5 +30,7 @@
         </PackageReference>
         <PackageReference Include="xunit.v3"/>
     </ItemGroup>
+
+    <Import Project="..\..\src\Waystone.Monads.Shouldly.Analyzers\Waystone.Monads.Shouldly.Analyzers.props"/>
 
 </Project>

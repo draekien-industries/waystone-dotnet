@@ -230,6 +230,64 @@ internal static class Verify
 
                                   """;
 
+    /// <summary>
+    /// Gets the reference assemblies for the framework this test host is running on.
+    /// </summary>
+    /// <remarks>
+    /// Tracks the host rather than pinning a version. Pinned, every framework in the
+    /// matrix compiled the identical net8.0 source, so running this project on five
+    /// of them proved one thing five times. Tracking the host is what makes the four
+    /// extra runs test something the net8.0 run does not.
+    /// </remarks>
+    private static ReferenceAssemblies Target =>
+#if NET10_0
+        ReferenceAssemblies.Net.Net100;
+#elif NET9_0
+        ReferenceAssemblies.Net.Net90;
+#elif NET8_0
+        ReferenceAssemblies.Net.Net80;
+#elif NET472
+        WithValueTask(ReferenceAssemblies.NetFramework.Net472.Default);
+#else
+        WithValueTask(ReferenceAssemblies.NetFramework.Net48.Default);
+#endif
+
+#if NETFRAMEWORK
+    /// <summary>
+    /// Adds the package carrying <see cref="ValueTask{TResult}" />, which .NET
+    /// Framework does not have.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Several rules here are tested against a <c>ValueTask</c> receiver, and without
+    /// this those tests fail on <c>CS0012</c> naming an assembly their source never
+    /// mentions.
+    /// </para>
+    /// <para>
+    /// It has to be the package rather than the <c>ValueTask</c> this host has already
+    /// loaded, tempting as the latter is for tracking the version by itself. Adding
+    /// the runtime assembly directly gives the compilation a second definition of the
+    /// type beside the platform's, and the five <c>AsTaskCodeFixTests</c> that assert
+    /// on a compiler error then see it rendered against the wrong one — they expect
+    /// <c>ValueTask&lt;int&gt;</c> and get the fully qualified name. Restoring the
+    /// package brings its reference assembly and its transitive dependencies, which is
+    /// what a consumer on this framework actually compiles against.
+    /// </para>
+    /// <para>
+    /// The version is duplicated from <c>Directory.Packages.props</c> because a
+    /// synthetic compilation takes no part in the project's package graph. Keep the
+    /// two in step by hand; nothing in the build compares them.
+    /// </para>
+    /// </remarks>
+    private static ReferenceAssemblies WithValueTask(
+        ReferenceAssemblies assemblies) =>
+        assemblies.AddPackages(
+            ImmutableArray.Create(
+                new PackageIdentity(
+                    "System.Threading.Tasks.Extensions",
+                    "4.6.3")));
+#endif
+
     private static readonly ImmutableArray<MetadataReference> MonadReferences =
         ImmutableArray.Create<MetadataReference>(
             MetadataReference.CreateFromFile(
@@ -241,7 +299,7 @@ internal static class Verify
     {
         public AnalyzerTest()
         {
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net80;
+            ReferenceAssemblies = Target;
             TestState.AdditionalReferences.AddRange(MonadReferences);
             SolutionTransforms.Add(EnableNullable);
         }
@@ -258,7 +316,7 @@ internal static class Verify
     {
         public CodeFixTest()
         {
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net80;
+            ReferenceAssemblies = Target;
             TestState.AdditionalReferences.AddRange(MonadReferences);
             FixedState.AdditionalReferences.AddRange(MonadReferences);
             SolutionTransforms.Add(EnableNullable);

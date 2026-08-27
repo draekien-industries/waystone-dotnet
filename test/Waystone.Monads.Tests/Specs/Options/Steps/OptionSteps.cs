@@ -48,8 +48,8 @@ public sealed class OptionSteps(SpecContext context)
     public void ThenTheResultOptionShouldBeSomeWithValueInt(int value)
     {
         var result = context.Outcome<Option<int>>();
-        result.IsSome.ShouldBeTrue();
-        result.Unwrap().ShouldBe(value);
+        result.ShouldBeSome();
+        result.ShouldBeSomeValue(value);
     }
 
     [Then("the boolean result should be {string}")]
@@ -63,15 +63,15 @@ public sealed class OptionSteps(SpecContext context)
     public void ThenTheResultOptionShouldBeNone()
     {
         var result = context.Outcome<Option<int>>();
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
     }
 
     [Then("the result Option should be Some with value {string}")]
     public void ThenTheResultOptionShouldBeSomeWithValueString(string value)
     {
         var result = context.Outcome<Option<string>>();
-        result.IsSome.ShouldBeTrue();
-        result.Unwrap().ShouldBe(value);
+        result.ShouldBeSome();
+        result.ShouldBeSomeValue(value);
     }
 
     [Then("the result Option should be None of {string}")]
@@ -82,14 +82,14 @@ public sealed class OptionSteps(SpecContext context)
             case "string":
             {
                 var result = context.Outcome<Option<string>>();
-                result.IsNone.ShouldBeTrue();
+                result.ShouldBeNone();
 
                 break;
             }
             case "int":
             {
                 var result = context.Outcome<Option<int>>();
-                result.IsNone.ShouldBeTrue();
+                result.ShouldBeNone();
 
                 break;
             }

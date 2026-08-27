@@ -35,7 +35,7 @@
         {
             Option<int> result = Values.FirstOrNone(x => x > 10);
 
-            result.IsSome.ShouldBeTrue();
+            result.ShouldBeSome();
             result.ShouldBe(Option.Some(11));
         }
 
@@ -45,7 +45,7 @@
         {
             Option<int> result = Values.FirstOrNone(x => x > 20);
 
-            result.IsNone.ShouldBeTrue();
+            result.ShouldBeNone();
             result.ShouldBe(Option.None<int>());
         }
 
@@ -83,7 +83,7 @@
         {
             Option<int> result = Values.LastOrNone(x => x > 10);
 
-            result.IsSome.ShouldBeTrue();
+            result.ShouldBeSome();
             result.ShouldBe(Option.Some(12));
         }
 
@@ -93,7 +93,7 @@
         {
             Option<int> result = Values.LastOrNone(x => x > 20);
 
-            result.IsNone.ShouldBeTrue();
+            result.ShouldBeNone();
             result.ShouldBe(Option.None<int>());
         }
 
@@ -133,8 +133,7 @@
                 Values.Map(x => x.ToString()).ToList();
 
             results.Count(x => x.IsSome).ShouldBe(3);
-            results.First(x => x.IsSome).Unwrap().ShouldBe("11");
-            results.First(x => x.IsSome).Unwrap().ShouldBe("11");
+            results.First(x => x.IsSome).ShouldBeSomeValue("11");
         }
 
         [Fact]
@@ -187,7 +186,7 @@
         {
             List<Option<int>> options = new List<Option<int>> { 1, 2, 3 };
 
-            options.Collect().Unwrap().ShouldBe(new[] { 1, 2, 3 });
+            options.Collect().ShouldBeSomeValue(new[] { 1, 2, 3 });
         }
 
         [Fact]
@@ -197,21 +196,21 @@
 
         [Fact]
         public void GivenANone_WhenInvokingCollect_ThenReturnNone() =>
-            Values.Collect().IsNone.ShouldBeTrue();
+            Values.Collect().ShouldBeNone();
 
         [Fact]
         public void
             GivenThrowingSource_WhenInvokingCollect_ThenStopAtTheFirstNone() =>
-            ThrowingAfterNoneSource().Collect().IsNone.ShouldBeTrue();
+            ThrowingAfterNoneSource().Collect().ShouldBeNone();
 
         [Fact]
         public async Task
             GivenAllSomeStream_WhenInvokingCollectAsync_ThenReturnSomeOfEveryValueInOrder()
         {
             Option<IReadOnlyList<int>> result = await SomeStream()
-               .CollectAsync();
+               .CollectAsync(TestContext.Current.CancellationToken);
 
-            result.Unwrap().ShouldBe(new[] { 1, 2, 3 });
+            result.ShouldBeSomeValue(new[] { 1, 2, 3 });
         }
 
         [Fact]
@@ -219,7 +218,7 @@
             GivenEmptyStream_WhenInvokingCollectAsync_ThenReturnSomeOfAnEmptyList()
         {
             Option<IReadOnlyList<int>> result = await EmptyStream()
-               .CollectAsync();
+               .CollectAsync(TestContext.Current.CancellationToken);
 
             result.Unwrap().ShouldBeEmpty();
         }
@@ -229,9 +228,9 @@
             GivenThrowingStream_WhenInvokingCollectAsync_ThenStopAtTheFirstNone()
         {
             Option<IReadOnlyList<int>> result = await ThrowingStream()
-               .CollectAsync();
+               .CollectAsync(TestContext.Current.CancellationToken);
 
-            result.IsNone.ShouldBeTrue();
+            result.ShouldBeNone();
         }
 
 #pragma warning disable CS1998

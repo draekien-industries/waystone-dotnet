@@ -100,7 +100,7 @@ public sealed class ResultsCollectionExtensionsTests
             Result.Ok<int, string>(3),
         };
 
-        results.Collect().Unwrap().ShouldBe(new[] { 1, 2, 3 });
+        results.Collect().ShouldBeOkValue(new[] { 1, 2, 3 });
     }
 
     [Fact]
@@ -109,20 +109,21 @@ public sealed class ResultsCollectionExtensionsTests
 
     [Fact]
     public void GivenMixedResults_WhenCollect_ThenReturnTheFirstError() =>
-        Mixed.Collect().UnwrapErr().ShouldBe("first");
+        Mixed.Collect().ShouldBeErrValue("first");
 
     [Fact]
     public void GivenThrowingSource_WhenCollect_ThenStopAtTheFirstError() =>
-        ThrowingSource().Collect().UnwrapErr().ShouldBe("first");
+        ThrowingSource().Collect().ShouldBeErrValue("first");
 
     [Fact]
     public async Task
         GivenAllOkStream_WhenCollectAsync_ThenReturnOkOfEveryValueInOrder()
     {
         Result<IReadOnlyList<int>, string> result =
-            await OkStream().CollectAsync();
+            await OkStream()
+               .CollectAsync(TestContext.Current.CancellationToken);
 
-        result.Unwrap().ShouldBe(new[] { 1, 2, 3 });
+        result.ShouldBeOkValue(new[] { 1, 2, 3 });
     }
 
     [Fact]
@@ -130,7 +131,8 @@ public sealed class ResultsCollectionExtensionsTests
         GivenEmptyStream_WhenCollectAsync_ThenReturnOkOfAnEmptyList()
     {
         Result<IReadOnlyList<int>, string> result =
-            await EmptyStream().CollectAsync();
+            await EmptyStream()
+               .CollectAsync(TestContext.Current.CancellationToken);
 
         result.Unwrap().ShouldBeEmpty();
     }
@@ -140,9 +142,10 @@ public sealed class ResultsCollectionExtensionsTests
         GivenThrowingStream_WhenCollectAsync_ThenStopAtTheFirstError()
     {
         Result<IReadOnlyList<int>, string> result =
-            await ThrowingStream().CollectAsync();
+            await ThrowingStream()
+               .CollectAsync(TestContext.Current.CancellationToken);
 
-        result.UnwrapErr().ShouldBe("first");
+        result.ShouldBeErrValue("first");
     }
 
 #pragma warning disable CS1998

@@ -1,0 +1,16 @@
+# Inherits the repository root .editorconfig; this file only adds what is
+# specific to the test projects.
+
+[*.cs]
+
+# The assertion rules ship at Info, which is right for a consumer: they advise
+# rather than fail a build nobody asked to change. Here they are the house style,
+# and test/Directory.Build.props turns warnings into errors, so raising them makes
+# a raw assertion fail the build outright. That is the point. The sweep that
+# rewrote the existing sites is only worth doing once, and without this the next
+# one is written by hand and nothing notices.
+#
+# Both rules have a code fix, so the build failure is one `dotnet format
+# analyzers` away from resolved. See test/AGENTS.md for the invocation.
+dotnet_diagnostic.WMS2001.severity = warning
+dotnet_diagnostic.WMS2002.severity = warning

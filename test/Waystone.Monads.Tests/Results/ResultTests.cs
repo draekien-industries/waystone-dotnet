@@ -189,7 +189,7 @@ public sealed class ResultTests
                 Result<string, int> _ = default(string)!;
             });
 
-        Result.Try(() => default(string)!, callback).IsErr.ShouldBeTrue();
+        Result.Try(() => default(string)!, callback).ShouldBeErr();
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public sealed class ResultTests
 
         Result<int, string> zero = 0;
 
-        zero.IsOk.ShouldBeTrue();
-        zero.Unwrap().ShouldBe(0);
+        zero.ShouldBeOk();
+        zero.ShouldBeOkValue(0);
     }
 }
