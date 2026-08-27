@@ -170,6 +170,16 @@ public sealed class SomeTests
     }
 
     [Fact]
+    public void WhenMapProducesNull_ThenReturnNone()
+    {
+        Option<int> some = Option.Some(1);
+
+        Option<string> result = some.Map(_ => default(string)!);
+
+        result.ShouldBeNone();
+    }
+
+    [Fact]
     public void WhenMapOr_ThenReturnMappedValue()
     {
         Option<int> some = Option.Some(1);
@@ -197,6 +207,17 @@ public sealed class SomeTests
         Option<int> result = some.Map(10, static (x, state) => x + state);
 
         result.ShouldBeSomeValue(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapProducesNull_ThenReturnNone()
+    {
+        Option<int> some = Option.Some(1);
+
+        Option<string> result =
+            some.Map(10, static (_, _) => default(string)!);
+
+        result.ShouldBeNone();
     }
 
     [Fact]
@@ -751,6 +772,15 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         some.Reduce(Option.Some(-1), (x, y) => x + y).ShouldBeSomeValue(0);
+    }
+
+    [Fact]
+    public void WhenReduceProducesNull_ThenReturnNone()
+    {
+        Option<string> some = Option.Some("a");
+
+        some.Reduce(Option.Some("b"), (_, _) => default(string)!)
+           .ShouldBeNone();
     }
 
     [Fact]

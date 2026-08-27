@@ -40,7 +40,6 @@ fires on ordinary non-monadic C# and is off until a migration turns it on.
 | `WM2007` | `UnwrapOr` given the type's default | `UnwrapOrDefault` |
 | `WM2008` | An `Option` or `Result` compared to null | `IsNone` / `IsErr` — a null check reads as an absence check but is not one |
 | `WM2009` | `Option<Option<T>>` | `Flatten` — the inner/outer distinction is one callers never act on |
-| `WM2010` | A `Result` whose `TOk` and `TErr` are the same type | Distinct types; identical ones make both implicit conversions ambiguous |
 | `WM2011` | `Some`, `None`, `Ok` or `Err` named in a declaration | The base type, so both cases stay representable |
 | `WM2012` | A nullable-returning member on a type that elsewhere returns `Option`/`Result` | One absence convention per type |
 | `WM2013` | An `Option` returned and unused | Usually a sign the value was meant to be handled |

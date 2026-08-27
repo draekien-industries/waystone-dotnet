@@ -167,12 +167,13 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Result<TOut, TErr> Map<TOut>(Func<TOk, TOut> map) =>
-        map(Value);
+        Result.Ok<TOut, TErr>(map(Value));
 
     /// <inheritdoc />
     public override Result<TOut, TErr> Map<TState, TOut>(
         TState state,
-        Func<TOk, TState, TOut> map) => map(Value, state);
+        Func<TOk, TState, TOut> map) =>
+        Result.Ok<TOut, TErr>(map(Value, state));
 
     /// <inheritdoc />
     public override TOut MapOr<TOut>(
@@ -207,12 +208,12 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
 
     /// <inheritdoc />
     public override Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map) =>
-        Value;
+        Result.Ok<TOk, TOut>(Value);
 
     /// <inheritdoc />
     public override Result<TOk, TOut> MapErr<TState, TOut>(
         TState state,
-        Func<TErr, TState, TOut> map) => Value;
+        Func<TErr, TState, TOut> map) => Result.Ok<TOk, TOut>(Value);
 
     /// <inheritdoc />
     public override IEnumerable<TOk> AsEnumerable() =>

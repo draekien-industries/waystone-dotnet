@@ -12,10 +12,10 @@
         private static readonly List<Option<int>> Values =
             new List<Option<int>>
             {
-                11,
-                12,
+                Option.Some(11),
+                Option.Some(12),
                 Option.None<int>(),
-                2,
+                Option.Some(2),
             };
 
         [Fact]
@@ -184,7 +184,12 @@
         public void
             GivenAllSome_WhenInvokingCollect_ThenReturnSomeOfEveryValueInOrder()
         {
-            List<Option<int>> options = new List<Option<int>> { 1, 2, 3 };
+            List<Option<int>> options = new List<Option<int>>
+            {
+                Option.Some(1),
+                Option.Some(2),
+                Option.Some(3),
+            };
 
             options.Collect().ShouldBeSomeValue(new[] { 1, 2, 3 });
         }

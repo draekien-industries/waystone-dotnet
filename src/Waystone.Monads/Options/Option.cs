@@ -61,7 +61,7 @@ public static class Option
     {
         try
         {
-            return factory();
+            return NoneIfNull(factory());
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -116,7 +116,7 @@ public static class Option
     {
         try
         {
-            return await asyncFactory();
+            return NoneIfNull(await asyncFactory());
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -188,7 +188,7 @@ public static class Option
     {
         try
         {
-            return factory(state);
+            return NoneIfNull(factory(state));
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -261,7 +261,7 @@ public static class Option
     {
         try
         {
-            return await asyncFactory(state);
+            return NoneIfNull(await asyncFactory(state));
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -286,8 +286,8 @@ public static class Option
     /// <paramref name="value" /> is null. A <see cref="Some{T}" /> may hold the
     /// default of its type, but never null. The <c>notnull</c> constraint makes
     /// this hard to reach rather than impossible, since <c>default!</c> and an
-    /// unconstrained caller both get through. Use the implicit conversion on
-    /// <see cref="Option{T}" /> instead to turn null into a
+    /// unconstrained caller both get through. Call
+    /// <c>Option.FromNullable</c> instead to turn null into a
     /// <see cref="None{T}" /> rather than a throw.
     /// </exception>
     public static Option<T> Some<T>(T value) where T : notnull =>
@@ -336,5 +336,8 @@ public static class Option
     /// </returns>
     public static Option<T> FromNullable<T>(T? value)
         where T : class =>
+        value is null ? None<T>() : new Some<T>(value);
+
+    internal static Option<T> NoneIfNull<T>(T value) where T : notnull =>
         value is null ? None<T>() : new Some<T>(value);
 }

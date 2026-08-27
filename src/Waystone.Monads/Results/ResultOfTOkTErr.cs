@@ -767,30 +767,4 @@ public abstract record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" /> is discarded.
     /// </returns>
     public abstract IEnumerable<TOk> AsEnumerable();
-
-    /// <summary>
-    /// Implicitly creates an <see cref="Ok{TOk,TErr}" /> result from a value
-    /// of type <typeparamref name="TOk" />
-    /// </summary>
-    /// <param name="value">The <typeparamref name="TOk" /> value</param>
-    /// <returns>The created <see cref="Result{TOk,TErr}" /></returns>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="value" /> is null. Use
-    /// <c>Result.Try</c> when a null is a possible outcome
-    /// you would rather handle than have thrown at you.
-    /// </exception>
-    public static implicit operator Result<TOk, TErr>(TOk value) =>
-        Result.Ok<TOk, TErr>(value);
-
-    /// <summary>
-    /// Implicitly creates an <see cref="Err{TOk,TErr}" /> result from a value
-    /// of type <typeparamref name="TErr" />
-    /// </summary>
-    /// <param name="value">The <typeparamref name="TErr" /> value</param>
-    /// <returns>The created <see cref="Result{TOk,TErr}" /></returns>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="value" /> is null.
-    /// </exception>
-    public static implicit operator Result<TOk, TErr>(TErr value) =>
-        Result.Err<TOk, TErr>(value);
 }

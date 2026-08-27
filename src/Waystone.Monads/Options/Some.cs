@@ -117,12 +117,13 @@ public sealed record Some<T> : Option<T>
 
     /// <inheritdoc />
     public override Option<TOut> Map<TOut>(Func<T, TOut> map) =>
-        map(Value);
+        Option.NoneIfNull(map(Value));
 
     /// <inheritdoc />
     public override Option<TOut> Map<TState, TOut>(
         TState state,
-        Func<T, TState, TOut> map) => map(Value, state);
+        Func<T, TState, TOut> map) =>
+        Option.NoneIfNull(map(Value, state));
 
     /// <inheritdoc />
     public override TOut MapOr<TOut>(TOut defaultValue, Func<T, TOut> map) =>
@@ -217,7 +218,7 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> Reduce(Option<T> other, Func<T, T, T> reduce) =>
         other.Match<Option<T>>(
-            otherValue => reduce(Value, otherValue),
+            otherValue => Option.NoneIfNull(reduce(Value, otherValue)),
             () => this);
 
     /// <inheritdoc />

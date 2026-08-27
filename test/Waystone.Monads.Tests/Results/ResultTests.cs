@@ -128,16 +128,6 @@ public sealed class ResultTests
     }
 
     [Fact]
-    public void WhenImplicitlyCreatingResult_ThenReturnExpected()
-    {
-        Result<int, string> ok = 1;
-        Result<int, string> err = "error";
-
-        ok.ShouldBe(Result.Ok<int, string>(1));
-        err.ShouldBe(Result.Err<int, string>("error"));
-    }
-
-    [Fact]
     public void GivenNull_WhenCreatingOk_ThenThrow()
     {
         Should.Throw<ArgumentNullException>(
@@ -162,32 +152,10 @@ public sealed class ResultTests
     }
 
     [Fact]
-    public void GivenNull_WhenImplicitlyCreatingResult_ThenThrow()
-    {
-        Should.Throw<ArgumentNullException>(
-            () =>
-            {
-                Result<string, int> _ = default(string)!;
-            });
-
-        Should.Throw<ArgumentNullException>(
-            () =>
-            {
-                Result<int, string> _ = default(string)!;
-            });
-    }
-
-    [Fact]
-    public void GivenNull_WhenBindingAndConverting_ThenBothRejectIt()
+    public void GivenNull_WhenBinding_ThenReturnErr()
     {
         var callback = Substitute.For<Func<Exception, int>>();
         callback.Invoke(Arg.Any<Exception>()).Returns(1);
-
-        Should.Throw<ArgumentNullException>(
-            () =>
-            {
-                Result<string, int> _ = default(string)!;
-            });
 
         Result.Try(() => default(string)!, callback).ShouldBeErr();
     }
@@ -195,9 +163,7 @@ public sealed class ResultTests
     [Fact]
     public void GivenTheDefaultOfAValueType_WhenCreatingOk_ThenReturnOk()
     {
-        Result.Ok<int, string>(0).ShouldBe(Result.Ok<int, string>(0));
-
-        Result<int, string> zero = 0;
+        Result<int, string> zero = Result.Ok<int, string>(0);
 
         zero.ShouldBeOk();
         zero.ShouldBeOkValue(0);

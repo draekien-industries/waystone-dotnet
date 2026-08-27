@@ -35,7 +35,8 @@ public static partial class ReduceExtensions
             T some = option.Expect("Expected Some but found None.");
             T otherSome = other.Expect("Expected Some but found None.");
 
-            return await reduce.Invoke(some, otherSome).ConfigureAwait(false);
+            return Option.NoneIfNull(
+                await reduce.Invoke(some, otherSome).ConfigureAwait(false));
         }
     }
 }
