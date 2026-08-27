@@ -340,4 +340,25 @@ public static class Option
 
     internal static Option<T> NoneIfNull<T>(T value) where T : notnull =>
         value is null ? None<T>() : new Some<T>(value);
+
+    internal static Option<T> NotNull<T>(Option<T> option, string delegateName)
+        where T : notnull =>
+        option
+     ?? throw new ArgumentNullException(
+            delegateName,
+            $"The `{delegateName}` delegate returned a null option. Return "
+          + "`Option.None<T>()` to express an absent value; a null option is "
+          + "never valid, and the next call against it would throw a "
+          + "`NullReferenceException` far from here.");
+
+    internal static Option<T> SomeOrThrow<T>(T value, string delegateName)
+        where T : notnull =>
+        value is null
+            ? throw new ArgumentNullException(
+                delegateName,
+                $"The `{delegateName}` delegate returned null, but its return "
+              + "type is constrained to a non-nullable type. To map a null onto "
+              + "a `None`, project into an option with `AndThen` and "
+              + "`Option.FromNullable` instead.")
+            : new Some<T>(value);
 }

@@ -170,13 +170,14 @@ public sealed class SomeTests
     }
 
     [Fact]
-    public void WhenMapProducesNull_ThenReturnNone()
+    public void WhenMapProducesNull_ThenThrow()
     {
         Option<int> some = Option.Some(1);
 
-        Option<string> result = some.Map(_ => default(string)!);
+        Func<Option<string>> mapToNull = () => some.Map(_ => default(string)!);
 
-        result.ShouldBeNone();
+        mapToNull.ShouldThrow<ArgumentNullException>()
+                 .ParamName.ShouldBe("map");
     }
 
     [Fact]
@@ -210,14 +211,15 @@ public sealed class SomeTests
     }
 
     [Fact]
-    public void GivenState_WhenMapProducesNull_ThenReturnNone()
+    public void GivenState_WhenMapProducesNull_ThenThrow()
     {
         Option<int> some = Option.Some(1);
 
-        Option<string> result =
-            some.Map(10, static (_, _) => default(string)!);
+        Func<Option<string>> mapToNull =
+            () => some.Map(10, static (_, _) => default(string)!);
 
-        result.ShouldBeNone();
+        mapToNull.ShouldThrow<ArgumentNullException>()
+                 .ParamName.ShouldBe("map");
     }
 
     [Fact]
@@ -600,6 +602,30 @@ public sealed class SomeTests
     }
 
     [Fact]
+    public void WhenAndThenProducesANullOption_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Option<int>> andThenNull =
+            () => some.AndThen(_ => default(Option<int>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public void GivenState_WhenAndThenProducesANullOption_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Option<int>> andThenNull = () =>
+            some.AndThen(10, static (_, _) => default(Option<int>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
     public async Task WhenAndThenAsync_ThenReturnMappedOption()
     {
         Option<int> some = Option.Some(1);
@@ -799,12 +825,15 @@ public sealed class SomeTests
     }
 
     [Fact]
-    public void WhenReduceProducesNull_ThenReturnNone()
+    public void WhenReduceProducesNull_ThenThrow()
     {
         Option<string> some = Option.Some("a");
 
-        some.Reduce(Option.Some("b"), (_, _) => default(string)!)
-           .ShouldBeNone();
+        Func<Option<string>> reduceToNull = () =>
+            some.Reduce(Option.Some("b"), (_, _) => default(string)!);
+
+        reduceToNull.ShouldThrow<ArgumentNullException>()
+                    .ParamName.ShouldBe("reduce");
     }
 
     [Fact]

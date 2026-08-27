@@ -146,18 +146,20 @@ public sealed record Some<T> : Option<T>
 
     /// <inheritdoc />
     public override Option<TOut> Map<TOut>(Func<T, TOut> map) =>
-        Option.NoneIfNull(map(Value));
+        Option.SomeOrThrow(map(Value), nameof(map));
 
     /// <inheritdoc />
     public override Option<TOut> Map<TState, TOut>(
         TState state,
         Func<T, TState, TOut> map) =>
-        Option.NoneIfNull(map(Value, state));
+        Option.SomeOrThrow(map(Value, state), nameof(map));
 
     /// <inheritdoc />
     public override async ValueTask<Option<TOut>> MapAsync<TOut>(
         Func<T, Task<TOut>> map) =>
-        Option.Some(await map(Value).ConfigureAwait(false));
+        Option.SomeOrThrow(
+            await map(Value).ConfigureAwait(false),
+            nameof(map));
 
     /// <inheritdoc />
     public override Option<TOut> And<TOut>(Option<TOut> other) =>
@@ -325,7 +327,9 @@ public sealed record Some<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> Reduce(Option<T> other, Func<T, T, T> reduce) =>
         other.Match<Option<T>>(
-            otherValue => Option.NoneIfNull(reduce(Value, otherValue)),
+            otherValue => Option.SomeOrThrow(
+                reduce(Value, otherValue),
+                nameof(reduce)),
             () => this);
 
     /// <inheritdoc />
@@ -335,8 +339,9 @@ public sealed record Some<T> : Option<T>
     {
         if (other is not Some<T> otherSome) return this;
 
-        return Option.NoneIfNull(
-            await reduce(Value, otherSome.Value).ConfigureAwait(false));
+        return Option.SomeOrThrow(
+            await reduce(Value, otherSome.Value).ConfigureAwait(false),
+            nameof(reduce));
     }
 
     /// <inheritdoc />
