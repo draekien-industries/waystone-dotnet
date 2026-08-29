@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Diagnostics;
 
@@ -32,6 +33,8 @@ public sealed class MonadOptions
 
     private static volatile bool _scopingHasBeenUsed;
 
+    private static volatile bool _configurationIsPending;
+
     internal MonadOptions(
         ErrorCodeFactory errorCodeFactory,
         string fallbackErrorCode,
@@ -48,8 +51,18 @@ public sealed class MonadOptions
 
     internal static MonadOptions Global => Volatile.Read(ref _global);
 
-    internal static MonadOptions Current =>
-        _scopingHasBeenUsed ? ScopedOptions.Value ?? Global : Global;
+    internal static MonadOptions Current
+    {
+        get
+        {
+            if (_configurationIsPending)
+            {
+                ReportConfigurationNotApplied();
+            }
+
+            return _scopingHasBeenUsed ? ScopedOptions.Value ?? Global : Global;
+        }
+    }
 
     internal ErrorCodeFactory ErrorCodeFactory { get; }
     internal string FallbackErrorCode { get; }
@@ -111,6 +124,7 @@ public sealed class MonadOptions
         {
             MonadOptionsBuilder builder = Global.ToBuilder();
             configure.Invoke(builder);
+            _configurationIsPending = false;
             Volatile.Write(ref _global, builder.Build());
         }
     }
@@ -164,16 +178,32 @@ public sealed class MonadOptions
     {
         lock (ConfigureGate)
         {
+            _configurationIsPending = false;
             Volatile.Write(ref _global, options);
         }
+    }
+
+    internal static void MarkConfigurationPending()
+    {
+        _configurationIsPending = true;
     }
 
     internal static void Reset()
     {
         lock (ConfigureGate)
         {
+            _configurationIsPending = false;
             Volatile.Write(ref _global, Default);
             ScopedOptions.Value = null;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void ReportConfigurationNotApplied()
+    {
+        if (MonadDiagnostics.RecordConfigurationNotApplied())
+        {
+            _configurationIsPending = false;
         }
     }
 }
