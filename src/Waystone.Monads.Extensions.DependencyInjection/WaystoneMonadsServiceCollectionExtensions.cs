@@ -53,7 +53,11 @@ public static class WaystoneMonadsServiceCollectionExtensions
         }
 
         services.TryAddSingleton<ErrorCodeFactory>();
-        services.AddSingleton(new MonadOptionsRegistration(configure));
+
+        if (configure is not null)
+        {
+            services.AddSingleton(new MonadOptionsRegistration(configure));
+        }
 
         MonadOptions.MarkConfigurationPending();
 

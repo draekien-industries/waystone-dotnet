@@ -5,10 +5,10 @@ using Monads.Configs;
 
 internal sealed class MonadOptionsRegistration
 {
-    internal MonadOptionsRegistration(Action<MonadOptionsBuilder>? configure)
+    internal MonadOptionsRegistration(Action<MonadOptionsBuilder> configure)
     {
         Configure = configure;
     }
 
-    internal Action<MonadOptionsBuilder>? Configure { get; }
+    internal Action<MonadOptionsBuilder> Configure { get; }
 }

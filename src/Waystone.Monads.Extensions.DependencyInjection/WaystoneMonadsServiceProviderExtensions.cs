@@ -1,7 +1,6 @@
 namespace Microsoft.Extensions.DependencyInjection;
 
 using System;
-using System.Collections.Generic;
 using Logging;
 using Waystone.Monads.Configs;
 using Waystone.Monads.Extensions.DependencyInjection;
@@ -55,25 +54,20 @@ public static class WaystoneMonadsServiceProviderExtensions
 
         MonadOptionsBuilder builder = MonadOptions.Global.ToBuilder();
 
-        if (provider.GetService(typeof(ErrorCodeFactory)) is ErrorCodeFactory
-            factory)
+        if (provider.GetService<ErrorCodeFactory>() is { } factory)
         {
             builder.UseErrorCodeFactory(factory);
         }
 
-        if (provider.GetService(typeof(ILoggerFactory)) is ILoggerFactory
-            loggerFactory)
+        if (provider.GetService<ILoggerFactory>() is { } loggerFactory)
         {
             builder.UseLoggerFactory(loggerFactory);
         }
 
-        if (provider.GetService(typeof(IEnumerable<MonadOptionsRegistration>))
-            is IEnumerable<MonadOptionsRegistration> registrations)
+        foreach (MonadOptionsRegistration registration in
+                 provider.GetServices<MonadOptionsRegistration>())
         {
-            foreach (MonadOptionsRegistration registration in registrations)
-            {
-                registration.Configure?.Invoke(builder);
-            }
+            registration.Configure(builder);
         }
 
         MonadOptions.Install(builder.Build());

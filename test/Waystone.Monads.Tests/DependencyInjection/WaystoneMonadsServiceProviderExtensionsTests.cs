@@ -220,6 +220,4 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
 
         recorder.Recorded().ShouldBeEmpty();
     }
-
-    private sealed class ProbeErrorCodeFactory : ErrorCodeFactory;
 }

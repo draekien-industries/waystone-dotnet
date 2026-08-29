@@ -87,6 +87,4 @@ public sealed class WaystoneMonadsServiceCollectionExtensionsTests : IDisposable
 
         recorder.Recorded().ShouldBeEmpty();
     }
-
-    private sealed class ProbeErrorCodeFactory : ErrorCodeFactory;
 }
