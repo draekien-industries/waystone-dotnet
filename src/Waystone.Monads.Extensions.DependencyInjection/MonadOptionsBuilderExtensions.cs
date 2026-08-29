@@ -37,7 +37,7 @@ public static class MonadOptionsBuilderExtensions
     /// <item>
     /// <term><c>CatchesCancellation</c></term>
     /// <description>
-    /// See <see cref="MonadOptionsBuilder.UseCancellationAsFailure(bool)" />.
+    /// See <see cref="MonadOptionsBuilder.UseCancellationAsFailure" />.
     /// Either value is honoured, so <c>false</c> in configuration puts the
     /// setting back even where code earlier in the chain turned it on.
     /// </description>
