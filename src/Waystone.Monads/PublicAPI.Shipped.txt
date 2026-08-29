@@ -13,7 +13,7 @@ Waystone.Monads.Configs.ErrorCodeFactory
 Waystone.Monads.Configs.ErrorCodeFactory.ErrorCodeFactory() -> void
 Waystone.Monads.Configs.MonadOptions
 Waystone.Monads.Configs.MonadOptionsBuilder
-Waystone.Monads.Configs.MonadOptionsBuilder.UseCancellationAsFailure() -> Waystone.Monads.Configs.MonadOptionsBuilder!
+Waystone.Monads.Configs.MonadOptionsBuilder.UseCancellationAsFailure(bool catchesCancellation = true) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsBuilder.UseErrorCodeFactory(Waystone.Monads.Configs.ErrorCodeFactory! factory) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsBuilder.UseFallbackErrorCode(string! errorCode) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsBuilder.UseFallbackErrorMessage(string! errorMessage) -> Waystone.Monads.Configs.MonadOptionsBuilder!

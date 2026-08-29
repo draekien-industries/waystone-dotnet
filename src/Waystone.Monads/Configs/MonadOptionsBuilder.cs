@@ -76,7 +76,7 @@ public sealed class MonadOptionsBuilder
             BuildSatellites());
 
     /// <summary>
-    /// Configures <c>Try</c> and <c>TryAsync</c> to treat a cancellation as a
+    /// Sets whether <c>Try</c> and <c>TryAsync</c> treat a cancellation as a
     /// failure rather than letting it propagate.
     /// </summary>
     /// <remarks>
@@ -91,11 +91,25 @@ public sealed class MonadOptionsBuilder
     /// <see cref="System.Threading.Tasks.TaskCanceledException" /> derives from
     /// <see cref="OperationCanceledException" /> and is covered by this option
     /// too.
+    /// <para>
+    /// Pass <c>false</c> to put the setting back. A builder seeded from options
+    /// configured elsewhere — by <see cref="MonadOptions.Configure" />, or by an
+    /// earlier registration in a container — carries that decision forward, and
+    /// passing <c>false</c> is the only way to reverse it.
+    /// </para>
     /// </remarks>
+    /// <param name="catchesCancellation">
+    /// If true, a cancellation is caught and becomes a
+    /// <see cref="Options.None{T}" /> or an <see cref="Results.Err{TOk,TErr}" />.
+    /// If false, it propagates to the caller that requested it. Default: true,
+    /// since turning the behaviour on is why you would call this. Absent any
+    /// call at all the setting is false.
+    /// </param>
     /// <returns>This builder, for chaining more configurations.</returns>
-    public MonadOptionsBuilder UseCancellationAsFailure()
+    public MonadOptionsBuilder UseCancellationAsFailure(
+        bool catchesCancellation = true)
     {
-        CatchesCancellation = true;
+        CatchesCancellation = catchesCancellation;
         return this;
     }
 
