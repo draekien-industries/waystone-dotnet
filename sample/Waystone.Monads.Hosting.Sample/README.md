@@ -78,6 +78,22 @@ That is the point of opting in. A typo in a section you asked to be bound stops
 the application where the mistake is written, rather than degrading silently to a
 default nobody chose.
 
+### `reverse` — configuration turning a setting back off
+
+```csharp
+builder.AddWaystoneMonads(
+    options => options.UseCancellationAsFailure()
+                      .ReadFromConfiguration(builder.Configuration));
+```
+
+Code turns cancellation-as-failure on; the bound section says `false` and turns it
+back off. The scenario then throws an `OperationCanceledException` inside
+`Option.Try` and reports that it propagated rather than becoming a `None`.
+
+`CatchesCancellation` is honoured either way round. That needs
+`UseCancellationAsFailure(bool)` — the no-argument overload can only turn the
+behaviour on, so without it a section saying `false` would mean nothing.
+
 ### `order` — registration order does not matter
 
 `EarlyReader` is an `IHostedService` registered *before* `AddWaystoneMonads`, and

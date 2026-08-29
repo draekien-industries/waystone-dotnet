@@ -3,6 +3,7 @@ namespace Waystone.Monads.Hosting.Sample;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Options;
 
 internal static class Program
 {
@@ -13,6 +14,7 @@ internal static class Program
         ["config"] = FromAppSettings,
         ["section"] = FromANamedSection,
         ["invalid"] = FromUnusableConfiguration,
+        ["reverse"] = TurnedBackOffByConfiguration,
         ["order"] = RegardlessOfRegistrationOrder,
     };
 
@@ -122,6 +124,40 @@ internal static class Program
         catch (ArgumentException exception)
         {
             Console.WriteLine($"  start-up stopped: {exception.Message}");
+        }
+    }
+
+    private static async Task TurnedBackOffByConfiguration()
+    {
+        Report.Heading("configuration turning a setting back off");
+
+        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(null);
+
+        builder.Configuration.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                ["WaystoneMonads:CatchesCancellation"] = "false",
+            });
+
+        builder.AddWaystoneMonads(
+            options => options.UseCancellationAsFailure()
+                              .ReadFromConfiguration(builder.Configuration));
+
+        await RunBriefly(builder.Build());
+
+        ReportWhetherCancellationIsSwallowed();
+    }
+
+    private static void ReportWhetherCancellationIsSwallowed()
+    {
+        try
+        {
+            Option.Try<int>(() => throw new OperationCanceledException());
+            Console.WriteLine("  a cancellation is swallowed into a None");
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("  a cancellation propagates to its caller");
         }
     }
 
