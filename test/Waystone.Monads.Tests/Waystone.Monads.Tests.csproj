@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.DependencyInjection\Waystone.Monads.Extensions.DependencyInjection.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.Logging\Waystone.Monads.Extensions.Logging.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.FluentValidation\Waystone.Monads.FluentValidation.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Linq\Waystone.Monads.Linq.csproj"/>
@@ -16,6 +17,8 @@
         <PackageReference Include="Shouldly"/>
         <PackageReference Include="coverlet.collector"/>
         <PackageReference Include="JetBrains.Annotations"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
         <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit.runner.visualstudio">
