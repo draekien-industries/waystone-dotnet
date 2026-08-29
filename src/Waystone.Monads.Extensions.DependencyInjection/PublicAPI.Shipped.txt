@@ -1,0 +1,8 @@
+#nullable enable
+Microsoft.Extensions.DependencyInjection.WaystoneMonadsServiceCollectionExtensions
+Microsoft.Extensions.DependencyInjection.WaystoneMonadsServiceProviderExtensions
+Waystone.Monads.Extensions.DependencyInjection.Configs.MonadOptionsBuilderExtensions
+const Waystone.Monads.Extensions.DependencyInjection.Configs.MonadOptionsBuilderExtensions.DefaultSectionName = "WaystoneMonads" -> string!
+static Microsoft.Extensions.DependencyInjection.WaystoneMonadsServiceCollectionExtensions.AddWaystoneMonads(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Waystone.Monads.Configs.MonadOptionsBuilder!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Extensions.DependencyInjection.WaystoneMonadsServiceProviderExtensions.UseWaystoneMonads(this System.IServiceProvider! provider) -> System.IServiceProvider!
+static Waystone.Monads.Extensions.DependencyInjection.Configs.MonadOptionsBuilderExtensions.ReadFromConfiguration(this Waystone.Monads.Configs.MonadOptionsBuilder! builder, Microsoft.Extensions.Configuration.IConfiguration! configuration, string! sectionName = "WaystoneMonads") -> Waystone.Monads.Configs.MonadOptionsBuilder!
