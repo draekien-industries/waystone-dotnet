@@ -21,10 +21,9 @@ public static class MonadOptionsBuilderExtensions
 
     /// <summary>Applies settings from a configuration section to the builder.</summary>
     /// <remarks>
-    /// Reading configuration is opt-in:
-    /// <see cref="MonadServiceCollectionExtensions.AddWaystoneMonads" />
-    /// never reaches for an <see cref="IConfiguration" /> by itself, so call this
-    /// from the delegate you pass it. Recognised keys, all optional:
+    /// Reading configuration is opt-in: <c>AddWaystoneMonads</c> never reaches for
+    /// an <see cref="IConfiguration" /> by itself, so call this from the delegate
+    /// you pass it. Recognised keys, all optional:
     /// <list type="table">
     /// <item>
     /// <term><c>FallbackErrorCode</c></term>

@@ -132,7 +132,7 @@ public sealed class MonadServiceProviderExtensionsTests : IDisposable
     }
 
     [Fact]
-    public void GivenARegisteredLoggerFactory_WhenInstalling_ThenWireLoggingToIt()
+    public void GivenARegisteredLoggerFactoryNobodyAskedFor_WhenInstalling_ThenLeaveLoggingUnconfigured()
     {
         var logger = Substitute.For<ILogger>();
         var loggerFactory = Substitute.For<ILoggerFactory>();
@@ -144,6 +144,28 @@ public sealed class MonadServiceProviderExtensionsTests : IDisposable
 
         using ServiceProvider provider = services.AddWaystoneMonads().Services
                                                  .BuildServiceProvider();
+
+        provider.UseWaystoneMonads();
+
+        MonadLoggingOptions.Current.Logger.ShouldBeSameAs(NullLogger.Instance);
+    }
+
+    [Fact]
+    public void GivenLoggingAskedForFromServices_WhenInstalling_ThenWireItToTheResolvedFactory()
+    {
+        var logger = Substitute.For<ILogger>();
+        var loggerFactory = Substitute.For<ILoggerFactory>();
+        loggerFactory.CreateLogger(MonadLoggingOptions.LoggerCategory)
+                     .Returns(logger);
+
+        var services = new ServiceCollection();
+        services.AddSingleton(loggerFactory);
+
+        using ServiceProvider provider =
+            services.AddWaystoneMonads(
+                         (resolver, options) =>
+                             options.UseLoggerFactoryFrom(resolver))
+                    .Services.BuildServiceProvider();
 
         provider.UseWaystoneMonads();
 
@@ -163,24 +185,48 @@ public sealed class MonadServiceProviderExtensionsTests : IDisposable
     }
 
     [Fact]
-    public void GivenAConfigurationDelegate_WhenInstalling_ThenLetItOverrideTheResolvedLogger()
+    public void GivenLoggingAskedForButNoLoggerFactory_WhenInstalling_ThenThrowFromTheDelegate()
     {
-        var resolved = Substitute.For<ILogger>();
-        var chosen = Substitute.For<ILogger>();
-        var loggerFactory = Substitute.For<ILoggerFactory>();
-        loggerFactory.CreateLogger(MonadLoggingOptions.LoggerCategory)
-                     .Returns(resolved);
+        using ServiceProvider provider =
+            new ServiceCollection()
+               .AddWaystoneMonads(
+                    (resolver, options) => options.UseLoggerFactoryFrom(resolver))
+               .Services.BuildServiceProvider();
+
+        Should.Throw<InvalidOperationException>(
+            () => provider.UseWaystoneMonads());
+    }
+
+    [Fact]
+    public void GivenBothOverloads_WhenInstalling_ThenRunThemInRegistrationOrder()
+    {
+        var first = Substitute.For<ILogger>();
+        var last = Substitute.For<ILogger>();
 
         var services = new ServiceCollection();
-        services.AddSingleton(loggerFactory);
+        services.AddWaystoneMonads(options => options.UseLogger(first));
+        services.AddWaystoneMonads((_, options) => options.UseLogger(last));
 
-        using ServiceProvider provider =
-            services.AddWaystoneMonads(options => options.UseLogger(chosen)).Services
-                    .BuildServiceProvider();
+        using ServiceProvider provider = services.BuildServiceProvider();
 
         provider.UseWaystoneMonads();
 
-        MonadLoggingOptions.Current.Logger.ShouldBeSameAs(chosen);
+        MonadLoggingOptions.Current.Logger.ShouldBeSameAs(last);
+    }
+
+    [Fact]
+    public void GivenAProviderAwareDelegate_WhenInstalling_ThenHandItTheProviderItWasCalledOn()
+    {
+        IServiceProvider? seen = null;
+
+        using ServiceProvider provider =
+            new ServiceCollection()
+               .AddWaystoneMonads((resolver, _) => seen = resolver)
+               .Services.BuildServiceProvider();
+
+        provider.UseWaystoneMonads();
+
+        seen.ShouldBeSameAs(provider);
     }
 
     [Fact]

@@ -5,10 +5,15 @@ using Waystone.Monads.Configs;
 
 internal sealed class MonadOptionsRegistration
 {
-    internal MonadOptionsRegistration(Action<MonadOptionsBuilder> configure)
+    internal MonadOptionsRegistration(
+        Action<IServiceProvider, MonadOptionsBuilder> configure)
     {
         Configure = configure;
     }
 
-    internal Action<MonadOptionsBuilder> Configure { get; }
+    internal MonadOptionsRegistration(Action<MonadOptionsBuilder> configure)
+        : this((_, builder) => configure(builder))
+    { }
+
+    internal Action<IServiceProvider, MonadOptionsBuilder> Configure { get; }
 }

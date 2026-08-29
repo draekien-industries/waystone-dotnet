@@ -16,6 +16,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.DependencyInjection\Waystone.Monads.Extensions.DependencyInjection.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.Logging\Waystone.Monads.Extensions.Logging.csproj"/>
     </ItemGroup>
 
 </Project>

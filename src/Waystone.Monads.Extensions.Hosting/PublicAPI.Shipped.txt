@@ -2,4 +2,6 @@
 Microsoft.Extensions.DependencyInjection.MonadServicesBuilderExtensions
 Microsoft.Extensions.Hosting.MonadHostApplicationBuilderExtensions
 static Microsoft.Extensions.DependencyInjection.MonadServicesBuilderExtensions.EnableInstallOnStart(this Microsoft.Extensions.DependencyInjection.MonadServicesBuilder! builder) -> Microsoft.Extensions.DependencyInjection.MonadServicesBuilder!
-static Microsoft.Extensions.Hosting.MonadHostApplicationBuilderExtensions.AddWaystoneMonads(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder, System.Action<Waystone.Monads.Configs.MonadOptionsBuilder!>? configure = null) -> Microsoft.Extensions.DependencyInjection.MonadServicesBuilder!
+static Microsoft.Extensions.Hosting.MonadHostApplicationBuilderExtensions.AddWaystoneMonads(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder) -> Microsoft.Extensions.DependencyInjection.MonadServicesBuilder!
+static Microsoft.Extensions.Hosting.MonadHostApplicationBuilderExtensions.AddWaystoneMonads(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder, System.Action<System.IServiceProvider!, Waystone.Monads.Configs.MonadOptionsBuilder!>! configure) -> Microsoft.Extensions.DependencyInjection.MonadServicesBuilder!
+static Microsoft.Extensions.Hosting.MonadHostApplicationBuilderExtensions.AddWaystoneMonads(this Microsoft.Extensions.Hosting.IHostApplicationBuilder! builder, System.Action<Waystone.Monads.Configs.MonadOptionsBuilder!>! configure) -> Microsoft.Extensions.DependencyInjection.MonadServicesBuilder!

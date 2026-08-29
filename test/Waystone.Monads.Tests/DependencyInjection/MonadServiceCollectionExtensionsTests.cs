@@ -32,11 +32,56 @@ public sealed class MonadServiceCollectionExtensionsTests : IDisposable
     }
 
     [Fact]
+    public void GivenANullCollection_WhenRegisteringADelegate_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => ((IServiceCollection)null!).AddWaystoneMonads(
+                       _ => { }))
+              .ParamName.ShouldBe("services");
+    }
+
+    [Fact]
+    public void GivenANullCollection_WhenRegisteringAProviderAwareDelegate_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => ((IServiceCollection)null!).AddWaystoneMonads(
+                       (_, _) => { }))
+              .ParamName.ShouldBe("services");
+    }
+
+    [Fact]
+    public void GivenANullDelegate_WhenRegistering_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => new ServiceCollection().AddWaystoneMonads(
+                       (Action<MonadOptionsBuilder>)null!))
+              .ParamName.ShouldBe("configure");
+    }
+
+    [Fact]
+    public void GivenANullProviderAwareDelegate_WhenRegistering_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => new ServiceCollection().AddWaystoneMonads(
+                       (Action<IServiceProvider, MonadOptionsBuilder>)null!))
+              .ParamName.ShouldBe("configure");
+    }
+
+    [Fact]
     public void GivenACollection_WhenRegistering_ThenReturnABuilderOverTheSameCollection()
     {
         var services = new ServiceCollection();
 
         services.AddWaystoneMonads().Services.ShouldBeSameAs(services);
+    }
+
+    [Fact]
+    public void GivenACollection_WhenRegisteringAProviderAwareDelegate_ThenReturnABuilderOverTheSameCollection()
+    {
+        var services = new ServiceCollection();
+
+        services.AddWaystoneMonads((_, _) => { })
+                .Services.ShouldBeSameAs(services);
     }
 
     [Fact]

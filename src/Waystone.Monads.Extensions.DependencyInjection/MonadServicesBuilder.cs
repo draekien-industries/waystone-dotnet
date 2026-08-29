@@ -5,8 +5,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// receiver companion packages extend.
 /// </summary>
 /// <remarks>
-/// Returned by
-/// <see cref="MonadServiceCollectionExtensions.AddWaystoneMonads" />. It carries
+/// Returned by every <c>AddWaystoneMonads</c> overload. It carries
 /// no state of its own — it exists so that a call which only makes sense after
 /// registration can require one, rather than sitting on
 /// <see cref="IServiceCollection" /> where it could be called alone.

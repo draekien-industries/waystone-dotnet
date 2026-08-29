@@ -81,16 +81,27 @@ At install time, three things are applied in order, each overwriting the last:
 
 1. The options already in effect, so an earlier `MonadOptions.Configure` call is
    carried forward rather than discarded.
-2. `ErrorCodeFactory` and `ILoggerFactory`, if the container holds them.
+2. `ErrorCodeFactory`, if the container holds one.
 3. Every delegate passed to `AddWaystoneMonads`, in registration order.
 
-So a delegate has the last word, including over the resolved logger.
+So a delegate has the last word.
 
-**Logging is wired automatically.** `AddWaystoneMonads` registers nothing for it;
-the install resolves whatever `ILoggerFactory` the container has and points
-`Waystone.Monads.Extensions.Logging` at it, in that package's own
-`Waystone.Monads` category. A container with no `ILoggerFactory` — a worker that
-never called `AddLogging` — leaves logging unconfigured rather than failing.
+**`ErrorCodeFactory` is the only thing resolved for you.** Everything else a
+companion package needs is wired by a delegate you pass. Take the overload that
+hands you the built provider:
+
+```csharp
+builder.Services.AddWaystoneMonads((provider, options) =>
+    options.UseFallbackErrorCode("Contoso")
+           .UseLoggerFactoryFrom(provider));
+```
+
+`UseLoggerFactoryFrom` ships from `Waystone.Monads.Extensions.Logging`, so the
+package you installed is the one you call. Installing this package does not drag
+that one in, and installing that one does not silently change what this one does.
+
+Resolve singletons only. The options are one process-wide snapshot, so a scoped
+service captured here outlives the scope it came from.
 
 **`ErrorCodeFactory` has no interface.** It is a public non-sealed class with
 `virtual` members, so you override it by subclassing:
