@@ -1,16 +1,15 @@
-namespace Waystone.Monads.Extensions.Hosting;
+namespace Microsoft.Extensions.Hosting;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using DependencyInjection;
 
-internal sealed class WaystoneMonadsInstaller : IHostedLifecycleService
+internal sealed class MonadOptionsInstaller : IHostedLifecycleService
 {
     private readonly IServiceProvider _provider;
 
-    public WaystoneMonadsInstaller(IServiceProvider provider)
+    public MonadOptionsInstaller(IServiceProvider provider)
     {
         _provider = provider;
     }

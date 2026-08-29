@@ -24,28 +24,41 @@ dotnet add package Waystone.Monads.Extensions.Hosting
 ```
 
 ```csharp
-builder.Services
-       .AddWaystoneMonads(options => options.UseFallbackErrorCode("Contoso"))
-       .InstallWaystoneMonadsOnStart();
+builder.AddWaystoneMonads(options => options.UseFallbackErrorCode("Contoso"));
 
 var app = builder.Build();
 
 // No second call.
 ```
 
-`InstallWaystoneMonadsOnStart` registers the installer and nothing else, so
-`AddWaystoneMonads` is still where configuration goes. Called on its own it
-installs the defaults plus whatever the container supplies.
+That is `AddWaystoneMonads` on `IHostApplicationBuilder`, which both
+`WebApplicationBuilder` and the builder from `Host.CreateApplicationBuilder`
+implement. It is exactly the two calls below, spelled once.
 
-Registering the installer twice installs once — the registration is deduplicated
-on the implementation type.
+On the older `IHostBuilder`, which has no such interface, reach the same pair
+through `ConfigureServices`:
+
+```csharp
+new HostBuilder().ConfigureServices(
+    services => services
+               .AddWaystoneMonads(options => options.UseFallbackErrorCode("Contoso"))
+               .EnableInstallOnStart());
+```
+
+`EnableInstallOnStart` hangs off the `MonadServicesBuilder` that
+`AddWaystoneMonads` returns, so asking for the install without first asking for
+the registration does not compile. It registers the installer and nothing else,
+so `AddWaystoneMonads` is still where configuration goes.
+
+Calling it twice installs once — the registration is deduplicated on the
+implementation type.
 
 ## Registration order does not matter
 
 The install runs in `IHostedLifecycleService.StartingAsync`, which the host calls
 on every hosted service before it calls `StartAsync` on any of them. So a
 background service that reads `MonadOptions` in its own `StartAsync` sees the
-installed configuration whether it was registered before `InstallWaystoneMonadsOnStart`
+installed configuration whether it was registered before `EnableInstallOnStart`
 or after.
 
 That is the whole reason this is a lifecycle service rather than a plain

@@ -1,7 +1,6 @@
 namespace Waystone.Monads.Hosting;
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Configs;
@@ -13,11 +12,12 @@ using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(WaystoneMonadsHostingExtensions))]
+[TestSubject(typeof(MonadServicesBuilderExtensions))]
+[TestSubject(typeof(MonadHostApplicationBuilderExtensions))]
 [Collection(GlobalMonadOptionsCollection.Name)]
-public sealed class WaystoneMonadsHostingExtensionsTests : IDisposable
+public sealed class MonadHostingExtensionsTests : IDisposable
 {
-    public WaystoneMonadsHostingExtensionsTests()
+    public MonadHostingExtensionsTests()
     {
         MonadOptions.Reset();
     }
@@ -28,31 +28,56 @@ public sealed class WaystoneMonadsHostingExtensionsTests : IDisposable
     }
 
     [Fact]
-    public void GivenANullCollection_WhenRegisteringTheInstaller_ThenThrow()
+    public void GivenANullBuilder_WhenEnablingTheInstall_ThenThrow()
     {
         Should.Throw<ArgumentNullException>(
-                   () => ((IServiceCollection)null!)
-                      .InstallWaystoneMonadsOnStart())
-              .ParamName.ShouldBe("services");
+                   () => ((MonadServicesBuilder)null!)
+                      .EnableInstallOnStart())
+              .ParamName.ShouldBe("builder");
     }
 
     [Fact]
-    public void GivenACollection_WhenRegisteringTheInstaller_ThenReturnItForChaining()
+    public void GivenABuilder_WhenEnablingTheInstall_ThenReturnItForChaining()
     {
-        var services = new ServiceCollection();
+        MonadServicesBuilder builder =
+            new ServiceCollection().AddWaystoneMonads();
 
-        services.InstallWaystoneMonadsOnStart().ShouldBeSameAs(services);
+        builder.EnableInstallOnStart().ShouldBeSameAs(builder);
     }
 
     [Fact]
-    public void GivenTheInstallerIsRegisteredTwice_WhenBuilding_ThenRegisterItOnce()
+    public void GivenTheInstallIsEnabledTwice_WhenBuilding_ThenRegisterOneInstaller()
     {
         using ServiceProvider provider =
-            new ServiceCollection().InstallWaystoneMonadsOnStart()
-                                   .InstallWaystoneMonadsOnStart()
-                                   .BuildServiceProvider();
+            new ServiceCollection().AddWaystoneMonads()
+                                   .EnableInstallOnStart()
+                                   .EnableInstallOnStart()
+                                   .Services.BuildServiceProvider();
 
         provider.GetServices<IHostedService>().ShouldHaveSingleItem();
+    }
+
+    [Fact]
+    public void GivenANullHostApplicationBuilder_WhenRegistering_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => ((IHostApplicationBuilder)null!).AddWaystoneMonads())
+              .ParamName.ShouldBe("builder");
+    }
+
+    [Fact]
+    public async Task GivenAHostApplicationBuilder_WhenItStarts_ThenInstallWithoutASecondCall()
+    {
+        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.AddWaystoneMonads(
+            options => options.UseFallbackErrorCode("FromHostBuilder"));
+
+        using IHost host = builder.Build();
+        await host.StartAsync(TestContext.Current.CancellationToken);
+
+        MonadOptions.Current.FallbackErrorCode.ShouldBe("FromHostBuilder");
+
+        await host.StopAsync(TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -63,7 +88,7 @@ public sealed class WaystoneMonadsHostingExtensionsTests : IDisposable
                        .AddWaystoneMonads(
                             options =>
                                 options.UseFallbackErrorCode("FromHost"))
-                       .InstallWaystoneMonadsOnStart());
+                       .EnableInstallOnStart());
 
         await host.StartAsync(TestContext.Current.CancellationToken);
 
@@ -77,7 +102,7 @@ public sealed class WaystoneMonadsHostingExtensionsTests : IDisposable
     {
         using IHost host = NewHost(
             services => services.AddWaystoneMonads()
-                                .InstallWaystoneMonadsOnStart());
+                                .EnableInstallOnStart());
 
         await host.StartAsync(TestContext.Current.CancellationToken);
 
@@ -103,7 +128,7 @@ public sealed class WaystoneMonadsHostingExtensionsTests : IDisposable
                        .AddWaystoneMonads(
                             options =>
                                 options.UseFallbackErrorCode("FromHost"))
-                       .InstallWaystoneMonadsOnStart());
+                       .EnableInstallOnStart());
 
         await host.StartAsync(TestContext.Current.CancellationToken);
 
@@ -113,10 +138,11 @@ public sealed class WaystoneMonadsHostingExtensionsTests : IDisposable
     }
 
     [Fact]
-    public async Task GivenAHostThatOnlyRegistersTheInstaller_WhenItStarts_ThenInstallTheDefaults()
+    public async Task GivenNoConfigurationDelegate_WhenTheHostStarts_ThenInstallTheDefaults()
     {
-        using IHost host =
-            NewHost(services => services.InstallWaystoneMonadsOnStart());
+        using IHost host = NewHost(
+            services => services.AddWaystoneMonads()
+                                .EnableInstallOnStart());
 
         await host.StartAsync(TestContext.Current.CancellationToken);
 
@@ -133,7 +159,7 @@ public sealed class WaystoneMonadsHostingExtensionsTests : IDisposable
                        .AddWaystoneMonads(
                             options =>
                                 options.UseFallbackErrorCode("FromHost"))
-                       .InstallWaystoneMonadsOnStart());
+                       .EnableInstallOnStart());
 
         await host.StartAsync(TestContext.Current.CancellationToken);
         await host.StopAsync(TestContext.Current.CancellationToken);
