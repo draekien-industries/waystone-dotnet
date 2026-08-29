@@ -1,6 +1,5 @@
 namespace Waystone.Monads.Observability.Sample;
 
-using System.Diagnostics;
 using Configs;
 using Extensions.Logging.Configs;
 using Microsoft.Extensions.Logging;
@@ -27,7 +26,11 @@ internal static class Program
 
         MonadOptions.Configure(options => options.UseLoggerFactory(factory));
 
-        DiagnosticListener.AllListeners.Subscribe(new RawEventWatcher());
+        MonadDiagnostics.ExceptionHandledEvent.Subscribe(
+            static handled => Console.WriteLine(
+                $"  event: {handled.Monad} at {handled.Caller.MemberName}:"
+              + $"{handled.Caller.LineNumber} caught "
+              + $"{handled.Exception.GetType().Name}"));
 
         WhatEachMonadKeeps();
         RaiseTheLevelForOneFlow(factory);

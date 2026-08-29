@@ -45,13 +45,19 @@ hands it a different logger at `Warning`. The entry inside the block goes to
 `Waystone.Monads` at `dbug`. That scoping is what makes the logging usable in
 parallel tests.
 
-**The raw event, for anything the package does not cover.** `RawEventWatcher`
-subscribes to the `DiagnosticListener` directly and prints one line per handled
-exception.
+**The event, for anything the package does not cover.**
+`MonadDiagnostics.ExceptionHandledEvent.Subscribe` in `Main` prints one line per
+handled exception. The payload arrives already the right type, so the subscriber is
+the lambda and nothing else — no `IObserver` to implement and no event name to
+spell.
+
+`Main` drops the `IDisposable` it gets back. That is the one case where it is safe:
+the subscriber runs for the life of the process, so there is nothing to detach from
+and no leak to outlive. Hold it and dispose it anywhere shorter-lived than that.
 
 ## The thing to notice
 
-The logger and the watcher both run. Nothing had to choose between them.
+The logger and the subscriber both run. Nothing had to choose between them.
 
 That is the reason `MonadOptions.UseExceptionLogger` is obsolete. It held a single
 delegate, so a second integration replaced the first silently — you could have
@@ -59,7 +65,7 @@ logging or your own handler, never both.
 
 ## Two rough edges in the output, and why
 
-**Log lines and `raw event:` lines interleave.** The console logging provider
+**Log lines and `event:` lines interleave.** The console logging provider
 writes on a background thread; the diagnostic subscriber runs synchronously on the
 thread that threw. `Program` disposes the factory before the metrics dump for the
 same reason — otherwise the last buffered entry lands after it.

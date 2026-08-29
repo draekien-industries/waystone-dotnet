@@ -35,6 +35,9 @@ Waystone.Monads.Diagnostics.ExceptionHandled.Exception.init -> void
 Waystone.Monads.Diagnostics.ExceptionHandled.ExceptionHandled(System.Exception! Exception, Waystone.Monads.Configs.CallerInfo! Caller, Waystone.Monads.Diagnostics.MonadKind Monad) -> void
 Waystone.Monads.Diagnostics.ExceptionHandled.Monad.get -> Waystone.Monads.Diagnostics.MonadKind
 Waystone.Monads.Diagnostics.ExceptionHandled.Monad.init -> void
+Waystone.Monads.Diagnostics.MonadDiagnosticEvent<TPayload>
+Waystone.Monads.Diagnostics.MonadDiagnosticEvent<TPayload>.Name.get -> string!
+Waystone.Monads.Diagnostics.MonadDiagnosticEvent<TPayload>.Subscribe(System.Action<TPayload!>! onEvent) -> System.IDisposable!
 Waystone.Monads.Diagnostics.MonadDiagnostics
 Waystone.Monads.Diagnostics.MonadKind
 Waystone.Monads.Diagnostics.MonadKind.Option = 0 -> Waystone.Monads.Diagnostics.MonadKind
@@ -808,6 +811,9 @@ static Waystone.Monads.Diagnostics.ConfigurationNotApplied.operator !=(Waystone.
 static Waystone.Monads.Diagnostics.ConfigurationNotApplied.operator ==(Waystone.Monads.Diagnostics.ConfigurationNotApplied? left, Waystone.Monads.Diagnostics.ConfigurationNotApplied? right) -> bool
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator !=(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator ==(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
+static Waystone.Monads.Diagnostics.MonadDiagnostics.ConfigurationNotAppliedEvent.get -> Waystone.Monads.Diagnostics.MonadDiagnosticEvent<Waystone.Monads.Diagnostics.ConfigurationNotApplied!>!
+static Waystone.Monads.Diagnostics.MonadDiagnostics.ExceptionHandledEvent.get -> Waystone.Monads.Diagnostics.MonadDiagnosticEvent<Waystone.Monads.Diagnostics.ExceptionHandled!>!
+static Waystone.Monads.Diagnostics.MonadDiagnostics.ScopeDisposedOutOfOrderEvent.get -> Waystone.Monads.Diagnostics.MonadDiagnosticEvent<Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder!>!
 static Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.operator !=(Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? left, Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? right) -> bool
 static Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.operator ==(Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? left, Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? right) -> bool
 static Waystone.Monads.Options.Extensions.OptionExtensions.AndAsync<T, TOut>(this System.Threading.Tasks.Task<Waystone.Monads.Options.Option<T>!>! optionTask, Waystone.Monads.Options.Option<TOut>! other) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>

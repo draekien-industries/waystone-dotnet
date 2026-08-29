@@ -87,6 +87,41 @@ public static class MonadDiagnostics
     public const string ConfigurationNotAppliedEventName =
         "Waystone.Monads.ConfigurationNotApplied";
 
+    /// <summary>Gets the event written when the library swallows an exception, ready to subscribe to.</summary>
+    /// <remarks>
+    /// Pairs <see cref="ExceptionHandledEventName" /> with the payload it carries,
+    /// so <see cref="MonadDiagnosticEvent{TPayload}.Subscribe" /> needs neither the
+    /// name nor a cast. Read that method before subscribing — the callback runs on
+    /// the throwing thread, and an exception it throws is not swallowed.
+    /// </remarks>
+    public static MonadDiagnosticEvent<ExceptionHandled> ExceptionHandledEvent
+    {
+        get;
+    } = new(ExceptionHandledEventName);
+
+    /// <summary>Gets the event written when a scope is disposed out of order, ready to subscribe to.</summary>
+    /// <remarks>
+    /// Pairs <see cref="ScopeDisposedOutOfOrderEventName" /> with the payload it
+    /// carries. Throwing from the callback is the supported way to make the misuse
+    /// fatal in a test suite, since <see cref="MonadOptionsScope.Dispose" /> will
+    /// not throw on its own.
+    /// </remarks>
+    public static MonadDiagnosticEvent<ScopeDisposedOutOfOrder>
+        ScopeDisposedOutOfOrderEvent { get; } =
+        new(ScopeDisposedOutOfOrderEventName);
+
+    /// <summary>Gets the event written when options are read before container-registered configuration reaches the library, ready to subscribe to.</summary>
+    /// <remarks>
+    /// Pairs <see cref="ConfigurationNotAppliedEventName" /> with the payload it
+    /// carries. The signal is held while nothing is subscribed rather than spent,
+    /// so a subscription made at any point before the configuration lands still
+    /// receives it — subscribing late costs nothing here, unlike the other two
+    /// events.
+    /// </remarks>
+    public static MonadDiagnosticEvent<ConfigurationNotApplied>
+        ConfigurationNotAppliedEvent { get; } =
+        new(ConfigurationNotAppliedEventName);
+
     /// <summary>The name of the counter of exceptions the library has swallowed.</summary>
     /// <remarks>
     /// A monotonic <see cref="Counter{T}" /> of <see cref="long" />, counted in

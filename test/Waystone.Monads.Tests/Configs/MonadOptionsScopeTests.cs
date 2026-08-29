@@ -382,9 +382,11 @@ public sealed class MonadOptionsScopeTests
         private readonly ConcurrentQueue<ScopeDisposedOutOfOrder> _events =
             new();
 
+        private readonly object _gate = new();
+
         private readonly string _prefix;
 
-        private IDisposable? _subscription;
+        private readonly List<IDisposable> _subscriptions = new();
 
         public ScopeEventRecorder(string prefix)
         {
@@ -396,7 +398,16 @@ public sealed class MonadOptionsScopeTests
 
         public void Dispose()
         {
-            _subscription?.Dispose();
+            lock (_gate)
+            {
+                foreach (IDisposable subscription in _subscriptions)
+                {
+                    subscription.Dispose();
+                }
+
+                _subscriptions.Clear();
+            }
+
             _allListeners.Dispose();
         }
 
@@ -418,15 +429,21 @@ public sealed class MonadOptionsScopeTests
                 return;
             }
 
-            _subscription = listener.Subscribe(
-                new Observer<KeyValuePair<string, object?>>(Record),
-                name => name
-                     == MonadDiagnostics.ScopeDisposedOutOfOrderEventName);
+            lock (_gate)
+            {
+                _subscriptions.Add(
+                    listener.Subscribe(
+                        new Observer<KeyValuePair<string, object?>>(Record),
+                        name => name
+                             == MonadDiagnostics
+                                   .ScopeDisposedOutOfOrderEventName));
+            }
         }
 
         private void Record(KeyValuePair<string, object?> written)
         {
-            if (written.Value is ScopeDisposedOutOfOrder disposed)
+            if (written.Key == MonadDiagnostics.ScopeDisposedOutOfOrderEventName
+             && written.Value is ScopeDisposedOutOfOrder disposed)
             {
                 _events.Enqueue(disposed);
             }
