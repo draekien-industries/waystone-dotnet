@@ -37,10 +37,9 @@ public static class MonadOptionsBuilderExtensions
     /// <item>
     /// <term><c>CatchesCancellation</c></term>
     /// <description>
-    /// <c>true</c> calls <see cref="MonadOptionsBuilder.UseCancellationAsFailure" />.
-    /// <c>false</c> does nothing rather than undoing an earlier call to it — the
-    /// builder offers no way back — so configuration can turn the behaviour on
-    /// but not off again.
+    /// See <see cref="MonadOptionsBuilder.UseCancellationAsFailure(bool)" />.
+    /// Either value is honoured, so <c>false</c> in configuration puts the
+    /// setting back even where code earlier in the chain turned it on.
     /// </description>
     /// </item>
     /// </list>
@@ -113,10 +112,7 @@ public static class MonadOptionsBuilderExtensions
                     nameof(configuration));
             }
 
-            if (catches)
-            {
-                builder.UseCancellationAsFailure();
-            }
+            builder.UseCancellationAsFailure(catches);
         }
 
         return builder;

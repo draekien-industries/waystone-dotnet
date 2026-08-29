@@ -114,6 +114,18 @@ public sealed class MonadOptionsBuilderExtensionsTests
     }
 
     [Fact]
+    public void GivenCancellationWasTurnedOnInCode_WhenConfiguredOff_ThenTurnItBackOff()
+    {
+        var builder = new MonadOptionsBuilder();
+        builder.UseCancellationAsFailure();
+
+        builder.ReadFromConfiguration(
+            Configuration(("WaystoneMonads:CatchesCancellation", "false")));
+
+        builder.CatchesCancellation.ShouldBeFalse();
+    }
+
+    [Fact]
     public void GivenCancellationIsNotABoolean_WhenReading_ThenThrow()
     {
         ArgumentException thrown = Should.Throw<ArgumentException>(

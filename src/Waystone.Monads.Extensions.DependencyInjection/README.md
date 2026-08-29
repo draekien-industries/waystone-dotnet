@@ -138,9 +138,8 @@ an empty `FallbackErrorCode`, or a `CatchesCancellation` that is not `true` or
 `false`, stops start-up where the mistake is written rather than degrading to a
 default nobody chose.
 
-`"CatchesCancellation": false` does nothing rather than undoing an earlier
-`UseCancellationAsFailure()` call — `MonadOptionsBuilder` offers no way back — so
-configuration can turn that behaviour on but not off again.
+`"CatchesCancellation"` is honoured either way round, so `false` puts the setting
+back even where code earlier in the chain called `UseCancellationAsFailure()`.
 
 Binding goes through the builder's `Use*` methods rather than the reflection
 binder, because the settings have no public setters to bind to.
