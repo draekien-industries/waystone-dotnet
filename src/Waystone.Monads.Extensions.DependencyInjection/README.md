@@ -23,9 +23,29 @@ var app = builder.Build();
 app.Services.UseWaystoneMonads();
 ```
 
-`AddWaystoneMonads` and `UseWaystoneMonads` are both in the
+Everything this package ships is in the
 `Microsoft.Extensions.DependencyInjection` namespace, which a host application
-already has in scope.
+already has in scope — no extra `using`, including for `ReadFromConfiguration`.
+
+`AddWaystoneMonads` returns a `MonadServicesBuilder` rather than the collection.
+Its `Services` property is the same collection you passed in, so carry on from
+there:
+
+```csharp
+builder.Services.AddWaystoneMonads()
+       .Services.AddSingleton<IClock, SystemClock>();
+```
+
+The builder exists so a companion package can offer a call that only makes sense
+once registration has happened — `Waystone.Monads.Extensions.Hosting` hangs
+`EnableInstallOnStart()` off it, so there is no way to ask for the install
+without first asking for the registration.
+
+Calling `AddWaystoneMonads` more than once accumulates rather than conflicts.
+Each `configure` delegate is kept and they run in registration order at install
+time, so a later call overrides an earlier one. Everything else it does is
+idempotent, which makes it safe for a library to call during its own registration
+without knowing whether the application already has.
 
 ## Two calls, and why
 
@@ -95,8 +115,6 @@ Configuration binding is opt-in, mirroring Serilog's `ReadFrom.Configuration()`.
 `AddWaystoneMonads` never reaches for an `IConfiguration` on its own:
 
 ```csharp
-using Waystone.Monads.Extensions.DependencyInjection.Configs;
-
 builder.Services.AddWaystoneMonads(
     options => options.ReadFromConfiguration(builder.Configuration));
 ```

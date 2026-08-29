@@ -13,11 +13,11 @@ using NSubstitute;
 using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(WaystoneMonadsServiceProviderExtensions))]
+[TestSubject(typeof(MonadServiceProviderExtensions))]
 [Collection(GlobalMonadOptionsCollection.Name)]
-public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
+public sealed class MonadServiceProviderExtensionsTests : IDisposable
 {
-    public WaystoneMonadsServiceProviderExtensionsTests()
+    public MonadServiceProviderExtensionsTests()
     {
         MonadOptions.Reset();
     }
@@ -39,7 +39,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
     public void GivenAProvider_WhenInstalling_ThenReturnItForChaining()
     {
         using ServiceProvider provider = new ServiceCollection()
-                                        .AddWaystoneMonads()
+                                        .AddWaystoneMonads().Services
                                         .BuildServiceProvider();
 
         provider.UseWaystoneMonads().ShouldBeSameAs(provider);
@@ -51,7 +51,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
         using ServiceProvider provider =
             new ServiceCollection()
                .AddWaystoneMonads(
-                    options => options.UseFallbackErrorCode("FromContainer"))
+                    options => options.UseFallbackErrorCode("FromContainer")).Services
                .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -63,7 +63,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
     public void GivenNoConfigurationDelegate_WhenInstalling_ThenKeepTheDefaults()
     {
         using ServiceProvider provider = new ServiceCollection()
-                                        .AddWaystoneMonads()
+                                        .AddWaystoneMonads().Services
                                         .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -77,9 +77,9 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
         using ServiceProvider provider =
             new ServiceCollection()
                .AddWaystoneMonads(
-                    options => options.UseFallbackErrorCode("First"))
+                    options => options.UseFallbackErrorCode("First")).Services
                .AddWaystoneMonads(
-                    options => options.UseFallbackErrorCode("Second"))
+                    options => options.UseFallbackErrorCode("Second")).Services
                .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -96,7 +96,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
         using ServiceProvider provider =
             new ServiceCollection()
                .AddWaystoneMonads(
-                    options => options.UseFallbackErrorCode("FromContainer"))
+                    options => options.UseFallbackErrorCode("FromContainer")).Services
                .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -123,7 +123,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton<ErrorCodeFactory>(factory);
 
-        using ServiceProvider provider = services.AddWaystoneMonads()
+        using ServiceProvider provider = services.AddWaystoneMonads().Services
                                                  .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -142,7 +142,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton(loggerFactory);
 
-        using ServiceProvider provider = services.AddWaystoneMonads()
+        using ServiceProvider provider = services.AddWaystoneMonads().Services
                                                  .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -154,7 +154,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
     public void GivenNoLoggerFactory_WhenInstalling_ThenLeaveLoggingUnconfigured()
     {
         using ServiceProvider provider = new ServiceCollection()
-                                        .AddWaystoneMonads()
+                                        .AddWaystoneMonads().Services
                                         .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -175,7 +175,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
         services.AddSingleton(loggerFactory);
 
         using ServiceProvider provider =
-            services.AddWaystoneMonads(options => options.UseLogger(chosen))
+            services.AddWaystoneMonads(options => options.UseLogger(chosen)).Services
                     .BuildServiceProvider();
 
         provider.UseWaystoneMonads();
@@ -189,7 +189,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
         using ServiceProvider provider =
             new ServiceCollection()
                .AddWaystoneMonads(
-                    options => options.UseFallbackErrorCode("FromContainer"))
+                    options => options.UseFallbackErrorCode("FromContainer")).Services
                .BuildServiceProvider();
 
         using (MonadOptions.BeginScope(
@@ -207,7 +207,7 @@ public sealed class WaystoneMonadsServiceProviderExtensionsTests : IDisposable
     public void GivenInstallationHasRun_WhenOptionsAreRead_ThenReportNothing()
     {
         using ServiceProvider provider = new ServiceCollection()
-                                        .AddWaystoneMonads()
+                                        .AddWaystoneMonads().Services
                                         .BuildServiceProvider();
 
         provider.UseWaystoneMonads();

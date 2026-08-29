@@ -3,9 +3,9 @@ namespace Waystone.Monads.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using Configs;
-using Extensions.DependencyInjection.Configs;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 

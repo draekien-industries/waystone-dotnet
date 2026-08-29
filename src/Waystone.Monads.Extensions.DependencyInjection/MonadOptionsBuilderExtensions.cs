@@ -1,8 +1,8 @@
-namespace Waystone.Monads.Extensions.DependencyInjection.Configs;
+namespace Microsoft.Extensions.DependencyInjection;
 
 using System;
-using Microsoft.Extensions.Configuration;
-using Monads.Configs;
+using Configuration;
+using Waystone.Monads.Configs;
 
 /// <summary>
 /// Extensions for reading <see cref="MonadOptionsBuilder" /> settings out of an
@@ -22,7 +22,7 @@ public static class MonadOptionsBuilderExtensions
     /// <summary>Applies settings from a configuration section to the builder.</summary>
     /// <remarks>
     /// Reading configuration is opt-in:
-    /// <see cref="Microsoft.Extensions.DependencyInjection.WaystoneMonadsServiceCollectionExtensions.AddWaystoneMonads" />
+    /// <see cref="MonadServiceCollectionExtensions.AddWaystoneMonads" />
     /// never reaches for an <see cref="IConfiguration" /> by itself, so call this
     /// from the delegate you pass it. Recognised keys, all optional:
     /// <list type="table">

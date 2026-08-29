@@ -3,17 +3,16 @@ namespace Microsoft.Extensions.DependencyInjection;
 using System;
 using Logging;
 using Waystone.Monads.Configs;
-using Waystone.Monads.Extensions.DependencyInjection;
 using Waystone.Monads.Extensions.Logging.Configs;
 
 /// <summary>Installs the Waystone.Monads configuration a service collection registered.</summary>
-public static class WaystoneMonadsServiceProviderExtensions
+public static class MonadServiceProviderExtensions
 {
     /// <summary>Installs the registered configuration as the ambient Waystone.Monads options.</summary>
     /// <remarks>
     /// Call this once, immediately after the provider is built and before any
     /// work that uses the library. Until it runs, everything
-    /// <see cref="WaystoneMonadsServiceCollectionExtensions.AddWaystoneMonads" />
+    /// <see cref="MonadServiceCollectionExtensions.AddWaystoneMonads" />
     /// registered is inert.
     /// <para>
     /// The snapshot is assembled in three steps, each overwriting the last: the

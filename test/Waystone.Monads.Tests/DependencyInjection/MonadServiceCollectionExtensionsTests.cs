@@ -9,11 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(WaystoneMonadsServiceCollectionExtensions))]
+[TestSubject(typeof(MonadServiceCollectionExtensions))]
 [Collection(GlobalMonadOptionsCollection.Name)]
-public sealed class WaystoneMonadsServiceCollectionExtensionsTests : IDisposable
+public sealed class MonadServiceCollectionExtensionsTests : IDisposable
 {
-    public WaystoneMonadsServiceCollectionExtensionsTests()
+    public MonadServiceCollectionExtensionsTests()
     {
         MonadOptions.Reset();
     }
@@ -32,18 +32,30 @@ public sealed class WaystoneMonadsServiceCollectionExtensionsTests : IDisposable
     }
 
     [Fact]
-    public void GivenACollection_WhenRegistering_ThenReturnItForChaining()
+    public void GivenACollection_WhenRegistering_ThenReturnABuilderOverTheSameCollection()
     {
         var services = new ServiceCollection();
 
-        services.AddWaystoneMonads().ShouldBeSameAs(services);
+        services.AddWaystoneMonads().Services.ShouldBeSameAs(services);
+    }
+
+    [Fact]
+    public void GivenSeveralRegistrations_WhenBuilding_ThenRegisterOneFactory()
+    {
+        var services = new ServiceCollection();
+        services.AddWaystoneMonads();
+        services.AddWaystoneMonads();
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        provider.GetServices<ErrorCodeFactory>().ShouldHaveSingleItem();
     }
 
     [Fact]
     public void GivenNoFactoryRegistered_WhenRegistering_ThenSupplyTheDefaultOne()
     {
         using ServiceProvider provider = new ServiceCollection()
-                                        .AddWaystoneMonads()
+                                        .AddWaystoneMonads().Services
                                         .BuildServiceProvider();
 
         provider.GetRequiredService<ErrorCodeFactory>()
@@ -56,7 +68,7 @@ public sealed class WaystoneMonadsServiceCollectionExtensionsTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton<ErrorCodeFactory, ProbeErrorCodeFactory>();
 
-        using ServiceProvider provider = services.AddWaystoneMonads()
+        using ServiceProvider provider = services.AddWaystoneMonads().Services
                                                  .BuildServiceProvider();
 
         provider.GetRequiredService<ErrorCodeFactory>()

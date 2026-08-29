@@ -1,7 +1,7 @@
-namespace Waystone.Monads.Extensions.DependencyInjection;
+namespace Microsoft.Extensions.DependencyInjection;
 
 using System;
-using Monads.Configs;
+using Waystone.Monads.Configs;
 
 internal sealed class MonadOptionsRegistration
 {
