@@ -13,13 +13,17 @@ Waystone.Monads.Configs.ErrorCodeFactory
 Waystone.Monads.Configs.ErrorCodeFactory.ErrorCodeFactory() -> void
 Waystone.Monads.Configs.MonadOptions
 Waystone.Monads.Configs.MonadOptionsBuilder
-Waystone.Monads.Configs.MonadOptionsBuilder.UseCancellationAsFailure() -> Waystone.Monads.Configs.MonadOptionsBuilder!
+Waystone.Monads.Configs.MonadOptionsBuilder.UseCancellationAsFailure(bool catchesCancellation = true) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsBuilder.UseErrorCodeFactory(Waystone.Monads.Configs.ErrorCodeFactory! factory) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsBuilder.UseFallbackErrorCode(string! errorCode) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsBuilder.UseFallbackErrorMessage(string! errorMessage) -> Waystone.Monads.Configs.MonadOptionsBuilder!
 Waystone.Monads.Configs.MonadOptionsScope
 Waystone.Monads.Configs.MonadOptionsScope.Dispose() -> void
 Waystone.Monads.Configs.MonadOptionsScope.MonadOptionsScope() -> void
+Waystone.Monads.Diagnostics.ConfigurationNotApplied
+Waystone.Monads.Diagnostics.ConfigurationNotApplied.<Clone>$() -> Waystone.Monads.Diagnostics.ConfigurationNotApplied!
+Waystone.Monads.Diagnostics.ConfigurationNotApplied.ConfigurationNotApplied() -> void
+Waystone.Monads.Diagnostics.ConfigurationNotApplied.Equals(Waystone.Monads.Diagnostics.ConfigurationNotApplied? other) -> bool
 Waystone.Monads.Diagnostics.ExceptionHandled
 Waystone.Monads.Diagnostics.ExceptionHandled.<Clone>$() -> Waystone.Monads.Diagnostics.ExceptionHandled!
 Waystone.Monads.Diagnostics.ExceptionHandled.Caller.get -> Waystone.Monads.Configs.CallerInfo!
@@ -498,6 +502,7 @@ abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOrDefault() -> TOk?
 abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOrElse(System.Func<TErr, TOk>! valueFactory) -> TOk
 abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOrElse<TState>(TState state, System.Func<TErr, TState, TOk>! valueFactory) -> TOk
 abstract Waystone.Monads.Results.Result<TOk, TErr>.UnwrapOrElseAsync(System.Func<TErr, System.Threading.Tasks.Task<TOk>!>! valueFactory) -> System.Threading.Tasks.ValueTask<TOk>
+const Waystone.Monads.Diagnostics.MonadDiagnostics.ConfigurationNotAppliedEventName = "Waystone.Monads.ConfigurationNotApplied" -> string!
 const Waystone.Monads.Diagnostics.MonadDiagnostics.ErrorTypeTagKey = "error.type" -> string!
 const Waystone.Monads.Diagnostics.MonadDiagnostics.ExceptionHandledEventName = "Waystone.Monads.ExceptionHandled" -> string!
 const Waystone.Monads.Diagnostics.MonadDiagnostics.ExceptionsHandledInstrumentName = "waystone.monads.exceptions_handled" -> string!
@@ -510,6 +515,9 @@ const Waystone.Monads.Diagnostics.MonadDiagnostics.ScopeDisposedOutOfOrderEventN
 override Waystone.Monads.Configs.CallerInfo.Equals(object? obj) -> bool
 override Waystone.Monads.Configs.CallerInfo.GetHashCode() -> int
 override Waystone.Monads.Configs.CallerInfo.ToString() -> string!
+override Waystone.Monads.Diagnostics.ConfigurationNotApplied.Equals(object? obj) -> bool
+override Waystone.Monads.Diagnostics.ConfigurationNotApplied.GetHashCode() -> int
+override Waystone.Monads.Diagnostics.ConfigurationNotApplied.ToString() -> string!
 override Waystone.Monads.Diagnostics.ExceptionHandled.Equals(object? obj) -> bool
 override Waystone.Monads.Diagnostics.ExceptionHandled.GetHashCode() -> int
 override Waystone.Monads.Diagnostics.ExceptionHandled.ToString() -> string!
@@ -796,6 +804,8 @@ static Waystone.Monads.Configs.CallerInfo.operator !=(Waystone.Monads.Configs.Ca
 static Waystone.Monads.Configs.CallerInfo.operator ==(Waystone.Monads.Configs.CallerInfo? left, Waystone.Monads.Configs.CallerInfo? right) -> bool
 static Waystone.Monads.Configs.MonadOptions.BeginScope(System.Action<Waystone.Monads.Configs.MonadOptionsBuilder!>! configure) -> Waystone.Monads.Configs.MonadOptionsScope
 static Waystone.Monads.Configs.MonadOptions.Configure(System.Action<Waystone.Monads.Configs.MonadOptionsBuilder!>! configure) -> void
+static Waystone.Monads.Diagnostics.ConfigurationNotApplied.operator !=(Waystone.Monads.Diagnostics.ConfigurationNotApplied? left, Waystone.Monads.Diagnostics.ConfigurationNotApplied? right) -> bool
+static Waystone.Monads.Diagnostics.ConfigurationNotApplied.operator ==(Waystone.Monads.Diagnostics.ConfigurationNotApplied? left, Waystone.Monads.Diagnostics.ConfigurationNotApplied? right) -> bool
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator !=(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
 static Waystone.Monads.Diagnostics.ExceptionHandled.operator ==(Waystone.Monads.Diagnostics.ExceptionHandled? left, Waystone.Monads.Diagnostics.ExceptionHandled? right) -> bool
 static Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder.operator !=(Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? left, Waystone.Monads.Diagnostics.ScopeDisposedOutOfOrder? right) -> bool

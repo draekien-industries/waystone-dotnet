@@ -56,6 +56,30 @@ public sealed class MonadOptionsBuilderTests
         options.Catches(new OperationCanceledException()).ShouldBeTrue();
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void GivenCancellationSetExplicitly_WhenConfiguring_ThenHonourTheValue(
+        bool catchesCancellation)
+    {
+        MonadOptions options = MonadOptions.Create(
+            o => o.UseCancellationAsFailure(catchesCancellation));
+
+        options.Catches(new OperationCanceledException())
+               .ShouldBe(catchesCancellation);
+    }
+
+    [Fact]
+    public void GivenCancellationAlreadyCaught_WhenTurningItOff_ThenStopCatchingIt()
+    {
+        MonadOptions options = MonadOptions.Create(
+            o => o.UseCancellationAsFailure()
+                  .UseCancellationAsFailure(false));
+
+        options.Catches(new OperationCanceledException()).ShouldBeFalse();
+        options.Catches(new InvalidOperationException()).ShouldBeTrue();
+    }
+
     [Fact]
     public void GivenTheDefaults_WhenBuilding_ThenLeaveCancellationAlone()
     {
