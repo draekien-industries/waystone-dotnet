@@ -187,9 +187,9 @@ public sealed class MonadLoggingOptionsTests
 
     /// <summary>
     /// The subscription is to <c>AllListeners</c>, so every listener anywhere in
-    /// the process reaches the logger's <c>Attach</c> and only the name keeps
-    /// someone else's events out. Nothing else covers that filter: a foreign
-    /// listener has to exist for it to be reached at all.
+    /// the process reaches it and only the name keeps someone else's events out.
+    /// <c>MonadDiagnosticEvent</c> applies that filter now rather than the logger,
+    /// and this pins that the logger still gets the benefit of it end to end.
     /// </summary>
     [Fact]
     public void GivenSomeoneElsesListener_WhenItWritesTheEvent_ThenIgnoreIt()

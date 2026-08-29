@@ -8,7 +8,7 @@ so nothing has to be lost, on channels a consumer opts into:
 | --- | --- | --- |
 | Metrics | Nothing | A counter of handled exceptions, tagged by exception type and by monad |
 | Logs | `Waystone.Monads.Extensions.Logging` | One entry per handled exception, carrying the call site |
-| Raw event | Nothing | An `ExceptionHandled` payload on a `DiagnosticListener` |
+| Events | Nothing | Three `DiagnosticListener` events, subscribed to through `MonadDiagnostics` |
 
 Metrics need no package because a metrics pipeline discovers meters by name — the
 library publishes one and the pipeline names it. `Microsoft.Extensions.Logging`
@@ -38,9 +38,12 @@ as `result` also went into the `Err`, where error handling still has it.
 
 **Name every string through `MonadDiagnostics`,** never as a literal. The constants
 are `MeterName`, `ListenerName`, `ExceptionHandledEventName`,
+`ScopeDisposedOutOfOrderEventName`, `ConfigurationNotAppliedEventName`,
 `ExceptionsHandledInstrumentName`, `ErrorTypeTagKey`, `MonadTagKey`,
 `OptionMonadTagValue` and `ResultMonadTagValue`. A mistyped literal subscribes to
-nothing and reports nothing — no exception, no warning, an empty dashboard.
+nothing and reports nothing — no exception, no warning, an empty dashboard. To
+subscribe, do not reach for the event-name constants at all: use the tokens under
+[Subscribe to an event](#subscribe-to-an-event), which name the event for you.
 
 ## Log them
 
@@ -121,20 +124,59 @@ twice until the old call is deleted.
 Migrate call sites rather than suppressing `CS0618`. A suppression hides the
 deadline it was added to defer.
 
-## Subscribe to the raw event
+## Subscribe to an event
 
 Reach for this only when building an integration the logging package does not
-cover. The library writes `MonadDiagnostics.ExceptionHandledEventName` to a
-`DiagnosticListener` named `MonadDiagnostics.ListenerName`, with an
-`ExceptionHandled(Exception, CallerInfo, MonadKind)` payload. Watch
-`DiagnosticListener.AllListeners`, match the name, then subscribe with a predicate
-that matches the event name. `AllListeners` replays listeners that already exist,
-so subscribing before or after the first `Try` makes no difference.
+cover. There are three events, each with a token on `MonadDiagnostics` pairing its
+name with its payload:
 
-**The subscriber runs on the thread that threw, synchronously, inside the `catch`.**
-Slow work there delays the caller waiting for its `None` or `Err`, and an exception
-thrown from the subscriber escapes the `Try` that was meant to swallow the original
-one. Queue the work and return.
+| Token | Payload | Written when |
+| --- | --- | --- |
+| `ExceptionHandledEvent` | `ExceptionHandled(Exception, CallerInfo, MonadKind)` | `Try` or `TryAsync` swallowed an exception |
+| `ScopeDisposedOutOfOrderEvent` | `ScopeDisposedOutOfOrder(MonadOptions?, MonadOptions?)` | A `MonadOptionsScope` was disposed out of order |
+| `ConfigurationNotAppliedEvent` | `ConfigurationNotApplied()` | Options were read before container-registered configuration landed |
+
+`Subscribe` takes the callback and returns the subscription:
+
+```csharp
+using IDisposable watching = MonadDiagnostics.ExceptionHandledEvent.Subscribe(
+    handled => queue.Enqueue(handled));
+```
+
+**Use the token, never the name constants, to subscribe.** The constants are still
+public and still the contract a dashboard binds to, but a subscriber typing one by
+hand can mistype it, cast the payload to the wrong type, or forget the listener
+name — and every one of those fails silently with an empty dashboard rather than an
+exception. The token cannot be pointed at the wrong event.
+
+Disposing the return value detaches. A subscription meant to last the life of the
+process can be abandoned; anything shorter-lived must be disposed, or it leaks an
+observer on the process-wide `DiagnosticListener.AllListeners`.
+
+**The subscriber runs on the thread that wrote the event, synchronously.** For
+`ExceptionHandledEvent` that is the throwing thread, inside the `catch`. Slow work
+there delays the caller waiting for its `None` or `Err`, and an exception thrown
+from the subscriber escapes the `Try` that was meant to swallow the original one.
+Queue the work and return. Nothing is swallowed on your behalf — that is deliberate,
+and throwing from the subscriber is the supported way to make
+`ScopeDisposedOutOfOrderEvent` fatal in a test suite.
+
+### Without the helper
+
+ADR 0004 promises a consumer needs no Waystone package to observe the library, and
+the raw path still works untouched: watch `DiagnosticListener.AllListeners`, match
+`MonadDiagnostics.ListenerName`, then subscribe with a predicate matching the event
+name. `AllListeners` replays listeners that already exist, so subscribing before or
+after the first `Try` makes no difference.
+
+Two traps the helper handles and a hand-written subscriber must handle itself.
+`DiagnosticListener.Write` does not apply your predicate — the predicate only gates
+`IsEnabled`, so a subscriber receives every event written to that listener and must
+check `written.Key` itself. And the payload arrives as `object?`, so it needs a type
+check rather than a cast. Two places in the repository still write it by hand and
+should stay that way: `EventRecorder`, which is the oracle proving the library
+writes its events at all, and `TryDiagnosticsBenchmarks`, which measures this path
+on purpose.
 
 ## What is never reported
 

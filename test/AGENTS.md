@@ -52,12 +52,15 @@ references, so the compilation sees what a consumer on that framework would.
 Do not reintroduce a spec layer for a family that now has a test class; add the
 case to the class.
 
-One branch fell out of that translation and had to be replaced deliberately:
-`ExceptionHandledLogger.Attach` rejects a listener whose name is not the monad
-listener's, and the only thing reaching that branch was Reqnroll creating a
-`DiagnosticListener` of its own. `MonadLoggingOptionsTests` now creates a foreign
-listener on purpose. Incidental coverage from a test framework is worth checking
-for whenever one leaves.
+One branch fell out of that translation and had to be replaced deliberately: the
+subscription rejects a listener whose name is not the monad listener's, and the
+only thing reaching that branch was Reqnroll creating a `DiagnosticListener` of
+its own. `MonadLoggingOptionsTests` now creates a foreign listener on purpose.
+Incidental coverage from a test framework is worth checking for whenever one
+leaves. The branch itself moved from `ExceptionHandledLogger` into
+`MonadDiagnosticEvent` in DRA-117 and is covered on both sides now — keep the
+logging test anyway, since it is the only one proving the filter reaches a
+consumer of the helper rather than only the helper.
 
 **`MonadOptions.Global` is process-wide.** Prefer `MonadOptions.BeginScope`, which
 confines the override to the current asynchronous flow and needs no coordination
