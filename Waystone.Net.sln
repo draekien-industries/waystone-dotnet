@@ -78,6 +78,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.Linq", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.Extensions.DependencyInjection", "src\Waystone.Monads.Extensions.DependencyInjection\Waystone.Monads.Extensions.DependencyInjection.csproj", "{258E127B-F0B7-493D-B15C-5A7807478C75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waystone.Monads.Extensions.Hosting", "src\Waystone.Monads.Extensions.Hosting\Waystone.Monads.Extensions.Hosting.csproj", "{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -424,6 +426,18 @@ Global
 		{258E127B-F0B7-493D-B15C-5A7807478C75}.Release|x64.Build.0 = Release|Any CPU
 		{258E127B-F0B7-493D-B15C-5A7807478C75}.Release|x86.ActiveCfg = Release|Any CPU
 		{258E127B-F0B7-493D-B15C-5A7807478C75}.Release|x86.Build.0 = Release|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Debug|x64.Build.0 = Debug|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Debug|x86.Build.0 = Debug|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Release|x64.ActiveCfg = Release|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Release|x64.Build.0 = Release|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Release|x86.ActiveCfg = Release|Any CPU
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -458,5 +472,6 @@ Global
 		{9047E802-66F4-43EC-877F-2313B144BEB0} = {67A04439-B9B7-4420-A229-6353EAD7E265}
 		{0A7CBBC5-DB0E-46BE-88C5-D508B0DBC785} = {5FB28234-858F-4E64-920E-245F92529D8F}
 		{258E127B-F0B7-493D-B15C-5A7807478C75} = {5FB28234-858F-4E64-920E-245F92529D8F}
+		{C35B5D3E-AFD3-46AE-BEB0-8363B0214930} = {5FB28234-858F-4E64-920E-245F92529D8F}
 	EndGlobalSection
 EndGlobal
