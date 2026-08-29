@@ -1,19 +1,23 @@
 #nullable enable
-override Waystone.Monads.FluentValidation.Results.ValidationErr.ToString() -> string!
-static Waystone.Monads.FluentValidation.Configs.MonadOptionsBuilderExtensions.UseFallbackValidationErrorMessage(this Waystone.Monads.Configs.MonadOptionsBuilder! builder, string! fallbackErrorMessage) -> Waystone.Monads.FluentValidation.Configs.MonadValidationOptionsBuilder!
+override sealed Waystone.Monads.FluentValidation.Results.ValidationError.Equals(Waystone.Monads.Results.Errors.Error? other) -> bool
+override Waystone.Monads.FluentValidation.Results.ValidationError.<Clone>$() -> Waystone.Monads.Results.Errors.Error!
+override Waystone.Monads.FluentValidation.Results.ValidationError.Equals(object? obj) -> bool
+override Waystone.Monads.FluentValidation.Results.ValidationError.GetHashCode() -> int
+override Waystone.Monads.FluentValidation.Results.ValidationError.ToString() -> string!
 static Waystone.Monads.FluentValidation.Configs.MonadOptionsBuilderExtensions.UseValidationErrorCode(this Waystone.Monads.Configs.MonadOptionsBuilder! builder, string! errorCode) -> Waystone.Monads.FluentValidation.Configs.MonadValidationOptionsBuilder!
-static Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions.Validate<TValue>(this TValue value, FluentValidation.IValidator<TValue>! validator) -> Waystone.Monads.Results.Result<TValue, Waystone.Monads.FluentValidation.Results.ValidationErr!>!
-static Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions.ValidateAsync<TValue>(this TValue value, FluentValidation.IValidator<TValue>! validator, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Waystone.Monads.Results.Result<TValue, Waystone.Monads.FluentValidation.Results.ValidationErr!>!>!
-static Waystone.Monads.FluentValidation.Results.ValidationErr.Create(FluentValidation.Results.ValidationResult? validationResult) -> Waystone.Monads.Options.Option<Waystone.Monads.FluentValidation.Results.ValidationErr!>!
+static Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions.Validate<TValue>(this TValue value, FluentValidation.IValidator<TValue>! validator) -> Waystone.Monads.Results.Result<TValue, Waystone.Monads.Results.Errors.Error!>!
+static Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions.ValidateAsync<TValue>(this TValue value, FluentValidation.IValidator<TValue>! validator, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TValue, Waystone.Monads.Results.Errors.Error!>!>
+static Waystone.Monads.FluentValidation.Results.ValidationError.operator !=(Waystone.Monads.FluentValidation.Results.ValidationError? left, Waystone.Monads.FluentValidation.Results.ValidationError? right) -> bool
+static Waystone.Monads.FluentValidation.Results.ValidationError.operator ==(Waystone.Monads.FluentValidation.Results.ValidationError? left, Waystone.Monads.FluentValidation.Results.ValidationError? right) -> bool
 Waystone.Monads.FluentValidation.Configs.MonadOptionsBuilderExtensions
 Waystone.Monads.FluentValidation.Configs.MonadValidationOptions
 Waystone.Monads.FluentValidation.Configs.MonadValidationOptionsBuilder
-Waystone.Monads.FluentValidation.Configs.MonadValidationOptionsBuilder.UseFallbackValidationErrorMessage(string! fallbackErrorMessage) -> Waystone.Monads.FluentValidation.Configs.MonadValidationOptionsBuilder!
 Waystone.Monads.FluentValidation.Configs.MonadValidationOptionsBuilder.UseValidationErrorCode(string! errorCode) -> Waystone.Monads.FluentValidation.Configs.MonadValidationOptionsBuilder!
 Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions
-Waystone.Monads.FluentValidation.Results.ValidationErr
-Waystone.Monads.FluentValidation.Results.ValidationErr.AsValidationResult() -> FluentValidation.Results.ValidationResult!
-Waystone.Monads.FluentValidation.Results.ValidationErr.Errors.get -> System.Collections.Generic.List<FluentValidation.Results.ValidationFailure!>!
-Waystone.Monads.FluentValidation.Results.ValidationErr.RuleSetsExecuted.get -> string![]!
-Waystone.Monads.FluentValidation.Results.ValidationErr.ToDictionary() -> System.Collections.Generic.IDictionary<string!, string![]!>!
-Waystone.Monads.FluentValidation.Results.ValidationErr.ToError() -> Waystone.Monads.Results.Errors.Error!
+Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions.extension<TValue>(TValue)
+Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions.extension<TValue>(TValue).Validate(FluentValidation.IValidator<TValue>! validator) -> Waystone.Monads.Results.Result<TValue, Waystone.Monads.Results.Errors.Error!>!
+Waystone.Monads.FluentValidation.Results.Extensions.ValueExtensions.extension<TValue>(TValue).ValidateAsync(FluentValidation.IValidator<TValue>! validator, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TValue, Waystone.Monads.Results.Errors.Error!>!>
+Waystone.Monads.FluentValidation.Results.ValidationError
+Waystone.Monads.FluentValidation.Results.ValidationError.Equals(Waystone.Monads.FluentValidation.Results.ValidationError? other) -> bool
+Waystone.Monads.FluentValidation.Results.ValidationError.Failures.get -> System.Collections.Generic.IReadOnlyList<FluentValidation.Results.ValidationFailure!>!
+Waystone.Monads.FluentValidation.Results.ValidationError.ToDictionary() -> System.Collections.Generic.IDictionary<string!, string![]!>!
