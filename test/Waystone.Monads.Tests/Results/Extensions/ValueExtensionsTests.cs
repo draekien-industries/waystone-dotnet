@@ -2,11 +2,11 @@
 
 using System.Threading.Tasks;
 using AutoFixture;
+using Errors;
 using Fixtures;
 using FluentValidation.Results;
 using FluentValidation.Results.Extensions;
 using global::FluentValidation;
-using global::FluentValidation.Results;
 using Shouldly;
 using Xunit;
 
@@ -17,78 +17,58 @@ public sealed class ValueExtensionsTests
     public ValueExtensionsTests() => _fixture = new Fixture();
 
     [Fact]
-    public void
-        GivenValidClass_WhenInvokingValidate_ThenReturnOk()
+    public void GivenValidClass_WhenInvokingValidate_ThenReturnOk()
     {
         var value = _fixture.Create<TestClass>();
 
-        Result<TestClass, ValidationErr> result =
-            value.Validate(new TestValidator());
+        Result<TestClass, Error> result = value.Validate(new TestValidator());
 
-        result.ShouldBeOk();
         result.ShouldBeOkValue(value);
     }
 
     [Fact]
-    public void GivenInvalidClass_WhenInvokingValidate_ThenReturnError()
+    public void GivenInvalidClass_WhenInvokingValidate_ThenReturnValidationError()
     {
         var value = new TestClass();
 
-        Result<TestClass, ValidationErr> result =
-            value.Validate(new TestValidator());
+        Result<TestClass, Error> result = value.Validate(new TestValidator());
 
-        result.ShouldBeErr();
-        result.UnwrapErr().Errors.Count.ShouldBe(1);
-        result.UnwrapErr().RuleSetsExecuted.Length.ShouldBe(1);
-        result.UnwrapErr().ToDictionary().ShouldContainKey("Value");
+        var error = result.ShouldBeErr().ShouldBeOfType<ValidationError>();
 
-        result.UnwrapErr()
-           .ToString()
-           .ShouldBe("'Value' must not be empty.");
-
-        result.UnwrapErr()
-           .AsValidationResult()
-           .ShouldBeOfType<ValidationResult>();
+        error.Code.Value.ShouldBe("validation.failed");
+        error.Message.ShouldBe("'Value' must not be empty.");
+        error.Failures.Count.ShouldBe(1);
+        error.ToDictionary().ShouldContainKey("Value");
     }
 
     [Fact]
-    public async Task
-        GivenValidClass_WhenInvokingValidateAsync_ThenReturnOk()
+    public async Task GivenValidClass_WhenInvokingValidateAsync_ThenReturnOk()
     {
         var value = _fixture.Create<TestClass>();
 
-        Result<TestClass, ValidationErr> result =
-            await value.ValidateAsync(
-                new TestValidator(),
-                TestContext.Current.CancellationToken);
+        Result<TestClass, Error> result = await value.ValidateAsync(
+            new TestValidator(),
+            TestContext.Current.CancellationToken);
 
-        result.ShouldBeOk();
         result.ShouldBeOkValue(value);
     }
 
     [Fact]
     public async Task
-        GivenInvalidClass_WhenInvokingValidateAsync_ThenReturnError()
+        GivenInvalidClass_WhenInvokingValidateAsync_ThenReturnValidationError()
     {
         var value = new TestClass();
 
-        Result<TestClass, ValidationErr> result =
-            await value.ValidateAsync(
-                new TestValidator(),
-                TestContext.Current.CancellationToken);
+        Result<TestClass, Error> result = await value.ValidateAsync(
+            new TestValidator(),
+            TestContext.Current.CancellationToken);
 
-        result.ShouldBeErr();
-        result.UnwrapErr().Errors.Count.ShouldBe(1);
-        result.UnwrapErr().RuleSetsExecuted.Length.ShouldBe(1);
-        result.UnwrapErr().ToDictionary().ShouldContainKey("Value");
+        var error = result.ShouldBeErr().ShouldBeOfType<ValidationError>();
 
-        result.UnwrapErr()
-           .ToString()
-           .ShouldBe("'Value' must not be empty.");
-
-        result.UnwrapErr()
-           .AsValidationResult()
-           .ShouldBeOfType<ValidationResult>();
+        error.Code.Value.ShouldBe("validation.failed");
+        error.Message.ShouldBe("'Value' must not be empty.");
+        error.Failures.Count.ShouldBe(1);
+        error.ToDictionary().ShouldContainKey("Value");
     }
 
     private class TestValidator : AbstractValidator<TestClass>

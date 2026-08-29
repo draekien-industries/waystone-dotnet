@@ -1,10 +1,11 @@
-﻿namespace Waystone.Monads.FluentValidation.Results.Extensions;
+namespace Waystone.Monads.FluentValidation.Results.Extensions;
 
 using System.Threading;
 using System.Threading.Tasks;
 using global::FluentValidation;
 using global::FluentValidation.Results;
 using Monads.Results;
+using Monads.Results.Errors;
 
 /// <summary>
 /// Extension methods that validate a value into a
@@ -12,68 +13,57 @@ using Monads.Results;
 /// </summary>
 public static class ValueExtensions
 {
-    /// <summary>
-    /// Runs the validator's synchronous rules over a value, returning it as an ok
-    /// result if it passes.
-    /// </summary>
-    /// <remarks>
-    /// Only validation failures become an err. An exception thrown by
-    /// <paramref name="validator" /> propagates to the caller.
-    /// </remarks>
-    /// <param name="value">The value that needs to be validated</param>
-    /// <param name="validator">The implemented <see cref="IValidator{T}" /></param>
-    /// <typeparam name="TValue">The value's type</typeparam>
-    /// <returns>
-    /// An ok result containing the value if it is valid, otherwise an err
-    /// containing a <see cref="ValidationErr" />.
-    /// </returns>
-    public static Result<TValue, ValidationErr> Validate<TValue>(
-        this TValue value,
-        IValidator<TValue> validator) where TValue : notnull
+    extension<TValue>(TValue value) where TValue : notnull
     {
-        ValidationResult? validationResult = validator.Validate(value);
+        /// <summary>
+        /// Runs the validator's synchronous rules over a value, returning it as an ok
+        /// result if it passes.
+        /// </summary>
+        /// <remarks>
+        /// Throws on a validator that declares asynchronous rules — call
+        /// <c>ValidateAsync</c> for those. Only validation failures become an err; an
+        /// exception thrown by <paramref name="validator" /> propagates to the caller.
+        /// </remarks>
+        /// <param name="validator">The implemented <see cref="IValidator{T}" /></param>
+        /// <returns>
+        /// An ok result containing the value if it is valid, otherwise an err
+        /// containing a <see cref="ValidationError" />.
+        /// </returns>
+        public Result<TValue, Error> Validate(IValidator<TValue> validator) =>
+            ToResult(value, validator.Validate(value));
 
-        return ValidationErr.Create(validationResult)
-                            .Match(
-                                 Result.Err<TValue, ValidationErr>,
-                                 () => Result.Ok<TValue, ValidationErr>(value));
-    }
-
-    /// <summary>
-    /// Awaits the validator's asynchronous rules over a value, returning it as an ok
-    /// result if it passes.
-    /// </summary>
-    /// <remarks>
-    /// Only validation failures become an err. An exception thrown by
-    /// <paramref name="validator" /> propagates to the caller, and a cancelled
-    /// <paramref name="cancellationToken" /> surfaces as an
-    /// <c>OperationCanceledException</c> rather than as an err.
-    /// </remarks>
-    /// <param name="value">The value that needs to be validated</param>
-    /// <param name="validator">The implemented <see cref="IValidator{T}" /></param>
-    /// <param name="cancellationToken">
-    /// Cancels the validator's asynchronous rules. Default:
-    /// <see langword="default" />, which never cancels.
-    /// </param>
-    /// <typeparam name="TValue">The value's type</typeparam>
-    /// <returns>
-    /// An ok result containing the value if it is valid, otherwise an err
-    /// containing a <see cref="ValidationErr" />.
-    /// </returns>
-    public static async Task<Result<TValue, ValidationErr>>
-        ValidateAsync<TValue>(
-            this TValue value,
+        /// <summary>
+        /// Awaits the validator's asynchronous rules over a value, returning it as an
+        /// ok result if it passes.
+        /// </summary>
+        /// <remarks>
+        /// Only validation failures become an err. An exception thrown by
+        /// <paramref name="validator" /> propagates to the caller, and a cancelled
+        /// <paramref name="cancellationToken" /> surfaces as an
+        /// <c>OperationCanceledException</c> rather than as an err.
+        /// </remarks>
+        /// <param name="validator">The implemented <see cref="IValidator{T}" /></param>
+        /// <param name="cancellationToken">
+        /// Cancels the validator's asynchronous rules. Default:
+        /// <see langword="default" />, which never cancels.
+        /// </param>
+        /// <returns>
+        /// An ok result containing the value if it is valid, otherwise an err
+        /// containing a <see cref="ValidationError" />.
+        /// </returns>
+        public async ValueTask<Result<TValue, Error>> ValidateAsync(
             IValidator<TValue> validator,
-            CancellationToken cancellationToken = default)
-        where TValue : notnull
-    {
-        ValidationResult? validationResult =
-            await validator.ValidateAsync(value, cancellationToken)
-               .ConfigureAwait(false);
-
-        return ValidationErr.Create(validationResult)
-                            .Match(
-                                 Result.Err<TValue, ValidationErr>,
-                                 () => Result.Ok<TValue, ValidationErr>(value));
+            CancellationToken cancellationToken = default) =>
+            ToResult(
+                value,
+                await validator.ValidateAsync(value, cancellationToken)
+                               .ConfigureAwait(false));
     }
+
+    private static Result<TValue, Error> ToResult<TValue>(
+        TValue value,
+        ValidationResult validationResult) where TValue : notnull =>
+        validationResult.IsValid
+            ? Result.Ok<TValue, Error>(value)
+            : Result.Err<TValue, Error>(new ValidationError(validationResult));
 }

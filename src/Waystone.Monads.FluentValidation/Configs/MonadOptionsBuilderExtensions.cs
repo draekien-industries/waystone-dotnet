@@ -13,8 +13,8 @@ using Results;
 public static class MonadOptionsBuilderExtensions
 {
     /// <summary>
-    /// Configures the error code used when converting a
-    /// <see cref="ValidationErr" /> into an <see cref="Error" />.
+    /// Configures the <see cref="Error.Code" /> stamped on every
+    /// <see cref="ValidationError" />.
     /// </summary>
     /// <param name="builder">
     /// The <see cref="MonadOptionsBuilder" /> whose validation options will be
@@ -35,32 +35,4 @@ public static class MonadOptionsBuilderExtensions
         string errorCode) =>
         MonadValidationOptionsBuilder.For(builder)
                                      .UseValidationErrorCode(errorCode);
-
-    /// <summary>
-    /// Configures the fallback error message used when converting a
-    /// <see cref="ValidationErr" /> into an <see cref="Error" /> and the validation
-    /// result carries no failure messages.
-    /// </summary>
-    /// <param name="builder">
-    /// The <see cref="MonadOptionsBuilder" /> whose validation options will be
-    /// configured.
-    /// </param>
-    /// <param name="fallbackErrorMessage">
-    /// The fallback error message to use. Default:
-    /// <c>One or more validation errors occurred.</c>
-    /// </param>
-    /// <returns>
-    /// The <see cref="MonadValidationOptionsBuilder" /> for chaining more
-    /// configurations.
-    /// </returns>
-    /// <exception cref="System.ArgumentException">
-    /// If <paramref name="fallbackErrorMessage" /> is null, empty or whitespace.
-    /// </exception>
-    public static MonadValidationOptionsBuilder
-        UseFallbackValidationErrorMessage(
-            this MonadOptionsBuilder builder,
-            string fallbackErrorMessage) =>
-        MonadValidationOptionsBuilder.For(builder)
-                                     .UseFallbackValidationErrorMessage(
-                                         fallbackErrorMessage);
 }

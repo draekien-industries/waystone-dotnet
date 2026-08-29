@@ -5,29 +5,23 @@ using Monads.Configs;
 using Monads.Results.Errors;
 using Results;
 
-/// <summary>
-/// Configuration for converting a <see cref="ValidationErr" /> into an
-/// <see cref="Error" />.
-/// </summary>
+/// <summary>Configuration for the <see cref="Error" /> a validation failure produces.</summary>
 /// <remarks>
-/// Attached to a <see cref="MonadOptions" /> snapshot, so it follows whatever
-/// options scope is current when <see cref="ValidationErr.ToError" /> reads it.
+/// Attached to a <see cref="MonadOptions" /> snapshot, so a
+/// <see cref="ValidationError" /> takes its code from whatever options scope the
+/// validation ran in.
 /// </remarks>
 [ExcludeFromCodeCoverage]
 public sealed class MonadValidationOptions
 {
     internal static readonly int Slot = MonadOptionsSlot.Allocate();
 
-    internal static readonly MonadValidationOptions Default = new(
-        "validation.failed",
-        "One or more validation errors occurred.");
+    internal static readonly MonadValidationOptions Default =
+        new("validation.failed");
 
-    internal MonadValidationOptions(
-        string validationErrorCode,
-        string fallbackValidationErrorMessage)
+    internal MonadValidationOptions(string validationErrorCode)
     {
         ValidationErrorCode = validationErrorCode;
-        FallbackValidationErrorMessage = fallbackValidationErrorMessage;
     }
 
     internal static MonadValidationOptions Global => For(MonadOptions.Global);
@@ -35,8 +29,6 @@ public sealed class MonadValidationOptions
     internal static MonadValidationOptions Current => For(MonadOptions.Current);
 
     internal string ValidationErrorCode { get; }
-
-    internal string FallbackValidationErrorMessage { get; }
 
     internal static MonadValidationOptions For(MonadOptions options) =>
         options.Satellite<MonadValidationOptions>(Slot) ?? Default;

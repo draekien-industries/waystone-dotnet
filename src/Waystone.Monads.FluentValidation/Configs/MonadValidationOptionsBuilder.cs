@@ -17,21 +17,16 @@ public sealed class MonadValidationOptionsBuilder : ISatelliteBuilder
     private MonadValidationOptionsBuilder(MonadValidationOptions source)
     {
         ValidationErrorCode = source.ValidationErrorCode;
-        FallbackValidationErrorMessage = source.FallbackValidationErrorMessage;
     }
 
     internal string ValidationErrorCode { get; set; }
 
-    internal string FallbackValidationErrorMessage { get; set; }
-
     object ISatelliteBuilder.Build() =>
-        new MonadValidationOptions(
-            ValidationErrorCode,
-            FallbackValidationErrorMessage);
+        new MonadValidationOptions(ValidationErrorCode);
 
     /// <summary>
-    /// Sets the error code that <see cref="ValidationErr.ToError" /> stamps on the
-    /// <see cref="Error" /> it produces.
+    /// Sets the <see cref="Error.Code" /> stamped on every
+    /// <see cref="ValidationError" /> created while this snapshot is current.
     /// </summary>
     /// <param name="errorCode">
     /// The validation error code to use. Default: <c>validation.failed</c>.
@@ -50,32 +45,6 @@ public sealed class MonadValidationOptionsBuilder : ISatelliteBuilder
         }
 
         ValidationErrorCode = errorCode;
-        return this;
-    }
-
-    /// <summary>
-    /// Sets the message <see cref="ValidationErr.ToError" /> uses when the validation
-    /// result carries no failure messages of its own.
-    /// </summary>
-    /// <param name="fallbackErrorMessage">
-    /// The fallback error message to use. Default:
-    /// <c>One or more validation errors occurred.</c>
-    /// </param>
-    /// <returns>This builder, for chaining more configurations.</returns>
-    /// <exception cref="ArgumentException">
-    /// If <paramref name="fallbackErrorMessage" /> is null, empty or whitespace.
-    /// </exception>
-    public MonadValidationOptionsBuilder UseFallbackValidationErrorMessage(
-        string fallbackErrorMessage)
-    {
-        if (string.IsNullOrWhiteSpace(fallbackErrorMessage))
-        {
-            throw new ArgumentException(
-                "Fallback error message cannot be null or whitespace.",
-                nameof(fallbackErrorMessage));
-        }
-
-        FallbackValidationErrorMessage = fallbackErrorMessage;
         return this;
     }
 

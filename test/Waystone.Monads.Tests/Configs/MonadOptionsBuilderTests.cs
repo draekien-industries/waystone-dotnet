@@ -93,18 +93,20 @@ public sealed class MonadOptionsBuilderTests
     public void
         GivenOneSatelliteConfiguredTwice_WhenBuilding_ThenBothCallsLandOnOneBuilder()
     {
+        MonadValidationOptionsBuilder? first = null;
+        MonadValidationOptionsBuilder? second = null;
+
         MonadOptions options = MonadOptions.Create(
             o =>
             {
-                o.UseValidationErrorCode("first.code");
-                o.UseFallbackValidationErrorMessage("Second call.");
+                first = o.UseValidationErrorCode("first.code");
+                second = o.UseValidationErrorCode("second.code");
             });
 
-        MonadValidationOptions validation =
-            MonadValidationOptions.For(options);
+        second.ShouldBeSameAs(first);
 
-        validation.ValidationErrorCode.ShouldBe("first.code");
-        validation.FallbackValidationErrorMessage.ShouldBe("Second call.");
+        MonadValidationOptions.For(options)
+                              .ValidationErrorCode.ShouldBe("second.code");
     }
 
     [Fact]
