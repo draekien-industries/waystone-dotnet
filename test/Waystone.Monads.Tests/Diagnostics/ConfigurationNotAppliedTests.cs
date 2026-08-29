@@ -48,17 +48,31 @@ public sealed class ConfigurationNotAppliedTests : IDisposable
         recorder.Recorded().ShouldHaveSingleItem();
     }
 
+    /// <summary>
+    /// Asserts that the signal is spent rather than counted, which is the
+    /// contract. It deliberately does not assert that exactly one event was
+    /// written: the flag is process-wide, so a read on any other thread can
+    /// consume it, and two threads reading at once can each write before either
+    /// disarms it. Asserting a single item here fails whenever the rest of the
+    /// suite happens to read options in that window.
+    /// </summary>
     [Fact]
-    public void GivenPendingConfiguration_WhenOptionsAreReadTwice_ThenWriteOnce()
+    public void GivenTheSignalWasWritten_WhenOptionsAreReadAgain_ThenWriteNothingFurther()
     {
-        using var recorder = NewRecorder();
+        using (EventRecorder<ConfigurationNotApplied> first = NewRecorder())
+        {
+            MonadOptions.MarkConfigurationPending();
+            Read();
 
-        MonadOptions.MarkConfigurationPending();
-        Read();
+            first.Recorded().ShouldNotBeEmpty();
+        }
+
+        using EventRecorder<ConfigurationNotApplied> second = NewRecorder();
+
         Read();
         Read();
 
-        recorder.Recorded().ShouldHaveSingleItem();
+        second.Recorded().ShouldBeEmpty();
     }
 
     [Fact]
