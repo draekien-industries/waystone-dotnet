@@ -35,7 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Waystone.Monads.Extensions.Logging\Waystone.Monads.Extensions.Logging.csproj"/>
         <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 

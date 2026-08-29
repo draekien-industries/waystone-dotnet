@@ -66,6 +66,62 @@ public sealed class MonadHostingExtensionsTests : IDisposable
     }
 
     [Fact]
+    public void GivenANullHostApplicationBuilder_WhenRegisteringADelegate_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => ((IHostApplicationBuilder)null!).AddWaystoneMonads(
+                       _ => { }))
+              .ParamName.ShouldBe("builder");
+    }
+
+    [Fact]
+    public void GivenANullHostApplicationBuilder_WhenRegisteringAProviderAwareDelegate_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => ((IHostApplicationBuilder)null!).AddWaystoneMonads(
+                       (_, _) => { }))
+              .ParamName.ShouldBe("builder");
+    }
+
+    [Fact]
+    public async Task GivenAHostApplicationBuilderWithNoConfiguration_WhenItStarts_ThenInstallTheDefaults()
+    {
+        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.AddWaystoneMonads();
+
+        using IHost host = builder.Build();
+        await host.StartAsync(TestContext.Current.CancellationToken);
+
+        using var recorder =
+            new EventRecorder<ConfigurationNotApplied>(
+                MonadDiagnostics.ConfigurationNotAppliedEventName);
+
+        _ = MonadOptions.Current;
+
+        recorder.Recorded().ShouldBeEmpty();
+
+        await host.StopAsync(TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task GivenAProviderAwareDelegate_WhenTheHostStarts_ThenRunItAgainstTheHostsProvider()
+    {
+        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.AddWaystoneMonads(
+            (provider, options) => options.UseFallbackErrorCode(
+                provider.GetRequiredService<ErrorCodeSeed>().Code));
+
+        builder.Services.AddSingleton(new ErrorCodeSeed("FromTheProvider"));
+
+        using IHost host = builder.Build();
+        await host.StartAsync(TestContext.Current.CancellationToken);
+
+        MonadOptions.Current.FallbackErrorCode.ShouldBe("FromTheProvider");
+
+        await host.StopAsync(TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
     public async Task GivenAHostApplicationBuilder_WhenItStarts_ThenInstallWithoutASecondCall()
     {
         HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(null);
@@ -171,6 +227,16 @@ public sealed class MonadHostingExtensionsTests : IDisposable
         new HostBuilder().ConfigureServices(
                               (_, services) => configure(services))
                          .Build();
+
+    private sealed class ErrorCodeSeed
+    {
+        public ErrorCodeSeed(string code)
+        {
+            Code = code;
+        }
+
+        public string Code { get; }
+    }
 
     private sealed class OptionsReadingService : IHostedService
     {

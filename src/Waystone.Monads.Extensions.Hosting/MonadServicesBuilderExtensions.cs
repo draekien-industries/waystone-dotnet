@@ -9,8 +9,7 @@ public static class MonadServicesBuilderExtensions
 {
     /// <summary>Arranges for the host to install the registered configuration as it starts.</summary>
     /// <remarks>
-    /// This is the whole package.
-    /// <see cref="MonadServiceCollectionExtensions.AddWaystoneMonads" />
+    /// This is the whole package. <c>AddWaystoneMonads</c>
     /// registers configuration but cannot install it, because the container it
     /// needs does not exist yet; on a host this removes the second call rather
     /// than trusting an application to remember

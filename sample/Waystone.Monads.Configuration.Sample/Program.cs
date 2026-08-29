@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Configuration.Sample;
 
 using Configs;
+using Extensions.Logging.Configs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Options;
@@ -108,7 +109,8 @@ internal static class Program
             logging => logging.SetMinimumLevel(LogLevel.Debug)
                               .AddSimpleConsole(
                                    console => console.SingleLine = true));
-        services.AddWaystoneMonads();
+        services.AddWaystoneMonads(
+            (provider, options) => options.UseLoggerFactoryFrom(provider));
 
         using ServiceProvider provider = services.BuildServiceProvider();
         provider.UseWaystoneMonads();

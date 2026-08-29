@@ -35,6 +35,19 @@ That is `AddWaystoneMonads` on `IHostApplicationBuilder`, which both
 `WebApplicationBuilder` and the builder from `Host.CreateApplicationBuilder`
 implement. It is exactly the two calls below, spelled once.
 
+An overload hands your delegate the host's built provider, which is how you point
+a companion package at something the container holds:
+
+```csharp
+builder.AddWaystoneMonads((provider, options) =>
+    options.UseFallbackErrorCode("Contoso")
+           .UseLoggerFactoryFrom(provider));
+```
+
+`UseLoggerFactoryFrom` ships from `Waystone.Monads.Extensions.Logging`. Nothing
+but `ErrorCodeFactory` is resolved for you, so the package you installed is the
+one you call.
+
 On the older `IHostBuilder`, which has no such interface, reach the same pair
 through `ConfigureServices`:
 

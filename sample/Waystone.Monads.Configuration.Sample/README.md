@@ -80,17 +80,19 @@ safe for a library to call `AddWaystoneMonads` during its own registration.
 
 ```csharp
 services.AddLogging(logging => logging.AddSimpleConsole());
-services.AddWaystoneMonads();
+services.AddWaystoneMonads(
+    (provider, options) => options.UseLoggerFactoryFrom(provider));
 ```
 
-Nothing here mentions Waystone logging. The install resolves whatever
-`ILoggerFactory` the container holds and points
-`Waystone.Monads.Extensions.Logging` at it. The scenario then swallows a
-`TimeoutException` through `Option.Try` and the exception turns up in the console
-log, carrying the call site the compiler recorded.
+The delegate receives the built provider, so it can resolve the container's
+`ILoggerFactory` and point `Waystone.Monads.Extensions.Logging` at it.
+`UseLoggerFactoryFrom` ships from that package — the package you installed is the
+one you call. The scenario then swallows a `TimeoutException` through
+`Option.Try` and the exception turns up in the console log, carrying the call
+site the compiler recorded.
 
-A container with no `ILoggerFactory` leaves logging unconfigured rather than
-failing.
+Drop the delegate and nothing wires logging, whatever the container holds.
+`UseLoggerFactoryFrom` throws if there is no `ILoggerFactory` to find.
 
 ### `scope` — one flow overridden
 
