@@ -32,8 +32,7 @@ Both enumerate **when called** rather than when the result is read, so neither
 may be handed an unbounded sequence.
 
 `CollectAsync` is the `IAsyncEnumerable` form, short-circuiting the same way on
-a pull-based source. It returned `Task` up to 6.x and returns `ValueTask` from
-7.0.0, like the rest of the async surface.
+a pull-based source and returning `ValueTask` like the rest of the async surface.
 
 ## Behaviours that invert the obvious guess
 
