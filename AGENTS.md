@@ -19,6 +19,7 @@ working in — each is loaded when you touch files under it.
 | [src/Waystone.Monads.Shouldly.Analyzers](src/Waystone.Monads.Shouldly.Analyzers/AGENTS.md) | Where the assertion-migration rules ship and why not in the core package |
 | [src/Waystone.Monads.SourceGenerators](src/Waystone.Monads.SourceGenerators/AGENTS.md) | The shipped error code generator contract and emission |
 | [src/Waystone.SourceGenerators](src/Waystone.SourceGenerators/AGENTS.md) | The awaited-receiver generator contract and emission |
+| [sample](sample/AGENTS.md) | Which samples are published, and the snippet regions the GitBook pages quote |
 | [test](test/AGENTS.md) | Running the framework matrix, the shared test configuration, shared mutable state |
 | [.github](.github/AGENTS.md) | Workflow triggers, required checks, coverage gates |
 | [docs](docs/AGENTS.md) | Where a document goes and how it is written |
@@ -189,3 +190,15 @@ time as you open them.
 
 Agent-facing documentation lives in `docs/`. Read [docs/AGENTS.md](docs/AGENTS.md)
 before reading or writing anything there.
+
+**A published C# code block is quoted from `sample/`, never typed into the page.**
+`tools/Waystone.DocSnippets` lifts named `#region` blocks out of the sample projects
+and writes them into GitBook, and `pre-push` fails on a page that has drifted. So a
+documentation change that adds or edits C# is a change *here* first, in a project that
+compiles, and only then a change to the page.
+
+**Editing a page that still holds a hand-written C# block converts that block.** The
+space is moving across one page at a time, as each is next edited, rather than in a
+sweep — so the conversion lands in front of a reviewer already reading that page.
+Read [sample/AGENTS.md](sample/AGENTS.md) for the region naming rules and the steps;
+they are easy to get subtly wrong and the tool ignores a bad region name in silence.

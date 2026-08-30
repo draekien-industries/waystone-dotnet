@@ -15,8 +15,10 @@ quotes fails the push.
 
 Two edits, one in each repository.
 
-Wrap the code in a named region in the sample project. The name is lower case,
-digits and hyphens:
+Wrap the code in a named region in the sample project. Every `.cs` file under
+`sample/` is scanned, so the runnable samples can be quoted as well as the
+published ones. The name is lower case, digits and hyphens — anything else is
+treated as an ordinary region and skipped without a word:
 
 ```csharp
 #region configuration-the-usual-call

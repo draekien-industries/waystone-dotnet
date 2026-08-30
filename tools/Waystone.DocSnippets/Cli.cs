@@ -75,7 +75,7 @@ public static class Cli
            .Map(
                 docsRoot => new Options(
                     repositoryRoot,
-                    Path.Combine(repositoryRoot, "sample", "Waystone.Monads.Docs"),
+                    Path.Combine(repositoryRoot, "sample"),
                     docsRoot,
                     args.Contains("--check")));
 

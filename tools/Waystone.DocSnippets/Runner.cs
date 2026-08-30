@@ -7,7 +7,11 @@ namespace Waystone.DocSnippets;
 
 /// <summary>Where the two repositories are and what to do with them.</summary>
 /// <param name="RepositoryRoot">The root of this repository, which stamped source paths are relative to.</param>
-/// <param name="SamplesRoot">The directory holding the compiled sample projects.</param>
+/// <param name="SamplesRoot">
+/// The directory holding the sample projects. All of them, not just the
+/// documentation ones: the analyzer, hosting and observability pages quote
+/// projects that exist to be run rather than to be published.
+/// </param>
 /// <param name="DocsRoot">The directory holding the markdown pages, in the other repository.</param>
 /// <param name="Check">
 /// When true nothing is written. A page that would change is reported instead,
