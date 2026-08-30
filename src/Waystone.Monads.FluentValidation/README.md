@@ -2,6 +2,23 @@
 
 An interop package for using FluentValidation with Waystone.Monads
 
+## Namespaces
+
+The package shadows FluentValidation's own namespaces, so its types sit where a
+consumer already looks for them rather than under a parallel `Waystone` tree:
+
+| Member | Namespace |
+| --- | --- |
+| `ValidationError` | `FluentValidation` |
+| `Validate`, `ValidateAsync` | `FluentValidation.Extensions` |
+| `UseValidationErrorCode` | `FluentValidation.Configs` |
+
+Before v7.0.0 these lived under `Waystone.Monads.FluentValidation.*`. Only the
+`using` directives change; every type and member name is the same. There is no
+compatibility shim, because a forwarding type in the old namespace would be a
+different type at run time and a `value is ValidationError` pattern would
+silently stop matching.
+
 ## Supported FluentValidation versions
 
 `FluentValidation >= 11.1.0 && < 13.0.0`. Bring your own version inside that

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Errors;
 using Fixtures;
+using FluentValidation;
+using FluentValidation.Extensions;
 using FluentValidation.Results;
-using FluentValidation.Results.Extensions;
-using global::FluentValidation;
 using Shouldly;
 using Xunit;
 

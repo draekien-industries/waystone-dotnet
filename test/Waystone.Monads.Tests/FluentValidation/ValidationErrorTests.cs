@@ -1,11 +1,11 @@
-namespace Waystone.Monads.FluentValidation.Results;
+namespace FluentValidation;
 
 using System.Collections.Generic;
 using Configs;
-using global::FluentValidation.Results;
-using Monads.Configs;
-using Monads.Results.Errors;
+using Results;
 using Shouldly;
+using Waystone.Monads.Configs;
+using Waystone.Monads.Results.Errors;
 using Xunit;
 
 [Collection(GlobalMonadOptionsCollection.Name)]
