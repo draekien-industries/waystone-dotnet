@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>Waystone.DocSnippets</RootNamespace>
+    </PropertyGroup>
+
+    <!--
+      The default matrix does not apply. The subject is a developer utility that
+      targets net8.0 alone, so there is nothing for the other four frameworks to
+      run against.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\tools\Waystone.DocSnippets\Waystone.DocSnippets.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly\Waystone.Monads.Shouldly.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="coverlet.collector">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Shouldly"/>
+        <PackageReference Include="xunit.v3"/>
+    </ItemGroup>
+
+</Project>

@@ -35,6 +35,24 @@ done
 
 [ "$status" = 0 ] || exit 1
 
+echo "pre-push: checking that the documentation snippets match their sources..."
+
+snippets=0
+dotnet run --project tools/Waystone.DocSnippets --verbosity quiet -- --check || snippets=$?
+
+# 3 is Cli.NoDocumentationRepository in tools/Waystone.DocSnippets/Cli.cs. A
+# shell script cannot read a C# constant, so the number is repeated here and in
+# the documentation repository's own pre-push.
+case "$snippets" in
+    0) ;;
+    3)
+        echo "pre-push: no documentation checkout found, so the pages were not checked." >&2
+        echo "  Clone draekien-industries/docs beside this one, or run" >&2
+        echo "  'git config waystone.docs-path <path>'." >&2
+        ;;
+    *) exit 1 ;;
+esac
+
 echo "pre-push: testing every target framework..."
 
 if ! dotnet test --configuration Release --nologo; then

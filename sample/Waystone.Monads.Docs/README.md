@@ -31,6 +31,25 @@ that is subtly wrong reads exactly like one that is right.
 That is the second half of the job: a deprecated call compiles fine and its
 warning scrolls past in a log nobody reads.
 
+## The page quotes these files rather than copying them
+
+A block wrapped in a named `#region` is published. `Waystone.DocSnippets` reads
+the region and writes it into the matching `<!-- snippet: ... -->` slot on the
+page, and `pre-push` fails when the two have drifted apart.
+
+```csharp
+#region configuration-the-usual-call
+MonadOptions.Configure(options => options.UseFallbackErrorCode("Unknown"));
+#endregion
+```
+
+So a region name is part of the published page, not a private label: renaming one
+breaks the slot that quotes it. Name it `<page>-<what-it-shows>`.
+
+`Guides/Configuration.cs` is the file to copy the shape from. The rest of this
+folder is still compiled-only, and moves onto regions as each page is next
+touched — see [tools/Waystone.DocSnippets/README.md](../../tools/Waystone.DocSnippets/README.md).
+
 ## One project per install list
 
 There is a project per companion package, not one project referencing

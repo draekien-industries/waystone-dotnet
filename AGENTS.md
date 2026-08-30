@@ -31,13 +31,27 @@ Run this once per clone, or neither hook below fires:
 git config core.hooksPath .githooks
 ```
 
+**In a git worktree, set it again with `--worktree`.** Some tooling writes an
+*absolute* `core.hooksPath` into a new worktree's config, pointing at the main
+checkout, so that checkout's hooks run against your worktree's files. Repair it with
+`git config --worktree core.hooksPath .githooks`; a relative value resolves inside
+whichever tree the hook is running in.
+
 `commit-msg` rejects a subject that is not a conventional commit, since GitVersion
 reads it and a misspelled type silently publishes the wrong version. `pre-commit`
 rejects NUL bytes in text sources — git treats such a file as binary
 and silently stops diffing it, and nothing in the build notices. `pre-push` runs
-the full framework matrix and checks that no release-tracking rows are still
-unshipped. Both are cheap; neither is a substitute for a required check, since a
-clone without `core.hooksPath` set has neither.
+the full framework matrix, checks that no release-tracking rows are still
+unshipped, and checks that no published page has drifted from the sample it quotes.
+None is a substitute for a required check, since a clone without `core.hooksPath`
+set has none of them.
+
+The snippet check needs a checkout of
+[draekien-industries/docs](https://github.com/draekien-industries/docs), which it finds
+without any path being written down — the candidates and their order are in
+[tools/Waystone.DocSnippets/README.md](tools/Waystone.DocSnippets/README.md). Finding
+none, it says so and lets the push through: a contributor without that clone is not
+blocked, but nothing is guarding the pages either.
 
 ## The solution
 
