@@ -11,7 +11,7 @@ An async step is `T → ValueTask<Result<U, Error>>`, and so is an async chain, 
 a chain composes exactly as a single step does:
 
 ```csharp
-// Charge is a two-link chain and a step, both at once.
+// Charge is a chain of two steps and a step itself, both at once.
 private static ValueTask<Result<Quote, Error>> Charge(Order order) =>
     FetchAsync(order).AndThenAsync(Price);
 
@@ -23,34 +23,34 @@ internal ValueTask<Result<Invoice, Error>> Bill(int id) =>
 ```
 
 **Declare an async step `ValueTask`, not `Task`.** This is the one thing to get
-right, and up to 6.x it was the opposite: every step parameter took a
-`Task`-returning delegate, so a chain — which returns `ValueTask` — could never
-be a step, and the advice here was to reuse async steps and never async chains.
-From 7.0.0 `AndThenAsync` and `OrElseAsync` take `ValueTask`-returning
-delegates.
+right. `AndThenAsync` and `OrElseAsync` take `ValueTask`-returning delegates, so
+a chain — which returns `ValueTask` — is a step, and a `Task`-returning method
+group handed to either is not.
 
-A `Task`-returning method group handed to either fails as `CS0411` — "the type
-arguments cannot be inferred from the usage" — reported against the call site
-and naming neither `ValueTask` nor the parameter, so it reads like a generics
-problem rather than the one-word fix it is. Change the method's own return type
-to `ValueTask`, which is the better declaration for a chain link regardless.
-Where the method is genuinely someone else's,
-`AndThenAsync(async o => await Foreign(o))` binds.
+The compiler reports that as `CS0411`, "the type arguments cannot be inferred
+from the usage", against the call site and naming neither `ValueTask` nor the
+parameter — so it reads like a generics problem rather than the one-word fix it
+is. `WM2022` is the rule that says what `CS0411` does not, naming both the step
+and the type it must return. Change the method's own return type to `ValueTask`,
+which is the better declaration for a step regardless. Where the method is
+genuinely someone else's, `AndThenAsync(async o => await Foreign(o))` binds, and
+that wrap is what `WM2022`'s code fix applies — it cannot edit a signature it
+does not own.
 
-**Only the step-shaped parameters moved.** `AndThenAsync` and `OrElseAsync` are
-the chain operators, and they are the whole list. A delegate returning an
-arbitrary type still takes `Task`, because foreign code produces that shape — so
-`MapAsync(client.GetStringAsync)` keeps binding, and `MapAsync`, `FilterAsync`
-and the rest are unchanged.
+**Only the step-shaped parameters take `ValueTask`.** `AndThenAsync` and
+`OrElseAsync` are the chain operators, and they are the whole list. A delegate
+returning an arbitrary type takes `Task`, because foreign code produces that
+shape — so `MapAsync(client.GetStringAsync)` binds, and `MapAsync`, `FilterAsync`
+and the rest all want `Task`.
 
-The gap that leaves, stated plainly: a `ValueTask`-returning expression still
-cannot feed one of those boundary parameters.
+The gap that leaves, stated plainly: a `ValueTask`-returning expression cannot
+feed one of those boundary parameters.
 `FilterAsync(o => o.IsSomeAndAsync(p))` fails, and the workaround is
 `async o => await o.IsSomeAndAsync(p)`. Feeding a predicate from an exit member
 is a much rarer shape than chaining.
 
-`.AsTask()` is no longer needed to make a chain composable. It remains the
-conversion for a foreign API that demands a `Task`.
+`.AsTask()` does not make a chain composable and is not the fix for `CS0411`.
+It is the conversion for a foreign API that demands a `Task`, and nothing else.
 
 A **synchronous** chain stays reusable inside an async one, because the `*Async`
 members take a synchronous delegate too: `Validated` above — a plain

@@ -1,6 +1,6 @@
 ---
 name: waystone-monads
-description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM diagnostic fires, when extracting a reusable chain of fallible steps, when configuring MonadOptions or observing the exceptions Try swallows, or when the user says "use an Option", "return a Result", "make this monadic", "make this pipeline reusable".
+description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM or WMS diagnostic fires, when extracting a reusable chain of fallible steps, when serializing or asserting on a monad, when configuring MonadOptions or observing the exceptions Try swallows, or when the user says "use an Option", "return a Result", "make this monadic", "make this chain reusable".
 ---
 
 # Waystone.Monads
@@ -125,8 +125,11 @@ controller, a handler, a `Main` — collapse it once.
 
 `Unwrap` and `Expect` throw, which converts a handled absence back into the
 unhandled exception the type exists to prevent (`WM2001`, `WM2002`). Neither
-belongs in shipped code. Tests are where `Unwrap` is defensible, because a
-panic there is a failed assertion.
+belongs in shipped code. A test is the one place a panic is a failed assertion —
+but where `Waystone.Monads.Shouldly` is available, its assertions beat `Unwrap`
+even there, because an `Unwrap` throws before the assertion runs and reports
+nothing about what it found. Read
+[references/shouldly.md](references/shouldly.md) when writing them.
 
 ## Traps
 
@@ -215,6 +218,13 @@ The absent case is `None`, the failed case is `Err`, and `Option.Some(null)`
 throws — use `Option.FromNullable` when the value may be null (`WM1001`,
 `WM1005`).
 
+**Construct through a factory; a bare value does not convert.** There is no
+implicit conversion from `T` to a monad, so write `Option.Some(value)`,
+`Result.Ok<TOk, TErr>(value)` or `Result.Err<TOk, TErr>(error)`. A `return value;`
+carried over from an older version fails as `CS0029` or `CS1503`, and a code fix
+sits on both — where a `Result` carries the same type on each side it offers `Ok`
+and `Err` and does not choose for you.
+
 Likewise, declare the base type, never a case. `Some<int>` or `Ok<T, E>` in a
 signature can only hold one of the two states, which defeats the type
 (`WM2011`).
@@ -280,9 +290,8 @@ The type earns its place only where absence or failure is real.
 - `Option<bool>` has three states and almost always wants to be two — model it
   as an enum or split the question.
 - `Result<string, string>` leaves `Ok` indistinguishable from `Err` to a
-  reader. Give the two sides different types. No rule reports it: `WM2010` was
-  retired in 7.0.0 along with the implicit conversions whose ambiguity was its
-  whole reason to exist.
+  reader. Give the two sides different types. No rule reports it — the ambiguity
+  a rule once caught was the implicit conversions', and those are gone.
 - `Option<Option<T>>` distinguishes an absent outer from an absent inner, which
   callers never act on — `Flatten` it (`WM2009`).
 - A helper that only wraps a value already known to be present is indirection,
@@ -306,17 +315,20 @@ reaches no caller — and in the `Option` case is gone for good. The library rep
 each one it catches on a meter and a `DiagnosticListener` named after itself, both
 gated on whether anything is listening. Two things follow for code written here:
 
-- **`MonadOptions.UseExceptionLogger` is obsolete** and removed in `7.0.0`.
-  Configure logging through `Waystone.Monads.Extensions.Logging` instead, with
-  `UseLoggerFactoryFrom`, `UseLoggerFactory` or `UseLogger`. Configuring both
-  reports every handled exception twice.
-- **Never write one of the names as a literal.** Meter, listener, event, instrument
-  and tag names are constants on `MonadDiagnostics`. A mistyped literal subscribes
-  to nothing and fails silently — no exception, no warning, an empty dashboard.
+- **Configure logging through `Waystone.Monads.Extensions.Logging`,** with
+  `UseLoggerFactoryFrom`, `UseLoggerFactory` or `UseLogger`. The hand-written
+  `MonadOptions.UseExceptionLogger` hook was removed in `7.0.0`, so a call
+  carried over from 6.x fails as `CS1061`.
+- **Never write one of the names as a literal.** `MonadDiagnostics` carries a
+  constant for every meter, listener, event, instrument and tag name, and a
+  *token* per event that pairs the name with its payload type — subscribe through
+  the token and use a constant anywhere a bare string is required. A mistyped
+  literal subscribes to nothing and fails silently: no exception, no warning, an
+  empty dashboard.
 
 Read [references/observability.md](references/observability.md) before wiring up
-either channel, before migrating a `UseExceptionLogger` call, and before writing a
-test that asserts a `Try` swallowed something.
+either channel and before writing a test that asserts a `Try` swallowed
+something.
 
 ## Where the detail lives
 
@@ -338,9 +350,9 @@ compiles against nothing.
 | --- | --- |
 | [references/async.md](references/async.md) | The chain crosses an `await`, or `Try`/`TryAsync` is involved. The `*Async` members extend `Task<Option<T>>`, so a chain need not be broken into locals — and an async delegate handed to a synchronous member compiles silently while catching nothing |
 | [references/sequences.md](references/sequences.md) | Working over an `IEnumerable` of monads — `Collect`, `Partition`, `Flatten` — or combining two with `Zip`, `Reduce` or `Xor`, several of which invert the obvious expectation |
-| [references/reusable-chains.md](references/reusable-chains.md) | Extracting a chain for reuse, or a chain has to vary by caller. Why an async step must be declared `ValueTask` for a chain to compose as one, which parameters moved in 7.0.0 and which deliberately did not, where a variation point goes, why a library of composed `Func` values is worse than the chain, and how many tests a chain needs once its steps are tested |
+| [references/reusable-chains.md](references/reusable-chains.md) | Extracting a chain for reuse, or a chain has to vary by caller. Why an async step must be declared `ValueTask` for a chain to compose as one and which parameters take that shape, where a variation point goes, why a library of composed `Func` values is worse than the chain, and how many tests a chain needs once its steps are tested |
 | [references/nesting.md](references/nesting.md) | A monad has ended up inside another. Which shape to reach for, what `Transpose` maps to what in both directions, and when the nesting should be resolved with `OkOr` instead of preserved |
-| [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension, and never through the obsolete `FromEnum` factories |
+| [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension |
 | [references/rust-to-csharp.md](references/rust-to-csharp.md) | Porting Rust, or a Rust idiom has no obvious C# spelling |
 
 Most of the surface — every `*Async` member and every collection operation — is
@@ -348,6 +360,29 @@ extension methods in `Waystone.Monads.Options.Extensions` and
 `Waystone.Monads.Results.Extensions`. Without that `using`, the methods do not
 appear and the chain looks impossible to write. Add it before concluding a
 member is missing.
+
+## The companion packages
+
+Core ships the monads, the analyzer and the error-code generator. Everything else
+is a package a project installs deliberately, and each shadows the namespace of
+the library it companions rather than sitting under a parallel `Waystone` tree —
+so the types appear under a `using` the file already has. Check which are
+referenced before concluding a shape is unavailable, and read the one being used
+rather than guessing at its surface.
+
+| Read | When |
+| --- | --- |
+| [references/shouldly.md](references/shouldly.md) | Writing or reviewing a test that asserts on a monad |
+| [references/fluent-validation.md](references/fluent-validation.md) | A validator has to become a step in a `Result` chain, or a validation failure has to reach a problem-details payload |
+| [references/linq.md](references/linq.md) | Query syntax is in play, or a chain's later steps each need a value an earlier one produced |
+| [references/dependency-injection.md](references/dependency-injection.md) | `MonadOptions` is configured from a container rather than by a static call |
+| [references/hosting.md](references/hosting.md) | That container is a host, and the install should run from its start-up |
+| [references/system-text-json.md](references/system-text-json.md) | A monad is serialized with `System.Text.Json` |
+| [references/newtonsoft-json.md](references/newtonsoft-json.md) | A monad is serialized with `Newtonsoft.Json` |
+
+`Waystone.Monads.Extensions.Logging` is a companion package too;
+[references/observability.md](references/observability.md) covers it beside the
+metric and event channels it belongs with.
 
 ## Sweep before finishing
 
@@ -369,25 +404,34 @@ Run over the code just written and rewrite each of these where it appears:
 - [ ] Every awaited intermediate that only feeds the next step — rejoined with
       the `*Async` chain
 - [ ] Every eager argument that is a call — moved to the `*Else` sibling
-- [ ] Every capturing lambda — moved to the state overload
+- [ ] Every capturing lambda — moved to the state overload, on the `*Async`
+      surface as readily as on the synchronous one
 - [ ] Every discarded `Result` or `Option`
 - [ ] Every step taking two parameters — reshaped to one in, one monad out, so
       the chain takes it as a method group rather than a lambda
 - [ ] Every run of steps repeated across chains — extracted into a named chain
       and reused as a method group, whether or not any step awaits
 - [ ] Every async step declared `Task` — redeclared `ValueTask`, so a chain can
-      take it by name; only a delegate returning a non-monad keeps `Task`
+      take it by name (`WM2022`); only a delegate returning a non-monad keeps
+      `Task`
 - [ ] Every `.AsTask()` reached for to make an async chain composable — removed,
-      since 7.0.0 needs no conversion there
-- [ ] Every `UseExceptionLogger` call — migrated onto the logging package, not
-      suppressed
+      since it was never the conversion that shape needed
 - [ ] Every observability name written as a literal — replaced with the
-      `MonadDiagnostics` constant
+      `MonadDiagnostics` token where it subscribes to an event, and with the name
+      constant where a bare string is required
+- [ ] Every assertion on `IsSome`/`IsOk` or on an `Unwrap` in a test — replaced
+      with the assertion that reports the monad (`WMS2001`)
 
 The build is the check that this landed: `WM1xxx` rules are warnings and
 `WM2xxx` are informational, both enabled by default, and both ship inside the
-`Waystone.Monads` package. A clean build with no `WM` diagnostics is the
-completion bar. `WM3001` and `WM3002`, which flag nullable returns and throws
-that could become monads, are **disabled by default** — enable them
-deliberately when migrating a codebase onto the library, since they fire on
-every nullable return and every throw in the project.
+`Waystone.Monads` package. A clean build with no `WM` diagnostic — and no `WMS`
+diagnostic where the assertions package is referenced — is the completion bar.
+`WM3001` and `WM3002`, which flag nullable returns and throws that could become
+monads, are **disabled by default** — enable them deliberately when migrating a
+codebase onto the library, since they fire on every nullable return and every
+throw in the project.
+
+A project can raise the whole tier at once with the `WaystoneMonadsRuleset`
+property rather than rule by rule; see
+[references/diagnostics.md](references/diagnostics.md) before setting it, since
+`strict` turns the migration pair on.

@@ -103,26 +103,25 @@ three calls, rather than inheriting it.
 Both the logger and the level live on the `MonadOptions` scope, so `BeginScope`
 redirects them for one asynchronous flow and leaves the rest of the process alone.
 
-## Replace UseExceptionLogger
+## UseExceptionLogger is gone
 
-`MonadOptions.UseExceptionLogger` is obsolete and goes in `7.0.0`.
+`MonadOptions.UseExceptionLogger` was removed in `7.0.0`, so a call carried over
+from 6.x fails as `CS1061`. Replace it with a configuration call, not a
+suppression:
 
 ```csharp
-// Poor — obsolete, and holds one delegate, so a second integration silently
-// replaces the first
-MonadOptions.Configure(
-    options => options.UseExceptionLogger(
-        (ex, caller) => Log(ex, caller.MemberName)));
-
-// Good
 MonadOptions.Configure(options => options.UseLoggerFactoryFrom(app.Services));
 ```
 
-**Never configure both.** Both still fire, so every handled exception is reported
-twice until the old call is deleted.
+Nothing is lost in the move. Every entry still carries the exception and the same
+call-site details, and level and category filtering arrive with them — which an
+opaque delegate could never give. The hand-written hook held exactly one
+delegate, so configuring a second observer replaced the first silently; a
+`DiagnosticListener` is shared by any number of subscribers, and the logging
+package is simply one of them.
 
-Migrate call sites rather than suppressing `CS0618`. A suppression hides the
-deadline it was added to defer.
+Where a release still carries both, they both fire — so the old call comes out in
+the same change the package goes in, or every handled exception is logged twice.
 
 ## Subscribe to an event
 
@@ -136,7 +135,12 @@ name with its payload:
 | `ScopeDisposedOutOfOrderEvent` | `ScopeDisposedOutOfOrder(MonadOptions?, MonadOptions?)` | A `MonadOptionsScope` was disposed out of order |
 | `ConfigurationNotAppliedEvent` | `ConfigurationNotApplied()` | Options were read before container-registered configuration landed |
 
-`Subscribe` takes the callback and returns the subscription:
+The third fires only where configuration is registered through a container —
+`Waystone.Monads.Extensions.DependencyInjection` arms it, and
+`Waystone.Monads.Extensions.Hosting` is what usually stops it firing. In a
+process configuring `MonadOptions` by a static call, it is dormant.
+
+`Subscribe` takes the delegate and returns the subscription:
 
 ```csharp
 using IDisposable watching = MonadDiagnostics.ExceptionHandledEvent.Subscribe(
@@ -163,7 +167,7 @@ and throwing from the subscriber is the supported way to make
 
 ### Without the helper
 
-ADR 0004 promises a consumer needs no Waystone package to observe the library, and
+The library guarantees a consumer needs no Waystone package to observe it, and
 the raw path still works untouched: watch `DiagnosticListener.AllListeners`, match
 `MonadDiagnostics.ListenerName`, then subscribe with a predicate matching the event
 name. `AllListeners` replays listeners that already exist, so subscribing before or

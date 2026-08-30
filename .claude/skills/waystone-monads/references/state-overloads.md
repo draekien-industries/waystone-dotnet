@@ -62,6 +62,7 @@ It ships no code fix, because the natural rewrite reuses the captured name as
 the new delegate parameter, which shadows the enclosing local — so the rewrite
 is manual, and renaming the parameter is part of it.
 
-The async surface is converted only in part, so where an `*Async` state overload
-does not exist, await first and call the synchronous state overload rather than
-reintroducing a closure.
+The async surface has a state overload wherever the synchronous one does — the
+awaited-receiver generator lifts each one onto both task receivers, so the two
+sides cannot drift. Reach for `MapAsync(state, static (v, s) => …)` directly
+rather than awaiting into a local to get at the synchronous overload.

@@ -94,15 +94,25 @@ switch (error.Code.Value)
 }
 ```
 
-## Do not use the runtime factories
+## The runtime enum factories are gone
 
-`Error.FromEnum`, `ErrorCode.FromEnum`, `Result.Err(Enum, string)` and
-`MonadOptions.UseErrorCodeFactory` are obsolete and scheduled for removal in a
-future major. They work the code out at run time, which produces no constants,
-so nothing downstream can be a `case` label. A custom factory also cannot change
-what the generator
-emitted — the generated members never consult it — so installing one leaves the
-runtime string and the generated string disagreeing.
+`Error.FromEnum`, `ErrorCode.FromEnum`, `ErrorCodeFactory.FromEnum` and
+`Result.Err(Enum, string)` were removed in 7.0.0. A call site carried over from
+6.x fails as `CS0117` or `CS1061`, and there is no code fix to lean on — the one
+that existed was registered on the deprecation warning and went with the members
+it rewrote. Rewrite onto `{EnumName}Catalog.Errors.{Member}(message)`, or onto
+`value.ToError(message)` where the member arrives as a value.
+
+They went because working a code out by reflection produces no constant: the
+compiler cannot see the code, so a renamed member changes the wire contract
+silently, the declared `Format` cannot apply because it is read at compile time,
+and neither the analyzers nor `ErrorCodes.txt` can review a string nothing in the
+build can see.
+
+`MonadOptions.UseErrorCodeFactory` survives, and its scope is narrower than the
+name suggests: it reaches only codes derived from *exceptions*, through
+`ErrorCode.FromException`. It cannot change what the generator emitted, because
+the generated members never consult it.
 
 ## Review the codes as a list
 
@@ -127,10 +137,8 @@ building errors:
 - `UseLoggerFactoryFrom`, from `Waystone.Monads.Extensions.Logging`, sends every
   exception `Try` and `TryAsync` convert to the application's own `ILogger`,
   along with caller information. Without it, a converted exception's stack trace
-  reaches no log. `UseExceptionLogger` is the obsolete hand-written form of the
-  same thing and is removed in `7.0.0`; do not reach for it in new code.
-  Counts of those exceptions need nothing configured — core publishes them on a
-  `Meter` named `Waystone.Monads`.
+  reaches no log. Counts of those exceptions need nothing configured — core
+  publishes them on a `Meter` named `Waystone.Monads`.
 
 `UseCancellationAsFailure` is a trap worth knowing: by default an
 `OperationCanceledException` is **not** caught by `Try`/`TryAsync` and

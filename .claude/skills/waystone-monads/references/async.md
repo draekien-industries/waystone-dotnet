@@ -31,21 +31,19 @@ does not itself need to await still belongs in the chain.
 ## Async members return ValueTask
 
 Every `*Async` member returns `ValueTask` or `ValueTask<T>` — `MapAsync`,
-`AndThenAsync`, `MatchAsync`, `UnwrapOrAsync` and the rest. There is no member
-left to check.
+`AndThenAsync`, `MatchAsync`, `UnwrapOrAsync`, the static `Option.TryAsync` and
+`Result.TryAsync` factories, and `CollectAsync` over an `IAsyncEnumerable`.
+There is no member left to check.
 
-From 7.0.0 that includes the two that used to be exceptions: `Option.TryAsync`
-and `Result.TryAsync`, which are static factories rather than extensions, and
-`CollectAsync`, which consumes an `IAsyncEnumerable`. Both returned `Task` up to
-6.x. The reason they changed is not consistency — a `TryAsync` is the first link
-in most chains, so a `Task` there is the one link that cannot compose.
+That is what makes an async chain composable as a step, since `AndThenAsync` and
+`OrElseAsync` take a `ValueTask`-returning delegate. Declare an async step
+`ValueTask` for the same reason; a `Task`-returning one is reported by `WM2022`,
+which explains a `CS0411` that names neither `ValueTask` nor the parameter.
 
 `.AsTask()` is the conversion where a foreign API genuinely demands a `Task` —
 `Should.ThrowAsync` taking a `Func<Task>`, say — and the compiler's own
 type-mismatch diagnostic offers it as a fix. It is **not** needed to feed one
-async chain into another: from 7.0.0 `AndThenAsync` and `OrElseAsync` take a
-`ValueTask`-returning delegate, so a chain composes as a step with no conversion
-at all. See [reusable-chains.md](reusable-chains.md).
+async chain into another.
 
 ## A chain trips CA2012, and the chain is still right
 
@@ -76,9 +74,9 @@ files that hold chains rather than switching it off everywhere:
 dotnet_diagnostic.CA2012.severity = none
 ```
 
-Nothing in the library can fix this. The rule reads the receiver position, and
-there is no declaration on our side that changes what it sees — which is why
-7.0.0 makes an async chain composable without making `CA2012` stop firing.
+Nothing in the library can fix this. The rule reads the receiver position, and no
+declaration in the library changes what it sees — so an async chain being
+composable and `CA2012` firing on it are both permanent.
 
 ## An async delegate in a synchronous member is silent
 
@@ -100,12 +98,8 @@ sibling alone would leave the caller with an unawaited task and where the
 `Match` and `MapOr` hand the task straight back to the caller, who can await it,
 so those stay quiet. `Map` and `MapErr` trap it.
 
-## State overloads are only partly converted on the async side
+## State overloads reach the async surface too
 
-The async surface has fewer state overloads than the synchronous one, and which
-families are converted moves as the library grows. Where the `*Async` state
-overload does not exist, await first and call the synchronous state overload on
-the result rather than reintroducing a closure.
-
-`WM2017` fires on the capture wherever the overload exists, so let it identify
-the call rather than assuming symmetry with the sync surface.
+Every family with a synchronous state overload has the matching `*Async` one, so
+a capture inside an async chain is rewritten in place rather than by awaiting
+into a local first. `WM2017` fires on the capture either way.

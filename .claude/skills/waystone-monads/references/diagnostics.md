@@ -1,8 +1,7 @@
 # The WM diagnostics
 
 The analyzer ships inside the `Waystone.Monads` package and every consumer gets
-it on upgrade, with no opt-out beyond `.editorconfig`. Three tiers, and the tier
-sets the severity:
+it on upgrade. Three tiers, and the tier sets the severity:
 
 | Tier | Category | Severity | Enabled by default |
 | --- | --- | --- | --- |
@@ -25,7 +24,7 @@ fires on ordinary non-monadic C# and is off until a migration turns it on.
 | `WM1005` | `Option.Some` given a possibly-null value | `Option.FromNullable`, which maps null onto `None` |
 | `WM1006` | A `Result` returned and unused | Match on it or propagate it — a discarded `Result` reports nothing |
 | `WM1008` | `Option<T>?` or `Result<T, E>?` declared | Drop the annotation; the type already has exactly the two states it needs |
-| `WM1011` | An async delegate passed to a synchronous member | The `Async` sibling — otherwise the task is trapped in the monad, unobserved, and `Try` catches nothing |
+| `WM1011` | An async delegate passed to a synchronous member | The `Async` sibling — otherwise the task is trapped in the monad, unobserved, and `Try` catches nothing. No fix ships; where the `await` belongs is not something a fix can decide |
 
 ## Idioms
 
@@ -50,6 +49,7 @@ fires on ordinary non-monadic C# and is off until a migration turns it on.
 | `WM2019` | A generated code missing from `ErrorCodes.txt` | Invoke the fix, then read the added line before committing |
 | `WM2020` | An `ErrorCodes.txt` entry no catalog generates | Delete the line, or restore the member if the code was removed by mistake |
 | `WM2021` | `IsSome`, `IsNone`, `IsOk` or `IsErr` read through a property pattern | The combinator or `Match` — no fix ships, since the rewrite differs per pattern position |
+| `WM2022` | A `Task`-returning step handed to `AndThenAsync` or `OrElseAsync`, whose delegate returns `ValueTask` | Redeclare the step `ValueTask`. The fix wraps the call instead, since it cannot edit someone else's signature |
 
 `WM2007` and `WM2015` point in opposite directions on a value type by design:
 the first removes a repeated type from `UnwrapOr`, the second asks whether the
@@ -66,3 +66,47 @@ again.
 | --- | --- | --- |
 | `WM3001` | A member returning a nullable type | An `Option<T>` return, which makes the absent case impossible to ignore |
 | `WM3002` | A `throw` statement | A `Result<TOk, Error>` return, which states the failure in the signature |
+
+## Assertions have their own prefix
+
+`Waystone.Monads.Shouldly` ships two rules of its own, under `WMS` rather than
+`WM`, so a project without that package never sees a diagnostic telling it to
+call an assertion it does not reference. The tier digit carries over, and there
+is no `WMS1` tier — both fire on tests that pass, so both are `Info`.
+
+| Id | Flags | Fix |
+| --- | --- | --- |
+| `WMS2001` | An assertion made on `IsSome`/`IsOk`, or on the result of `Unwrap` | `ShouldBeSome`, `ShouldBeOk` and their siblings, which report the state *and* the contents on failure |
+| `WMS2002` | An assertion on a parenthesised `await` | The `*Async` assertion declared on the task itself |
+
+`WMS2001` overlaps `WM2001` on the `Unwrap` shape deliberately: applying the
+`WMS2001` fix resolves both, because the rewrite is what removes the `Unwrap`.
+
+## Raising the tier as a whole
+
+The shipped defaults stay quiet, and a codebase adopting the library opts into
+more with one property rather than a rule-by-rule `.editorconfig`:
+
+```xml
+<WaystoneMonadsRuleset>recommended</WaystoneMonadsRuleset>
+```
+
+`recommended` raises the `WM1` tier to error and leaves everything else alone. `strict` does that and raises `WM2` to warning and both `WM3` rules on —
+expect the migration pair to report by a wide margin on any existing codebase.
+`Waystone.Monads.Shouldly` reads the *same* property, so one posture covers
+every Waystone package installed.
+
+Both presets are global analyzer configs, and a path-matched `.editorconfig`
+section beats them — that is the route to override a single rule. The one rule
+that cannot be overridden that way is `WM2020`: it is reported against
+`ErrorCodes.txt`, which has no syntax tree, and Roslyn resolves
+`dotnet_diagnostic` severities per tree, so even `[*]` is never consulted.
+Changing it takes a `.globalconfig` with `is_global = true`.
+
+## A retired id is a gap, not a free slot
+
+An id is never reused, so a `#pragma` or an `.editorconfig` entry naming a
+retired one does nothing at all — no error, no warning, and it reads as though
+something is configured. `WM1004`, `WM1007`, `WM1009`, `WM1010` and `WM2014`
+were retired in 6.0.0, and `WM2010` in 7.0.0. Delete such an entry rather than
+carrying it forward.
