@@ -1,10 +1,12 @@
-namespace Waystone.Monads.Shouldly.Analyzers;
+﻿namespace Waystone.Monads.Shouldly.Analyzers;
 
 using Microsoft.CodeAnalysis;
 
 internal static class Rules
 {
     private const string Usage = nameof(Usage);
+
+    private const string DocsRoot = "https://draekien-industries.wpei.me/analyzers/";
 
     /// <remarks>
     /// <para>
@@ -77,7 +79,6 @@ internal static class Rules
             severity,
             enabledByDefault,
             description,
-            "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
-          + id.ToLowerInvariant(),
+            DocsRoot + "assertion-rules#" + id.ToLowerInvariant(),
             tags);
 }
