@@ -12,4 +12,12 @@
         sample/Waystone.Monads.Analyzers.Sample instead.
     -->
 
+    <!--
+        The source generator is a different matter. It ships inside the core
+        package, so a reader with Waystone.Monads installed already has it, and
+        the errors guide shows a generated catalog. Imported by hand only
+        because this project takes the library by ProjectReference.
+    -->
+    <Import Project="..\..\..\src\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
+
 </Project>
