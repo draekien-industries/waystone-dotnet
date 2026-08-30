@@ -13,6 +13,11 @@ succeeding *is* the test, so there is no output to read and no scenario to pick.
 That is the difference between this folder and the rest of `sample/`, where each
 project is a runnable demonstration you are meant to look at.
 
+Every project is also in `Waystone.Net.sln`, which is what CI builds. The `.slnx`
+above is a convenience for working on one page without building the test matrix;
+it is not the thing that guards the branch. **A project added here has to go in
+both**, or it compiles on your machine and nowhere else.
+
 ## Why it exists
 
 `docs/AGENTS.md` in the documentation repository carries the rule: compile
