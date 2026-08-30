@@ -41,6 +41,7 @@ public static class JsonSerializerOptionsExtensions
         }
 
         options.Converters.Add(new OptionJsonConverterFactory());
+        options.Converters.Add(new ResultJsonConverterFactory());
 
         return options;
     }

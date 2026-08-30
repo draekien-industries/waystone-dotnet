@@ -11,6 +11,7 @@ a consumer already looks for them rather than under a parallel `Waystone` tree:
 | --- | --- |
 | `AddMonadConverters` | `System.Text.Json` |
 | `OptionJsonConverter<T>`, `OptionJsonConverterFactory` | `System.Text.Json.Serialization` |
+| `ResultJsonConverter<TOk, TErr>`, `ResultJsonConverterFactory` | `System.Text.Json.Serialization` |
 
 The converters follow `JsonConverter<T>` down into
 `System.Text.Json.Serialization`; the extension method sits beside the
@@ -114,12 +115,58 @@ type system allows is worse than losing a distinction nobody should be relying
 on. The `WM2009` analyzer in `Waystone.Monads.Analyzers` already reports the
 declaration, which is the right place to catch it.
 
+## Result
+
+`Result<TOk, TErr>` serializes as an object naming its case, with the payload
+nested under `value`:
+
+```jsonc
+{ "$type": "ok",  "value": 42 }
+{ "$type": "err", "value": { "Code": "validation.failed", "Message": "..." } }
+```
+
+Unlike an option, a result has no idiomatic JSON shape to borrow. Both cases
+carry ordinary values of different types, so the case has to be named on the
+wire.
+
+### Why the payload is nested
+
+`$type` is also `System.Text.Json`'s own polymorphism discriminator. If your
+`TOk` or `TErr` is a polymorphic base carrying `[JsonDerivedType]`, it writes a
+`$type` of its own. Nesting puts that one *inside* `value`, a level below the
+result's:
+
+```jsonc
+{ "$type": "ok", "value": { "$type": "cat", "Name": "Tom" } }
+```
+
+Flattening the payload alongside the discriminator would have made the two
+siblings, and the collision would surface only for consumers whose payload
+happens to be polymorphic. Nesting rules it out by construction.
+
+### The wire contract ignores your naming policy
+
+`$type`, `value`, `ok` and `err` are fixed. `JsonSerializerOptions.PropertyNamingPolicy`
+does not rename them, so a camel-casing service and a snake-casing one still
+exchange the same payload — and so does `Waystone.Monads.NewtonsoftJson`, which
+writes the identical format.
+
+### Reading rejects what a result cannot hold
+
+Deserializing throws `JsonException` when the payload is not an object, when
+`$type` is missing or is not a string, when `value` is missing, when `$type`
+names neither case, or when `value` is null. A result has no null case, so
+accepting one would push the failure somewhere later and harder to trace.
+
+Property order does not matter — `{"value":42,"$type":"ok"}` reads the same as
+the canonical order.
+
 ## Trimming and NativeAOT
 
-`OptionJsonConverterFactory` closes `OptionJsonConverter<T>` reflectively, once
-per option type, and the serializer caches the result. Under NativeAOT that can
-fail when `T` is a value type, because a generic instantiation over a value type
-needs code emitted ahead of time and the compiler cannot see through the call.
+Both factories close their converter reflectively, once per monad type, and the
+serializer caches the result. Under NativeAOT that can fail when a type argument
+is a value type, because a generic instantiation over a value type needs code
+emitted ahead of time and the compiler cannot see through the call.
 
 Register those explicitly instead. The concrete converters are public with
 public parameterless constructors precisely so this path exists, and it involves
@@ -127,12 +174,13 @@ no reflection at all:
 
 ```csharp
 options.Converters.Add(new OptionJsonConverter<int>());
+options.Converters.Add(new ResultJsonConverter<int, string>());
 ```
 
 Reference types are unaffected — every one of them shares a single compiled
-converter — so a model made of `Option<string>` and `Option<Uri>` needs nothing
-extra.
+converter — so a model made of `Option<string>` and `Result<Uri, Error>` needs
+nothing extra.
 
-`Option<T>` members do not get the source-generation fast path from a
-`JsonSerializerContext`. A factory-produced converter works from one, but only
-correctness is guaranteed, not the performance benefit.
+`Option<T>` and `Result<TOk, TErr>` members do not get the source-generation fast
+path from a `JsonSerializerContext`. A factory-produced converter works from one,
+but only correctness is guaranteed, not the performance benefit.

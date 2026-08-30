@@ -23,6 +23,13 @@ public class JsonSerializerOptionsExtensionsTests
                                    .ShouldHaveSingleItem();
 
     [Fact]
+    public void WhenAddingTheConverters_ThenRegisterTheResultFactory() =>
+        new JsonSerializerOptions().AddMonadConverters()
+                                   .Converters.OfType<
+                                        ResultJsonConverterFactory>()
+                                   .ShouldHaveSingleItem();
+
+    [Fact]
     public void WhenAddingTheConvertersToNothing_ThenThrow() =>
         Should.Throw<ArgumentNullException>(
                    () => JsonSerializerOptionsExtensions.AddMonadConverters(
