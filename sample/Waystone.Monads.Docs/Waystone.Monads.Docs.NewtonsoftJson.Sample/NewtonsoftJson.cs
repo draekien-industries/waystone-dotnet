@@ -8,12 +8,12 @@ namespace Waystone.Monads.Docs.NewtonsoftJson.Sample;
 /// <summary>packages/newtonsoft-json.md</summary>
 internal static class NewtonsoftJsonPage
 {
-    internal sealed class Person
+    internal sealed class Character
     {
         public Option<string> Nickname { get; set; } = Option.None<string>();
     }
 
-    internal static string Install(Person model)
+    internal static string Install(Character model)
     {
         JsonSerializerSettings settings =
             new JsonSerializerSettings().AddMonadConverters();

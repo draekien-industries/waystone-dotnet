@@ -11,38 +11,38 @@ namespace Waystone.Monads.Docs.FluentValidation.Sample;
 /// <summary>packages/fluent-validation.md</summary>
 internal static class FluentValidationPage
 {
-    internal sealed record UserInput(int Range, string Search);
+    internal sealed record SpellInput(int Range, string Name);
 
-    internal sealed class UserInputValidator : AbstractValidator<UserInput>
+    internal sealed class SpellInputValidator : AbstractValidator<SpellInput>
     {
-        public UserInputValidator()
+        public SpellInputValidator()
         {
             RuleFor(x => x.Range).GreaterThan(0);
-            RuleFor(x => x.Search).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty();
         }
     }
 
-    internal static Result<UserInput, Error> Validate()
+    internal static Result<SpellInput, Error> Validate()
     {
-        UserInput input = new(1, "bob");
+        SpellInput input = new(120, "Fireball");
 
-        return input.Validate(new UserInputValidator());
+        return input.Validate(new SpellInputValidator());
     }
 
-    internal static async Task<Result<UserInput, Error>> ValidateAsync(
-        UserInput input,
+    internal static async Task<Result<SpellInput, Error>> ValidateAsync(
+        SpellInput input,
         CancellationToken cancellationToken) =>
-        await input.ValidateAsync(new UserInputValidator(), cancellationToken);
+        await input.ValidateAsync(new SpellInputValidator(), cancellationToken);
 
-    internal static Result<UserInput, Error> Chained(UserInput input) =>
-        input.Validate(new UserInputValidator())
+    internal static Result<SpellInput, Error> Chained(SpellInput input) =>
+        input.Validate(new SpellInputValidator())
              .AndThen(Normalise);
 
-    internal static async Task<Result<UserInput, Error>> ChainedAsync(
-        UserInput input,
+    internal static async Task<Result<SpellInput, Error>> ChainedAsync(
+        SpellInput input,
         CancellationToken cancellationToken) =>
-        await input.ValidateAsync(new UserInputValidator(), cancellationToken)
-                   .AndThenAsync(Save);
+        await input.ValidateAsync(new SpellInputValidator(), cancellationToken)
+                   .AndThenAsync(Inscribe);
 
     internal static IDictionary<string, string[]>? ReadTheFailures(Error error) =>
         error is ValidationError validationError
@@ -52,7 +52,7 @@ internal static class FluentValidationPage
     internal static void ConfigureTheErrorCode()
     {
         MonadOptions.Configure(
-            options => options.UseValidationErrorCode("input.invalid"));
+            options => options.UseValidationErrorCode("spell.invalid"));
     }
 
     // The page also shows UseValidationErrorCode chained after UseLogger. That
@@ -66,15 +66,15 @@ internal static class FluentValidationPage
     internal static void OverrideForOneBlock()
     {
         using (MonadOptions.BeginScope(
-                   options => options.UseValidationErrorCode("debug.validation")))
+                   options => options.UseValidationErrorCode("debug.spell")))
         {
-            // errors created in here carry "debug.validation"
+            // errors created in here carry "debug.spell"
         }
     }
 
-    private static Result<UserInput, Error> Normalise(UserInput input) =>
-        Result.Ok<UserInput, Error>(input);
+    private static Result<SpellInput, Error> Normalise(SpellInput input) =>
+        Result.Ok<SpellInput, Error>(input);
 
-    private static ValueTask<Result<UserInput, Error>> Save(UserInput input) =>
-        new(Result.Ok<UserInput, Error>(input));
+    private static ValueTask<Result<SpellInput, Error>> Inscribe(SpellInput input) =>
+        new(Result.Ok<SpellInput, Error>(input));
 }

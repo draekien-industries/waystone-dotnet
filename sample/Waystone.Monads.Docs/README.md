@@ -51,6 +51,23 @@ The core project mirrors the page tree in folders — `StartHere/`, `Guides/`,
 `Reference/` — because that project covers most of the space and a flat list of
 twenty files would stop being navigable.
 
+## The samples are D&D-themed
+
+Every type and value in here comes from tabletop fantasy — characters, quests,
+spells, rituals, dice. The published pages already lean that way (`Grog`,
+`Keyleth`, `Thordak`, `Pike`, `Vex'ahlia`, `The Raven Queen`), and this folder
+finishes the job.
+
+It is not decoration. `Order`, `UserInput` and `Person` are the shapes every
+sample in every library uses, so a reader skims them without reading. A `Quest`
+with a `GoldReward`, or a `SpellInput` with a `Range`, forces them to look at
+what the sample actually does — and `Range` is a real constraint on a real
+spell, which `UserInput.Range` never was.
+
+Keep it consistent when you add a page: reuse the cast rather than inventing a
+new one, and pick a domain noun that carries the constraint the sample is
+demonstrating.
+
 ## What is deliberately not here
 
 **Analyzer rule samples.** Every one is wrong on purpose, so it cannot live in a

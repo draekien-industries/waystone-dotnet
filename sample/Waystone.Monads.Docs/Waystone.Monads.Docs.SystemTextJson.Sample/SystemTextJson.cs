@@ -8,12 +8,12 @@ namespace Waystone.Monads.Docs.SystemTextJson.Sample;
 /// <summary>packages/system-text-json.md</summary>
 internal static class SystemTextJsonPage
 {
-    internal sealed class Person
+    internal sealed class Character
     {
         public Option<string> Nickname { get; set; } = Option.None<string>();
     }
 
-    internal static string Install(Person model)
+    internal static string Install(Character model)
     {
         JsonSerializerOptions options = new();
         options.AddMonadConverters();
