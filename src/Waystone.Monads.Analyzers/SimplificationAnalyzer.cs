@@ -15,7 +15,7 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
             Rules.OrDefaultOnAValueType,
             Rules.MonadComparedToNull);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

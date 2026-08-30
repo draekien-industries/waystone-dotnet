@@ -13,7 +13,7 @@ public sealed class OptionCreationAnalyzer : MonadAnalyzer
             Rules.SomeFromDefaultValue,
             Rules.PossiblyNullPassedToSome);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterOperationAction(

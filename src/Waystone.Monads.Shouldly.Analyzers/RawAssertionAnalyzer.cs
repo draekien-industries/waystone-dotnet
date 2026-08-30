@@ -13,7 +13,7 @@ public sealed class RawAssertionAnalyzer : AssertionAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.RawAssertion);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         AssertionSymbols symbols) =>
         context.RegisterOperationAction(

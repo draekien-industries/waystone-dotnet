@@ -14,7 +14,7 @@ public sealed class UseAwaitedAssertionCodeFix : AssertionCodeFix
     public override ImmutableArray<string> FixableDiagnosticIds =>
         ImmutableArray.Create(Rules.ParenthesisedAwaitAssertion.Id);
 
-    protected override void Register(
+    private protected override void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         InvocationExpressionSyntax assertion,

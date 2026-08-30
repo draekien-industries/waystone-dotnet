@@ -14,7 +14,7 @@ public sealed class UseAndThenWithFromNullableCodeFix : MonadCodeFix
     public override ImmutableArray<string> FixableDiagnosticIds =>
         ImmutableArray.Create("CS8714");
 
-    protected override void Register(
+    private protected override void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         SyntaxNode node,

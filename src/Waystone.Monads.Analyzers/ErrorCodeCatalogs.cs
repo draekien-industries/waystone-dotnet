@@ -17,7 +17,7 @@ using SourceGenerators.ErrorCodes;
 /// assembly as a linked source file, so the three cannot disagree about what an enum
 /// produces.
 /// </remarks>
-public static class ErrorCodeCatalogs
+internal static class ErrorCodeCatalogs
 {
     /// <summary>
     /// One entry per member of <paramref name="type" /> when it is an attributed enum,

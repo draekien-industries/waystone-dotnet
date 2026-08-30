@@ -16,7 +16,7 @@ public sealed class AsyncStepAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.TaskReturningAsyncStep);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterSyntaxNodeAction(

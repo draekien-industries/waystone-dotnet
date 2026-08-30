@@ -2,7 +2,7 @@ namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis;
 
-public static class Rules
+internal static class Rules
 {
     private const string Reliability = nameof(Reliability);
     private const string Usage = nameof(Usage);

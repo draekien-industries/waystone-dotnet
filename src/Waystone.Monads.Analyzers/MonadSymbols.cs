@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 
-public sealed class MonadSymbols
+internal sealed class MonadSymbols
 {
     public const string OptionMetadataName = "Waystone.Monads.Options.Option`1";
     public const string SomeMetadataName = "Waystone.Monads.Options.Some`1";

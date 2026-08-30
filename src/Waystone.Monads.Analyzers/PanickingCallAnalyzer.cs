@@ -11,7 +11,7 @@ public sealed class PanickingCallAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.UnwrapUsed, Rules.ExpectUsed);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterOperationAction(

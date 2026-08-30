@@ -12,7 +12,7 @@ public sealed class AwaitedAssertionAnalyzer : AssertionAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.ParenthesisedAwaitAssertion);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         AssertionSymbols symbols) =>
         context.RegisterOperationAction(

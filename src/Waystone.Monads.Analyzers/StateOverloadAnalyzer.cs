@@ -15,7 +15,7 @@ public sealed class StateOverloadAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.DelegateCapturesInsteadOfState);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterOperationAction(

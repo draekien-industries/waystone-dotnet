@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis;
 /// message names one replacement while its fix writes another is worse than no rule,
 /// and nothing in the build would catch the drift if each side held its own table.
 /// </remarks>
-public static class MonadAssertion
+internal static class MonadAssertion
 {
     public const string ShouldlyNamespace = "Shouldly";
 

@@ -11,7 +11,7 @@ public sealed class NullableSurfaceAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.NullableMemberAlongsideMonads);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterSymbolAction(
