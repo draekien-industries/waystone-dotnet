@@ -1,9 +1,8 @@
-namespace Waystone.Monads.FluentValidation.Configs;
+namespace FluentValidation.Configs;
 
 using System.Diagnostics.CodeAnalysis;
-using Monads.Configs;
-using Monads.Results.Errors;
-using Results;
+using Waystone.Monads.Configs;
+using Waystone.Monads.Results.Errors;
 
 /// <summary>Configuration for the <see cref="Error" /> a validation failure produces.</summary>
 /// <remarks>

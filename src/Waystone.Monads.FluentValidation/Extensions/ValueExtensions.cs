@@ -1,11 +1,10 @@
-namespace Waystone.Monads.FluentValidation.Results.Extensions;
+namespace FluentValidation.Extensions;
 
 using System.Threading;
 using System.Threading.Tasks;
-using global::FluentValidation;
-using global::FluentValidation.Results;
-using Monads.Results;
-using Monads.Results.Errors;
+using Results;
+using Waystone.Monads.Results;
+using Waystone.Monads.Results.Errors;
 
 /// <summary>
 /// Extension methods that validate a value into a

@@ -1,9 +1,9 @@
-namespace Waystone.Monads.FluentValidation.Results;
+namespace FluentValidation;
 
 using System.Collections.Generic;
 using Configs;
-using global::FluentValidation.Results;
-using Monads.Results.Errors;
+using Results;
+using Waystone.Monads.Results.Errors;
 
 /// <summary>The <see cref="Error" /> a validator's failures produce.</summary>
 /// <remarks>
@@ -11,7 +11,7 @@ using Monads.Results.Errors;
 /// validation result that already failed, so <see cref="Failures" /> is never
 /// empty. It is an <see cref="Error" /> rather than something convertible to one,
 /// so a validation step composes with every other step in a
-/// <see cref="Monads.Results.Result{TOk,TErr}" /> chain without a <c>MapErr</c> at
+/// <see cref="Waystone.Monads.Results.Result{TOk,TErr}" /> chain without a <c>MapErr</c> at
 /// the seam. Recover the detail by pattern matching:
 /// <code>
 /// if (error is ValidationError validationError)
