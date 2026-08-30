@@ -54,8 +54,39 @@ internal static class ExceptionsGuide
         _ = parsed;
     }
 
+    internal static void ErrorCodeFromException()
+    {
+        try
+        {
+            // do work
+        }
+        catch (ScryingFailedException e)
+        {
+            var errorCode = ErrorCode.FromException(e); // "ScryingFailed"
+
+            _ = errorCode;
+        }
+    }
+
+    internal static void ErrorFromException()
+    {
+        try
+        {
+            // do work
+        }
+        catch (ScryingFailedException e)
+        {
+            var error = Error.FromException(e);
+            //  ^? Code: "ScryingFailed", Message: e.Message
+
+            _ = error;
+        }
+    }
+
     internal static void TheConstructorsRejectNull()
     {
         Result.Ok<string, Error>(null!); // throws ArgumentNullException
     }
 }
+
+internal sealed class ScryingFailedException : Exception;

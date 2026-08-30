@@ -35,23 +35,9 @@ internal static class ErrorsGuide
         _ = error;
     }
 
-    internal static void ErrorCodeFromException()
-    {
-        try
-        {
-            // do work
-        }
-        catch (ScryingFailedException e)
-        {
-            var errorCode = ErrorCode.FromException(e); // "ScryingFailed"
-
-            _ = errorCode;
-        }
-    }
-
     internal static void BuildingAnError()
     {
-        Error malformedUri = new(
+        Error malformedSigil = new(
             SpellErrorCodes.SigilMalformed,
             "Expected an absolute sigil but received a relative one");
 
@@ -59,28 +45,13 @@ internal static class ErrorsGuide
             SpellErrorCodes.SigilMalformed,
             "Failed to parse the sigil as a rune sequence");
 
-        _ = (malformedUri, unparseable);
+        _ = (malformedSigil, unparseable);
     }
 
     internal static Result<int, Error> AnErrorFromACatalog() =>
         Result.Err<int>(
             SpellErrorsCatalog.Errors.SigilMalformed(
                 "Failed to parse the sigil as a rune sequence"));
-
-    internal static void ErrorFromException()
-    {
-        try
-        {
-            // do work
-        }
-        catch (ScryingFailedException e)
-        {
-            var error = Error.FromException(e);
-            //  ^? Code: "ScryingFailed", Message: e.Message
-
-            _ = error;
-        }
-    }
 }
 
 /// <summary>guides/errors.md — the catalog the page marks up</summary>
@@ -92,4 +63,3 @@ public enum SpellErrors
     LevelOutOfRange = 3,
 }
 
-internal sealed class ScryingFailedException : Exception;
