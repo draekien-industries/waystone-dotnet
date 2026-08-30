@@ -18,4 +18,21 @@
     <Import Project="..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
     <Import Project="..\..\src\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
 
+    <!--
+        The one line a consumer writes to apply a preset. Note that this project does
+        not then build under strict as shipped — it declares the misuse the WM1xxx
+        rules report on purpose, and strict makes those errors. The .editorconfig
+        beside this file holds them back down, which is what the project demonstrates.
+    -->
+    <PropertyGroup>
+        <WaystoneMonadsRuleset>strict</WaystoneMonadsRuleset>
+    </PropertyGroup>
+
+    <!--
+        Imported by hand because this project takes the library by ProjectReference. A
+        consumer with a PackageReference gets this file from build/ in the nupkg
+        automatically and writes only the property above.
+    -->
+    <Import Project="..\..\src\Waystone.Monads\build\Waystone.Monads.props"/>
+
 </Project>

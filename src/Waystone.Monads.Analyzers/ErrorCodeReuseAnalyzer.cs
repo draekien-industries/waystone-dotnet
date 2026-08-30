@@ -14,7 +14,7 @@ public sealed class ErrorCodeReuseAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.ErrorCodeReusedAcrossEnums);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

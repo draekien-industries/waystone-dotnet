@@ -139,17 +139,6 @@ public class DeclaredTypeAnalyzerTests
                .WithArguments("Option<Option<int>>"));
 
     [Fact]
-    public Task FlagsAResultWithIdenticalTypeArguments() =>
-        Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
-            """
-            internal {|#0:Result<string, string>|} Ambiguous() =>
-                Result.Ok<string, string>("value");
-            """,
-            Verify.Diagnostic(Rules.ResultWithIdenticalTypeArguments)
-               .WithLocation(0)
-               .WithArguments("Result<string, string>"));
-
-    [Fact]
     public Task FlagsADerivedCaseDeclaredAsAParameter() =>
         Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
             """
@@ -385,19 +374,16 @@ public class DeclaredTypeAnalyzerTests
                .WithArguments("Ok<int, string>", "Result<int, string>"));
 
     [Fact]
-    public Task FlagsANullableResultWithIdenticalTypeArgumentsInATuple() =>
+    public Task FlagsANullableResultInATuple() =>
         Verify.AnalyzerAsync<DeclaredTypeAnalyzer>(
             """
-            internal void Take(({|#0:{|#1:Result<int, int>|}?|} a, int b) pair)
+            internal void Take(({|#0:Result<int, string>?|} a, int b) pair)
             {
             }
             """,
             Verify.Diagnostic(Rules.NullableMonadDeclared)
                .WithLocation(0)
-               .WithArguments("Result<int, int>", "Err"),
-            Verify.Diagnostic(Rules.ResultWithIdenticalTypeArguments)
-               .WithLocation(1)
-               .WithArguments("Result<int, int>"));
+               .WithArguments("Result<int, string>", "Err"));
 
     [Fact]
     public Task FlagsANullableOptionInANestedTypeArgument() =>

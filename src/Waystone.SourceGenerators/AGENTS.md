@@ -6,14 +6,46 @@ extension classes in `Waystone.Monads`.
 
 ## The generator contract
 
-**The emitted set is a written list, not a walk of the receiver's surface.** A
-destination class carries `[GenerateAwaitedReceivers(typeof(Option<>))]` naming the
-receiver and one `[GenerateAwaitedMember(nameof(Option<>.Unwrap))]` per member it
-wants. That is deliberate: which extension class a core member's async shape
-belongs in is not derivable — the mapping is nearly `{Member}Extensions`, but
-`UnwrapOr` and `UnwrapOrDefault` live in `UnwrapExtensions`, and `Or`/`Xor` have no
-class at all. A written list is the strongest available form of "emit exactly
-today's set".
+**There are two seeds, and knowing both is what makes a failed conversion
+readable.** `Analyse` emits the union of:
+
+* `FromReceiverMember` — the written list. A destination class carries
+  `[GenerateAwaitedReceivers(typeof(Option<>))]` naming the receiver and one
+  `[GenerateAwaitedMember(nameof(Option<>.Unwrap))]` per core member it wants.
+* `FromExtensionBlocks` — every public extension member already in the destination
+  class **whose receiver is not itself awaitable**, lifted onto both awaited
+  receivers.
+
+The written half used to be deliberate for a reason that no longer applies: which
+extension class a core member's async shape belonged in was not derivable, since
+the mapping was nearly `{Member}Extensions` but `Unwrap`, `UnwrapOr`,
+`UnwrapOrDefault` and `Result.UnwrapErr` all lived in `UnwrapExtensions`. DRA-111
+collapsed the per-family classes into `OptionExtensions` and `ResultExtensions`,
+so there is now exactly one destination per monad and no mapping to get wrong.
+
+The list stays anyway, because it still answers a second question the destination
+never did: *which* core members get lifted. It remains the strongest available form
+of "emit exactly today's set".
+
+**A written list is only as good as the list, so a test reads the surface
+instead.** Nothing here notices a core member left off every list — the generator
+emits what it is told and says nothing about the rest, so the failure is a missing
+overload rather than a diagnostic. Seven members reached 7.0.0 that way, and the
+two causes need distinguishing because they suggest different fixes: `Option.Or`,
+`Option.Xor` and `Result.Or` had no destination class, while `Option.Zip`,
+`Result.And`, `Result.GetOk` and `Result.GetErr` each had one and were simply not
+listed in it. `AwaitedReceiverCoverageTests` in `Waystone.Monads.Tests` now fails
+when a public core member has no `…Async` reachable from either awaited receiver.
+It asserts on the emitted surface rather than on the attributes, so it covers both
+causes and a hand-written family equally.
+
+The lifted half is what carries the shapes the core member does not have — an
+async-delegate overload, say, which exists only as an extension. It is also the
+half that surprises people, in both directions: a hand-written member on a
+synchronous receiver silently gains two awaited overloads, and one on an awaited
+receiver contributes nothing and will be deleted by the conversion. **Which
+receiver a hand-written overload sits on is therefore part of the contract, not a
+detail.**
 
 Write the member with `nameof`, not a bare string. C# 14 takes an unbound generic
 in `nameof`, so `nameof(Option<>.Unwrap)` compiles, matches the `typeof(Option<>)`
@@ -26,10 +58,10 @@ prefix.
 
 **The generator writes only the `extension` block; the containing class must be
 `partial`.** Generated shapes land in the same static class as the hand-written
-ones so the baseline entries keep naming `MapExtensions` rather than some new class
-— a rename there would be a public API change. Two blocks of the same receiver
-shape in the same partial class across two files merge without complaint, so the
-generator can add to a class that already hand-writes one. `WSG0001` catches a
+ones so the baseline entries keep naming `OptionExtensions` rather than some new
+class — a rename there would be a public API change. Two blocks of the same
+receiver shape in the same partial class across two files merge without complaint,
+so the generator can add to a class that already hand-writes one. `WSG0001` catches a
 marked class that is not partial, because otherwise the failure is a CS0260
 pointing at generated source.
 
@@ -37,6 +69,18 @@ pointing at generated source.
 RS2008 fails the build without one.
 
 ## Gotchas
+
+**Members sharing a receiver shape do not necessarily share its constraints, and
+`Key` has to say so.** `AwaitedReceiverWriter` groups members into one emitted
+`extension` block per key, then takes the block's constraints from `group[0]`.
+Key on the receiver type and parameter name alone and two members with the same
+receiver but different constraints — `UnwrapOrNull` under `where T : struct`
+beside `Map` under `where T : notnull` — land in one block that carries whichever
+constraint happened to come first. Nothing fails in this repository: the generated
+source compiles, and the break surfaces as `CS0453` in a *consumer*, at a call site
+whose type argument the surviving constraint rejects. `Key` therefore includes the
+rendered block constraints. This was latent until DRA-111 put both families in one
+class; before that no marked class held two same-shape receivers.
 
 **The generated receivers are deliberately not marked as generated code.** Hint
 names end `.AwaitedReceivers.cs`, not `.g.cs`, and the members carry no
@@ -87,23 +131,37 @@ with an untouched baseline only when the two already agree. See
 
 **Drift is not the only blocker.** DRA-108 tried all eight remaining families and
 landed one — `Result.Match`. Six were parameter renames, which DRA-110 owns.
-`Option.Match` was neither, and is worth knowing about before you attempt it:
+`Option.Match` was neither, and what it turned out to be is the generalisable
+lesson: **when a conversion appears to remove overloads, check which receiver the
+hand-written ones sit on before reaching for the generator.**
 
-* Conversion **removes six overloads** and fires RS0017 on each. They are the
-  three async-delegate shapes — `(Func<T, Task<TOut>>, Func<Task<TOut>>)` and
-  the two half-async pairs — on both the `Task` and `ValueTask` receiver. That
-  is a public API removal rather than a rename, so no amount of renaming
-  unblocks it.
-* The mechanism is **not** "the generator cannot emit async-delegate
-  forwarders". It plainly can: `Result.Match` has four such shapes across its
-  awaited blocks and converted with zero RS0017. What separates the two was not
-  established. The visible difference is that Option's lost overloads all
-  involve a parameterless `Func<Task<TOut>>` branch where Result's take the
-  contained value. Treat that as a lead, not a finding.
-* Conversion also breaks `OkOrElseExtensions`, which forwards through
-  `optionTask.MatchAsync(...)`. It fails as `CS8030` at the call site rather
-  than as anything pointing at `MatchExtensions`, so the compile error names the
-  wrong file.
+Converting `Option.MatchExtensions` removed six overloads — the three
+async-delegate shapes on each of the `Task` and `ValueTask` receivers — because
+every one of its hand-written overloads was on an awaited receiver, and
+`FromExtensionBlocks` skips those. `Result.Match` lost nothing from the identical
+attempt because its async-delegate shapes sit on the synchronous
+`Result<TOk, TErr>` receiver, so they were lifted. Both core types declare the same
+four-overload `Match` set, so the core surface was never the difference.
+
+DRA-130 fixed it by adding the three synchronous-receiver overloads Option was
+missing and then converting, which measured 0 RS0017 and 38 RS0016. Note what that
+means for the shape of the problem: an apparent removal was a *missing addition*,
+and the family was the only Option family with no synchronous-receiver block at
+all. Reach for that check first.
+
+The lead recorded here before DRA-130 — that Option's lost overloads all involved a
+parameterless `Func<Task<TOut>>` branch where Result's took the contained value —
+was a coincidence of which overloads Option happened to ship. It is called out
+because it is the kind of pattern that reads like a cause and costs a day.
+
+`OkOrElseExtensions` is the other trap, and it is downstream of the same thing. It
+forwards through `optionTask.MatchAsync(...)` with a value-returning `async` lambda
+in the `None` branch. Convert without the synchronous overloads and resolution
+falls to the generated `MatchAsync(Action<T>, Action)` shape, so the lambda becomes
+a void-returning conversion and fails as `CS8030` in a file with nothing wrong in
+it. With the synchronous overloads present it resolves correctly and needs no edit,
+so treat a `CS8030` there as a symptom of the missing block rather than a call site
+to fix.
 
 Run the experiment on the whole set at once rather than one family at a time:
 one build reports every family's verdict, and the count of RS0017 rows per class

@@ -1,12 +1,11 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using JetBrains.Annotations;
-using Monads.Extensions;
-using Shouldly;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(UnwrapOrElseExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class UnwrapOrElseExtensionsTests
 {
     [Fact]
@@ -46,5 +45,25 @@ public sealed class UnwrapOrElseExtensionsTests
            .UnwrapOrElseAsync(() => 2);
 
         result.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenUnwrapOrElseAsyncWithAnAsyncFactory_ThenReturnTheComputedValue()
+    {
+        int result = await Task.FromResult(Option.None<int>())
+           .UnwrapOrElseAsync(() => Task.FromResult(9));
+
+        result.ShouldBe(9);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenUnwrapOrElseAsyncWithAnAsyncFactory_ThenReturnTheComputedValue()
+    {
+        int result = await new ValueTask<Option<int>>(Option.None<int>())
+           .UnwrapOrElseAsync(() => Task.FromResult(9));
+
+        result.ShouldBe(9);
     }
 }

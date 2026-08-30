@@ -3,7 +3,6 @@
 using System;
 using System.Threading.Tasks;
 using Exceptions;
-using Extensions;
 using JetBrains.Annotations;
 using NSubstitute;
 using Options;
@@ -18,8 +17,7 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-        ok.IsOk.ShouldBeTrue();
-        ok.IsErr.ShouldBeFalse();
+        ok.ShouldBeOk();
     }
 
     [Fact]
@@ -108,6 +106,31 @@ public class OkTests
     }
 
     [Fact]
+    public void WhenAndThenProducesANullResult_ThenThrow()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Func<Result<int, string>> andThenNull =
+            () => ok.AndThen(_ => default(Result<int, string>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
+    public void GivenState_WhenAndThenProducesANullResult_ThenThrow()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Func<Result<int, string>> andThenNull = () => ok.AndThen(
+            10,
+            static (_, _) => default(Result<int, string>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
     public void WhenOr_ThenReturnOk()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
@@ -147,7 +170,7 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-        ok.Unwrap().ShouldBe(1);
+        ok.ShouldBeOkValue(1);
         ok.UnwrapOr(10).ShouldBe(1);
         ok.UnwrapOrDefault().ShouldBe(1);
         ok.UnwrapOrElse(_ => 10).ShouldBe(1);
@@ -300,10 +323,86 @@ public class OkTests
         Result<int, string> ok = Result.Ok<int, string>(1);
 
         Result<string, string> result =
-            await ok.AndThenAsync(x => Task.FromResult(
+            await ok.AndThenAsync(x => new ValueTask<Result<string, string>>(
                 Result.Ok<string, string>(x.ToString())));
 
         result.ShouldBe(Result.Ok<string, string>("1"));
+    }
+
+    [Fact]
+    public async Task GivenAPendingFactory_WhenAndThenAsync_ThenReturnOther()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Result<string, string> result = await ok.AndThenAsync(async x =>
+        {
+            await Task.Yield();
+
+            return Result.Ok<string, string>(x.ToString());
+        });
+
+        result.ShouldBe(Result.Ok<string, string>("1"));
+    }
+
+    [Fact]
+    public void
+        GivenACompletedFactory_WhenAndThenAsyncProducesANullResult_ThenThrowFromTheCall()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Action andThenNull = () => _ = ok.AndThenAsync(
+            _ => new ValueTask<Result<int, string>>(
+                default(Result<int, string>)!));
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("resultFactory");
+    }
+
+    /// <summary>
+    /// The gate holds the factory's task incomplete until after the call returns,
+    /// which is what puts the guard on its awaiting path. <c>await Task.Yield()</c>
+    /// does not: on an idle thread pool it can resume before the guard reads
+    /// <c>IsCompletedSuccessfully</c>, and the throw then lands at the call
+    /// instead.
+    /// </summary>
+    [Fact]
+    public async Task
+        GivenAPendingFactory_WhenAndThenAsyncProducesANullResult_ThenFaultTheReturnedTask()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Result<int, string>> pending = ok.AndThenAsync(
+            async ValueTask<Result<int, string>> (_) =>
+            {
+                await gate.Task;
+
+                return default(Result<int, string>)!;
+            });
+
+        gate.SetResult(true);
+
+        Func<Task> consume = async () => await pending;
+
+        (await consume.ShouldThrowAsync<ArgumentNullException>())
+           .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
+    public async Task GivenAFaultingFactory_WhenAndThenAsync_ThenRethrow()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        Func<Task> andThenThrows = async () => await ok.AndThenAsync(
+            async ValueTask<Result<int, string>> (_) =>
+            {
+                await Task.Yield();
+
+                throw new InvalidOperationException("boom");
+            });
+
+        (await andThenThrows.ShouldThrowAsync<InvalidOperationException>())
+           .Message.ShouldBe("boom");
     }
 
     [Fact]
@@ -311,11 +410,13 @@ public class OkTests
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
 
-        (await ok.OrElseAsync(_ => Task.FromResult(Result.Ok<int, bool>(2))))
+        (await ok.OrElseAsync(
+                _ => new ValueTask<Result<int, bool>>(
+                    Result.Ok<int, bool>(2))))
            .ShouldBe(Result.Ok<int, bool>(1));
 
         (
-                await ok.OrElseAsync(_ => Task.FromResult(
+                await ok.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
                     Result.Err<int, bool>(false))))
            .ShouldBe(Result.Ok<int, bool>(1));
     }

@@ -1,11 +1,11 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
+using System.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Immutable;
-using System.Composition;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class UseNoneCodeFix : MonadCodeFix
@@ -13,7 +13,7 @@ public sealed class UseNoneCodeFix : MonadCodeFix
     public override ImmutableArray<string> FixableDiagnosticIds =>
         ImmutableArray.Create("WM1001", "WM1002", "WM1003");
 
-    protected override void Register(
+    private protected override void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         SyntaxNode node,
@@ -47,12 +47,12 @@ public sealed class UseNoneCodeFix : MonadCodeFix
 
         var value = arguments[0];
 
-        var replacement = OptionFactoryCall(
+        var replacement = FactoryCall(
+            symbols.OptionFactory,
             "None",
-            value,
+            ImmutableArray.Create(value),
             model,
-            target.SpanStart,
-            symbols);
+            target.SpanStart);
 
         context.RegisterCodeFix(
             CodeAction.Create(

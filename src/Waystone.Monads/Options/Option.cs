@@ -48,7 +48,7 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </remarks>
     public static Option<T> Try<T>(
@@ -61,7 +61,7 @@ public static class Option
     {
         try
         {
-            return factory();
+            return NoneIfNull(factory());
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -104,10 +104,10 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </remarks>
-    public static async Task<Option<T>> TryAsync<T>(
+    public static async ValueTask<Option<T>> TryAsync<T>(
         Func<Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
         [CallerLineNumber] int callerLineNumber = 0,
@@ -116,7 +116,7 @@ public static class Option
     {
         try
         {
-            return await asyncFactory();
+            return NoneIfNull(await asyncFactory());
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -173,7 +173,7 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -188,7 +188,7 @@ public static class Option
     {
         try
         {
-            return factory(state);
+            return NoneIfNull(factory(state));
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -247,11 +247,11 @@ public static class Option
     /// at all: it leaves this method untouched, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static async Task<Option<T>> TryAsync<TState, T>(
+    public static async ValueTask<Option<T>> TryAsync<TState, T>(
         TState state,
         Func<TState, Task<T>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
@@ -261,7 +261,7 @@ public static class Option
     {
         try
         {
-            return await asyncFactory(state);
+            return NoneIfNull(await asyncFactory(state));
         }
         catch (Exception ex) when (MonadOptions.Current.Catches(ex))
         {
@@ -286,8 +286,8 @@ public static class Option
     /// <paramref name="value" /> is null. A <see cref="Some{T}" /> may hold the
     /// default of its type, but never null. The <c>notnull</c> constraint makes
     /// this hard to reach rather than impossible, since <c>default!</c> and an
-    /// unconstrained caller both get through. Use the implicit conversion on
-    /// <see cref="Option{T}" /> instead to turn null into a
+    /// unconstrained caller both get through. Call
+    /// <c>Option.FromNullable</c> instead to turn null into a
     /// <see cref="None{T}" /> rather than a throw.
     /// </exception>
     public static Option<T> Some<T>(T value) where T : notnull =>
@@ -337,4 +337,40 @@ public static class Option
     public static Option<T> FromNullable<T>(T? value)
         where T : class =>
         value is null ? None<T>() : new Some<T>(value);
+
+    internal static Option<T> NoneIfNull<T>(T value) where T : notnull =>
+        value is null ? None<T>() : new Some<T>(value);
+
+    internal static Option<T> NotNull<T>(Option<T> option, string delegateName)
+        where T : notnull =>
+        option
+     ?? throw new ArgumentNullException(
+            delegateName,
+            $"The `{delegateName}` delegate returned a null option. Return "
+          + "`Option.None<T>()` to express an absent value; a null option is "
+          + "never valid, and the next call against it would throw a "
+          + "`NullReferenceException` far from here.");
+
+    internal static ValueTask<Option<T>> NotNullAsync<T>(
+        ValueTask<Option<T>> option,
+        string delegateName) where T : notnull =>
+        option.IsCompletedSuccessfully
+            ? new ValueTask<Option<T>>(NotNull(option.Result, delegateName))
+            : AwaitNotNull(option, delegateName);
+
+    private static async ValueTask<Option<T>> AwaitNotNull<T>(
+        ValueTask<Option<T>> option,
+        string delegateName) where T : notnull =>
+        NotNull(await option.ConfigureAwait(false), delegateName);
+
+    internal static Option<T> SomeOrThrow<T>(T value, string delegateName)
+        where T : notnull =>
+        value is null
+            ? throw new ArgumentNullException(
+                delegateName,
+                $"The `{delegateName}` delegate returned null, but its return "
+              + "type is constrained to a non-nullable type. To map a null onto "
+              + "a `None`, project into an option with `AndThen` and "
+              + "`Option.FromNullable` instead.")
+            : new Some<T>(value);
 }

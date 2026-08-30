@@ -1,11 +1,12 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using JetBrains.Annotations;
-using Monads.Extensions;
+using System;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(ReduceExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class ReduceExtensionsTests
 {
     [Fact]
@@ -18,6 +19,21 @@ public sealed class ReduceExtensionsTests
             (x, y) => Task.FromResult(x + y));
 
         result.ShouldBeSomeValue(3);
+    }
+
+    [Fact]
+    public async Task GivenReduceProducesNull_WhenReduceAsync_ThenThrow()
+    {
+        Option<string> some = Option.Some("a");
+
+        Func<Task> reduceToNull = async () => await some.ReduceAsync(
+            Option.Some("b"),
+            (_, _) => Task.FromResult(default(string)!));
+
+        ArgumentNullException thrown =
+            await reduceToNull.ShouldThrowAsync<ArgumentNullException>();
+
+        thrown.ParamName.ShouldBe("reduce");
     }
 
     [Fact]

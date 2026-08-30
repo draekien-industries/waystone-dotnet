@@ -3,6 +3,7 @@ namespace Waystone.Monads.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Configs;
 using Diagnostics;
@@ -150,7 +151,7 @@ public sealed class MonadLoggingOptionsTests
                     options => options.UseLoggerFactoryFrom(provider)));
 
         thrown.Message.ShouldContain(
-            nameof(MonadOptionsExtensions.UseLoggerFactory));
+            nameof(MonadOptionsBuilderExtensions.UseLoggerFactory));
     }
 
     [Fact]
@@ -179,6 +180,31 @@ public sealed class MonadLoggingOptionsTests
             MonadDiagnostics.Listener.Write(
                 MonadDiagnostics.ExceptionHandledEventName,
                 "not an ExceptionHandled");
+        }
+
+        logger.Everything.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// The subscription is to <c>AllListeners</c>, so every listener anywhere in
+    /// the process reaches it and only the name keeps someone else's events out.
+    /// <c>MonadDiagnosticEvent</c> applies that filter now rather than the logger,
+    /// and this pins that the logger still gets the benefit of it end to end.
+    /// </summary>
+    [Fact]
+    public void GivenSomeoneElsesListener_WhenItWritesTheEvent_ThenIgnoreIt()
+    {
+        var logger = new RecordingLogger();
+
+        using (MonadOptions.BeginScope(options => options.UseLogger(logger)))
+        using (var foreign = new DiagnosticListener("Someone.Elses.Listener"))
+        {
+            foreign.Write(
+                MonadDiagnostics.ExceptionHandledEventName,
+                new ExceptionHandled(
+                    new ProbeException(),
+                    new CallerInfo("Member", "expression", 1),
+                    MonadKind.Option));
         }
 
         logger.Everything.ShouldBeEmpty();

@@ -44,6 +44,84 @@ public static class MonadDiagnostics
     public const string ExceptionHandledEventName =
         "Waystone.Monads.ExceptionHandled";
 
+    /// <summary>The name of the event written when a scope is disposed out of order.</summary>
+    /// <remarks>
+    /// Its payload is a <see cref="ScopeDisposedOutOfOrder" />. The event is the
+    /// only report of the misuse: <see cref="MonadOptionsScope.Dispose" /> declines
+    /// to restore rather than throwing, because throwing from a <c>using</c> would
+    /// displace whatever exception was already unwinding through it. Subscribe and
+    /// throw from the subscriber to make it fatal in a test suite.
+    /// </remarks>
+    public const string ScopeDisposedOutOfOrderEventName =
+        "Waystone.Monads.ScopeDisposedOutOfOrder";
+
+    /// <summary>The name of the event written when options are read before container-registered configuration reaches the library.</summary>
+    /// <remarks>
+    /// Its payload is a <see cref="ConfigurationNotApplied" />. Only a package that
+    /// configures the library through a container arms this event, so a process
+    /// that configures itself through <see cref="MonadOptions.Configure" /> alone
+    /// never sees it.
+    /// <para>
+    /// Configuring through a container splits registration from application: the
+    /// settings are described when the container is built and installed later. A
+    /// read in between is answered from the bootstrap options, which are valid
+    /// settings rather than a broken state — so this reports a wiring omission, not
+    /// a failure, and nothing throws. Left unfixed it is silent, which is what the
+    /// event is for.
+    /// </para>
+    /// <para>
+    /// Written only while something is subscribed: with no listener attached the
+    /// signal is held rather than spent, so a subscriber attached at any point
+    /// before the configuration lands still receives it. Configuration arriving by
+    /// any route disarms the event, whether or not it was ever written.
+    /// </para>
+    /// <para>
+    /// It reports reads that go through the options the monads themselves consult,
+    /// which is what an early read in a container-configured application does. A
+    /// satellite package that reaches past that for the global snapshot is not
+    /// instrumented and will not raise this. Two threads reading at the same moment
+    /// can each write the event before either disarms it, so deduplicate in the
+    /// subscriber if that matters — the payloads are identical.
+    /// </para>
+    /// </remarks>
+    public const string ConfigurationNotAppliedEventName =
+        "Waystone.Monads.ConfigurationNotApplied";
+
+    /// <summary>Gets the event written when the library swallows an exception, ready to subscribe to.</summary>
+    /// <remarks>
+    /// Pairs <see cref="ExceptionHandledEventName" /> with the payload it carries,
+    /// so <see cref="MonadDiagnosticEvent{TPayload}.Subscribe" /> needs neither the
+    /// name nor a cast. Read that method before subscribing — the callback runs on
+    /// the throwing thread, and an exception it throws is not swallowed.
+    /// </remarks>
+    public static MonadDiagnosticEvent<ExceptionHandled> ExceptionHandledEvent
+    {
+        get;
+    } = new(ExceptionHandledEventName);
+
+    /// <summary>Gets the event written when a scope is disposed out of order, ready to subscribe to.</summary>
+    /// <remarks>
+    /// Pairs <see cref="ScopeDisposedOutOfOrderEventName" /> with the payload it
+    /// carries. Throwing from the callback is the supported way to make the misuse
+    /// fatal in a test suite, since <see cref="MonadOptionsScope.Dispose" /> will
+    /// not throw on its own.
+    /// </remarks>
+    public static MonadDiagnosticEvent<ScopeDisposedOutOfOrder>
+        ScopeDisposedOutOfOrderEvent { get; } =
+        new(ScopeDisposedOutOfOrderEventName);
+
+    /// <summary>Gets the event written when options are read before container-registered configuration reaches the library, ready to subscribe to.</summary>
+    /// <remarks>
+    /// Pairs <see cref="ConfigurationNotAppliedEventName" /> with the payload it
+    /// carries. The signal is held while nothing is subscribed rather than spent,
+    /// so a subscription made at any point before the configuration lands still
+    /// receives it — subscribing late costs nothing here, unlike the other two
+    /// events.
+    /// </remarks>
+    public static MonadDiagnosticEvent<ConfigurationNotApplied>
+        ConfigurationNotAppliedEvent { get; } =
+        new(ConfigurationNotAppliedEventName);
+
     /// <summary>The name of the counter of exceptions the library has swallowed.</summary>
     /// <remarks>
     /// A monotonic <see cref="Counter{T}" /> of <see cref="long" />, counted in
@@ -53,7 +131,7 @@ public static class MonadDiagnostics
     /// It counts only exceptions <c>Try</c> and <c>TryAsync</c> caught, so an
     /// exception the library let propagate never reaches it. A cancellation is
     /// among those unless
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> has been called, which
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> has been called, which
     /// makes it a caught exception like any other and therefore counted.
     /// </para>
     /// </remarks>
@@ -106,12 +184,57 @@ public static class MonadDiagnostics
                 new KeyValuePair<string, object?>(MonadTagKey, TagValue(monad)));
         }
 
-        if (Listener.IsEnabled(ExceptionHandledEventName))
+        RecordDiagnostic(
+            ExceptionHandledEventName,
+            (exception, callerInfo, monad),
+            static state => new ExceptionHandled(
+                state.exception,
+                state.callerInfo,
+                state.monad));
+    }
+
+    internal static void RecordScopeDisposedOutOfOrder(
+        MonadOptions? scope,
+        MonadOptions? live)
+    {
+        RecordDiagnostic(
+            ScopeDisposedOutOfOrderEventName,
+            (scope, live),
+            static state => new ScopeDisposedOutOfOrder(
+                state.scope,
+                state.live));
+    }
+
+    internal static bool RecordConfigurationNotApplied() =>
+        RecordDiagnostic(
+            ConfigurationNotAppliedEventName,
+            static () => new ConfigurationNotApplied());
+
+    private static bool RecordDiagnostic(
+        string eventName,
+        Func<object> createPayload)
+    {
+        if (!Listener.IsEnabled(eventName))
         {
-            Listener.Write(
-                ExceptionHandledEventName,
-                new ExceptionHandled(exception, callerInfo, monad));
+            return false;
         }
+
+        Listener.Write(eventName, createPayload());
+        return true;
+    }
+
+    private static bool RecordDiagnostic<TState>(
+        string eventName,
+        TState state,
+        Func<TState, object> createPayload)
+    {
+        if (!Listener.IsEnabled(eventName))
+        {
+            return false;
+        }
+
+        Listener.Write(eventName, createPayload(state));
+        return true;
     }
 
     private static string TagValue(MonadKind monad) =>

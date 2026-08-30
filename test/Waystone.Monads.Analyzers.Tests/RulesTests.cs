@@ -5,7 +5,6 @@ using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 
 public class RulesTests
@@ -146,8 +145,5 @@ public class RulesTests
     }
 
     private static IEnumerable<DiagnosticDescriptor> Descriptors =>
-        typeof(Rules)
-           .GetFields(BindingFlags.Public | BindingFlags.Static)
-           .Where(member => member.FieldType == typeof(DiagnosticDescriptor))
-           .Select(member => (DiagnosticDescriptor)member.GetValue(null)!);
+        RuleCatalog.Descriptors;
 }

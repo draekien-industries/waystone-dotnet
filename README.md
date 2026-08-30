@@ -25,6 +25,7 @@ Waystone.Net is a collection of C# class libraries published to NuGet.org. You c
 - Waystone.Monads
 - Waystone.Monads.Extensions.Logging
 - Waystone.Monads.FluentValidation
+- Waystone.Monads.Linq
 - Waystone.WideLogEvents
 - Serilog.Enrichers.Waystone.WideLogEvents
 - Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore

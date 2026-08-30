@@ -9,3 +9,12 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WSG0001 | Usage | Error | A type marked for awaited receivers must be partial
 WSG0002 | Usage | Error | A generated member name matches nothing on the receiver type
+
+## Release 7.0.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WSG0003 | Usage | Error | A public delegate parameter must not return a Task of Option or Result
+WSG0004 | Usage | Error | A public member must not return a Task of Option or Result

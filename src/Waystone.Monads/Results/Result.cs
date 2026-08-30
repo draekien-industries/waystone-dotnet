@@ -65,7 +65,7 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -143,11 +143,11 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static async Task<Result<TOk, TErr>> TryAsync<TOk, TErr>(
+    public static async ValueTask<Result<TOk, TErr>> TryAsync<TOk, TErr>(
         Func<Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError,
         [CallerMemberName] string callerMemberName = "",
@@ -238,7 +238,7 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -333,11 +333,11 @@ public static class Result
     /// this method untouched, so it is neither logged nor passed to
     /// <paramref name="onError" />, and the caller observes the cancellation it
     /// asked for. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static async Task<Result<TOk, TErr>> TryAsync<TState, TOk, TErr>(
+    public static async ValueTask<Result<TOk, TErr>> TryAsync<TState, TOk, TErr>(
         TState state,
         Func<TState, Task<TOk>> asyncFactory,
         Func<Exception, TErr> onError,
@@ -453,7 +453,7 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -507,11 +507,11 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static Task<Result<TOk, Error>> TryAsync<TOk>(
+    public static ValueTask<Result<TOk, Error>> TryAsync<TOk>(
         Func<Task<TOk>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
         [CallerLineNumber] int callerLineNumber = 0,
@@ -575,7 +575,7 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
@@ -645,11 +645,11 @@ public static class Result
     /// </para>
     /// <para>
     /// An <see cref="OperationCanceledException" /> is not caught. Call
-    /// <see cref="MonadOptions.UseCancellationAsFailure" /> to catch it like
+    /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
     /// any other exception.
     /// </para>
     /// </remarks>
-    public static Task<Result<TOk, Error>> TryAsync<TState, TOk>(
+    public static ValueTask<Result<TOk, Error>> TryAsync<TState, TOk>(
         TState state,
         Func<TState, Task<TOk>> asyncFactory,
         [CallerMemberName] string callerMemberName = "",
@@ -691,33 +691,33 @@ public static class Result
         where TOk : notnull =>
         new Err<TOk, Error>(error);
 
-    /// <summary>
-    /// Creates an <see cref="Err{TOk,TErr}" /> result containing an
-    /// <see cref="Error" /> whose code is derived from the provided enum value.
-    /// </summary>
-    /// <remarks>
-    /// The <see cref="ErrorCodeFactory" /> configured on
-    /// <see cref="MonadOptions" /> works the code out by reflection at run time,
-    /// so it cannot apply the format declared on the enum and nothing tells you
-    /// when a rename changes the code. Mark the enum with
-    /// <c>[ErrorCodeCatalog]</c> and pass
-    /// <c>{EnumName}Catalog.Errors.{Member}(message)</c> to
-    /// <see cref="Err{TOk}(Error)" />, or <c>code.ToError(message)</c> where the
-    /// member is only known at run time.
-    /// </remarks>
-    /// <param name="code">The enum value to create the error code from.</param>
-    /// <param name="message">
-    /// A descriptive error message providing more context
-    /// about the error.
-    /// </param>
-    /// <typeparam name="TOk">The ok result value's type</typeparam>
-    /// <returns>
-    /// A <see cref="Result{TOk,TErr}" /> that is always an
-    /// <see cref="Err{TOk,TErr}" />.
-    /// </returns>
-    [Obsolete(
-        "Mark the enum with [ErrorCodeCatalog] and pass {EnumName}Catalog.Errors.{Member}(message) to Result.Err, or code.ToError(message) where the member is only known at run time, instead of working the code out at run time. This member will be removed in 7.0.0.")]
-    public static Result<TOk, Error> Err<TOk>(Enum code, string message)
-        where TOk : notnull =>
-        new Err<TOk, Error>(Error.FromEnum(code, message));
+    internal static Result<TOk, TErr> NotNull<TOk, TErr>(
+        Result<TOk, TErr> result,
+        string delegateName)
+        where TOk : notnull
+        where TErr : notnull =>
+        result
+     ?? throw new ArgumentNullException(
+            delegateName,
+            $"The `{delegateName}` delegate returned a null result. Return "
+          + "`Result.Err<TOk, TErr>(error)` to express a failure; a null result "
+          + "is never valid, and the next call against it would throw a "
+          + "`NullReferenceException` far from here.");
+
+    internal static ValueTask<Result<TOk, TErr>> NotNullAsync<TOk, TErr>(
+        ValueTask<Result<TOk, TErr>> result,
+        string delegateName)
+        where TOk : notnull
+        where TErr : notnull =>
+        result.IsCompletedSuccessfully
+            ? new ValueTask<Result<TOk, TErr>>(
+                NotNull(result.Result, delegateName))
+            : AwaitNotNull(result, delegateName);
+
+    private static async ValueTask<Result<TOk, TErr>> AwaitNotNull<TOk, TErr>(
+        ValueTask<Result<TOk, TErr>> result,
+        string delegateName)
+        where TOk : notnull
+        where TErr : notnull =>
+        NotNull(await result.ConfigureAwait(false), delegateName);
 }

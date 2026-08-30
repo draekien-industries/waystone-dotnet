@@ -1,11 +1,12 @@
 ﻿namespace Waystone.Monads.Options.Extensions
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
     using Results;
     using Shouldly;
     using Xunit;
 
-    [TestSubject(typeof(OptionOfTExtensions))]
+    [TestSubject(typeof(OptionExtensions))]
     public sealed class OptionOfTExtensionsTests
     {
         #region unzip
@@ -127,6 +128,55 @@
             Result<Option<int>, int> result = option.Transpose();
 
             result.ShouldBe(Result.Ok<Option<int>, int>(Option.None<int>()));
+        }
+
+        [Fact]
+        public async Task
+            GivenSomeOfOkTask_WhenTransposeAsync_ThenReturnOkOfSome()
+        {
+            Option<Result<int, int>> option =
+                Option.Some(Result.Ok<int, int>(1));
+
+            Result<Option<int>, int> result =
+                await Task.FromResult(option).TransposeAsync();
+
+            result.ShouldBe(Result.Ok<Option<int>, int>(Option.Some(1)));
+        }
+
+        [Fact]
+        public async Task GivenSomeOfErrTask_WhenTransposeAsync_ThenReturnErr()
+        {
+            Option<Result<int, int>> option =
+                Option.Some(Result.Err<int, int>(1));
+
+            Result<Option<int>, int> result =
+                await Task.FromResult(option).TransposeAsync();
+
+            result.ShouldBe(Result.Err<Option<int>, int>(1));
+        }
+
+        [Fact]
+        public async Task
+            GivenNoneValueTask_WhenTransposeAsync_ThenReturnOkOfNone()
+        {
+            Result<Option<int>, int> result =
+                await new ValueTask<Option<Result<int, int>>>(
+                        Option.None<Result<int, int>>())
+                   .TransposeAsync();
+
+            result.ShouldBe(Result.Ok<Option<int>, int>(Option.None<int>()));
+        }
+
+        [Fact]
+        public async Task
+            GivenSomeOfOkValueTask_WhenTransposeAsync_ThenReturnOkOfSome()
+        {
+            Result<Option<int>, int> result =
+                await new ValueTask<Option<Result<int, int>>>(
+                        Option.Some(Result.Ok<int, int>(1)))
+                   .TransposeAsync();
+
+            result.ShouldBe(Result.Ok<Option<int>, int>(Option.Some(1)));
         }
 
         #endregion transpose

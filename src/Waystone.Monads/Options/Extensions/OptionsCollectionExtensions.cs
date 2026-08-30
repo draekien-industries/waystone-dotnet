@@ -159,7 +159,7 @@ public static class OptionsCollectionExtensions
     /// when every element is a <see cref="Some{T}" /> — including for an empty
     /// stream. Otherwise a <see cref="None{T}" />.
     /// </returns>
-    public static async Task<Option<IReadOnlyList<T>>> CollectAsync<T>(
+    public static async ValueTask<Option<IReadOnlyList<T>>> CollectAsync<T>(
         this IAsyncEnumerable<Option<T>> options,
         CancellationToken cancellationToken = default) where T : notnull
     {
@@ -217,47 +217,47 @@ public static class OptionsCollectionExtensions
     /// satisfies a predicate, or an already-computed fallback.
     /// </summary>
     /// <remarks>
-    /// <paramref name="default" /> is evaluated at the call site whether or not a
+    /// <paramref name="defaultValue" /> is evaluated at the call site whether or not a
     /// match is found; use <see cref="FirstOrElse{T}" /> when producing it is
     /// expensive. Enumeration stops at the first match.
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
-    /// <param name="default">The value to return when nothing matches.</param>
+    /// <param name="defaultValue">The value to return when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The first matching value, or <paramref name="default" /> when nothing
+    /// The first matching value, or <paramref name="defaultValue" /> when nothing
     /// matches or <paramref name="options" /> is empty.
     /// </returns>
     public static T FirstOr<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate,
-        T @default) where T : notnull =>
-        options.FirstOrNone(predicate).UnwrapOr(@default);
+        T defaultValue) where T : notnull =>
+        options.FirstOrNone(predicate).UnwrapOr(defaultValue);
 
     /// <summary>
     /// Returns the value of the first <see cref="Some{T}" /> in a sequence that
     /// satisfies a predicate, or a fallback computed on demand.
     /// </summary>
     /// <remarks>
-    /// <paramref name="else" /> runs only when nothing matches, which is the
+    /// <paramref name="valueFactory" /> runs only when nothing matches, which is the
     /// reason to pick this over <see cref="FirstOr{T}" />. Enumeration stops at
     /// the first match.
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
-    /// <param name="else">The delegate that produces the value when nothing matches.</param>
+    /// <param name="valueFactory">The delegate that produces the value when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
     /// The first matching value, or the value produced by
-    /// <paramref name="else" /> when nothing matches or
+    /// <paramref name="valueFactory" /> when nothing matches or
     /// <paramref name="options" /> is empty.
     /// </returns>
     public static T FirstOrElse<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate,
-        Func<T> @else) where T : notnull =>
-        options.FirstOrNone(predicate).UnwrapOrElse(@else);
+        Func<T> valueFactory) where T : notnull =>
+        options.FirstOrNone(predicate).UnwrapOrElse(valueFactory);
 
     /// <summary>
     /// Returns the last <see cref="Some{T}" /> in a sequence whose value
@@ -289,47 +289,47 @@ public static class OptionsCollectionExtensions
     /// satisfies a predicate, or an already-computed fallback.
     /// </summary>
     /// <remarks>
-    /// <paramref name="default" /> is evaluated at the call site whether or not a
+    /// <paramref name="defaultValue" /> is evaluated at the call site whether or not a
     /// match is found; use <see cref="LastOrElse{T}" /> when producing it is
     /// expensive. The whole of <paramref name="options" /> is enumerated, so do
     /// not call this on an unbounded sequence.
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
-    /// <param name="default">The value to return when nothing matches.</param>
+    /// <param name="defaultValue">The value to return when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
-    /// The last matching value, or <paramref name="default" /> when nothing
+    /// The last matching value, or <paramref name="defaultValue" /> when nothing
     /// matches or <paramref name="options" /> is empty.
     /// </returns>
     public static T LastOr<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate,
-        T @default) where T : notnull =>
-        options.LastOrNone(predicate).UnwrapOr(@default);
+        T defaultValue) where T : notnull =>
+        options.LastOrNone(predicate).UnwrapOr(defaultValue);
 
     /// <summary>
     /// Returns the value of the last <see cref="Some{T}" /> in a sequence that
     /// satisfies a predicate, or a fallback computed on demand.
     /// </summary>
     /// <remarks>
-    /// <paramref name="else" /> runs only when nothing matches, which is the
+    /// <paramref name="valueFactory" /> runs only when nothing matches, which is the
     /// reason to pick this over <see cref="LastOr{T}" />. The whole of
     /// <paramref name="options" /> is enumerated, so do not call this on an
     /// unbounded sequence.
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
-    /// <param name="else">The delegate that produces the value when nothing matches.</param>
+    /// <param name="valueFactory">The delegate that produces the value when nothing matches.</param>
     /// <typeparam name="T">The option value's type</typeparam>
     /// <returns>
     /// The last matching value, or the value produced by
-    /// <paramref name="else" /> when nothing matches or
+    /// <paramref name="valueFactory" /> when nothing matches or
     /// <paramref name="options" /> is empty.
     /// </returns>
     public static T LastOrElse<T>(
         this IEnumerable<Option<T>> options,
         Func<T, bool> predicate,
-        Func<T> @else) where T : notnull =>
-        options.LastOrNone(predicate).UnwrapOrElse(@else);
+        Func<T> valueFactory) where T : notnull =>
+        options.LastOrNone(predicate).UnwrapOrElse(valueFactory);
 }

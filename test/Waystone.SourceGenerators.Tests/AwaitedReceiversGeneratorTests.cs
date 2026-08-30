@@ -216,6 +216,38 @@ public sealed class AwaitedReceiversGeneratorTests
     }
 
     [Fact]
+    public void KeepsTwoBlocksApartWhenTheyShareAReceiverButNotItsConstraints()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("Get")]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : struct
+                {
+                    /// <summary>Reads the value or null.</summary>
+                    public T? OrNull() => box.Get();
+                }
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        const string taskReceiver =
+            "    extension<T>(global::System.Threading.Tasks.Task<global::Waystone.Monads.Options.Extensions.Box<T>> boxTask)\n";
+
+        run.Source.ShouldContain(taskReceiver + "        where T : struct\n");
+        run.Source.ShouldContain(taskReceiver + "        where T : notnull\n");
+
+        run.Source.ShouldContain(
+            "public async global::System.Threading.Tasks.ValueTask<T?> OrNullAsync()");
+        run.Source.ShouldContain(
+            "public async global::System.Threading.Tasks.ValueTask<T> GetAsync()");
+    }
+
+    [Fact]
     public void LeavesAnExtensionBlockMembersOwnTypeArgumentsToInference()
     {
         GeneratorRun run = Verify.Run(

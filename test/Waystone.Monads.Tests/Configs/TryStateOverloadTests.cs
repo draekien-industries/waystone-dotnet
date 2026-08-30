@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions.Logging.Configs;
 using Fixtures;
 using JetBrains.Annotations;
 using NSubstitute;
@@ -10,7 +11,6 @@ using Options;
 using Results;
 using Results.Errors;
 using Shouldly;
-using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(Option))]
@@ -101,6 +101,22 @@ public sealed class TryStateOverloadTests
     }
 
     [Fact]
+    public async Task GivenState_WhenOptionTryAsyncReturnsNull_ThenReturnNone()
+    {
+        using (LoggerScope())
+        {
+            Option<string> option = await Option.TryAsync(
+                "x",
+                static _ => Task.FromResult(default(string)!));
+
+            option.ShouldBe(Option.None<string>());
+
+            _logger.DidNotReceive()
+               .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
+        }
+    }
+
+    [Fact]
     public void GivenState_WhenResultTrySucceeds_ThenReturnOk()
     {
         var onError = Substitute.For<Func<Exception, string>>();
@@ -177,7 +193,7 @@ public sealed class TryStateOverloadTests
         {
             Result<int, Error> result = Result.Try(21, Throw);
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
             result.UnwrapErr().Message.ShouldBe("21");
         }
     }
@@ -199,7 +215,7 @@ public sealed class TryStateOverloadTests
         {
             Result<int, Error> result = await Result.TryAsync(21, ThrowAsync);
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
             result.UnwrapErr().Message.ShouldBe("21");
         }
     }

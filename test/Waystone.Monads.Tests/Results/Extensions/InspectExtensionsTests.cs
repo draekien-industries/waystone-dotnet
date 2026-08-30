@@ -1,13 +1,12 @@
 namespace Waystone.Monads.Results.Extensions;
 
 using JetBrains.Annotations;
-using Monads.Extensions;
 using NSubstitute;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(InspectExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class InspectExtensionsTests
 {
     [Fact]

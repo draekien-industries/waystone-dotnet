@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Waystone.Monads.SourceGenerators.ErrorCodes;
+using SourceGenerators.ErrorCodes;
 
 /// <summary>
 /// The error codes an <c>[ErrorCodeCatalog]</c> enum generates, resolved the way the
@@ -17,7 +17,7 @@ using Waystone.Monads.SourceGenerators.ErrorCodes;
 /// assembly as a linked source file, so the three cannot disagree about what an enum
 /// produces.
 /// </remarks>
-public static class ErrorCodeCatalogs
+internal static class ErrorCodeCatalogs
 {
     /// <summary>
     /// One entry per member of <paramref name="type" /> when it is an attributed enum,

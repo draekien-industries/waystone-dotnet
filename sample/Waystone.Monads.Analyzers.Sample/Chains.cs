@@ -107,26 +107,45 @@ internal class Chains
         IEnumerable<Order> orders) =>
         orders.Select(Bill).Partition();
 
-    private static Task<Result<Order, Error>> FetchAsync(int id) =>
-        Task.FromResult(
+    private static ValueTask<Result<Order, Error>> FetchAsync(int id) =>
+        new ValueTask<Result<Order, Error>>(
             Result.Ok<Order>(new Order(id, "WIDGET-1", 2, "3000")));
 
-    private static Task<Result<Quote, Error>> ReserveAsync(Order order) =>
-        Task.FromResult(Result.Ok<Quote>(new Quote(order, 19.98m)));
+    private static ValueTask<Result<Quote, Error>> ReserveAsync(Order order) =>
+        new ValueTask<Result<Quote, Error>>(
+            Result.Ok<Quote>(new Quote(order, 19.98m)));
+
+    private static Result<Quote, Error> Confirmed(Quote quote) =>
+        quote.Amount > 0
+            ? Result.Ok<Quote>(quote)
+            : Result.Err<Quote>(
+                OrderErrorCodeCatalog.Errors.OutOfStock(
+                    $"order {quote.Order.Id} priced at nothing"));
 
     /// <summary>
-    /// An async step is <c>T → Task&lt;Result&lt;U, Error&gt;&gt;</c>, which is
-    /// what an I/O method returns anyway, so <c>AndThenAsync</c> takes
-    /// <see cref="ReserveAsync" /> by name — and the synchronous
-    /// <see cref="Validated" /> drops into the same chain untouched, because each
-    /// <c>*Async</c> member accepts a synchronous delegate too.
+    /// An async chain that is also a step. Its signature is
+    /// <c>Order → ValueTask&lt;Result&lt;Quote, Error&gt;&gt;</c>, which is what
+    /// every <c>*Async</c> step parameter takes, so <see cref="BillAsync" /> hands
+    /// it over as a method group — exactly as the synchronous
+    /// <see cref="Validated" /> is handed to <c>AndThen</c>. Nothing downstream
+    /// knows it is consuming two links rather than one.
+    /// </summary>
+    private static ValueTask<Result<Quote, Error>> QuotedAsync(Order order) =>
+        ReserveAsync(order).AndThenAsync(Confirmed);
+
+    /// <summary>
+    /// An async step is <c>T → ValueTask&lt;Result&lt;U, Error&gt;&gt;</c>, so
+    /// <c>AndThenAsync</c> takes <see cref="QuotedAsync" /> by name — and the
+    /// synchronous <see cref="Validated" /> drops into the same chain untouched,
+    /// because each <c>*Async</c> member accepts a synchronous delegate too.
     ///
-    /// Async reuse stops here. This hands back a
-    /// <see cref="ValueTask{TResult}" />, which no <c>*Async</c> member accepts as
-    /// a delegate result, so <c>BillAsync</c> cannot itself become a step. Reuse
-    /// the async steps, not the async chain.
+    /// This file is where async reuse used to stop. Up to 6.x every step parameter
+    /// took a <c>Task</c>-returning delegate while every member returned a
+    /// <see cref="ValueTask{TResult}" />, so a chain could never be a step and the
+    /// advice was to reuse async steps rather than async chains.
+    /// <see cref="QuotedAsync" /> is the proof that it no longer holds.
     ///
-    /// The chain also trips <c>CA2012</c>, silently at that rule's default
+    /// The chain still trips <c>CA2012</c>, silently at that rule's default
     /// severity and in build output for a project that raises it. It is a false
     /// positive: the rule does not count a reduced extension receiver as an
     /// argument, but each member awaits its receiver exactly once, so the single
@@ -137,6 +156,6 @@ internal class Chains
     internal ValueTask<Result<Invoice, Error>> BillAsync(int id) =>
         FetchAsync(id)
            .AndThenAsync(Validated)
-           .AndThenAsync(ReserveAsync)
+           .AndThenAsync(QuotedAsync)
            .MapAsync(Render);
 }

@@ -1,8 +1,8 @@
 namespace Waystone.Monads.Options.Extensions;
 
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Shouldly;
-using System.Threading.Tasks;
 using Xunit;
 
 /// <summary>
@@ -13,8 +13,8 @@ using Xunit;
 /// identically named overloads, so a test written against <c>Task</c> compiles and
 /// passes while leaving these unrun.
 /// </summary>
-[TestSubject(typeof(MapExtensions))]
-[TestSubject(typeof(MapOrExtensions))]
+[TestSubject(typeof(OptionExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class ValueTaskReceiverSyncMapTests
 {
     [Fact]
@@ -24,8 +24,8 @@ public sealed class ValueTaskReceiverSyncMapTests
 
         Option<string> result = await some.MapAsync(value => $"n{value}");
 
-        result.IsSome.ShouldBeTrue();
-        result.Unwrap().ShouldBe("n1");
+        result.ShouldBeSome();
+        result.ShouldBeSomeValue("n1");
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public sealed class ValueTaskReceiverSyncMapTests
                 return $"n{value}";
             });
 
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
         invoked.ShouldBeFalse();
     }
 

@@ -2,7 +2,6 @@ namespace Waystone.Monads.Benchmarks;
 
 using BenchmarkDotNet.Attributes;
 using Options;
-using Options.Extensions;
 using System.Threading.Tasks;
 
 [MemoryDiagnoser]

@@ -1,0 +1,10 @@
+#nullable enable
+Waystone.Monads.Linq.OptionQueryExtensions
+Waystone.Monads.Linq.ResultQueryExtensions
+static Waystone.Monads.Linq.OptionQueryExtensions.Select<T, TOut>(this Waystone.Monads.Options.Option<T>! option, System.Func<T, TOut>! selector) -> Waystone.Monads.Options.Option<TOut>!
+static Waystone.Monads.Linq.OptionQueryExtensions.SelectMany<T, TCollection, TResult>(this Waystone.Monads.Options.Option<T>! option, System.Func<T, Waystone.Monads.Options.Option<TCollection>!>! optionFactory, System.Func<T, TCollection, TResult>! resultSelector) -> Waystone.Monads.Options.Option<TResult>!
+static Waystone.Monads.Linq.OptionQueryExtensions.SelectMany<T, TOut>(this Waystone.Monads.Options.Option<T>! option, System.Func<T, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
+static Waystone.Monads.Linq.OptionQueryExtensions.Where<T>(this Waystone.Monads.Options.Option<T>! option, System.Func<T, bool>! predicate) -> Waystone.Monads.Options.Option<T>!
+static Waystone.Monads.Linq.ResultQueryExtensions.Select<TOk, TErr, TOut>(this Waystone.Monads.Results.Result<TOk, TErr>! result, System.Func<TOk, TOut>! selector) -> Waystone.Monads.Results.Result<TOut, TErr>!
+static Waystone.Monads.Linq.ResultQueryExtensions.SelectMany<TOk, TErr, TCollection, TResult>(this Waystone.Monads.Results.Result<TOk, TErr>! result, System.Func<TOk, Waystone.Monads.Results.Result<TCollection, TErr>!>! resultFactory, System.Func<TOk, TCollection, TResult>! resultSelector) -> Waystone.Monads.Results.Result<TResult, TErr>!
+static Waystone.Monads.Linq.ResultQueryExtensions.SelectMany<TOk, TErr, TOut>(this Waystone.Monads.Results.Result<TOk, TErr>! result, System.Func<TOk, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!

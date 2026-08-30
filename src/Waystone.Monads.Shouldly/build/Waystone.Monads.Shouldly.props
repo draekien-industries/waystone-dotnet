@@ -1,0 +1,35 @@
+<Project>
+
+    <!--
+        Applies one of the packed severity presets to the WMS assertion rules. Reads
+        the same WaystoneMonadsRuleset property the core package reads, so one line in
+        a consuming project covers every Waystone package they installed:
+
+            <PropertyGroup>
+                <WaystoneMonadsRuleset>strict</WaystoneMonadsRuleset>
+            </PropertyGroup>
+
+        Sharing the property rather than taking one of its own is the point. A
+        consumer setting a posture is setting it for the analyzer rules they get from
+        us, not per package, and a second property would mean discovering this one
+        separately from the core one.
+
+        Both files here are global analyzer configs and sit in build/ for the reasons
+        the core package's props file records.
+    -->
+
+    <PropertyGroup>
+        <WaystoneMonadsRuleset Condition="'$(WaystoneMonadsRuleset)' == ''">none</WaystoneMonadsRuleset>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(WaystoneMonadsRuleset)' == 'recommended' Or '$(WaystoneMonadsRuleset)' == 'strict'">
+        <EditorConfigFiles Include="$(MSBuildThisFileDirectory)$(WaystoneMonadsRuleset).globalconfig"/>
+    </ItemGroup>
+
+    <!--
+        No validation target here. The core package's props already errors on an
+        unrecognised value, and this package depends on it, so a second error on the
+        same property would report the typo twice.
+    -->
+
+</Project>

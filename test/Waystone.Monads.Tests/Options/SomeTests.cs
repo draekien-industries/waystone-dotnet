@@ -1,10 +1,9 @@
-namespace Waystone.Monads.Options;
+﻿namespace Waystone.Monads.Options;
 
 using System;
 using System.Threading.Tasks;
 using Extensions;
 using JetBrains.Annotations;
-using Monads.Extensions;
 using NSubstitute;
 using Results;
 using Shouldly;
@@ -30,18 +29,18 @@ public sealed class SomeTests
     public void GivenTheDefaultOfAValueType_WhenCreatingSome_ThenReturnSome()
     {
         Option.Some(0).ShouldBe(Option.Some(0));
-        Option.Some(0).Unwrap().ShouldBe(0);
+        Option.Some(0).ShouldBeSomeValue(0);
         Option.Some(false).Unwrap().ShouldBeFalse();
-        Option.Some('\0').Unwrap().ShouldBe('\0');
-        Option.Some(default(Guid)).Unwrap().ShouldBe(Guid.Empty);
-        Option.Some(TimeSpan.Zero).Unwrap().ShouldBe(TimeSpan.Zero);
-        Option.Some(DateTime.MinValue).Unwrap().ShouldBe(DateTime.MinValue);
+        Option.Some('\0').ShouldBeSomeValue('\0');
+        Option.Some(default(Guid)).ShouldBeSomeValue(Guid.Empty);
+        Option.Some(TimeSpan.Zero).ShouldBeSomeValue(TimeSpan.Zero);
+        Option.Some(DateTime.MinValue).ShouldBeSomeValue(DateTime.MinValue);
     }
 
     [Fact]
     public void GivenTheDefaultOfAValueType_WhenCreatingSome_ThenItIsNotNone()
     {
-        Option.Some(0).IsSome.ShouldBeTrue();
+        Option.Some(0).ShouldBeSome();
         Option.Some(0).ShouldNotBe(Option.None<int>());
     }
 
@@ -50,10 +49,9 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
 
-        some.IsSome.ShouldBeTrue();
-        some.IsNone.ShouldBeFalse();
+        some.ShouldBeSome();
 
-        some.Unwrap().ShouldBe(1);
+        some.ShouldBeSomeValue(1);
         some.UnwrapOr(10).ShouldBe(1);
         some.UnwrapOrDefault().ShouldBe(1);
         some.UnwrapOrElse(() => 10).ShouldBe(1);
@@ -157,7 +155,7 @@ public sealed class SomeTests
 
         Option<int> result = some.Map(x => x + 1);
 
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
     }
 
     [Fact]
@@ -168,6 +166,17 @@ public sealed class SomeTests
         Option<int> result = some.Map(x => x - x);
 
         result.ShouldBeSomeValue(0);
+    }
+
+    [Fact]
+    public void WhenMapProducesNull_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Option<string>> mapToNull = () => some.Map(_ => default(string)!);
+
+        mapToNull.ShouldThrow<ArgumentNullException>()
+                 .ParamName.ShouldBe("map");
     }
 
     [Fact]
@@ -197,7 +206,19 @@ public sealed class SomeTests
 
         Option<int> result = some.Map(10, static (x, state) => x + state);
 
-        result.Unwrap().ShouldBe(11);
+        result.ShouldBeSomeValue(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapProducesNull_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Option<string>> mapToNull =
+            () => some.Map(10, static (_, _) => default(string)!);
+
+        mapToNull.ShouldThrow<ArgumentNullException>()
+                 .ParamName.ShouldBe("map");
     }
 
     [Fact]
@@ -411,10 +432,12 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         Option<int> resultOr =
-            await some.OrElseAsync(() => Task.FromResult(Option.Some(2)));
+            await some.OrElseAsync(
+                () => new ValueTask<Option<int>>(Option.Some(2)));
 
         Option<int> resultOrElse =
-            await some.OrElseAsync(() => Task.FromResult(Option.Some(2)));
+            await some.OrElseAsync(
+                () => new ValueTask<Option<int>>(Option.Some(2)));
 
         resultOr.ShouldBe(some);
         resultOrElse.ShouldBe(some);
@@ -456,7 +479,18 @@ public sealed class SomeTests
 
         Option<int> result = await some.MapAsync(x => Task.FromResult(x + 1));
 
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public async Task WhenMapAsyncProducesNull_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Task> mapToNull = async () =>
+            await some.MapAsync(_ => Task.FromResult(default(string)!));
+
+        await mapToNull.ShouldThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
@@ -551,7 +585,7 @@ public sealed class SomeTests
     {
         Option<int> some = Option.Some(1);
         Option<int> result = some.AndThen(x => Option.Some(x + 1));
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
     }
 
     [Fact]
@@ -563,7 +597,31 @@ public sealed class SomeTests
             10,
             static (x, state) => Option.Some(x + state));
 
-        result.Unwrap().ShouldBe(11);
+        result.ShouldBeSomeValue(11);
+    }
+
+    [Fact]
+    public void WhenAndThenProducesANullOption_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Option<int>> andThenNull =
+            () => some.AndThen(_ => default(Option<int>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public void GivenState_WhenAndThenProducesANullOption_ThenThrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Option<int>> andThenNull = () =>
+            some.AndThen(10, static (_, _) => default(Option<int>)!);
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("optionFactory");
     }
 
     [Fact]
@@ -572,9 +630,84 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         Option<int> result = await some.AndThenAsync(x =>
-            Task.FromResult(Option.Some(x + 1)));
+            new ValueTask<Option<int>>(Option.Some(x + 1)));
 
-        result.Unwrap().ShouldBe(2);
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public async Task GivenAPendingFactory_WhenAndThenAsync_ThenReturnMappedOption()
+    {
+        Option<int> some = Option.Some(1);
+
+        Option<int> result = await some.AndThenAsync(async x =>
+        {
+            await Task.Yield();
+
+            return Option.Some(x + 1);
+        });
+
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public void
+        GivenACompletedFactory_WhenAndThenAsyncProducesANullOption_ThenThrowFromTheCall()
+    {
+        Option<int> some = Option.Some(1);
+
+        Action andThenNull = () => _ = some.AndThenAsync(
+            _ => new ValueTask<Option<int>>(default(Option<int>)!));
+
+        andThenNull.ShouldThrow<ArgumentNullException>()
+                   .ParamName.ShouldBe("optionFactory");
+    }
+
+    /// <summary>
+    /// The gate holds the factory's task incomplete until after the call returns,
+    /// which is what puts the guard on its awaiting path. <c>await Task.Yield()</c>
+    /// does not: on an idle thread pool it can resume before the guard reads
+    /// <c>IsCompletedSuccessfully</c>, and the throw then lands at the call
+    /// instead.
+    /// </summary>
+    [Fact]
+    public async Task
+        GivenAPendingFactory_WhenAndThenAsyncProducesANullOption_ThenFaultTheReturnedTask()
+    {
+        Option<int> some = Option.Some(1);
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Option<int>> pending = some.AndThenAsync(
+            async ValueTask<Option<int>> (_) =>
+            {
+                await gate.Task;
+
+                return default(Option<int>)!;
+            });
+
+        gate.SetResult(true);
+
+        Func<Task> consume = async () => await pending;
+
+        (await consume.ShouldThrowAsync<ArgumentNullException>())
+           .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public async Task GivenAFaultingFactory_WhenAndThenAsync_ThenRethrow()
+    {
+        Option<int> some = Option.Some(1);
+
+        Func<Task> andThenThrows = async () => await some.AndThenAsync(
+            async ValueTask<Option<int>> (_) =>
+            {
+                await Task.Yield();
+
+                throw new InvalidOperationException("boom");
+            });
+
+        (await andThenThrows.ShouldThrowAsync<InvalidOperationException>())
+           .Message.ShouldBe("boom");
     }
 
     [Fact]
@@ -660,6 +793,19 @@ public sealed class SomeTests
             (x, y) => Task.FromResult(x + y));
 
         result.ShouldBeSomeValue(3);
+    }
+
+    [Fact]
+    public async Task GivenOtherIsSome_WhenZipWithAsyncProducesNull_ThenThrow()
+    {
+        Option<int> self = Option.Some(1);
+        Option<int> other = Option.Some(2);
+
+        Func<Task> zipToNull = async () => await self.ZipWithAsync(
+            other,
+            (_, _) => Task.FromResult(default(string)!));
+
+        await zipToNull.ShouldThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
@@ -750,6 +896,18 @@ public sealed class SomeTests
         Option<int> some = Option.Some(1);
 
         some.Reduce(Option.Some(-1), (x, y) => x + y).ShouldBeSomeValue(0);
+    }
+
+    [Fact]
+    public void WhenReduceProducesNull_ThenThrow()
+    {
+        Option<string> some = Option.Some("a");
+
+        Func<Option<string>> reduceToNull = () =>
+            some.Reduce(Option.Some("b"), (_, _) => default(string)!);
+
+        reduceToNull.ShouldThrow<ArgumentNullException>()
+                    .ParamName.ShouldBe("reduce");
     }
 
     [Fact]

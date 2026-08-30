@@ -222,8 +222,8 @@ public sealed class StateOverloadResolutionTests
         Result.Try(Ten, OnError).ShouldBe(Result.Ok<int, int>(10));
         Result.Try(10, Identity, OnError).ShouldBe(Result.Ok<int, int>(10));
 
-        Result.Try(Ten).IsOk.ShouldBeTrue();
-        Result.Try(10, Identity).IsOk.ShouldBeTrue();
+        Result.Try(Ten).ShouldBeOk();
+        Result.Try(10, Identity).ShouldBeOk();
     }
 
     [Fact]
@@ -238,7 +238,7 @@ public sealed class StateOverloadResolutionTests
         (await Result.TryAsync(10, IdentityAsync, OnError))
            .ShouldBe(Result.Ok<int, int>(10));
 
-        (await Result.TryAsync(TenAsync)).IsOk.ShouldBeTrue();
-        (await Result.TryAsync(10, IdentityAsync)).IsOk.ShouldBeTrue();
+        await Result.TryAsync(TenAsync).ShouldBeOkAsync();
+        await Result.TryAsync(10, IdentityAsync).ShouldBeOkAsync();
     }
 }

@@ -1,37 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Nullable>enable</Nullable>
-        <LangVersion>latestMajor</LangVersion>
-        <ImplicitUsings>disable</ImplicitUsings>
-        <IsPackable>false</IsPackable>
         <RootNamespace>Waystone.Monads</RootNamespace>
-        <OutputType>Exe</OutputType>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OS)' == 'Unix'">
-        <TargetFrameworks>net8.0;net9.0;net10.0;</TargetFrameworks>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-        <TargetFrameworks>net8.0;net9.0;net10.0;net472;net481;</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.DependencyInjection\Waystone.Monads.Extensions.DependencyInjection.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.Hosting\Waystone.Monads.Extensions.Hosting.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Extensions.Logging\Waystone.Monads.Extensions.Logging.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.FluentValidation\Waystone.Monads.FluentValidation.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Linq\Waystone.Monads.Linq.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.NewtonsoftJson\Waystone.Monads.NewtonsoftJson.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly\Waystone.Monads.Shouldly.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Reqnroll.xunit.v3"/>
         <PackageReference Include="Shouldly"/>
         <PackageReference Include="coverlet.collector"/>
         <PackageReference Include="JetBrains.Annotations"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
         <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="System.Net.Http"/>
-        <PackageReference Include="System.Text.RegularExpressions"/>
         <PackageReference Include="xunit.runner.visualstudio">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -44,5 +37,7 @@
         </PackageReference>
         <PackageReference Include="xunit.v3"/>
     </ItemGroup>
+
+    <Import Project="..\..\src\Waystone.Monads.Shouldly.Analyzers\Waystone.Monads.Shouldly.Analyzers.props"/>
 
 </Project>

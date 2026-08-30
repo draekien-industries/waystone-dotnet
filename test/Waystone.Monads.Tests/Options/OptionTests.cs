@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Configs;
 using Fixtures;
 using JetBrains.Annotations;
+using Monads.Extensions.Logging.Configs;
 using NSubstitute;
 using Shouldly;
-using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(Option))]
@@ -27,7 +27,7 @@ public sealed class OptionTests
     [Fact]
     public async Task GivenAsyncFactory_WhenBinding_ReturnSome()
     {
-        Task<Option<int>> optionTask =
+        ValueTask<Option<int>> optionTask =
             Option.TryAsync(() => Task.FromResult(42));
 
         Option<int> option = await optionTask;
@@ -41,7 +41,7 @@ public sealed class OptionTests
     {
         using (LoggerScope())
         {
-            Task<Option<int>> optionTask = Option.TryAsync<int>(async () =>
+            ValueTask<Option<int>> optionTask = Option.TryAsync<int>(async () =>
             {
                 await Task.Delay(10, TestContext.Current.CancellationToken);
 
@@ -81,21 +81,6 @@ public sealed class OptionTests
 
             _callback.DidNotReceive()
                .Invoke(Arg.Any<Exception>(), Arg.Any<CallerInfo>());
-        }
-    }
-
-    [Fact]
-    public void GivenAnyFactory_WhenBinding_ThenAgreeWithTheConversion()
-    {
-        using (LoggerScope())
-        {
-            Option<int> zero = 0;
-            Option<int> one = 1;
-            Option<Guid> empty = default(Guid);
-
-            Option.Try(() => 0).ShouldBe(zero);
-            Option.Try(() => 1).ShouldBe(one);
-            Option.Try(() => default(Guid)).ShouldBe(empty);
         }
     }
 
@@ -146,35 +131,11 @@ public sealed class OptionTests
     }
 
     [Fact]
-    public void WhenImplicitlyCreatingOption_ThenReturnExpected()
-    {
-        Option<int> option1 = 0;
-        Option<int> option2 = 1;
-        Option<string> option3 = string.Empty;
-#pragma warning disable CS8604 // Possible null reference argument.
-
-        // ReSharper disable once PreferConcreteValueOverDefault
-        Option<string> option4 = default(string);
-
-        // ReSharper disable once PreferConcreteValueOverDefault
-        Option<Guid> option5 = default(Guid);
-#pragma warning restore CS8604 // Possible null reference argument.
-        Option<Guid> option6 = Guid.NewGuid();
-
-        option1.IsSome.ShouldBeTrue();
-        option2.IsSome.ShouldBeTrue();
-        option3.IsSome.ShouldBeTrue();
-        option4.IsSome.ShouldBeFalse();
-        option5.IsSome.ShouldBeTrue();
-        option6.IsSome.ShouldBeTrue();
-    }
-
-    [Fact]
     public void GivenNullReferenceType_WhenCreatingOption_ThenReturnNone()
     {
         string? value = null;
         Option<string> result = Option.FromNullable(value);
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
         result.ShouldBeOfType<None<string>>();
     }
 
@@ -183,7 +144,7 @@ public sealed class OptionTests
     {
         int? value = null;
         Option<int> result = Option.FromNullable(value);
-        result.IsNone.ShouldBeTrue();
+        result.ShouldBeNone();
         result.ShouldBeOfType<None<int>>();
     }
 
@@ -192,9 +153,9 @@ public sealed class OptionTests
     {
         var value = "test";
         Option<string> result = Option.FromNullable(value);
-        result.IsSome.ShouldBeTrue();
+        result.ShouldBeSome();
         result.ShouldBeOfType<Some<string>>();
-        result.Unwrap().ShouldBe("test");
+        result.ShouldBeSomeValue("test");
     }
 
     [Fact]
@@ -202,9 +163,9 @@ public sealed class OptionTests
     {
         int? value = 42;
         Option<int> result = Option.FromNullable(value);
-        result.IsSome.ShouldBeTrue();
+        result.ShouldBeSome();
         result.ShouldBeOfType<Some<int>>();
-        result.Unwrap().ShouldBe(42);
+        result.ShouldBeSomeValue(42);
     }
 
     [Fact]
@@ -212,9 +173,9 @@ public sealed class OptionTests
     {
         int? zero = 0;
         Option<int> result = Option.FromNullable(zero);
-        result.IsSome.ShouldBeTrue();
+        result.ShouldBeSome();
         result.ShouldBeOfType<Some<int>>();
-        result.Unwrap().ShouldBe(0);
+        result.ShouldBeSomeValue(0);
 
         Guid? empty = Guid.Empty;
         Option.FromNullable(empty).ShouldBe(Option.Some(Guid.Empty));

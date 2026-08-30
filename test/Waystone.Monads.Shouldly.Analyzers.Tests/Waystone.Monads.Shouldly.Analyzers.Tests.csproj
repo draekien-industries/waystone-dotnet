@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>Waystone.Monads.Shouldly.Analyzers</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly\Waystone.Monads.Shouldly.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly.Analyzers\Waystone.Monads.Shouldly.Analyzers.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly.Analyzers.CodeFixes\Waystone.Monads.Shouldly.Analyzers.CodeFixes.csproj"/>
+    </ItemGroup>
+
+    <!--
+        The shipped preset files, copied so PresetTests reads what the nupkg carries
+        rather than a second copy that could drift. Named *.globalconfig rather than
+        .globalconfig, so the SDK does not glob them into this project's own
+        EditorConfigFiles and apply them to the tests.
+    -->
+    <ItemGroup>
+        <Content Include="..\..\src\Waystone.Monads.Shouldly\build\*.globalconfig"
+                 Link="presets\%(Filename)%(Extension)"
+                 CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="5.6.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="5.6.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="coverlet.collector">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Shouldly"/>
+        <PackageReference Include="xunit.v3"/>
+    </ItemGroup>
+
+</Project>

@@ -16,9 +16,10 @@ working in — each is loaded when you touch files under it.
 | --- | --- |
 | [src/Waystone.Monads](src/Waystone.Monads/AGENTS.md) | The public API baseline, naming and breakage rules, the closed hierarchies |
 | [src/Waystone.Monads.Analyzers](src/Waystone.Monads.Analyzers/AGENTS.md) | Rule severity policy, Roslyn version targeting, analyzer testing |
+| [src/Waystone.Monads.Shouldly.Analyzers](src/Waystone.Monads.Shouldly.Analyzers/AGENTS.md) | Where the assertion-migration rules ship and why not in the core package |
 | [src/Waystone.Monads.SourceGenerators](src/Waystone.Monads.SourceGenerators/AGENTS.md) | The shipped error code generator contract and emission |
 | [src/Waystone.SourceGenerators](src/Waystone.SourceGenerators/AGENTS.md) | The awaited-receiver generator contract and emission |
-| [test](test/AGENTS.md) | Running the framework matrix, Reqnroll, shared mutable state |
+| [test](test/AGENTS.md) | Running the framework matrix, the shared test configuration, shared mutable state |
 | [.github](.github/AGENTS.md) | Workflow triggers, required checks, coverage gates |
 | [docs](docs/AGENTS.md) | Where a document goes and how it is written |
 
@@ -53,6 +54,21 @@ republishes the rest. Packages cannot be versioned independently.
 published version cannot be withdrawn, so "merge and see" is not available.
 
 ## Public API
+
+**A companion package shadows the namespace of the library it companions.** A package
+that extends a third-party library puts its types in that library's namespaces, not
+under a parallel `Waystone.*` tree, so a consumer reaches them from a `using` they
+already have. `Waystone.Monads.Shouldly` ships in `Shouldly`,
+`Waystone.Monads.Extensions.DependencyInjection` in
+`Microsoft.Extensions.DependencyInjection`, and `Waystone.Monads.FluentValidation` in
+`FluentValidation`, `FluentValidation.Extensions` and `FluentValidation.Configs`.
+Mirror the library's own segments where it has them, and keep our segment names
+(`Configs`, `Extensions`) beneath its root where it does not. The package and
+assembly names keep the `Waystone.` prefix — only the namespaces shadow.
+
+This does not apply to a package that extends `Waystone.Monads` itself rather than a
+third party: `Waystone.Monads.Linq` and `Waystone.Monads.Extensions.Logging` keep their
+own namespaces, because the namespace they would shadow is already ours.
 
 **Deprecate; never remove.** Public API is obsoleted with a message naming both its
 replacement and the version that removes it, and removed only in the next major.

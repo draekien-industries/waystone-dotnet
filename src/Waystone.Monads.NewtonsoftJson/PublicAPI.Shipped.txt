@@ -1,0 +1,13 @@
+#nullable enable
+Newtonsoft.Json.JsonSerializerSettingsExtensions
+Newtonsoft.Json.OptionJsonConverter
+Newtonsoft.Json.OptionJsonConverter.OptionJsonConverter() -> void
+Newtonsoft.Json.ResultJsonConverter
+Newtonsoft.Json.ResultJsonConverter.ResultJsonConverter() -> void
+override Newtonsoft.Json.OptionJsonConverter.CanConvert(System.Type! objectType) -> bool
+override Newtonsoft.Json.OptionJsonConverter.ReadJson(Newtonsoft.Json.JsonReader! reader, System.Type! objectType, object? existingValue, Newtonsoft.Json.JsonSerializer! serializer) -> object!
+override Newtonsoft.Json.OptionJsonConverter.WriteJson(Newtonsoft.Json.JsonWriter! writer, object? value, Newtonsoft.Json.JsonSerializer! serializer) -> void
+override Newtonsoft.Json.ResultJsonConverter.CanConvert(System.Type! objectType) -> bool
+override Newtonsoft.Json.ResultJsonConverter.ReadJson(Newtonsoft.Json.JsonReader! reader, System.Type! objectType, object? existingValue, Newtonsoft.Json.JsonSerializer! serializer) -> object!
+override Newtonsoft.Json.ResultJsonConverter.WriteJson(Newtonsoft.Json.JsonWriter! writer, object? value, Newtonsoft.Json.JsonSerializer! serializer) -> void
+static Newtonsoft.Json.JsonSerializerSettingsExtensions.AddMonadConverters(this Newtonsoft.Json.JsonSerializerSettings! settings) -> Newtonsoft.Json.JsonSerializerSettings!

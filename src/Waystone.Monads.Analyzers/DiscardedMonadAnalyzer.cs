@@ -1,9 +1,9 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Immutable;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DiscardedMonadAnalyzer : MonadAnalyzer
@@ -11,7 +11,7 @@ public sealed class DiscardedMonadAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.ResultDiscarded, Rules.OptionDiscarded);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterOperationAction(

@@ -1,12 +1,11 @@
 namespace Waystone.Monads.Options.Extensions;
 
-using JetBrains.Annotations;
-using Monads.Extensions;
-using Shouldly;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
-[TestSubject(typeof(OrElseExtensions))]
+[TestSubject(typeof(OptionExtensions))]
 public sealed class OrElseExtensionsTests
 {
     [Fact]
@@ -43,6 +42,27 @@ public sealed class OrElseExtensionsTests
         Option<int> result =
             await new ValueTask<Option<int>>(Option.None<int>())
                .OrElseAsync(() => Option.Some(2));
+
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_WhenOrElseAsyncWithAnAsyncFactory_ThenReturnTheOtherOption()
+    {
+        Option<int> result = await Task.FromResult(Option.None<int>())
+           .OrElseAsync(() => new ValueTask<Option<int>>(Option.Some(2)));
+
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenOrElseAsyncWithAnAsyncFactory_ThenReturnTheOtherOption()
+    {
+        Option<int> result =
+            await new ValueTask<Option<int>>(Option.None<int>())
+               .OrElseAsync(() => new ValueTask<Option<int>>(Option.Some(2)));
 
         result.ShouldBeSomeValue(2);
     }

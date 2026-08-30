@@ -18,6 +18,16 @@
         <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
+    <!--
+        build/ rather than buildTransitive/: a PackageReference's default PrivateAssets
+        excludes analyzers, so the rules do not reach a transitive consumer and neither
+        should the presets that set their severities. Waystone.Monads.props is named for
+        the package id because that is what NuGet auto-imports.
+    -->
+    <ItemGroup>
+        <None Include="build\**" Pack="true" PackagePath="build"/>
+    </ItemGroup>
+
     <PropertyGroup>
         <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackMonadAnalyzers</TargetsForTfmSpecificContentInPackage>
     </PropertyGroup>

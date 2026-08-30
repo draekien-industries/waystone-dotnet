@@ -273,6 +273,146 @@ public class AsTaskCodeFixTests
             """,
             DiagnosticResult.CompilerError("CS0029").WithLocation(0));
 
+    /// <remarks>
+    /// The pre-7.0.0 shape for reusing an async chain as a step: the chain is
+    /// declared to return a Task so that a Task-taking step accepts it. The step
+    /// takes a ValueTask now, so the correction is the declaration rather than a
+    /// conversion, and WM2022 is what says so.
+    /// </remarks>
+    [Fact]
+    public Task LeavesAChainDeclaredAsATaskAlone() =>
+        Verify.DeclinedCompilerCodeFixAsync<AsTaskCodeFix>(
+            """
+            internal Task<Option<int>> Chain(Option<int> option) =>
+                {|#0:option.MapAsync(value => Task.FromResult(value + 1))|};
+            """,
+            DiagnosticResult.CompilerError("CS0029").WithLocation(0));
+
+    /// <remarks>
+    /// The same declaration written with a block body, so the decline is keyed to
+    /// the return position rather than to the arrow.
+    /// </remarks>
+    [Fact]
+    public Task LeavesAChainReturnedFromABlockBodyAlone() =>
+        Verify.DeclinedCompilerCodeFixAsync<AsTaskCodeFix>(
+            """
+            internal Task<Result<int, string>> Chain(Result<int, string> result)
+            {
+                return {|#0:result.MapAsync(value => Task.FromResult(value + 1))|};
+            }
+            """,
+            DiagnosticResult.CompilerError("CS0029").WithLocation(0));
+
+    /// <remarks>
+    /// A local function is a step a consumer can equally hand to a chain, so it
+    /// declines alongside the method form.
+    /// </remarks>
+    [Fact]
+    public Task LeavesAChainDeclaredByALocalFunctionAlone() =>
+        Verify.DeclinedCompilerCodeFixAsync<AsTaskCodeFix>(
+            """
+            internal void Declare(Option<int> option)
+            {
+                Task<Option<int>> Chain() =>
+                    {|#0:option.MapAsync(value => Task.FromResult(value + 1))|};
+            }
+            """,
+            DiagnosticResult.CompilerError("CS0029").WithLocation(0));
+
+    /// <remarks>
+    /// A lambda is not a declaration a consumer can retype, so the chain inside one
+    /// keeps the conversion. This is the arm that separates the return position from
+    /// the enclosing member, since the return statement is the same shape.
+    /// </remarks>
+    [Fact]
+    public Task FixesAChainReturnedFromALambda() =>
+        Verify.CompilerCodeFixAsync<AsTaskCodeFix>(
+            """
+            internal Task<Option<int>> Invoke(Option<int> option)
+            {
+                Func<Task<Option<int>>> chain = () =>
+                {
+                    return {|#0:option.MapAsync(value => Task.FromResult(value + 1))|};
+                };
+
+                return chain();
+            }
+            """,
+            """
+            internal Task<Option<int>> Invoke(Option<int> option)
+            {
+                Func<Task<Option<int>>> chain = () =>
+                {
+                    return option.MapAsync(value => Task.FromResult(value + 1)).AsTask();
+                };
+
+                return chain();
+            }
+            """,
+            new[]
+            {
+                DiagnosticResult.CompilerError("CS0029").WithLocation(0),
+                DiagnosticResult.CompilerError("CS1662").WithLocation(0),
+            },
+            new DiagnosticResult[] { });
+
+    /// <remarks>
+    /// A factory is not a chain, and this is the shape of the break the fix was
+    /// written for — <c>AsyncFactories.cs</c> in the previous-major sample declares
+    /// exactly this member. It shares the position and the carried type with the
+    /// declines above, so it is what makes the chaining-call clause load-bearing
+    /// rather than decorative.
+    /// </remarks>
+    [Fact]
+    public Task FixesAFactoryDeclaredAsATask() =>
+        Verify.CompilerCodeFixAsync<AsTaskCodeFix>(
+            """
+            internal Task<Result<int, string>> Factory() =>
+                {|#0:Result.TryAsync(
+                    () => Task.FromResult(42),
+                    exception => exception.Message)|};
+            """,
+            """
+            internal Task<Result<int, string>> Factory() =>
+                Result.TryAsync(
+                    () => Task.FromResult(42),
+                    exception => exception.Message).AsTask();
+            """,
+            DiagnosticResult.CompilerError("CS0029").WithLocation(0));
+
+    /// <remarks>
+    /// The declared body of a member that reads a monad-carrying ValueTask rather
+    /// than calling anything. Nothing was chained, so nothing is declined.
+    /// </remarks>
+    [Fact]
+    public Task FixesAStoredValueTaskDeclaredAsATask() =>
+        Verify.CompilerCodeFixAsync<AsTaskCodeFix>(
+            """
+            internal sealed class Holder
+            {
+                internal ValueTask<Option<int>> Pending;
+            }
+
+            internal class Subject
+            {
+                internal Task<Option<int>> Stored(Holder holder) =>
+                    {|#0:holder.Pending|};
+            }
+            """,
+            """
+            internal sealed class Holder
+            {
+                internal ValueTask<Option<int>> Pending;
+            }
+
+            internal class Subject
+            {
+                internal Task<Option<int>> Stored(Holder holder) =>
+                    holder.Pending.AsTask();
+            }
+            """,
+            DiagnosticResult.CompilerError("CS0029").WithLocation(0));
+
     [Fact]
     public void OffersTheBatchFixAllProvider() =>
         new AsTaskCodeFix().GetFixAllProvider()

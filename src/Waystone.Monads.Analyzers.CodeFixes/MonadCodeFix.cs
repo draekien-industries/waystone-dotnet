@@ -1,14 +1,15 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public abstract class MonadCodeFix : CodeFixProvider
 {
@@ -48,7 +49,7 @@ public abstract class MonadCodeFix : CodeFixProvider
         }
     }
 
-    protected abstract void Register(
+    private protected abstract void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         SyntaxNode node,
@@ -84,41 +85,50 @@ public abstract class MonadCodeFix : CodeFixProvider
             ? (invocation, access)
             : null;
 
-    protected static ExpressionSyntax OptionFactoryCall(
+    protected static ExpressionSyntax FactoryCall(
+        INamedTypeSymbol factory,
         string name,
-        ITypeSymbol? typeArgument,
+        ImmutableArray<ITypeSymbol> typeArguments,
         SemanticModel model,
         int position,
-        MonadSymbols symbols)
+        params ExpressionSyntax[] arguments)
     {
-        SimpleNameSyntax member = typeArgument is null
+        SimpleNameSyntax member = typeArguments.IsEmpty
             ? SyntaxFactory.IdentifierName(name)
             : SyntaxFactory.GenericName(SyntaxFactory.Identifier(name))
                .WithTypeArgumentList(
                     SyntaxFactory.TypeArgumentList(
-                        SyntaxFactory.SingletonSeparatedList(
-                            TypeNameOf(typeArgument, model, position))));
+                        SyntaxFactory.SeparatedList(
+                            typeArguments.Select(
+                                typeArgument => TypeNameOf(
+                                    typeArgument,
+                                    model,
+                                    position)))));
 
         return SyntaxFactory.InvocationExpression(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    OptionFactoryName(model, position, symbols),
+                    FactoryName(factory, model, position),
                     member))
-           .WithArgumentList(SyntaxFactory.ArgumentList());
+           .WithArgumentList(
+                SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        arguments.Select(
+                            argument => SyntaxFactory.Argument(
+                                argument.WithoutTrivia())))));
     }
 
-    private static ExpressionSyntax OptionFactoryName(
+    private static ExpressionSyntax FactoryName(
+        INamedTypeSymbol factory,
         SemanticModel model,
-        int position,
-        MonadSymbols symbols) =>
-        model.LookupNamespacesAndTypes(position, name: "Option")
+        int position) =>
+        model.LookupNamespacesAndTypes(position, name: factory.Name)
            .Any(
                 symbol => SymbolEqualityComparer.Default.Equals(
                     symbol,
-                    symbols.OptionFactory))
-            ? SyntaxFactory.IdentifierName("Option")
-            : SyntaxFactory.ParseExpression(
-                "Waystone.Monads.Options.Option");
+                    factory))
+            ? SyntaxFactory.IdentifierName(factory.Name)
+            : SyntaxFactory.ParseExpression(factory.ToDisplayString());
 
     protected static TypeSyntax TypeNameOf(
         ITypeSymbol type,

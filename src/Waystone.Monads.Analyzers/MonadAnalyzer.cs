@@ -25,7 +25,7 @@ public abstract class MonadAnalyzer : DiagnosticAnalyzer
             });
     }
 
-    protected abstract void Register(
+    private protected abstract void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols);
 }

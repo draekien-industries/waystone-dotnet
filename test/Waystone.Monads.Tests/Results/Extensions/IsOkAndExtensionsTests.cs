@@ -1,12 +1,11 @@
 namespace Waystone.Monads.Results.Extensions;
 
 using JetBrains.Annotations;
-using Monads.Extensions;
 using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
 
-[TestSubject(typeof(IsOkAndExtensions))]
+[TestSubject(typeof(ResultExtensions))]
 public sealed class IsOkAndExtensionsTests
 {
     [Fact]

@@ -2,6 +2,7 @@ namespace Waystone.Monads.Options;
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Exceptions;
 using Results;
 #if !DEBUG
@@ -40,6 +41,11 @@ public sealed record None<T> : Option<T>
         Func<T, TState, bool> predicate) => false;
 
     /// <inheritdoc />
+    public override ValueTask<bool> IsSomeAndAsync(
+        Func<T, Task<bool>> predicate) =>
+        new ValueTask<bool>(false);
+
+    /// <inheritdoc />
     public override bool IsNoneOr(Func<T, bool> predicate) =>
         true;
 
@@ -47,6 +53,11 @@ public sealed record None<T> : Option<T>
     public override bool IsNoneOr<TState>(
         TState state,
         Func<T, TState, bool> predicate) => true;
+
+    /// <inheritdoc />
+    public override ValueTask<bool> IsNoneOrAsync(
+        Func<T, Task<bool>> predicate) =>
+        new ValueTask<bool>(true);
 
     /// <inheritdoc />
     public override TOut Match<TOut>(
@@ -75,6 +86,24 @@ public sealed record None<T> : Option<T>
     }
 
     /// <inheritdoc />
+    public override async ValueTask<TOut> MatchAsync<TOut>(
+        Func<T, Task<TOut>> onSome,
+        Func<Task<TOut>> onNone) =>
+        await onNone().ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public override async ValueTask<TOut> MatchAsync<TOut>(
+        Func<T, TOut> onSome,
+        Func<Task<TOut>> onNone) =>
+        await onNone().ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public override ValueTask<TOut> MatchAsync<TOut>(
+        Func<T, Task<TOut>> onSome,
+        Func<TOut> onNone) =>
+        new ValueTask<TOut>(onNone());
+
+    /// <inheritdoc />
     public override T Expect(string message) =>
         throw new UnmetExpectationException(message);
 
@@ -91,16 +120,16 @@ public sealed record None<T> : Option<T>
         default;
 
     /// <inheritdoc />
-    public override T UnwrapOrElse(Func<T> @else) =>
-        @else();
+    public override T UnwrapOrElse(Func<T> valueFactory) =>
+        valueFactory();
 
     /// <inheritdoc />
-    public override T UnwrapOrElse<TState>(TState state, Func<TState, T> @else) =>
-        @else(state);
+    public override T UnwrapOrElse<TState>(TState state, Func<TState, T> valueFactory) =>
+        valueFactory(state);
 
     /// <inheritdoc />
-    public override Option<TOut> And<TOut>(Option<TOut> other) =>
-        Option.None<TOut>();
+    public override ValueTask<T> UnwrapOrElseAsync(Func<Task<T>> valueFactory) =>
+        new ValueTask<T>(valueFactory());
 
     /// <inheritdoc />
     public override Option<TOut> Map<TOut>(Func<T, TOut> map) =>
@@ -112,14 +141,45 @@ public sealed record None<T> : Option<T>
         Func<T, TState, TOut> map) => Option.None<TOut>();
 
     /// <inheritdoc />
-    public override TOut MapOr<TOut>(TOut @default, Func<T, TOut> map) =>
-        @default;
+    public override ValueTask<Option<TOut>> MapAsync<TOut>(
+        Func<T, Task<TOut>> map) =>
+        new ValueTask<Option<TOut>>(Option.None<TOut>());
+
+    /// <inheritdoc />
+    public override Option<TOut> And<TOut>(Option<TOut> other) =>
+        Option.None<TOut>();
+
+    /// <inheritdoc />
+    public override Option<TOut> AndThen<TOut>(
+        Func<T, Option<TOut>> optionFactory) =>
+        Option.None<TOut>();
+
+    /// <inheritdoc />
+    public override Option<TOut> AndThen<TState, TOut>(
+        TState state,
+        Func<T, TState, Option<TOut>> optionFactory) =>
+        Option.None<TOut>();
+
+    /// <inheritdoc />
+    public override ValueTask<Option<TOut>> AndThenAsync<TOut>(
+        Func<T, ValueTask<Option<TOut>>> optionFactory) =>
+        new ValueTask<Option<TOut>>(Option.None<TOut>());
+
+    /// <inheritdoc />
+    public override TOut MapOr<TOut>(TOut defaultValue, Func<T, TOut> map) =>
+        defaultValue;
 
     /// <inheritdoc />
     public override TOut MapOr<TState, TOut>(
         TState state,
-        TOut @default,
-        Func<T, TState, TOut> map) => @default;
+        TOut defaultValue,
+        Func<T, TState, TOut> map) => defaultValue;
+
+    /// <inheritdoc />
+    public override ValueTask<TOut> MapOrAsync<TOut>(
+        TOut defaultValue,
+        Func<T, Task<TOut>> map) =>
+        new ValueTask<TOut>(defaultValue);
 
     /// <inheritdoc />
     public override TOut MapOrDefault<TOut>(Func<T, TOut> map) =>
@@ -131,15 +191,41 @@ public sealed record None<T> : Option<T>
         Func<T, TState, TOut> map) => default!;
 
     /// <inheritdoc />
+    public override TOut? MapOrNull<TOut>(Func<T, TOut> map) => null;
+
+    /// <inheritdoc />
+    public override ValueTask<TOut?> MapOrNullAsync<TOut>(
+        Func<T, Task<TOut>> map) =>
+        new ValueTask<TOut?>(default(TOut?));
+
+    /// <inheritdoc />
     public override TOut MapOrElse<TOut>(
-        Func<TOut> createDefault,
-        Func<T, TOut> map) => createDefault();
+        Func<TOut> defaultFactory,
+        Func<T, TOut> map) => defaultFactory();
 
     /// <inheritdoc />
     public override TOut MapOrElse<TState, TOut>(
         TState state,
-        Func<TState, TOut> createDefault,
-        Func<T, TState, TOut> map) => createDefault(state);
+        Func<TState, TOut> defaultFactory,
+        Func<T, TState, TOut> map) => defaultFactory(state);
+
+    /// <inheritdoc />
+    public override async ValueTask<TOut> MapOrElseAsync<TOut>(
+        Func<Task<TOut>> defaultFactory,
+        Func<T, Task<TOut>> map) =>
+        await defaultFactory().ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public override ValueTask<TOut> MapOrElseAsync<TOut>(
+        Func<TOut> defaultFactory,
+        Func<T, Task<TOut>> map) =>
+        new ValueTask<TOut>(defaultFactory());
+
+    /// <inheritdoc />
+    public override async ValueTask<TOut> MapOrElseAsync<TOut>(
+        Func<Task<TOut>> defaultFactory,
+        Func<T, TOut> map) =>
+        await defaultFactory().ConfigureAwait(false);
 
     /// <inheritdoc />
     public override Option<T> Inspect(Action<T> action) =>
@@ -151,6 +237,10 @@ public sealed record None<T> : Option<T>
         Action<T, TState> action) => this;
 
     /// <inheritdoc />
+    public override ValueTask<Option<T>> InspectAsync(Func<T, Task> action) =>
+        new ValueTask<Option<T>>(this);
+
+    /// <inheritdoc />
     public override Option<T> Filter(Func<T, bool> predicate) =>
         this;
 
@@ -160,17 +250,27 @@ public sealed record None<T> : Option<T>
         Func<T, TState, bool> predicate) => this;
 
     /// <inheritdoc />
+    public override ValueTask<Option<T>> FilterAsync(
+        Func<T, Task<bool>> predicate) =>
+        new ValueTask<Option<T>>(this);
+
+    /// <inheritdoc />
     public override Option<T> Or(Option<T> other) =>
         other;
 
     /// <inheritdoc />
-    public override Option<T> OrElse(Func<Option<T>> createElse) =>
-        createElse();
+    public override Option<T> OrElse(Func<Option<T>> optionFactory) =>
+        optionFactory();
 
     /// <inheritdoc />
     public override Option<T> OrElse<TState>(
         TState state,
-        Func<TState, Option<T>> createElse) => createElse(state);
+        Func<TState, Option<T>> optionFactory) => optionFactory(state);
+
+    /// <inheritdoc />
+    public override ValueTask<Option<T>> OrElseAsync(
+        Func<ValueTask<Option<T>>> optionFactory) =>
+        optionFactory();
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>
@@ -187,8 +287,20 @@ public sealed record None<T> : Option<T>
         Option.None<TOut>();
 
     /// <inheritdoc />
+    public override ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
+        Option<TOther> other,
+        Func<T, TOther, Task<TOut>> zip) =>
+        new ValueTask<Option<TOut>>(Option.None<TOut>());
+
+    /// <inheritdoc />
     public override Option<T> Reduce(Option<T> other, Func<T, T, T> reduce) =>
         other;
+
+    /// <inheritdoc />
+    public override ValueTask<Option<T>> ReduceAsync(
+        Option<T> other,
+        Func<T, T, Task<T>> reduce) =>
+        new ValueTask<Option<T>>(other);
 
     /// <inheritdoc />
     public override IEnumerable<T> AsEnumerable() =>
@@ -207,6 +319,12 @@ public sealed record None<T> : Option<T>
         TState state,
         Func<TState, TErr> errorFactory) =>
         Result.Err<T, TErr>(errorFactory(state));
+
+    /// <inheritdoc />
+    public override async ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
+        Func<Task<TErr>> errorFactory) =>
+        Result.Err<T, TErr>(await errorFactory().ConfigureAwait(false));
+
 
     internal override void OnlyThisAssemblyMayDerive()
     { }

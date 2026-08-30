@@ -1,10 +1,10 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Immutable;
-using System.Linq;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ThrowAnalyzer : MonadAnalyzer
@@ -24,7 +24,7 @@ public sealed class ThrowAnalyzer : MonadAnalyzer
             Rules.ThrowInResultMember,
             Rules.ThrowCouldBeResult);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

@@ -1,12 +1,11 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Immutable;
-using System.Linq;
 
-public sealed class MonadSymbols
+internal sealed class MonadSymbols
 {
     public const string OptionMetadataName = "Waystone.Monads.Options.Option`1";
     public const string SomeMetadataName = "Waystone.Monads.Options.Some`1";
@@ -189,6 +188,30 @@ public sealed class MonadSymbols
 
         return ImmutableArray<ITypeSymbol>.Empty;
     }
+
+    /// <summary>
+    /// Checks whether a candidate recovered from a failed overload resolution is one
+    /// of this library's, reading the receiver rather than asking the method what kind
+    /// of member it is.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="IsMonadMethod(IMethodSymbol)" /> cannot answer this. It reaches an
+    /// extension through <see cref="IMethodSymbol.IsExtensionMethod" />, which is
+    /// false for a C# 14 <c>extension</c> block member on the Roslyn the tests run
+    /// against and true on the one the analyzers build against, so a gate built on it
+    /// goes quiet on the awaited receivers in exactly one of the two.
+    /// <para>
+    /// The two clauses are the two forms a call can take. <paramref name="receiver" />
+    /// is the type before the dot, which is the only place the receiver survives on an
+    /// <c>extension</c> block candidate — such a candidate carries no receiver
+    /// parameter at all, and its containing type is the extension grouping type. The
+    /// first parameter covers the compatibility static form, where there is no dot.
+    /// </para>
+    /// </remarks>
+    public bool IsMonadCandidate(IMethodSymbol method, ITypeSymbol? receiver) =>
+        IsMonad(UnwrapAwaitable(receiver))
+     || (method.Parameters.Length > 0
+      && IsMonad(UnwrapAwaitable(method.Parameters[0].Type)));
 
     public bool IsMonadMethod(IMethodSymbol method)
     {

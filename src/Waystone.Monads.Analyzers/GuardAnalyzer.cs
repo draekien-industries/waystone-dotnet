@@ -1,9 +1,9 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Immutable;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class GuardAnalyzer : MonadAnalyzer
@@ -13,7 +13,7 @@ public sealed class GuardAnalyzer : MonadAnalyzer
             Rules.GuardedUnwrap,
             Rules.CheckCombinedWithUnwrap);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

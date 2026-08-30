@@ -1,9 +1,9 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Immutable;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SimplificationAnalyzer : MonadAnalyzer
@@ -15,7 +15,7 @@ public sealed class SimplificationAnalyzer : MonadAnalyzer
             Rules.OrDefaultOnAValueType,
             Rules.MonadComparedToNull);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

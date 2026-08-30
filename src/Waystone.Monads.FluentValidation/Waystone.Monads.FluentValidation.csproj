@@ -16,7 +16,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="FluentValidation"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="PolySharp">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,6 +35,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
+
+    <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\"/>

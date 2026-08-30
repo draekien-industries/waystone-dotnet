@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions.Logging.Configs;
 using Fixtures;
 using JetBrains.Annotations;
 using NSubstitute;
@@ -10,7 +11,6 @@ using Options;
 using Results;
 using Results.Errors;
 using Shouldly;
-using Waystone.Monads.Extensions.Logging.Configs;
 using Xunit;
 
 [TestSubject(typeof(MonadOptions))]
@@ -74,7 +74,7 @@ public sealed class CancellationHandlingTests
         using (Default())
         {
             await Should.ThrowAsync<OperationCanceledException>(
-                () => Option.TryAsync<int>(() => throw Cancelled()));
+                () => Option.TryAsync<int>(() => throw Cancelled()).AsTask());
 
             ShouldNotHaveLogged();
         }
@@ -106,8 +106,9 @@ public sealed class CancellationHandlingTests
         {
             await Should.ThrowAsync<OperationCanceledException>(
                 () => Result.TryAsync<int, string>(
-                    () => throw Cancelled(),
-                    onError));
+                        () => throw Cancelled(),
+                        onError)
+                   .AsTask());
 
             onError.DidNotReceive().Invoke(Arg.Any<Exception>());
             ShouldNotHaveLogged();
@@ -133,7 +134,7 @@ public sealed class CancellationHandlingTests
         using (Default())
         {
             await Should.ThrowAsync<OperationCanceledException>(
-                () => Result.TryAsync<int>(() => throw Cancelled()));
+                () => Result.TryAsync<int>(() => throw Cancelled()).AsTask());
 
             ShouldNotHaveLogged();
         }
@@ -149,7 +150,8 @@ public sealed class CancellationHandlingTests
 
             await Should.ThrowAsync<TaskCanceledException>(
                 () => Option.TryAsync(
-                    () => Task.FromCanceled<int>(source.Token)));
+                        () => Task.FromCanceled<int>(source.Token))
+                   .AsTask());
 
             ShouldNotHaveLogged();
         }
@@ -245,7 +247,7 @@ public sealed class CancellationHandlingTests
             Result<int, Error> result =
                 Result.Try<int>(() => throw Cancelled());
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
         }
     }
 
@@ -258,7 +260,7 @@ public sealed class CancellationHandlingTests
             Result<int, Error> result =
                 await Result.TryAsync<int>(() => throw Cancelled());
 
-            result.IsErr.ShouldBeTrue();
+            result.ShouldBeErr();
         }
     }
 

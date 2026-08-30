@@ -1,19 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <LangVersion>latestMajor</LangVersion>
-        <ImplicitUsings>disable</ImplicitUsings>
-        <IsPackable>false</IsPackable>
         <RootNamespace>Waystone.Monads.Analyzers</RootNamespace>
-        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Analyzers.CodeFixes\Waystone.Monads.Analyzers.CodeFixes.csproj"/>
+    </ItemGroup>
+
+    <!--
+        The shipped preset files, copied so PresetTests reads what the nupkg carries
+        rather than a second copy that could drift. Named *.globalconfig rather than
+        .globalconfig, so the SDK does not glob them into this project's own
+        EditorConfigFiles and apply them to the tests.
+    -->
+    <ItemGroup>
+        <Content Include="..\..\src\Waystone.Monads\build\*.globalconfig"
+                 Link="presets\%(Filename)%(Extension)"
+                 CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
     <ItemGroup>

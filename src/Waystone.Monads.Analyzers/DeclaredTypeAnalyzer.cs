@@ -1,11 +1,10 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using System.Linq;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
@@ -14,7 +13,6 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
         ImmutableArray.Create(
             Rules.NullableMonadDeclared,
             Rules.NestedOption,
-            Rules.ResultWithIdenticalTypeArguments,
             Rules.DerivedMonadTypeDeclared);
 
     private static readonly ImmutableHashSet<string> MonadNames =
@@ -26,7 +24,7 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
             "Ok",
             "Err");
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterSyntaxNodeAction(
@@ -93,21 +91,6 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     Rules.NestedOption,
-                    location,
-                    Semantics.Display(type)));
-
-            return;
-        }
-
-        if (symbols.IsResult(type)
-         && arguments.Length == 2
-         && SymbolEqualityComparer.Default.Equals(
-                arguments[0],
-                arguments[1]))
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    Rules.ResultWithIdenticalTypeArguments,
                     location,
                     Semantics.Display(type)));
         }

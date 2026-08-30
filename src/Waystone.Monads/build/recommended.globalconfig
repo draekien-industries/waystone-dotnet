@@ -1,0 +1,62 @@
+# Waystone.Monads severity preset: recommended
+#
+# The seven WM1 misuse rules become build errors. Every one of them reports code
+# that throws at run time, silently ignores a failure, or means the opposite of
+# what it reads as, so failing the build on them is a statement the messages
+# already make. The WM2 idiom rules stay at their shipped suggestion severity and
+# the two WM3 migration aids stay off.
+#
+# Opt in from the consuming project:
+#
+#     <WaystoneMonadsRuleset>recommended</WaystoneMonadsRuleset>
+#
+# This is a global analyzer config rather than an .editorconfig section for a
+# reason that is not stylistic: WM2020 is reported against ErrorCodes.txt, which
+# has no syntax tree, and Roslyn resolves dotnet_diagnostic severities per tree.
+# A path-matched section cannot reach it, not even [*], so an .editorconfig
+# fragment would ship a preset with one rule missing from it.
+is_global = true
+
+# Below every level a consumer can author, so their own .globalconfig wins on a
+# conflict rather than producing a tie. A path-matched .editorconfig section beats
+# any global config regardless, so overriding one rule stays a two-line edit.
+global_level = -1
+
+# Misuse — raised to error.
+dotnet_diagnostic.WM1001.severity = error
+dotnet_diagnostic.WM1002.severity = error
+dotnet_diagnostic.WM1003.severity = error
+dotnet_diagnostic.WM1005.severity = error
+dotnet_diagnostic.WM1006.severity = error
+dotnet_diagnostic.WM1008.severity = error
+dotnet_diagnostic.WM1011.severity = error
+
+# Idiom — left at the shipped default. Listed rather than omitted so that the file
+# states the whole posture, and so a rule added to the tier without a preset entry
+# fails PresetTests instead of quietly defaulting.
+dotnet_diagnostic.WM2001.severity = suggestion
+dotnet_diagnostic.WM2002.severity = suggestion
+dotnet_diagnostic.WM2003.severity = suggestion
+dotnet_diagnostic.WM2004.severity = suggestion
+dotnet_diagnostic.WM2005.severity = suggestion
+dotnet_diagnostic.WM2006.severity = suggestion
+dotnet_diagnostic.WM2007.severity = suggestion
+dotnet_diagnostic.WM2008.severity = suggestion
+dotnet_diagnostic.WM2009.severity = suggestion
+dotnet_diagnostic.WM2011.severity = suggestion
+dotnet_diagnostic.WM2012.severity = suggestion
+dotnet_diagnostic.WM2013.severity = suggestion
+dotnet_diagnostic.WM2015.severity = suggestion
+dotnet_diagnostic.WM2016.severity = suggestion
+dotnet_diagnostic.WM2017.severity = suggestion
+dotnet_diagnostic.WM2018.severity = suggestion
+dotnet_diagnostic.WM2019.severity = suggestion
+dotnet_diagnostic.WM2020.severity = suggestion
+dotnet_diagnostic.WM2021.severity = suggestion
+dotnet_diagnostic.WM2022.severity = suggestion
+
+# Adoption — left off. These fire on code that has not adopted the library yet, so
+# in most codebases they report everywhere. Use strict, or enable them by hand
+# while converting.
+dotnet_diagnostic.WM3001.severity = none
+dotnet_diagnostic.WM3002.severity = none

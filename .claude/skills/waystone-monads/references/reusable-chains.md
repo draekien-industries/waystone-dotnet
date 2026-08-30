@@ -1,57 +1,56 @@
 # Reusing a chain
 
 A chain becomes reusable by being a step: one parameter in, one monad out, so
-`AndThen` takes it as a method group. Each section below is a shape that breaks
-that, and what to reach for instead.
+`AndThen` takes it as a method group. The first section below is what that takes
+for an async chain, and each one after it is a shape that breaks reuse, with what
+to reach for instead.
 
-## An async chain cannot be a step
+## An async chain is a step
 
-The async surface is deliberately asymmetric: an `*Async` member **returns**
-`ValueTask`, and the delegate it **accepts** returns `Task`. An async chain
-therefore ends in the one shape the next `*Async` member has no overload for,
-which makes it **terminal** — correct and complete as a chain, and unusable as a
-step.
+An async step is `T → ValueTask<Result<U, Error>>`, and so is an async chain, so
+a chain composes exactly as a single step does:
 
 ```csharp
-// This chain is complete and correct, and Charge can never be a step.
+// Charge is a two-link chain and a step, both at once.
 private static ValueTask<Result<Quote, Error>> Charge(Order order) =>
     FetchAsync(order).AndThenAsync(Price);
-```
-
-Handing `Charge` to `AndThenAsync` fails as `CS0411` — "the type arguments
-cannot be inferred from the usage" — reported against the call site and naming
-neither `ValueTask` nor the step, so it reads like a generics problem in the
-chain rather than the design constraint it is.
-
-Two conversions can force it into a step's shape, and it is worth knowing what
-each really costs, because the intuition is wrong in both directions.
-`.AsTask()` is free when the chain suspends — a suspended chain is already
-`Task`-backed, so `AsTask` hands that same instance back — and costs one small
-allocation when the chain completes synchronously. Declaring the chain
-`async Task<…>` and awaiting it is **never cheaper and is worse when it
-suspends**, because the extra state machine sits on top of the one the chain
-already built.
-
-So converting is a tax on exactly the synchronous-completion path `ValueTask` was
-chosen to keep free, and the `async` wrapper is the more expensive way to pay it.
-Neither is a catastrophe; the reason to avoid both is that they bury the real
-signal — the unit of reuse was picked wrong. Reuse **async steps**, not async
-chains. An async step is `T → Task<Result<U, Error>>`, which is what an I/O
-method returns anyway, and `AndThenAsync` takes it directly:
-
-```csharp
-private static Task<Result<Reservation, Error>> ReserveAsync(Order order) => …
 
 internal ValueTask<Result<Invoice, Error>> Bill(int id) =>
-    FetchAsync(id)
-       .AndThenAsync(ReserveAsync)
+    FindAsync(id)
+       .AndThenAsync(Charge)
        .AndThenAsync(Validated)
        .MapAsync(Render);
 ```
 
-Extract the steps, let each call site build its own flat chain, and the
-duplication that remains is one `AndThenAsync` line per site — cheaper than the
-allocation and clearer than the indirection.
+**Declare an async step `ValueTask`, not `Task`.** This is the one thing to get
+right, and up to 6.x it was the opposite: every step parameter took a
+`Task`-returning delegate, so a chain — which returns `ValueTask` — could never
+be a step, and the advice here was to reuse async steps and never async chains.
+From 7.0.0 `AndThenAsync` and `OrElseAsync` take `ValueTask`-returning
+delegates.
+
+A `Task`-returning method group handed to either fails as `CS0411` — "the type
+arguments cannot be inferred from the usage" — reported against the call site
+and naming neither `ValueTask` nor the parameter, so it reads like a generics
+problem rather than the one-word fix it is. Change the method's own return type
+to `ValueTask`, which is the better declaration for a chain link regardless.
+Where the method is genuinely someone else's,
+`AndThenAsync(async o => await Foreign(o))` binds.
+
+**Only the step-shaped parameters moved.** `AndThenAsync` and `OrElseAsync` are
+the chain operators, and they are the whole list. A delegate returning an
+arbitrary type still takes `Task`, because foreign code produces that shape — so
+`MapAsync(client.GetStringAsync)` keeps binding, and `MapAsync`, `FilterAsync`
+and the rest are unchanged.
+
+The gap that leaves, stated plainly: a `ValueTask`-returning expression still
+cannot feed one of those boundary parameters.
+`FilterAsync(o => o.IsSomeAndAsync(p))` fails, and the workaround is
+`async o => await o.IsSomeAndAsync(p)`. Feeding a predicate from an exit member
+is a much rarer shape than chaining.
+
+`.AsTask()` is no longer needed to make a chain composable. It remains the
+conversion for a foreign API that demands a `Task`.
 
 A **synchronous** chain stays reusable inside an async one, because the `*Async`
 members take a synchronous delegate too: `Validated` above — a plain

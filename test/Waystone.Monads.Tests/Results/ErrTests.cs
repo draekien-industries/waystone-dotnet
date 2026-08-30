@@ -3,7 +3,6 @@
 using System;
 using System.Threading.Tasks;
 using Exceptions;
-using Extensions;
 using JetBrains.Annotations;
 using NSubstitute;
 using Options;
@@ -18,7 +17,7 @@ public class ErrTests
     {
         Result<int, string> result = Result.Err<int, string>("error");
 
-        result.IsOk.ShouldBeFalse();
+        result.ShouldBeErr();
     }
 
     [Fact]
@@ -171,7 +170,7 @@ public class ErrTests
     {
         Result<int, string> result = Result.Err<int, string>("error");
 
-        result.UnwrapErr().ShouldBe("error");
+        result.ShouldBeErrValue("error");
     }
 
     [Fact]
@@ -306,7 +305,7 @@ public class ErrTests
         Result<int, string> err = Result.Err<int, string>("error");
 
         Result<string, string> result =
-            await err.AndThenAsync(x => Task.FromResult(
+            await err.AndThenAsync(x => new ValueTask<Result<string, string>>(
                 Result.Ok<string, string>(x.ToString())));
 
         result.ShouldBe(Result.Err<string, string>("error"));
@@ -317,10 +316,12 @@ public class ErrTests
     {
         Result<int, string> err = Result.Err<int, string>("error");
 
-        (await err.OrElseAsync(_ => Task.FromResult(Result.Ok<int, bool>(1))))
+        (await err.OrElseAsync(
+                _ => new ValueTask<Result<int, bool>>(
+                    Result.Ok<int, bool>(1))))
            .ShouldBe(Result.Ok<int, bool>(1));
 
-        (await err.OrElseAsync(_ => Task.FromResult(
+        (await err.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
                 Result.Err<int, bool>(false))))
            .ShouldBe(Result.Err<int, bool>(false));
     }

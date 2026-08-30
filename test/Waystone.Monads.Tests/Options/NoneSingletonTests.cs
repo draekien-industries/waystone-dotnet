@@ -58,7 +58,7 @@ public sealed class NoneSingletonTests
         var copied = original with { };
 
         copied.ShouldBe(original);
-        copied.IsNone.ShouldBeTrue();
+        copied.ShouldBeNone();
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class NoneSingletonTests
         Option<int> converted = Option.FromNullable<int>(null);
 
         converted.ShouldBe(Option.None<int>());
-        converted.IsNone.ShouldBeTrue();
+        converted.ShouldBeNone();
     }
 
     [Fact]

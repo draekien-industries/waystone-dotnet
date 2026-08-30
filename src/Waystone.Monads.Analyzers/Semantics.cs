@@ -1,13 +1,13 @@
 namespace Waystone.Monads.Analyzers;
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 
-public static class Semantics
+internal static class Semantics
 {
     public static readonly ImmutableHashSet<string> UnwrapNames =
         ImmutableHashSet.Create(

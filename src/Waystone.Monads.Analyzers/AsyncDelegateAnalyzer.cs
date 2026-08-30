@@ -1,10 +1,10 @@
 namespace Waystone.Monads.Analyzers;
 
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Immutable;
-using System.Linq;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AsyncDelegateAnalyzer : MonadAnalyzer
@@ -14,7 +14,7 @@ public sealed class AsyncDelegateAnalyzer : MonadAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rules.AsyncDelegatePassedToSyncMethod);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterOperationAction(

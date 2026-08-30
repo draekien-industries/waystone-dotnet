@@ -1,0 +1,61 @@
+# v7 break inventory
+
+Written by `capture-breaks.ps1`. Every row is a diagnostic a consumer
+on the previous major gets from the surface in the working tree.
+
+| Code | Kind | Count |
+| --- | --- | --- |
+| CS0029 | error | 6 |
+| CS0103 | error | 2 |
+| CS0115 | error | 1 |
+| CS0117 | error | 2 |
+| CS0234 | error | 2 |
+| CS0411 | error | 2 |
+| CS1061 | error | 2 |
+| CS1501 | error | 1 |
+| CS1503 | error | 1 |
+| CS1739 | error | 22 |
+
+| Code | File | Line | Message |
+| --- | --- | --- | --- |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 25 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<int>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Options.Option<int>>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 33 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<int, string>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Results.Result<int, string>>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/AsyncFactories.cs | 37 | Cannot implicitly convert type 'System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<System.Collections.Generic.IReadOnlyList<int>>>' to 'System.Threading.Tasks.Task<Waystone.Monads.Options.Option<System.Collections.Generic.IReadOnlyList<int>>>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 14 | Cannot implicitly convert type 'int' to 'Waystone.Monads.Options.Option<int>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 16 | Cannot implicitly convert type 'int' to 'Waystone.Monads.Results.Result<int, Waystone.Monads.Results.Errors.Error>' |
+| CS0029 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 19 | Cannot implicitly convert type 'Waystone.Monads.Results.Errors.Error' to 'Waystone.Monads.Results.Result<int, Waystone.Monads.Results.Errors.Error>' |
+| CS0103 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 25 | The name 'AndThenExtensions' does not exist in the current context |
+| CS0103 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 48 | The name 'AndThenExtensions' does not exist in the current context |
+| CS0115 | sample/Waystone.Monads.PreviousMajor.Declarations.Sample/ErrorCodeFactoryOverride.cs | 15 | 'UpperCaseErrorCodeFactory.FromEnum(Enum)': no suitable method found to override |
+| CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 16 | 'ErrorCode' does not contain a definition for 'FromEnum' |
+| CS0117 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 19 | 'Error' does not contain a definition for 'FromEnum' |
+| CS0234 | sample/Waystone.Monads.PreviousMajor.Declarations.Sample/UsingStaticExtension.cs | 6 | The type or namespace name 'MapExtensions' does not exist in the namespace 'Waystone.Monads.Results.Extensions' (are you missing an assembly reference?) |
+| CS0234 | sample/Waystone.Monads.PreviousMajor.Sample/StaticForm.cs | 42 | The type or namespace name 'IsSomeAndExtensions' does not exist in the namespace 'Waystone.Monads.Options.Extensions' (are you missing an assembly reference?) |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/Chains.cs | 90 | The type arguments for method 'ResultExtensions.extension<TOk, TErr>(ValueTask<Result<TOk, TErr>>).AndThenAsync<TOut>(Func<TOk, Result<TOut, TErr>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS0411 | sample/Waystone.Monads.PreviousMajor.Sample/Chains.cs | 109 | The type arguments for method 'OptionExtensions.extension<T>(Task<Option<T>>).AndThenAsync<TOut>(Func<T, Option<TOut>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly. |
+| CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/Configuration.cs | 22 | 'MonadOptionsBuilder' does not contain a definition for 'UseExceptionLogger' and no accessible extension method 'UseExceptionLogger' accepting a first argument of type 'MonadOptionsBuilder' could be found (are you missing a using directive or an assembly reference?) |
+| CS1061 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 31 | 'ErrorCodeFactory' does not contain a definition for 'FromEnum' and no accessible extension method 'FromEnum' accepting a first argument of type 'ErrorCodeFactory' could be found (are you missing a using directive or an assembly reference?) |
+| CS1501 | sample/Waystone.Monads.PreviousMajor.Sample/RunTimeErrorCodes.cs | 22 | No overload for method 'Err' takes 2 arguments |
+| CS1503 | sample/Waystone.Monads.PreviousMajor.Sample/Conversions.cs | 29 | Argument 1: cannot convert from 'int' to 'Waystone.Monads.Options.Option<int>' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 33 | The best overload for 'UnwrapOrElse' does not have a parameter named 'else' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 36 | The best overload for 'MapOr' does not have a parameter named 'default' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 39 | The best overload for 'MapOrElse' does not have a parameter named 'createDefault' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 42 | The best overload for 'AndThen' does not have a parameter named 'map' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 52 | The best overload for 'AndThenAsync' does not have a parameter named 'map' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 55 | The best overload for 'OrElse' does not have a parameter named 'createElse' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 58 | The best overload for 'AndThen' does not have a parameter named 'createOther' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 62 | The best overload for 'OrElse' does not have a parameter named 'createOther' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 65 | The best overload for 'UnwrapOr' does not have a parameter named 'default' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 68 | The best overload for 'UnwrapOrElse' does not have a parameter named 'onErr' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 71 | The best overload for 'MapOrElse' does not have a parameter named 'createDefault' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 75 | The best overload for 'OkOrAsync' does not have a parameter named 'err' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 79 | The best overload for 'OkOrElseAsync' does not have a parameter named 'errFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 83 | The best overload for 'UnwrapOrElseAsync' does not have a parameter named 'elseFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 87 | The best overload for 'OrElseAsync' does not have a parameter named 'elseFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 91 | The best overload for 'MapOrElseAsync' does not have a parameter named 'defaultFunc' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 96 | The best overload for 'ZipWithAsync' does not have a parameter named 'otherOption' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 101 | The best overload for 'UnwrapOrElseAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 105 | The best overload for 'MapOrElseAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 110 | The best overload for 'AndThenAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 115 | The best overload for 'OrElseAsync' does not have a parameter named 'factory' |
+| CS1739 | sample/Waystone.Monads.PreviousMajor.Sample/NamedArguments.cs | 124 | The best overload for 'UnwrapOrAsync' does not have a parameter named 'default' |

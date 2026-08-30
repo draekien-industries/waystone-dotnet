@@ -2,7 +2,7 @@ namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis;
 
-public static class Rules
+internal static class Rules
 {
     private const string Reliability = nameof(Reliability);
     private const string Usage = nameof(Usage);
@@ -171,12 +171,6 @@ public static class Rules
         "'{0}' has three states where two are meaningful. Flatten it.",
         "Option<Option<T>> distinguishes an absent outer from an absent inner, a distinction callers almost never act on.");
 
-    public static readonly DiagnosticDescriptor ResultWithIdenticalTypeArguments = Idiom(
-        "WM2010",
-        "Do not give a Result identical type arguments",
-        "'{0}' has the same type for its Ok and its Err, which makes both implicit conversions ambiguous",
-        "Result declares an implicit conversion from TOk and another from TErr. When those are the same type the compiler cannot choose, so every implicit conversion becomes a compile error and Ok and Err become indistinguishable to a reader.");
-
     public static readonly DiagnosticDescriptor DerivedMonadTypeDeclared = Idiom(
         "WM2011",
         "Prefer the Option or Result base over one of its cases",
@@ -343,15 +337,46 @@ public static class Rules
     /// first would leave the two shapes most worth correcting untouched while
     /// implying the rule had been dealt with.
     /// Type patterns naming <c>Some</c>, <c>None</c>, <c>Ok</c> or <c>Err</c>
-    /// are not in scope here. Those are the same mistake WM2011 reports at a
-    /// declaration, and the case types expose no value to destructure, so a
-    /// type pattern buys nothing this rule needs to talk about.
+    /// are not in scope here, and no other rule reports them either. WM2011
+    /// covers a *declaration* naming a case type — <c>Semantics</c>'s
+    /// declaration-position switch has no pattern arm, so a pattern falls
+    /// through it — and its complaint does not carry over anyway, since a
+    /// pattern narrowing to one state is the whole point of writing one.
+    /// <para>
+    /// As of 7.0.0 those case types carry a <c>Deconstruct</c>, so
+    /// <c>option is Some&lt;T&gt;(var value)</c> tests the state and binds the
+    /// value in one construct — a better answer to what this rule reports than
+    /// either alternative the message names, and the shape the documentation now
+    /// teaches. The message is left alone anyway: both of the alternatives it
+    /// names are still correct, and it covers <c>IsNone</c> and <c>IsErr</c> as
+    /// well, where the positional pattern is not the advice. <c>None</c> has no
+    /// <c>Deconstruct</c> because it carries nothing, so the suggestion would
+    /// have to vary per property, and a shipped message is reworded only when
+    /// the old one was wrong.
+    /// </para>
     /// </remarks>
     public static readonly DiagnosticDescriptor StateCheckedThroughPattern = Idiom(
         "WM2021",
         "Do not test Option or Result state with a property pattern",
         "'{0}' on '{1}' is read through a property pattern, which the rules that report a state check cannot see. Read '{0}' directly, or use '{2}' to test the value in the same call.",
         "A property pattern that reads IsSome, IsNone, IsOk or IsErr is a state check written so that nothing recognises it as one. It costs the reader the vocabulary the library provides for the same question, and it silently opts the call site out of the rules that report a guarded unwrap or a check combined with an unwrap.");
+
+    /// <remarks>
+    /// Info rather than a warning, and deliberately overlapping a compiler error.
+    /// The rule can only fire where overload resolution has already failed, so it
+    /// cannot break a build that compiles today and there is nothing for a consumer
+    /// to weigh — it exists to say what CS0411 does not, which is that the
+    /// parameter wants a <c>ValueTask</c>.
+    /// No code fix offers the return-type change the message names second. Rewriting
+    /// the step's own declaration is safe only where it is already <c>async</c>, and
+    /// it retypes a member every other caller sees, which a fix reading one call site
+    /// cannot judge. The wrap is offered instead, and the message states both.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor TaskReturningAsyncStep = Idiom(
+        "WM2022",
+        "Return ValueTask from an async chaining step",
+        "'{0}' returns '{1}', so it cannot be passed to '{2}', whose step returns a 'ValueTask'. Change '{0}' to return '{3}', or wrap it as '{4}'.",
+        "Every async member of this library returns a ValueTask, so a chaining step takes one too and an async chain composes directly as a step in another chain. A Task-returning method group does not convert to that delegate, and the compiler reports the mismatch as CS0411 — a type inference failure naming neither ValueTask nor the parameter, so nothing in its message says what is actually wrong.");
 
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",

@@ -29,9 +29,6 @@ public class OptionBenchmarks
     public Option<int> NoneConstruction() => Option.None<int>();
 
     [Benchmark]
-    public Option<int> ImplicitConversion() => 42;
-
-    [Benchmark]
     public Option<int> FromNullable() => Option.FromNullable((int?)42);
 
     [Benchmark]
