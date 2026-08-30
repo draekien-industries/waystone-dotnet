@@ -18,7 +18,7 @@ using Waystone.Monads.Options;
 /// <para>
 /// Closing the converter costs one reflective construction the first time the
 /// serializer meets a given <c>Option&lt;T&gt;</c>, after which the serializer
-/// caches it. Under NativeAOT that construction can fail when the option's value
+/// caches it. Under NativeAOT that construction throws when the option's value
 /// type is a value type, since a generic instantiation over one needs code the
 /// compiler emits ahead of time and cannot see through this call.
 /// Register those explicitly - <c>new OptionJsonConverter&lt;int&gt;()</c> -

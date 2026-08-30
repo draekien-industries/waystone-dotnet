@@ -164,11 +164,30 @@ the canonical order.
 ## Trimming and NativeAOT
 
 Both factories close their converter reflectively, once per monad type, and the
-serializer caches the result. Under NativeAOT that can fail when a type argument
-is a value type, because a generic instantiation over a value type needs code
-emitted ahead of time and the compiler cannot see through the call.
+serializer caches the result. Under NativeAOT that **throws** when a type
+argument is a value type:
 
-Register those explicitly instead. The concrete converters are public with
+```
+NotSupportedException: 'OptionJsonConverter`1[System.Int32]' is missing native
+code or metadata.
+```
+
+A generic instantiation over a value type needs its own compiled code, and the
+compiler cannot see through `MakeGenericType` to know it will be asked for one.
+Reference types all share a single compiled converter, so they are unaffected.
+
+This is measured under `PublishAot` on .NET 10, not inferred:
+
+| Registered through | Type argument | Under NativeAOT |
+| --- | --- | --- |
+| `AddMonadConverters()` | reference type | works |
+| `AddMonadConverters()` | value type | throws |
+| `options.Converters.Add(new …)` | either | works |
+
+For `Result<TOk, TErr>` it is enough for one of the two arguments to be a value
+type.
+
+Register value-type monads explicitly instead. The concrete converters are public with
 public parameterless constructors precisely so this path exists, and it involves
 no reflection at all:
 
