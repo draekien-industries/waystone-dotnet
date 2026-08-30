@@ -44,7 +44,14 @@ public sealed class SnippetReaderTests
                 {
                     target.Burn();
                 }
-                """);
+                """.ReplaceLineEndings("\n"));
+    }
+
+    [Fact]
+    public void JoinsABodyWithNewlinesWhateverTheSourceUsed()
+    {
+        Single("#region cast-fireball\r\ntarget.Burn();\r\nrunes.Spend();\r\n#endregion")
+           .Body.ShouldBe("target.Burn();\nrunes.Spend();");
     }
 
     [Fact]
