@@ -6,31 +6,38 @@ namespace Waystone.Monads.Docs.Core.Sample.StartHere;
 /// <summary>start-here/quickstart.md</summary>
 internal static class Quickstart
 {
-    internal static string UsingOption()
+    internal static (string Vow, string Silence) UsingOption()
     {
-        Option<string> name = Option.Some("Liam O'Brian");
-        Option<string> missing = Option.None<string>();
+        Option<string> patron = Option.Some("The Raven Queen");
+        Option<string> noPatron = Option.None<string>();
 
-        string greeting = name.Match(
-            some => $"Hello, {some}!",
-            () => "Hello, stranger!");
+        string vow = patron.Match(
+            some => $"You are sworn to {some}.",
+            () => "You are sworn to no one.");
+        // "You are sworn to The Raven Queen."
 
-        return greeting + missing.UnwrapOr(string.Empty);
+        string silence = noPatron.Match(
+            some => $"You are sworn to {some}.",
+            () => "You are sworn to no one.");
+        // "You are sworn to no one."
+
+        return (vow, silence);
     }
 
     internal static int UsingResult()
     {
-        var result = ParseInt("42");
+        Result<int, string> roll = RollDie("20");
 
-        int value = result.Match(
+        int value = roll.Match(
             ok => ok,
-            err => -1);
+            err => 0);
+        // somewhere between 1 and 20
 
         return value;
     }
 
-    private static Result<int, string> ParseInt(string input) =>
-        int.TryParse(input, out var value)
-            ? Result.Ok<int, string>(value)
-            : Result.Err<int, string>($"Input '{input}' is not a valid number");
+    private static Result<int, string> RollDie(string sides) =>
+        int.TryParse(sides, out int faces) && faces > 0
+            ? Result.Ok<int, string>(Random.Shared.Next(1, faces + 1))
+            : Result.Err<int, string>($"'{sides}' is not a number of sides.");
 }
