@@ -13,7 +13,7 @@ public sealed class UseNoneCodeFix : MonadCodeFix
     public override ImmutableArray<string> FixableDiagnosticIds =>
         ImmutableArray.Create("WM1001", "WM1002", "WM1003");
 
-    protected override void Register(
+    private protected override void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         SyntaxNode node,

@@ -25,7 +25,7 @@ using Microsoft.CodeAnalysis.Text;
 /// the compilation, and a code fix writes the correction through the workspace.
 /// </para>
 /// </remarks>
-public static class ErrorCodeRegistry
+internal static class ErrorCodeRegistry
 {
     /// <summary>The name of the file, matched without regard to its directory.</summary>
     public const string FileName = "ErrorCodes.txt";

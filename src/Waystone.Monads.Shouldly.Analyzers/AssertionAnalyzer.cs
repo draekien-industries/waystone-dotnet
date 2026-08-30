@@ -25,7 +25,7 @@ public abstract class AssertionAnalyzer : DiagnosticAnalyzer
             });
     }
 
-    protected abstract void Register(
+    private protected abstract void Register(
         CompilationStartAnalysisContext context,
         AssertionSymbols symbols);
 }

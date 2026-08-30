@@ -24,7 +24,7 @@ public sealed class DeclaredTypeAnalyzer : MonadAnalyzer
             "Ok",
             "Err");
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols) =>
         context.RegisterSyntaxNodeAction(

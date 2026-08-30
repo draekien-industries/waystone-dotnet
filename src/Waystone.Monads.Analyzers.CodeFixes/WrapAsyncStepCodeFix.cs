@@ -23,7 +23,7 @@ public sealed class WrapAsyncStepCodeFix : MonadCodeFix
     /// judgement a fix reading one call site can make, so the message states it and
     /// leaves it to the reader.
     /// </remarks>
-    protected override void Register(
+    private protected override void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         SyntaxNode node,

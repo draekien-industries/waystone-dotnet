@@ -22,7 +22,7 @@ public sealed class UseUnwrapOrDefaultCodeFix : MonadCodeFix
     public override ImmutableArray<string> FixableDiagnosticIds =>
         ImmutableArray.Create("WM2001", "WM2002", "WM2007");
 
-    protected override void Register(
+    private protected override void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         SyntaxNode node,

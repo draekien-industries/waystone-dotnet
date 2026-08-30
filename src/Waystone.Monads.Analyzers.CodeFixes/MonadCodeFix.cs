@@ -49,7 +49,7 @@ public abstract class MonadCodeFix : CodeFixProvider
         }
     }
 
-    protected abstract void Register(
+    private protected abstract void Register(
         CodeFixContext context,
         Diagnostic diagnostic,
         SyntaxNode node,

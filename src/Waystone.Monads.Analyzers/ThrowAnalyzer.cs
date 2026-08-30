@@ -24,7 +24,7 @@ public sealed class ThrowAnalyzer : MonadAnalyzer
             Rules.ThrowInResultMember,
             Rules.ThrowCouldBeResult);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

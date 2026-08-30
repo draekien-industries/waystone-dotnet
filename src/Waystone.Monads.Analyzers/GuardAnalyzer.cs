@@ -13,7 +13,7 @@ public sealed class GuardAnalyzer : MonadAnalyzer
             Rules.GuardedUnwrap,
             Rules.CheckCombinedWithUnwrap);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

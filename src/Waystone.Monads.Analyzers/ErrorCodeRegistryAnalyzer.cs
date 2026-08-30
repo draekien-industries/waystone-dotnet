@@ -17,7 +17,7 @@ public sealed class ErrorCodeRegistryAnalyzer : MonadAnalyzer
             Rules.ErrorCodeMissingFromRegistry,
             Rules.StaleErrorCodeRegistryEntry);
 
-    protected override void Register(
+    private protected override void Register(
         CompilationStartAnalysisContext context,
         MonadSymbols symbols)
     {

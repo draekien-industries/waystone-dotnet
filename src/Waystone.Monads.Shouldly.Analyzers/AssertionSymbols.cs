@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis;
 /// <see cref="TryCreate" /> returns null and every rule here goes silent rather than
 /// offering a fix that produces source they cannot compile.
 /// </remarks>
-public sealed class AssertionSymbols
+internal sealed class AssertionSymbols
 {
     public const string OptionMetadataName = "Waystone.Monads.Options.Option`1";
     public const string SomeMetadataName = "Waystone.Monads.Options.Some`1";
