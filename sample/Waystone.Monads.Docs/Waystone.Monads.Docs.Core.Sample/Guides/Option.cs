@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Waystone.Monads.Options;
 using Waystone.Monads.Options.Extensions;
 
@@ -14,6 +15,68 @@ internal static class OptionGuide
     }
 
     private static readonly ILogger logger = null!;
+
+    internal static void Creating(string? sigil)
+    {
+        Option<string> some = Option.Some("Keyleth");
+        Option<string> none = Option.None<string>();
+        Option<string> fromNullable = Option.FromNullable(sigil);
+        Option<string> fromTry = Option.Try(() => sigil!.Split('@')[1]);
+
+        _ = (some, none, fromNullable, fromTry);
+    }
+
+    internal static Option<int> Mapping(string name) =>
+        FindCharacter(name).Map(character => character.Name.Length);
+
+    internal static Option<string> AWholePipeline(string name) =>
+        FindCharacter(name)
+            .Filter(character => character.Name.Length > 0)
+            .AndThen(character => character.Patron)
+            .Map(patron => patron.ToUpperInvariant());
+
+    internal sealed record NullableCharacter(string Name, string? Patron);
+
+    internal static string? TheSamePipelineWithoutOption(string name)
+    {
+        NullableCharacter? character = FindCharacterOrNull(name);
+
+        if (character is { Name.Length: > 0, Patron: not null })
+        {
+            return character.Patron.ToUpperInvariant();
+        }
+
+        return null;
+    }
+
+    internal static string MatchingOut(Option<string> maybePatron) =>
+        maybePatron.Match(
+            patron => patron,
+            () => "[No patron]");
+
+    internal static void UnwrappingOut(Option<string> maybePatron)
+    {
+        string orFallback = maybePatron.UnwrapOr("[No patron]");
+        string orComputed = maybePatron.UnwrapOrElse(() => "[No patron]");
+
+        _ = (orFallback, orComputed);
+    }
+
+    internal static void PatternMatchingWithIf(Option<string> maybePatron)
+    {
+        if (maybePatron is Some<string>(var patron))
+        {
+            logger.LogInformation("Sworn to {Patron}", patron);
+        }
+    }
+
+    internal static string PatternMatchingWithSwitch(Option<string> maybePatron) =>
+        maybePatron switch
+        {
+            Some<string>(var patron) => patron,
+            None<string> => "[No patron]",
+            _ => throw new UnreachableException(),
+        };
 
     internal static void PrintingAndLogging()
     {
@@ -155,6 +218,9 @@ internal static class OptionGuide
 
     private static Option<Character> FindCharacter(string name) =>
         Option.Some(new Character("Vax'ildan", Option.Some("The Raven Queen")));
+
+    private static NullableCharacter? FindCharacterOrNull(string name) =>
+        new("Vax'ildan", "The Raven Queen");
 
     private static Option<string> FindPatron(string name) =>
         Option.Some("matron@ravenqueen.divine");
