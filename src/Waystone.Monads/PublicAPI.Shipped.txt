@@ -1,10 +1,11 @@
 #nullable enable
 Waystone.Monads.Configs.CallerInfo
+Waystone.Monads.Configs.CallerInfo.<Clone>$() -> Waystone.Monads.Configs.CallerInfo!
 Waystone.Monads.Configs.CallerInfo.ArgumentExpression.get -> string!
 Waystone.Monads.Configs.CallerInfo.ArgumentExpression.init -> void
-Waystone.Monads.Configs.CallerInfo.CallerInfo(Waystone.Monads.Configs.CallerInfo! original) -> void
 Waystone.Monads.Configs.CallerInfo.CallerInfo(string! MemberName, string! ArgumentExpression, int LineNumber) -> void
 Waystone.Monads.Configs.CallerInfo.Deconstruct(out string! MemberName, out string! ArgumentExpression, out int LineNumber) -> void
+Waystone.Monads.Configs.CallerInfo.Equals(Waystone.Monads.Configs.CallerInfo? other) -> bool
 Waystone.Monads.Configs.CallerInfo.LineNumber.get -> int
 Waystone.Monads.Configs.CallerInfo.LineNumber.init -> void
 Waystone.Monads.Configs.CallerInfo.MemberName.get -> string!
@@ -226,7 +227,8 @@ Waystone.Monads.Results.Errors.Error.Error(Waystone.Monads.Results.Errors.Error!
 Waystone.Monads.Results.Errors.Error.Error(Waystone.Monads.Results.Errors.ErrorCode! code, string! message) -> void
 Waystone.Monads.Results.Errors.Error.Message.get -> string!
 Waystone.Monads.Results.Errors.ErrorCode
-Waystone.Monads.Results.Errors.ErrorCode.ErrorCode(Waystone.Monads.Results.Errors.ErrorCode! original) -> void
+Waystone.Monads.Results.Errors.ErrorCode.<Clone>$() -> Waystone.Monads.Results.Errors.ErrorCode!
+Waystone.Monads.Results.Errors.ErrorCode.Equals(Waystone.Monads.Results.Errors.ErrorCode? other) -> bool
 Waystone.Monads.Results.Errors.ErrorCode.ErrorCode(string! value) -> void
 Waystone.Monads.Results.Errors.ErrorCode.Value.get -> string!
 Waystone.Monads.Results.Errors.ErrorCodeCatalogAttribute
@@ -1135,10 +1137,6 @@ static Waystone.Monads.Results.Result.TryAsync<TState, TOk, TErr>(TState state, 
 static Waystone.Monads.Results.Result.TryAsync<TState, TOk>(TState state, System.Func<TState, System.Threading.Tasks.Task<TOk>!>! asyncFactory, string! callerMemberName = "", int callerLineNumber = 0, string! callerArgumentExpression = "") -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, Waystone.Monads.Results.Errors.Error!>!>
 static Waystone.Monads.Results.Result<TOk, TErr>.operator !=(Waystone.Monads.Results.Result<TOk, TErr>? left, Waystone.Monads.Results.Result<TOk, TErr>? right) -> bool
 static Waystone.Monads.Results.Result<TOk, TErr>.operator ==(Waystone.Monads.Results.Result<TOk, TErr>? left, Waystone.Monads.Results.Result<TOk, TErr>? right) -> bool
-virtual Waystone.Monads.Configs.CallerInfo.<Clone>$() -> Waystone.Monads.Configs.CallerInfo!
-virtual Waystone.Monads.Configs.CallerInfo.EqualityContract.get -> System.Type!
-virtual Waystone.Monads.Configs.CallerInfo.Equals(Waystone.Monads.Configs.CallerInfo? other) -> bool
-virtual Waystone.Monads.Configs.CallerInfo.PrintMembers(System.Text.StringBuilder! builder) -> bool
 virtual Waystone.Monads.Configs.ErrorCodeFactory.FromException(System.Exception! exception) -> Waystone.Monads.Results.Errors.ErrorCode!
 virtual Waystone.Monads.Options.Option<T>.EqualityContract.get -> System.Type!
 virtual Waystone.Monads.Options.Option<T>.Equals(Waystone.Monads.Options.Option<T>? other) -> bool
@@ -1147,10 +1145,6 @@ virtual Waystone.Monads.Results.Errors.Error.<Clone>$() -> Waystone.Monads.Resul
 virtual Waystone.Monads.Results.Errors.Error.EqualityContract.get -> System.Type!
 virtual Waystone.Monads.Results.Errors.Error.Equals(Waystone.Monads.Results.Errors.Error? other) -> bool
 virtual Waystone.Monads.Results.Errors.Error.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual Waystone.Monads.Results.Errors.ErrorCode.<Clone>$() -> Waystone.Monads.Results.Errors.ErrorCode!
-virtual Waystone.Monads.Results.Errors.ErrorCode.EqualityContract.get -> System.Type!
-virtual Waystone.Monads.Results.Errors.ErrorCode.Equals(Waystone.Monads.Results.Errors.ErrorCode? other) -> bool
-virtual Waystone.Monads.Results.Errors.ErrorCode.PrintMembers(System.Text.StringBuilder! builder) -> bool
 virtual Waystone.Monads.Results.Result<TOk, TErr>.EqualityContract.get -> System.Type!
 virtual Waystone.Monads.Results.Result<TOk, TErr>.Equals(Waystone.Monads.Results.Result<TOk, TErr>? other) -> bool
 virtual Waystone.Monads.Results.Result<TOk, TErr>.PrintMembers(System.Text.StringBuilder! builder) -> bool
