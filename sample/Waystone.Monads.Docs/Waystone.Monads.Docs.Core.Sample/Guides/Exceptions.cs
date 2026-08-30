@@ -1,12 +1,12 @@
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
+using Waystone.Monads.Results.Errors;
 
 namespace Waystone.Monads.Docs.Core.Sample.Guides;
 
 /// <summary>
-/// guides/exceptions.md. The page is almost all prose today and carries no
-/// samples of its own, so these are the calls it describes rather than blocks
-/// lifted from it. Every one of them throws on purpose.
+/// guides/exceptions.md. Every call in the first six methods throws on purpose
+/// — that is what the page is about.
 /// </summary>
 internal static class ExceptionsGuide
 {
@@ -44,5 +44,18 @@ internal static class ExceptionsGuide
     {
         Result<int, string> ok = Result.Ok<int, string>(20);
         ok.ExpectErr("the ritual must fail"); // throws UnmetExpectationException
+    }
+
+    internal static void TrySwallowsTheThrow(string text)
+    {
+        Option<int> parsed = Option.Try(() => int.Parse(text));
+        // None if the parse threw
+
+        _ = parsed;
+    }
+
+    internal static void TheConstructorsRejectNull()
+    {
+        Result.Ok<string, Error>(null!); // throws ArgumentNullException
     }
 }

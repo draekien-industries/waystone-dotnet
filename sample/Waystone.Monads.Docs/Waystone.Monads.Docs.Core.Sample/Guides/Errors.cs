@@ -18,6 +18,23 @@ internal static class ErrorsGuide
         internal static readonly ErrorCode LevelOutOfRange = new("level.out_of_range");
     }
 
+    internal static void ACodeFromACatalog()
+    {
+        ErrorCode code = SpellErrorsCatalog.Codes.SigilMalformed;
+        //        ^? "SpellErrors.SigilMalformed"
+
+        _ = code;
+    }
+
+    internal static void AnErrorFromACatalogFactory()
+    {
+        Error error = SpellErrorsCatalog.Errors.SigilMalformed(
+            "Failed to parse the sigil as a rune sequence");
+        //    ^? Code: "SpellErrors.SigilMalformed", Message: "Failed to parse…"
+
+        _ = error;
+    }
+
     internal static void ErrorCodeFromException()
     {
         try
