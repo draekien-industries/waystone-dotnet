@@ -26,6 +26,68 @@ internal static class ResultGuide
 
     private static readonly ILogger logger = null!;
 
+    internal sealed record Reward(string Item);
+
+    internal static void Creating()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+        Result<int, string> err = Result.Err<int, string>("Something went wrong");
+
+        // TErr defaults to Error when you leave it off
+        Result<int, Error> okWithDefaultError = Result.Ok<int>(1);
+        Result<int, Error> errWithDefaultError =
+            Result.Err<int>(new Error("quest.failed", "Something went wrong"));
+
+        _ = (ok, err, okWithDefaultError, errWithDefaultError);
+    }
+
+    internal static void NeitherSideCanHoldNull()
+    {
+        Result.Ok<string, Error>(null!); // throws ArgumentNullException
+    }
+
+    internal static void ADefaultValueIsFine()
+    {
+        Result<int, string> zero = Result.Ok<int, string>(0);
+        Result<Guid, string> empty = Result.Ok<Guid, string>(Guid.Empty);
+
+        _ = (zero, empty);
+    }
+
+    internal static Result<Reward, Error> ChainingFallibleSteps(string name) =>
+        FindCharacter(name)
+            .AndThen(GetQuest)
+            .AndThen(ClaimReward);
+
+    internal static string MatchingOut(Result<Reward, Error> result) =>
+        result.Match(
+            reward => reward.Item,
+            error => error.Message);
+
+    internal static void UnwrappingOut(Result<Reward, Error> result)
+    {
+        Reward orFallback = result.UnwrapOr(new Reward("A handful of copper"));
+        Reward orComputed = result.UnwrapOrElse(error => new Reward(error.Code));
+
+        _ = (orFallback, orComputed);
+    }
+
+    internal static string PatternMatchingWithSwitch(Result<Reward, Error> result) =>
+        result switch
+        {
+            Ok<Reward, Error>(var reward) => reward.Item,
+            Err<Reward, Error>(var error) => error.Message,
+            _ => throw new UnreachableException(),
+        };
+
+    internal static void PatternMatchingWithIf(Result<Reward, Error> result)
+    {
+        if (result is Err<Reward, Error>(var error))
+        {
+            logger.LogWarning("No reward: {Message}", error.Message);
+        }
+    }
+
     internal static void PrintingAndLogging(Error e)
     {
         _ = Result.Ok<int, Error>(1).ToString();  // "Ok { IsOk = True, IsErr = False }"
@@ -187,6 +249,12 @@ internal static class ResultGuide
 
     private static Result<int, Error> CountRunes(string value) =>
         Result.Ok<int, Error>(value.Length);
+
+    private static Result<Quest, Error> GetQuest(Character character) =>
+        Result.Ok<Quest, Error>(new Quest(1, "Slay the ancient white dragon"));
+
+    private static Result<Reward, Error> ClaimReward(Quest quest) =>
+        Result.Ok<Reward, Error>(new Reward("Fenthras, Wrath of the Fey Wilds"));
 
     private static Result<Character, Error> FindCharacter(string name) =>
         Result.Ok<Character, Error>(new Character(name));
