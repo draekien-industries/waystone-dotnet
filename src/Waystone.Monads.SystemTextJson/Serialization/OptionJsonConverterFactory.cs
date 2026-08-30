@@ -64,5 +64,5 @@ public sealed class OptionJsonConverterFactory : JsonConverterFactory
         JsonSerializerOptions options) =>
         (JsonConverter)Activator.CreateInstance(
             typeof(OptionJsonConverter<>).MakeGenericType(
-                typeToConvert.GetGenericArguments()[0]))!;
+                typeToConvert.GetGenericArguments()))!;
 }
