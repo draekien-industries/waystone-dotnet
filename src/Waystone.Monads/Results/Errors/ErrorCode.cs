@@ -10,7 +10,7 @@ using Configs;
 /// and <c>ORDER.NOTFOUND</c> are different codes. Keep a code stable across
 /// occurrences of the same error type, since consumers branch on it.
 /// </remarks>
-public record ErrorCode
+public sealed record ErrorCode
 {
     /// <summary>
     /// Creates a new instance of <see cref="ErrorCode" /> from a string

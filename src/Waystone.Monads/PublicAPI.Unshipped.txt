@@ -1,1 +1,15 @@
 #nullable enable
+*REMOVED*virtual Waystone.Monads.Configs.CallerInfo.<Clone>$() -> Waystone.Monads.Configs.CallerInfo!
+*REMOVED*virtual Waystone.Monads.Configs.CallerInfo.EqualityContract.get -> System.Type!
+*REMOVED*virtual Waystone.Monads.Configs.CallerInfo.Equals(Waystone.Monads.Configs.CallerInfo? other) -> bool
+*REMOVED*virtual Waystone.Monads.Configs.CallerInfo.PrintMembers(System.Text.StringBuilder! builder) -> bool
+*REMOVED*Waystone.Monads.Configs.CallerInfo.CallerInfo(Waystone.Monads.Configs.CallerInfo! original) -> void
+*REMOVED*virtual Waystone.Monads.Results.Errors.ErrorCode.<Clone>$() -> Waystone.Monads.Results.Errors.ErrorCode!
+*REMOVED*virtual Waystone.Monads.Results.Errors.ErrorCode.EqualityContract.get -> System.Type!
+*REMOVED*virtual Waystone.Monads.Results.Errors.ErrorCode.Equals(Waystone.Monads.Results.Errors.ErrorCode? other) -> bool
+*REMOVED*virtual Waystone.Monads.Results.Errors.ErrorCode.PrintMembers(System.Text.StringBuilder! builder) -> bool
+*REMOVED*Waystone.Monads.Results.Errors.ErrorCode.ErrorCode(Waystone.Monads.Results.Errors.ErrorCode! original) -> void
+Waystone.Monads.Configs.CallerInfo.<Clone>$() -> Waystone.Monads.Configs.CallerInfo!
+Waystone.Monads.Configs.CallerInfo.Equals(Waystone.Monads.Configs.CallerInfo? other) -> bool
+Waystone.Monads.Results.Errors.ErrorCode.<Clone>$() -> Waystone.Monads.Results.Errors.ErrorCode!
+Waystone.Monads.Results.Errors.ErrorCode.Equals(Waystone.Monads.Results.Errors.ErrorCode? other) -> bool

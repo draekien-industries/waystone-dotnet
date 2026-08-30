@@ -25,7 +25,7 @@ using System.Diagnostics;
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
-public record CallerInfo(
+public sealed record CallerInfo(
     string MemberName,
     string ArgumentExpression,
     int LineNumber);
