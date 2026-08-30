@@ -3,7 +3,7 @@ using Waystone.Monads.Results.Extensions;
 
 namespace Waystone.Monads.Docs.Core.Sample.Reference.ResultApi;
 
-/// <summary>reference/result/nesting.md — the collection extensions</summary>
+/// <summary>reference/result/collections.md</summary>
 internal static class ResultCollections
 {
     internal sealed record Report(int Count);

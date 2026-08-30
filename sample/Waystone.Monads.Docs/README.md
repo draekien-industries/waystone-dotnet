@@ -53,8 +53,11 @@ A file is named for the page it comes from, and says so in a `<summary>` on the
 type. When a build breaks, the file name is the page to go and fix.
 
 The core project mirrors the page tree in folders — `StartHere/`, `Guides/`,
-`Reference/` — because that project covers most of the space and a flat list of
-twenty files would stop being navigable.
+`Reference/Option/`, `Reference/Result/` — because that project covers most of
+the space and a flat list of thirty files would stop being navigable.
+
+`Reference/StateOverloads.cs` sits at the top of `Reference/` rather than under
+either type, because `reference/state-overloads.md` covers both.
 
 ## The samples are D&D-themed
 

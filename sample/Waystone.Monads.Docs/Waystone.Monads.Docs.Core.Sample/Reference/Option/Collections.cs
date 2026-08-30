@@ -3,7 +3,7 @@ using Waystone.Monads.Options.Extensions;
 
 namespace Waystone.Monads.Docs.Core.Sample.Reference.OptionApi;
 
-/// <summary>reference/option/nesting.md — the collection extensions</summary>
+/// <summary>reference/option/collections.md</summary>
 internal static class OptionCollections
 {
     internal static void Filter()
@@ -130,5 +130,15 @@ internal static class OptionCollections
         //     ^? "Trinket"
 
         _ = first;
+    }
+
+    internal static void AsEnumerable()
+    {
+        Option<string> maybeName = Option.Some("Pike");
+
+        IEnumerable<string> sequence = maybeName.AsEnumerable();
+        //                  ^? ["Pike"], and [] for a None
+
+        _ = sequence;
     }
 }

@@ -1,27 +1,14 @@
-using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
 
-namespace Waystone.Monads.Docs.Core.Sample.Reference;
+namespace Waystone.Monads.Docs.Core.Sample.Reference.ResultApi;
 
-/// <summary>
-/// reference/option/creation.md and reference/result/creation.md. The source
-/// page covers both types under one heading, so this file does too. Split it
-/// when the two reference pages are written.
-/// </summary>
-internal static class Creation
+/// <summary>reference/result/creation.md</summary>
+internal static class ResultCreation
 {
     internal sealed record Adventurer(string Name, Uri Portrait);
 
-    internal static void OptionFactories()
-    {
-        Option<string> some = Option.Some("Hello Bees!");
-        Option<string> none = Option.None<string>();
-
-        _ = (some, none);
-    }
-
-    internal static void ResultFactories()
+    internal static void Factories()
     {
         Result<int, string> ok = Result.Ok<int, string>(1);
         Result<int, string> err = Result.Err<int, string>("Something went wrong...");
@@ -29,7 +16,7 @@ internal static class Creation
         _ = (ok, err);
     }
 
-    internal static void ResultFactoriesDefaultingToError()
+    internal static void FactoriesDefaultingToError()
     {
         Result<int, Error> ok = Result.Ok<int>(1);
         Result<int, Error> err = Result.Err<int>(
@@ -47,14 +34,14 @@ internal static class Creation
         Result.Ok<string, Error>(null!); // throws
     }
 
-    internal static void OptionTry()
+    internal static void ADefaultValueIsFine()
     {
-        Option<Adventurer> maybeAdventurer = Option.Try(() => GetCurrentAdventurer());
+        Result<int, string> zero = Result.Ok<int, string>(0);
 
-        _ = maybeAdventurer;
+        _ = zero;
     }
 
-    internal static void ResultTryWithYourOwnErrorType()
+    internal static void TryWithYourOwnErrorType()
     {
         Result<Adventurer, string> result = Result.Try(
             factory: () => GetCurrentAdventurer(),
@@ -63,7 +50,7 @@ internal static class Creation
         _ = result;
     }
 
-    internal static void ResultTryDefaultingToError()
+    internal static void TryDefaultingToError()
     {
         Result<Adventurer, Error> result = Result.Try<Adventurer>(
             () => GetCurrentAdventurer());
@@ -71,20 +58,30 @@ internal static class Creation
         _ = result;
     }
 
+    internal static async Task TryAsync()
+    {
+        Result<Adventurer, string> result = await Result.TryAsync(
+            asyncFactory: () => GetCurrentAdventurerAsync(),
+            onError: ex => ex.Message);
+
+        _ = result;
+    }
+
     internal static void PassingStateToTheFactory(string text)
     {
-        Option<int> parsed = Option.Try(text, static value => int.Parse(value));
-
         Result<int, Error> result = Result.Try(text, static value => int.Parse(value));
 
-        _ = (parsed, result);
+        _ = result;
     }
 
     private static Adventurer GetCurrentAdventurer() =>
         new("Chetney", new Uri("https://example.test/chetney.png"));
+
+    private static Task<Adventurer> GetCurrentAdventurerAsync() =>
+        Task.FromResult(GetCurrentAdventurer());
 }
 
-/// <summary>reference/*/creation.md — the catalog the creation page marks up</summary>
+/// <summary>reference/result/creation.md — the catalog the page marks up</summary>
 [ErrorCodeCatalog]
 public enum PartyErrors
 {
