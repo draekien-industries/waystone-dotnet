@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads.NewtonsoftJson\Waystone.Monads.NewtonsoftJson.csproj"/>
+    </ItemGroup>
+
+</Project>

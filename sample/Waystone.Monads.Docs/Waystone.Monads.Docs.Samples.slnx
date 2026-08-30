@@ -1,0 +1,21 @@
+<Solution>
+  <Project Path="../../src/Waystone.Monads.Analyzers.CodeFixes/Waystone.Monads.Analyzers.CodeFixes.csproj" />
+  <Project Path="../../src/Waystone.Monads.Analyzers/Waystone.Monads.Analyzers.csproj" />
+  <Project Path="../../src/Waystone.Monads.FluentValidation/Waystone.Monads.FluentValidation.csproj" />
+  <Project Path="../../src/Waystone.Monads.Linq/Waystone.Monads.Linq.csproj" />
+  <Project Path="../../src/Waystone.Monads.NewtonsoftJson/Waystone.Monads.NewtonsoftJson.csproj" />
+  <Project Path="../../src/Waystone.Monads.Shouldly.Analyzers.CodeFixes/Waystone.Monads.Shouldly.Analyzers.CodeFixes.csproj" />
+  <Project Path="../../src/Waystone.Monads.Shouldly.Analyzers/Waystone.Monads.Shouldly.Analyzers.csproj" />
+  <Project Path="../../src/Waystone.Monads.Shouldly/Waystone.Monads.Shouldly.csproj" />
+  <Project Path="../../src/Waystone.Monads.SourceGenerators/Waystone.Monads.SourceGenerators.csproj" />
+  <Project Path="../../src/Waystone.Monads.SystemTextJson/Waystone.Monads.SystemTextJson.csproj" />
+  <Project Path="../../src/Waystone.Monads/Waystone.Monads.csproj" />
+  <Project Path="../../src/Waystone.SourceGenerators/Waystone.SourceGenerators.csproj" />
+  <Project Path="Waystone.Monads.Docs.Core.Sample/Waystone.Monads.Docs.Core.Sample.csproj" />
+  <Project Path="Waystone.Monads.Docs.FluentValidation.Sample/Waystone.Monads.Docs.FluentValidation.Sample.csproj" />
+  <Project Path="Waystone.Monads.Docs.Linq.Sample/Waystone.Monads.Docs.Linq.Sample.csproj" />
+  <Project Path="Waystone.Monads.Docs.NewtonsoftJson.Sample/Waystone.Monads.Docs.NewtonsoftJson.Sample.csproj" />
+  <Project Path="Waystone.Monads.Docs.Shouldly.Sample/Waystone.Monads.Docs.Shouldly.Sample.csproj" />
+  <Project Path="Waystone.Monads.Docs.SourceGeneration.Sample/Waystone.Monads.Docs.SourceGeneration.Sample.csproj" />
+  <Project Path="Waystone.Monads.Docs.SystemTextJson.Sample/Waystone.Monads.Docs.SystemTextJson.Sample.csproj" />
+</Solution>
