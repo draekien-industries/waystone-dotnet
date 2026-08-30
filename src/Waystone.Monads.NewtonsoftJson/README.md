@@ -160,9 +160,15 @@ writes the identical format.
 
 Deserializing throws `JsonSerializationException` when the payload is not an
 object, when `$type` is missing or is not a string, when `value` is missing,
-when `$type` names neither case, or when `value` is null. A result has no null
-case, so accepting one would push the failure somewhere later and harder to
-trace.
+when `$type` names neither case, or when `value` deserializes to null. A result
+has no null case, so accepting one would push the failure somewhere later and
+harder to trace.
+
+A null `value` is not rejected on sight. It is deserialized as the case's type
+first, so a payload whose own converter reads `null` still round-trips — most
+usefully `Result<Option<T>, TErr>`, where `Ok(None)` writes `"value": null` and
+reads back as `Ok(None)`. `Waystone.Monads.SystemTextJson` reads it the same
+way.
 
 Property order does not matter — `{"value":42,"$type":"ok"}` reads the same as
 the canonical order.

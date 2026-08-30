@@ -96,6 +96,14 @@ public sealed class ResultJsonConverter : JsonConverter
     /// Property order does not matter. Anything a result cannot hold is rejected
     /// rather than coerced, since accepting it would push the failure somewhere
     /// later and harder to trace.
+    /// <para>
+    /// A null <c>value</c> is not one of those things by itself. The payload is
+    /// deserialized as the case's type first, and only the deserialized value is
+    /// checked, so a payload type whose own converter reads null - an
+    /// <c>Option&lt;T&gt;</c>, for one - round-trips a <c>Ok(None)</c> intact.
+    /// This matches <c>Waystone.Monads.SystemTextJson</c>, which reads the same
+    /// payload the same way.
+    /// </para>
     /// </remarks>
     /// <param name="reader">The reader, positioned on the result's object.</param>
     /// <param name="objectType">
@@ -114,7 +122,8 @@ public sealed class ResultJsonConverter : JsonConverter
     /// <exception cref="JsonSerializationException">
     /// Thrown when the payload is not an object, when <c>$type</c> is missing or
     /// is not a string, when <c>$type</c> names neither case, when <c>value</c>
-    /// is missing, or when <c>value</c> is null - a result has no null case.
+    /// is missing, or when <c>value</c> deserializes to null - a result has no
+    /// null case.
     /// </exception>
     public override object ReadJson(
         JsonReader reader,
@@ -140,12 +149,6 @@ public sealed class ResultJsonConverter : JsonConverter
         {
             throw new JsonSerializationException(
                 $"A result must carry a \"{ValueProperty}\" property holding its payload.");
-        }
-
-        if (payload.Type == JTokenType.Null)
-        {
-            throw new JsonSerializationException(
-                $"A result's \"{ValueProperty}\" cannot be null; neither case can hold one.");
         }
 
         IResultAdapter adapter = AdapterFor(objectType);

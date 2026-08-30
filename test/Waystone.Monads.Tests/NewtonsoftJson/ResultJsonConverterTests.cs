@@ -152,13 +152,43 @@ public class ResultJsonConverterTests
     [Theory]
     [InlineData("{\"$type\":\"ok\",\"value\":null}")]
     [InlineData("{\"$type\":\"err\",\"value\":null}")]
-    public void WhenThePayloadIsNull_ThenThrowRatherThanBuildANullCase(
+    public void WhenAReferenceTypePayloadIsNull_ThenThrowRatherThanBuildANullCase(
         string json) =>
         Should.Throw<JsonSerializationException>(
-                   () => JsonConvert.DeserializeObject<Result<int, string>>(
+                   () => JsonConvert.DeserializeObject<Result<string, string>>(
                        json,
                        Settings()))
               .Message.ShouldContain("cannot be null");
+
+    [Theory]
+    [InlineData("{\"$type\":\"ok\",\"value\":null}")]
+    [InlineData("{\"$type\":\"err\",\"value\":null}")]
+    public void WhenAValueTypePayloadIsNull_ThenLetTheSerializerRejectItFirst(
+        string json) =>
+        Should.Throw<JsonSerializationException>(
+            () => JsonConvert.DeserializeObject<Result<int, int>>(
+                json,
+                Settings()));
+
+    [Fact]
+    public void WhenThePayloadIsAnOption_ThenReadANullValueAsNone() =>
+        JsonConvert.DeserializeObject<Result<Option<int>, string>>(
+                        "{\"$type\":\"ok\",\"value\":null}",
+                        Settings())
+                   .ShouldBe(Result.Ok<Option<int>, string>(Option.None<int>()));
+
+    [Fact]
+    public void WhenTheOkCaseHoldsANone_ThenRoundTripIt()
+    {
+        JsonSerializerSettings settings = Settings();
+        Result<Option<int>, string> before =
+            Result.Ok<Option<int>, string>(Option.None<int>());
+
+        JsonConvert.DeserializeObject<Result<Option<int>, string>>(
+                        JsonConvert.SerializeObject(before, settings),
+                        settings)
+                   .ShouldBe(before);
+    }
 
     [Theory]
     [InlineData("ok")]

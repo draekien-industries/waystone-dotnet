@@ -1,6 +1,7 @@
 namespace System.Text.Json.Serialization;
 
 using Shouldly;
+using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
 using Xunit;
@@ -166,6 +167,27 @@ public class ResultJsonConverterTests
             () => JsonSerializer.Deserialize<Result<int, string>>(
                 "{\"$type\":\"ok\",\"value\":null}",
                 Options()));
+
+    [Fact]
+    public void WhenThePayloadIsAnOption_ThenReadANullValueAsNone() =>
+        JsonSerializer.Deserialize<Result<Option<int>, string>>(
+                          "{\"$type\":\"ok\",\"value\":null}",
+                          Options())
+                      .ShouldBe(
+                           Result.Ok<Option<int>, string>(Option.None<int>()));
+
+    [Fact]
+    public void WhenTheOkCaseHoldsANone_ThenRoundTripIt()
+    {
+        JsonSerializerOptions options = Options();
+        Result<Option<int>, string> before =
+            Result.Ok<Option<int>, string>(Option.None<int>());
+
+        JsonSerializer.Deserialize<Result<Option<int>, string>>(
+                          JsonSerializer.Serialize(before, options),
+                          options)
+                      .ShouldBe(before);
+    }
 
     [Fact]
     public void WhenAskedWhetherToHandleNull_ThenSayYesSoNullCanBeRejected() =>
