@@ -1,0 +1,138 @@
+# Waystone.Monads.SystemTextJson
+
+An interop package for using System.Text.Json with Waystone.Monads
+
+## Namespaces
+
+The package shadows `System.Text.Json`'s own namespaces, so its types sit where
+a consumer already looks for them rather than under a parallel `Waystone` tree:
+
+| Member | Namespace |
+| --- | --- |
+| `AddMonadConverters` | `System.Text.Json` |
+| `OptionJsonConverter<T>`, `OptionJsonConverterFactory` | `System.Text.Json.Serialization` |
+
+The converters follow `JsonConverter<T>` down into
+`System.Text.Json.Serialization`; the extension method sits beside the
+`JsonSerializerOptions` it extends.
+
+## Supported System.Text.Json versions
+
+`System.Text.Json >= 8.0.5 && < 11.0.0`. Bring your own version inside that
+range; the package does not pin you to one. Every version in the range ships a
+`netstandard2.0` and a `net462` asset, so .NET Framework consumers are covered.
+
+## Registration
+
+```csharp
+JsonSerializerOptions options = new();
+options.AddMonadConverters();
+
+string json = JsonSerializer.Serialize(model, options);
+```
+
+Call it once, while the options are still being built. `System.Text.Json`
+freezes a `JsonSerializerOptions` the first time it serializes with it, and
+adding a converter afterwards throws.
+
+## Option
+
+`Option<T>` serializes as the value itself, or as `null`. This is the format
+Rust's serde uses, and it means a payload is the payload you would have written
+had the property been a plain `T` — adopting `Option<T>` in a model does not
+change the contract on the wire.
+
+```csharp
+public sealed record Person
+{
+    public Option<string> Nickname { get; init; } = Option.None<string>();
+}
+```
+
+```jsonc
+{ "nickname": "Ally" }   // Option.Some("Ally")
+{ "nickname": null }     // Option.None<string>()
+```
+
+### None writes the property, it does not remove it
+
+A converter cannot delete its own property from the enclosing object, so a
+`None` writes `"nickname": null` rather than omitting `nickname`.
+
+**`JsonIgnoreCondition.WhenWritingNull` does not help here.** It tests the CLR
+value for null, and `Option.None<T>()` is an object like any other — never null
+— so the property is written regardless. The same goes for
+`[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]`.
+
+What does work is a type-info modifier, which decides per property whether to
+write it at all:
+
+```csharp
+options.TypeInfoResolver = new DefaultJsonTypeInfoResolver
+{
+    Modifiers = { SkipNoneProperties },
+};
+
+static void SkipNoneProperties(JsonTypeInfo typeInfo)
+{
+    foreach (JsonPropertyInfo property in typeInfo.Properties)
+    {
+        property.ShouldSerialize = static (_, value) =>
+            value is null
+         || value.GetType() is not { IsGenericType: true } type
+         || type.GetGenericTypeDefinition() != typeof(None<>);
+    }
+}
+```
+
+This package does not ship that modifier. Omitting a property is a decision
+about your wire contract, not about `Option<T>`, and a consumer who wants it
+usually wants it for some models and not others.
+
+### An absent property does not read back as None
+
+If the property is missing from the payload entirely, `System.Text.Json` never
+invokes the converter for that member and the CLR member keeps its default —
+which for `Option<T>` is `null`, not `None<T>()`. Initialise the member, as
+`Person.Nickname` does above, or the model will hold a null where it promised an
+option.
+
+### Nested options collapse
+
+`Option<Option<T>>` does not survive a round trip. `Some(None)` and `None` both
+write `null`, and both read back as `None`:
+
+```csharp
+Option<Option<int>> before = Option.Some(Option.None<int>());
+string json = JsonSerializer.Serialize(before, options);   // "null"
+Option<Option<int>> after = JsonSerializer.Deserialize<Option<Option<int>>>(json, options)!;
+// after is None<Option<int>>(), not Some(None<int>())
+```
+
+The converter accepts this rather than throwing, because throwing on a shape the
+type system allows is worse than losing a distinction nobody should be relying
+on. The `WM2009` analyzer in `Waystone.Monads.Analyzers` already reports the
+declaration, which is the right place to catch it.
+
+## Trimming and NativeAOT
+
+`OptionJsonConverterFactory` closes `OptionJsonConverter<T>` reflectively, once
+per option type, and the serializer caches the result. Under NativeAOT that can
+fail when `T` is a value type, because a generic instantiation over a value type
+needs code emitted ahead of time and the compiler cannot see through the call.
+
+Register those explicitly instead. The concrete converters are public with
+public parameterless constructors precisely so this path exists, and it involves
+no reflection at all:
+
+```csharp
+options.Converters.Add(new OptionJsonConverter<int>());
+```
+
+Reference types are unaffected — every one of them shares a single compiled
+converter — so a model made of `Option<string>` and `Option<Uri>` needs nothing
+extra.
+
+`Option<T>` members do not get the source-generation fast path from a
+`JsonSerializerContext`. A factory-produced converter works from one, but only
+correctness is guaranteed, not the performance benefit.

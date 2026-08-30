@@ -1,0 +1,12 @@
+#nullable enable
+System.Text.Json.JsonSerializerOptionsExtensions
+System.Text.Json.Serialization.OptionJsonConverter<T>
+System.Text.Json.Serialization.OptionJsonConverter<T>.OptionJsonConverter() -> void
+System.Text.Json.Serialization.OptionJsonConverterFactory
+System.Text.Json.Serialization.OptionJsonConverterFactory.OptionJsonConverterFactory() -> void
+override System.Text.Json.Serialization.OptionJsonConverter<T>.HandleNull.get -> bool
+override System.Text.Json.Serialization.OptionJsonConverter<T>.Read(ref System.Text.Json.Utf8JsonReader reader, System.Type! typeToConvert, System.Text.Json.JsonSerializerOptions! options) -> Waystone.Monads.Options.Option<T>!
+override System.Text.Json.Serialization.OptionJsonConverter<T>.Write(System.Text.Json.Utf8JsonWriter! writer, Waystone.Monads.Options.Option<T>! value, System.Text.Json.JsonSerializerOptions! options) -> void
+override System.Text.Json.Serialization.OptionJsonConverterFactory.CanConvert(System.Type! typeToConvert) -> bool
+override System.Text.Json.Serialization.OptionJsonConverterFactory.CreateConverter(System.Type! typeToConvert, System.Text.Json.JsonSerializerOptions! options) -> System.Text.Json.Serialization.JsonConverter!
+static System.Text.Json.JsonSerializerOptionsExtensions.AddMonadConverters(this System.Text.Json.JsonSerializerOptions! options) -> System.Text.Json.JsonSerializerOptions!

@@ -11,6 +11,7 @@
         <ProjectReference Include="..\..\src\Waystone.Monads.FluentValidation\Waystone.Monads.FluentValidation.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Linq\Waystone.Monads.Linq.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Shouldly\Waystone.Monads.Shouldly.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 
