@@ -1,0 +1,45 @@
+<Project>
+
+    <!--
+      Shared settings for the documentation sample projects only. The other
+      projects under sample/ are runnable demonstrations with their own
+      requirements, and Waystone.Monads.Analyzers.Sample deliberately produces
+      warnings, so this file sits one level down rather than in sample/.
+    -->
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>latest</LangVersion>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <!--
+      A documentation sample only has to compile. Nothing here is run, so every
+      project is a library and none needs an entry point.
+    -->
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+    </PropertyGroup>
+
+    <!--
+      An obsolete API in a sample has to fail the build. That is the whole
+      reason these projects exist: a deprecated call reads fine, compiles fine,
+      and its warning scrolls past in a build log nobody reads.
+    -->
+    <PropertyGroup>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    </PropertyGroup>
+
+    <!--
+      CS1591 is a missing XML doc comment. These are samples, not a published
+      surface. CS8321 is an unused local function, which a page routinely has
+      because it shows a signature without a caller.
+    -->
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS1591;CS8321</NoWarn>
+    </PropertyGroup>
+
+</Project>
