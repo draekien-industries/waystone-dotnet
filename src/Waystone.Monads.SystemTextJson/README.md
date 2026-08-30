@@ -174,8 +174,18 @@ code or metadata.
 
 A generic instantiation over a value type needs its own compiled code, and the
 compiler cannot see through `MakeGenericType` to know it will be asked for one.
-This is measured, not inferred — `Waystone.Monads.SystemTextJson.AotVerification`
-in this repository publishes with `PublishAot` and pins the behaviour.
+Reference types all share a single compiled converter, so they are unaffected.
+
+This is measured under `PublishAot` on .NET 10, not inferred:
+
+| Registered through | Type argument | Under NativeAOT |
+| --- | --- | --- |
+| `AddMonadConverters()` | reference type | works |
+| `AddMonadConverters()` | value type | throws |
+| `options.Converters.Add(new …)` | either | works |
+
+For `Result<TOk, TErr>` it is enough for one of the two arguments to be a value
+type.
 
 Register value-type monads explicitly instead. The concrete converters are public with
 public parameterless constructors precisely so this path exists, and it involves
