@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+    This project overrides the shared test matrix, and the reason belongs here
+    rather than in test/Directory.Build.props. A NativeAOT publish targets one
+    runtime, so the five-framework matrix cannot apply; net10.0 is the newest
+    framework the repository targets and the one a NativeAOT consumer would be
+    on. IsTestProject is false because this is a console harness rather than an
+    xunit project - `dotnet test` would otherwise try to run it and find no
+    tests.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks></TargetFrameworks>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsTestProject>false</IsTestProject>
+        <PublishAot>true</PublishAot>
+        <InvariantGlobalization>true</InvariantGlobalization>
+    </PropertyGroup>
+
+    <!--
+    Reflection-based serialization is the path under test. PublishAot turns it
+    off by default, and the two IL warnings say exactly that: JsonSerializer
+    without a JsonTypeInfo needs reflection the compiler cannot see through.
+    Exercising that path is the point of this harness - it is how we learn
+    whether the converter factories can close their generics at run time - so
+    the warnings are suppressed here and nowhere else. A consumer who wants
+    those warnings to stay meaningful uses a source-generated
+    JsonSerializerContext instead; see this project's README.
+    -->
+    <PropertyGroup>
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+        <NoWarn>$(NoWarn);IL2026;IL3050</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>
+    </ItemGroup>
+</Project>

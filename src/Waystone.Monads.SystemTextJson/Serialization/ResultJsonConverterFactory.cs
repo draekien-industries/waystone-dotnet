@@ -17,7 +17,7 @@ using Waystone.Monads.Results;
 /// <para>
 /// Closing the converter costs one reflective construction the first time the
 /// serializer meets a given <c>Result&lt;TOk, TErr&gt;</c>, after which the
-/// serializer caches it. Under NativeAOT that construction can fail when either
+/// serializer caches it. Under NativeAOT that construction throws when either
 /// type argument is a value type, since a generic instantiation over one needs
 /// code the compiler emits ahead of time and cannot see through this call.
 /// Register those explicitly - <c>new ResultJsonConverter&lt;int, string&gt;()</c>
