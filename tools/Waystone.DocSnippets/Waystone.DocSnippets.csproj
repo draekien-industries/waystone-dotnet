@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+      A developer utility, not a package. It only ever runs on this repository's
+      own SDK, so it targets one framework rather than the matrix the test
+      projects carry.
+    -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>latestMajor</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
+        <RootNamespace>Waystone.DocSnippets</RootNamespace>
+        <AssemblyName>Waystone.DocSnippets</AssemblyName>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <!--
+      The tool is written against the library it documents. That is not decoration:
+      the sample projects prove a page compiles, and this proves the same API is
+      pleasant to hold for a whole program rather than a five-line excerpt.
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <!--
+      Imported by hand because the library is taken by ProjectReference. A consumer
+      installing the package gets the generator without doing this.
+    -->
+    <Import Project="..\..\src\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
+
+</Project>
