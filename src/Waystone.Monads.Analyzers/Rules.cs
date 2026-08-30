@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Analyzers;
+﻿namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis;
 
@@ -7,6 +7,12 @@ internal static class Rules
     private const string Reliability = nameof(Reliability);
     private const string Usage = nameof(Usage);
     private const string Design = nameof(Design);
+
+    private const string DocsRoot = "https://draekien-industries.wpei.me/analyzers/";
+
+    private const string RuntimeBugsPage = "runtime-bugs";
+    private const string IdiomsPage = "idioms";
+    private const string MigrationAidsPage = "migration-aids";
 
     /// <remarks>
     /// Reports the null case alone, because <c>Some</c> rejects null but
@@ -404,6 +410,7 @@ internal static class Rules
             Reliability,
             DiagnosticSeverity.Warning,
             true,
+            RuntimeBugsPage,
             tags);
 
     private static DiagnosticDescriptor Idiom(
@@ -420,6 +427,7 @@ internal static class Rules
             Usage,
             DiagnosticSeverity.Info,
             true,
+            IdiomsPage,
             tags);
 
     private static DiagnosticDescriptor Migration(
@@ -436,6 +444,7 @@ internal static class Rules
             Design,
             DiagnosticSeverity.Info,
             false,
+            MigrationAidsPage,
             tags);
 
     private static DiagnosticDescriptor Create(
@@ -446,6 +455,7 @@ internal static class Rules
         string category,
         DiagnosticSeverity severity,
         bool enabledByDefault,
+        string page,
         params string[] tags) =>
         new DiagnosticDescriptor(
             id,
@@ -455,7 +465,6 @@ internal static class Rules
             severity,
             enabledByDefault,
             description,
-            "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
-          + id.ToLowerInvariant(),
+            DocsRoot + page + "#" + id.ToLowerInvariant(),
             tags);
 }

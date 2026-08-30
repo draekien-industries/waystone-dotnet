@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Analyzers;
+﻿namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis;
 using Shouldly;
@@ -38,13 +38,36 @@ public class RulesTests
     public void MigrationRulesAreOffByDefault(string id) =>
         Rule(id).IsEnabledByDefault.ShouldBeFalse();
 
+    /// <summary>
+    /// The link names the page its tier lives on, not one page for every rule.
+    /// </summary>
+    /// <remarks>
+    /// A GitBook redirect drops the fragment, so an id-keyed indirection like
+    /// <c>wm/WM2017</c> would land a reader at the top of a page holding twenty-five
+    /// rules. The page path is baked instead, which costs a patch release if the
+    /// documentation is reorganised again — and lands the reader on the rule.
+    /// </remarks>
     [Theory]
     [MemberData(nameof(AllRules))]
-    public void EveryRuleCarriesAHelpLink(string id) =>
+    public void EveryRuleCarriesAHelpLinkToItsTierPage(string id) =>
         Rule(id)
            .HelpLinkUri.ShouldBe(
-                "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
+                "https://draekien-industries.wpei.me/analyzers/"
+              + PageFor(id)
+              + "#"
               + id.ToLowerInvariant());
+
+    private static string PageFor(string id) =>
+        id[2] switch
+        {
+            '1' => "runtime-bugs",
+            '2' => "idioms",
+            '3' => "migration-aids",
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(id),
+                id,
+                "No documentation page covers this tier."),
+        };
 
     [Theory]
     [MemberData(nameof(AllRules))]

@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Shouldly.Analyzers;
+﻿namespace Waystone.Monads.Shouldly.Analyzers;
 
 using global::Shouldly;
 using Microsoft.CodeAnalysis;
@@ -33,7 +33,7 @@ public class RulesTests
     public void EveryRuleCarriesAHelpLink(string id) =>
         Rule(id)
            .HelpLinkUri.ShouldBe(
-                "https://draekien-industries.wpei.me/using-the-library/analyzer-rules#"
+                "https://draekien-industries.wpei.me/analyzers/assertion-rules#"
               + id.ToLowerInvariant());
 
     [Theory]
