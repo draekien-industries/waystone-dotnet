@@ -55,6 +55,21 @@ published version cannot be withdrawn, so "merge and see" is not available.
 
 ## Public API
 
+**A companion package shadows the namespace of the library it companions.** A package
+that extends a third-party library puts its types in that library's namespaces, not
+under a parallel `Waystone.*` tree, so a consumer reaches them from a `using` they
+already have. `Waystone.Monads.Shouldly` ships in `Shouldly`,
+`Waystone.Monads.Extensions.DependencyInjection` in
+`Microsoft.Extensions.DependencyInjection`, and `Waystone.Monads.FluentValidation` in
+`FluentValidation`, `FluentValidation.Extensions` and `FluentValidation.Configs`.
+Mirror the library's own segments where it has them, and keep our segment names
+(`Configs`, `Extensions`) beneath its root where it does not. The package and
+assembly names keep the `Waystone.` prefix — only the namespaces shadow.
+
+This does not apply to a package that extends `Waystone.Monads` itself rather than a
+third party: `Waystone.Monads.Linq` and `Waystone.Monads.Extensions.Logging` keep their
+own namespaces, because the namespace they would shadow is already ours.
+
 **Deprecate; never remove.** Public API is obsoleted with a message naming both its
 replacement and the version that removes it, and removed only in the next major.
 Deleting public API outright is not an option, however small the change looks.
