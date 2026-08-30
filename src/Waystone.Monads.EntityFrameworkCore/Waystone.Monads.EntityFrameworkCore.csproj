@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+    No netstandard2.0 target, unlike the other companion packages. EF Core 6 and
+    later ship net6.0+ assets only, so a netstandard2.0 project cannot reference
+    Microsoft.EntityFrameworkCore at all - restore fails the compatibility check.
+    net8.0 and net10.0 follow the Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore
+    precedent: current LTS plus the newest major.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
+        <LangVersion>latestMajor</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>Waystone.Monads.EntityFrameworkCore</Title>
+        <Description>
+            An interop package for using Entity Framework Core with Waystone.Monads, mapping Option properties onto a single nullable column.
+        </Description>
+        <PackageTags>result pattern option monad aspnetcore rust error handling framework entityframeworkcore efcore orm persistence</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="PolySharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,13 @@
+#nullable enable
+Microsoft.EntityFrameworkCore.ChangeTracking.OptionValueComparer<T>
+Microsoft.EntityFrameworkCore.ChangeTracking.OptionValueComparer<T>.OptionValueComparer() -> void
+Microsoft.EntityFrameworkCore.DbContextOptionsBuilderExtensions
+Microsoft.EntityFrameworkCore.ModelBuilderExtensions
+Microsoft.EntityFrameworkCore.Storage.ValueConversion.ReferenceTypeOptionConverter<T>
+Microsoft.EntityFrameworkCore.Storage.ValueConversion.ReferenceTypeOptionConverter<T>.ReferenceTypeOptionConverter() -> void
+Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueTypeOptionConverter<T>
+Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueTypeOptionConverter<T>.ValueTypeOptionConverter() -> void
+override Microsoft.EntityFrameworkCore.Storage.ValueConversion.ReferenceTypeOptionConverter<T>.ConvertsNulls.get -> bool
+override Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueTypeOptionConverter<T>.ConvertsNulls.get -> bool
+static Microsoft.EntityFrameworkCore.DbContextOptionsBuilderExtensions.UseWaystoneOptionQueries(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder! optionsBuilder) -> Microsoft.EntityFrameworkCore.DbContextOptionsBuilder!
+static Microsoft.EntityFrameworkCore.ModelBuilderExtensions.UseWaystoneOptionConversions(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder) -> Microsoft.EntityFrameworkCore.ModelBuilder!
