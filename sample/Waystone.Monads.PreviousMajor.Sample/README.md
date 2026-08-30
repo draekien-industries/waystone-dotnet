@@ -33,13 +33,13 @@ count table rather than trusting that the row you care about is current.
 
 ## Why it is not in the build
 
-The project is listed in `Waystone.Net.sln` with `ActiveCfg` lines and **no**
-`Build.0` lines, so `dotnet build` at the root skips it while an IDE still loads
-it and builds it on demand. That covers CI, which builds the same solution.
+The project is listed in `Waystone.Net.slnx` with `<Build Project="false" />`, so
+`dotnet build` at the root skips it while an IDE still loads it and builds it on
+demand. That covers CI, which builds the same solution.
 
-If you re-add it with `dotnet sln add`, strip the `Build.0` lines again — the
-command puts them back, and the first breaking layer would then fail every
-workflow in the repository.
+If you re-add it with `dotnet sln add`, put that element back — the command does
+not, and the first breaking layer would then fail every workflow in the
+repository.
 
 `TreatWarningsAsErrors` lives in `src/Directory.Build.props` and there is no
 `Directory.Build.props` at the repository root, so nothing outside `src/**`

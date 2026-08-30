@@ -49,7 +49,7 @@ place. Any scheme that skips the test job has to drop `codecov/patch` from the
 ruleset, which trades a real gate for runner minutes.
 
 The filter was also hiding a compile: `bench/Waystone.Monads.Benchmarks.csproj`
-is in `Waystone.Net.sln`, so `dotnet build` builds it, but `bench/**` was not in
+is in `Waystone.Net.slnx`, so `dotnet build` builds it, but `bench/**` was not in
 the filter. A benchmark that stopped compiling would have reached `main` without
 CI ever noticing.
 

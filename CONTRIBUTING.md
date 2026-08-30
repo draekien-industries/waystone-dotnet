@@ -8,7 +8,7 @@ below.
 ## Getting set up
 
 1. Clone the repository, e.g. `gh repo clone draekien-industries/waystone-dotnet`
-2. Open `Waystone.Net.sln` in your IDE of choice. The SDK version is pinned in
+2. Open `Waystone.Net.slnx` in your IDE of choice. The SDK version is pinned in
    `global.json`.
 3. `dotnet restore` — package versions are managed centrally in
    `Directory.Packages.props`, so do not add a `Version` attribute to a

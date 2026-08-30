@@ -1,0 +1,70 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/bench/">
+    <Project Path="bench/Waystone.Monads.Benchmarks/Waystone.Monads.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/sample/">
+    <Project Path="sample/Waystone.Monads.Analyzers.Sample/Waystone.Monads.Analyzers.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Configuration.Sample/Waystone.Monads.Configuration.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Hosting.Sample/Waystone.Monads.Hosting.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Observability.Sample/Waystone.Monads.Observability.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.PreviousMajor.Declarations.Sample/Waystone.Monads.PreviousMajor.Declarations.Sample.csproj">
+      <Build Project="false" />
+    </Project>
+    <Project Path="sample/Waystone.Monads.PreviousMajor.Sample/Waystone.Monads.PreviousMajor.Sample.csproj">
+      <Build Project="false" />
+    </Project>
+    <Project Path="sample/WideEvents.AspNetCore.Sample/WideEvents.AspNetCore.Sample.csproj" />
+  </Folder>
+  <Folder Name="/sample/Waystone.Monads.Docs/">
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Core.Sample/Waystone.Monads.Docs.Core.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.FluentValidation.Sample/Waystone.Monads.Docs.FluentValidation.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Linq.Sample/Waystone.Monads.Docs.Linq.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.NewtonsoftJson.Sample/Waystone.Monads.Docs.NewtonsoftJson.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Shouldly.Sample/Waystone.Monads.Docs.Shouldly.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.SourceGeneration.Sample/Waystone.Monads.Docs.SourceGeneration.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.SystemTextJson.Sample/Waystone.Monads.Docs.SystemTextJson.Sample.csproj" />
+  </Folder>
+  <Folder Name="/SolutionItems/">
+    <File Path=".gitignore" />
+    <File Path="Directory.Packages.props" />
+    <File Path="GitVersion.yml" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path="src/Directory.Build.props" />
+    <Project Path="src/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.csproj" />
+    <Project Path="src/Serilog.Enrichers.Waystone.WideLogEvents/Serilog.Enrichers.Waystone.WideLogEvents.csproj" />
+    <Project Path="src/Waystone.Monads.Analyzers.CodeFixes/Waystone.Monads.Analyzers.CodeFixes.csproj" />
+    <Project Path="src/Waystone.Monads.Analyzers/Waystone.Monads.Analyzers.csproj" />
+    <Project Path="src/Waystone.Monads.Extensions.DependencyInjection/Waystone.Monads.Extensions.DependencyInjection.csproj" />
+    <Project Path="src/Waystone.Monads.Extensions.Hosting/Waystone.Monads.Extensions.Hosting.csproj" />
+    <Project Path="src/Waystone.Monads.Extensions.Logging/Waystone.Monads.Extensions.Logging.csproj" />
+    <Project Path="src/Waystone.Monads.FluentValidation/Waystone.Monads.FluentValidation.csproj" />
+    <Project Path="src/Waystone.Monads.Linq/Waystone.Monads.Linq.csproj" />
+    <Project Path="src/Waystone.Monads.NewtonsoftJson/Waystone.Monads.NewtonsoftJson.csproj" />
+    <Project Path="src/Waystone.Monads.Shouldly.Analyzers.CodeFixes/Waystone.Monads.Shouldly.Analyzers.CodeFixes.csproj" />
+    <Project Path="src/Waystone.Monads.Shouldly.Analyzers/Waystone.Monads.Shouldly.Analyzers.csproj" />
+    <Project Path="src/Waystone.Monads.Shouldly/Waystone.Monads.Shouldly.csproj" />
+    <Project Path="src/Waystone.Monads.SourceGenerators/Waystone.Monads.SourceGenerators.csproj" />
+    <Project Path="src/Waystone.Monads.SystemTextJson/Waystone.Monads.SystemTextJson.csproj" />
+    <Project Path="src/Waystone.Monads/Waystone.Monads.csproj" />
+    <Project Path="src/Waystone.SourceGenerators/Waystone.SourceGenerators.csproj" />
+    <Project Path="src/Waystone.WideLogEvents/Waystone.WideLogEvents.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests.csproj" />
+    <Project Path="test/Serilog.Enrichers.Waystone.WideLogEvents.Tests/Serilog.Enrichers.Waystone.WideLogEvents.Tests.csproj" />
+    <Project Path="test/Waystone.Monads.Analyzers.Tests/Waystone.Monads.Analyzers.Tests.csproj" />
+    <Project Path="test/Waystone.Monads.Shouldly.Analyzers.Tests/Waystone.Monads.Shouldly.Analyzers.Tests.csproj" />
+    <Project Path="test/Waystone.Monads.SourceGenerators.Tests/Waystone.Monads.SourceGenerators.Tests.csproj" />
+    <Project Path="test/Waystone.Monads.Tests/Waystone.Monads.Tests.csproj" />
+    <Project Path="test/Waystone.SourceGenerators.Tests/Waystone.SourceGenerators.Tests.csproj" />
+    <Project Path="test/Waystone.WideLogEvents.Tests/Waystone.WideLogEvents.Tests.csproj" />
+  </Folder>
+</Solution>
