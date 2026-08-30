@@ -39,6 +39,22 @@ the full framework matrix and checks that no release-tracking rows are still
 unshipped. Both are cheap; neither is a substitute for a required check, since a
 clone without `core.hooksPath` set has neither.
 
+## The solution
+
+**`Waystone.Net.slnx` is edited by hand.** It is XML, a project is one `<Project
+Path="..." />` line inside the `<Folder>` it belongs to, and adding one is a
+two-line diff you can read.
+
+**Do not reach for `dotnet sln add`.** On the SDK pinned here it rewrites far more
+than the solution: run once, it dropped nine projects from the solution and
+stripped the `ProjectReference` elements out of eighteen `.csproj` files, which
+turns into a few hundred `CS0246`s and looks nothing like a solution problem.
+
+**Two projects carry `<Build Project="false" />`, and it is load-bearing.** Both
+`Waystone.Monads.PreviousMajor*` samples compile against a *previous* major on
+purpose, so the root build has to skip them while an IDE still opens them. See
+[sample/Waystone.Monads.PreviousMajor.Sample/README.md](sample/Waystone.Monads.PreviousMajor.Sample/README.md).
+
 ## Versioning
 
 **The commit type determines the published version.** GitVersion parses commit
