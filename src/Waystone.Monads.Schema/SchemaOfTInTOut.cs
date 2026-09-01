@@ -267,6 +267,11 @@ public abstract class Schema<TIn, TOut>
     /// rule instead by passing the message to that rule directly. Order matters
     /// against <see cref="WithCode(ViolationCode)" />: put <c>WithCode</c> first, so
     /// a message using <c>{Code}</c> renders the code you set.
+    /// <para>
+    /// <c>{Expected}</c> renders literally here, and always will. The bound belonged
+    /// to one rule on the chain, and this message replaces the messages of all of
+    /// them, so there is no single bound left to name. Restate it in the text.
+    /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="message" /> is null.

@@ -8,12 +8,14 @@ public sealed class MessageTemplateTests
     private static string Render(
         string template,
         object? received = null,
+        object? expected = null,
         bool isSensitive = false) =>
         MessageTemplate.Render(
             template,
             ViolationPath.Root.Append("email"),
             ViolationCodeCatalog.Codes.Malformed,
             received,
+            expected,
             isSensitive);
 
     [Fact]
@@ -25,8 +27,21 @@ public sealed class MessageTemplateTests
     [Fact]
     public void GivenEveryToken_WhenRendering_ThenSubstituteEachOne()
     {
-        Render("{Path}/{Received}/{Code}", "abc")
-           .ShouldBe("email/abc/schema_violation.malformed");
+        Render("{Path}/{Received}/{Expected}/{Code}", "abc", 5)
+           .ShouldBe("email/abc/5/schema_violation.malformed");
+    }
+
+    [Fact]
+    public void GivenNoExpectedValue_WhenRendering_ThenLeaveTheTokenInPlace()
+    {
+        Render("At least {Expected}.").ShouldBe("At least {Expected}.");
+    }
+
+    [Fact]
+    public void GivenASensitiveSchema_WhenRendering_ThenStillShowTheExpectedValue()
+    {
+        Render("At least {Expected}.", "hunter2", 5, true)
+           .ShouldBe("At least 5.");
     }
 
     [Fact]
@@ -73,6 +88,7 @@ public sealed class MessageTemplateTests
                 "at [{Path}]",
                 ViolationPath.Root,
                 ViolationCodeCatalog.Codes.Duplicate,
+                null,
                 null,
                 false)
            .ShouldBe("at []");

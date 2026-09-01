@@ -207,6 +207,86 @@ token by token with `string.Replace` would re-substitute a rejected value that
 happens to contain `{Code}` — and rejected values are exactly the untrusted input
 this package exists to handle.
 
+**`{Expected}` is not redacted by `.Sensitive()`, and must not be.** The other
+tokens render something derived from the input; this one renders a bound the
+schema's *author* wrote down. Redacting `Expected {Path} to be at least ***` costs
+the reader the only actionable part of the sentence and protects nothing.
+
+**A rule supplies `{Expected}` by constructing `CheckSchema` with a bound, not
+through public `Check`.** `Check` has two overloads and no optional parameter;
+adding one would trip RS0026, which this package already suppresses once and
+should not suppress twice. `Rules.Add` is the in-assembly path, and it is also
+where the `schema` null guard lives so every extension reports the same parameter
+name.
+
+**`WithMessage` renders `{Expected}` literally, on purpose.** It replaces the
+messages of every rule on the chain at once, so there is no single bound left to
+name. Documented on the member; do not "fix" it by threading the last bound
+through, which would silently pick one rule out of several.
+
+## The primitives are cached, and identity is the whole implementation
+
+`Schema.Text`, `Bool`, `Id`, `Timestamp`, `Date` and the four under `Number` are
+all `Schema.For<T>()`, which is `IdentitySchema<T>.Instance` — one instance per
+type, for the process. They check nothing, and there is nothing for them to check:
+the type system has established the type already, and `Required` and `Optional`
+stop null before a schema sees it. `Schema.Enum<T>()` is the one exception and
+caches through `DeclaredMembers<T>`, since it does carry a rule.
+
+Reusing the instance is what makes `Schema.For<string>().ShouldBeSameAs(Schema.Text)`
+true, and a test asserts it. Chaining allocates; reaching for a primitive does not.
+
+**`Schema.Enum<T>()` is wrong for a `[Flags]` enumeration and says so.**
+`Enum.IsDefined` asks for equality with a declared member, so `Read | Write` is
+rejected unless it is itself declared. Handling flags properly means converting an
+arbitrary enum to its underlying integer across all eight backing types, which is
+more machinery than the case is worth; the doc comment points a flags user at
+`Check` instead. If that changes, it is an additive fix, not a breaking one.
+
+## The comparison rules are one family, and `Number` is the exception that proves it
+
+`AtLeast`, `AtMost`, `GreaterThan` and `LessThan` are generic over
+`IComparable<T>`, so one set covers both integers, both floating-point types, both
+temporals, `TimeSpan`, `string` and any domain type a consumer brings — including
+one produced by `Transform`, which is where they matter most. Do not add a
+per-type copy.
+
+`Positive` and `Negative` are four overloads apiece because they need a zero of
+the value's own type, and `netstandard2.0` has no numeric constraint to get one
+from. `INumber<T>` would collapse them, and cannot be used while that target
+framework is in the list. `Before` and `After` are likewise aliases rather than
+generic: they exist so the sentence reads the way a person says it about time.
+
+**Inside `Schema.Number`, write `decimal` and `double`, not `Decimal` and
+`Double`.** The two properties shadow the framework types in that scope. The
+keywords are never shadowed, which is why the code reads normally; a future editor
+spelling the type name instead gets a confusing error, and `global::System.Decimal`
+is the escape hatch.
+
+## The package multi-targets for exactly one type
+
+`netstandard2.0;net8.0`, because `Schema.Date` needs `DateOnly` and PolySharp does
+not polyfill it. `Date`, `Before(DateOnly)` and `After(DateOnly)` sit behind
+`#if NET8_0_OR_GREATER`; nothing else in the package differs by target.
+
+**The public API baseline is split three ways, and `Date` is only half the
+reason.** `SchemaViolation`'s compiler-generated `<Clone>$` returns `Error` on
+netstandard2.0 and `SchemaViolation` on net8.0 — a derived record gets a covariant
+return only where the runtime supports one — so even without `Date` a single shared
+baseline would be impossible. The root pair carries what both targets share; the
+`netstandard2.0/` and `net8.0/` folders carry only what one alone has.
+PublicApiAnalyzers *unions* every `AdditionalFile` of a given name, which is what
+makes this work and was verified by experiment rather than assumed.
+
+**Harvest baseline rows from the RS0016 build errors.** The message carries the
+full row text, not just the symbol name, so
+`dotnet build … | grep -oE "Symbol '[^']+' is not part.*TargetFramework=[a-z0-9.]+"`
+gives you rows tagged by target framework, ready to `comm` into shared and
+per-target sets. **`dotnet format analyzers --diagnostics RS0016` does nothing
+here** — the code fix writes to an `AdditionalFile`, and `dotnet format` only
+applies document changes. It exits reporting "Formatted 0 of 96 files" and looks
+like a passing run.
+
 ## `Outcome<T>` has three constructors because a refinement is not a transform
 
 - `Passed(value)` — no violations.

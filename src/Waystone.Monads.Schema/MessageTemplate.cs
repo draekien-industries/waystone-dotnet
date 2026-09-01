@@ -14,6 +14,7 @@ internal static class MessageTemplate
         ViolationPath path,
         ErrorCode code,
         object? received,
+        object? expected,
         bool isSensitive)
     {
         if (template.IndexOf('{') < 0) return template;
@@ -43,6 +44,7 @@ internal static class MessageTemplate
                 path,
                 code,
                 received,
+                expected,
                 isSensitive);
 
             if (replacement is null)
@@ -65,6 +67,7 @@ internal static class MessageTemplate
         ViolationPath path,
         ErrorCode code,
         object? received,
+        object? expected,
         bool isSensitive) =>
         token switch
         {
@@ -72,6 +75,7 @@ internal static class MessageTemplate
             "Received" => isSensitive
                 ? Redacted
                 : received?.ToString() ?? AbsentReceived,
+            "Expected" => expected?.ToString(),
             "Code" => code.Value,
             _ => null,
         };

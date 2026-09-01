@@ -1,0 +1,5 @@
+#nullable enable
+override Waystone.Monads.Schemas.SchemaViolation.<Clone>$() -> Waystone.Monads.Schemas.SchemaViolation!
+static Waystone.Monads.Schemas.Schema.Date.get -> Waystone.Monads.Schemas.Schema<System.DateOnly, System.DateOnly>!
+static Waystone.Monads.Schemas.TemporalSchemaExtensions.After<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>! schema, System.DateOnly bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>!
+static Waystone.Monads.Schemas.TemporalSchemaExtensions.Before<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>! schema, System.DateOnly bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>!
