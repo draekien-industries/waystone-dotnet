@@ -50,4 +50,8 @@ public sealed record Violation
 
     internal Violation Rebase(ViolationPath parent) =>
         new(parent.Nest(Path), Code, Message);
+
+    internal Violation Retold(string message) => new(Path, Code, message);
+
+    internal Violation Recoded(ErrorCode code) => new(Path, code, Message);
 }

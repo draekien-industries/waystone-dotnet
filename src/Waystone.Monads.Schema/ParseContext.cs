@@ -18,6 +18,12 @@ internal readonly struct ParseContext
     public ParseContext At(string property) =>
         new(Path.Append(property), IsSensitive);
 
+    public ParseContext AtIndex(int index) =>
+        new(Path.AppendIndex(index), IsSensitive);
+
+    public ParseContext Renamed(string property) =>
+        new(Path.Rename(property), IsSensitive);
+
     public ParseContext AsSensitive() =>
         IsSensitive ? this : new ParseContext(Path, true);
 }

@@ -7,7 +7,7 @@ validated domain type. The result is a `Result<TOut, SchemaViolation>`, and ever
 failure is reported at once rather than one at a time.
 
 ```csharp
-public partial class OrderSchema : Schema<OrderDto, Order>
+public partial class OrderSchema : SchemaConfig<OrderDto, Order>
 {
     static readonly Schema<string, EmailAddress> Email =
         Schema.Text.Trim().NotEmpty().Transform(EmailAddress.Create);

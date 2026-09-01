@@ -18,27 +18,143 @@ repository. Verified by scratch compile in both spellings. `Schema<TIn, TOut>` i
 unaffected either way, since arity 2 excludes the namespace as a candidate; only
 the bare `Schema` breaks, which is the one a reader types most.
 
-## `Schema<TIn, TOut>` is open; `Field` is closed
+## `Configure` lives on `SchemaConfig`, and that is the whole hierarchy rule
 
-DRA-181's first draft said both were closed with
-`internal abstract void OnlyThisAssemblyMayDerive()`. That cannot hold for
-`Schema<TIn, TOut>`: its own worked example has the consumer writing
-`class OrderSchema : Schema<OrderDto, Order>`, and a consumer in another assembly
-cannot override an internal member.
+Three types, and the split is load-bearing:
 
-The resolution is that **`Evaluate` carries the guarantee instead of the marker**.
-`Schema<TIn, TOut>` has a `protected` constructor and a `protected abstract
-Configure`, so a consumer derives and shapes the parse; `Evaluate` and
-`EvaluateAsync` are `internal`, so no outside type can change how violations
-accumulate. `Field` and `Field<T>` keep the marker, because a consumer never
-derives from them.
+- **`Schema<TIn, TOut>`** — public, abstract. Carries `Parse`, `ParseAsync` and the
+  fluent surface. `Evaluate` is **`internal abstract`**.
+- **`SchemaConfig<TIn, TOut>`** — public, abstract. Carries
+  `protected abstract Configure` and seals `Evaluate` onto it. **The only public
+  way into the hierarchy**; a consumer derives from this.
+- The package's own nodes — primitives, combinators, decorators — derive from
+  `Schema<TIn, TOut>` directly and override `Evaluate`.
 
-`Configure` is **abstract, not virtual-with-a-throw**, so a consumer who forgets
-it gets a compile error rather than a runtime one. Internal nodes — primitives,
-combinators, decorators — derive from `SchemaNode<TIn, TOut>`, which seals
-`Configure` with the single unreachable throw in the package.
-`SchemaClosedHierarchyTests` in the *analyzer* test project pins all of this,
-including the positive case that an outside composed schema still compiles.
+**`Schema<TIn, TOut>` closes itself, with no marker member.** `Evaluate` is both
+internal and abstract, so a type declared outside this assembly cannot satisfy
+the contract and the compiler refuses the subclass — one `CS0534`, pinned by
+`SchemaClosedHierarchyTests`. `Field` and `Field<T>` still need
+`internal abstract void OnlyThisAssemblyMayDerive()`, because they have no other
+internal abstract member to do the job.
+
+**Do not put `Configure` back on `Schema<TIn, TOut>`.** It was there for one
+layer, with an internal `SchemaNode<TIn, TOut>` sealing it to a
+`NotSupportedException`, and that is a Liskov violation: half the hierarchy
+inherited a member it could only refuse. The throw was unreachable, but only
+because `Evaluate` was its single caller — an invariant held by convention across
+a dozen files rather than by the type system, and one the layer 5 generator emits
+code against. Splitting the type moves the guarantee into the compiler and deletes
+the throw, `SchemaNode` and the test that covered it. The cost is one extra public
+name in a base clause written once per schema class; the frequently written
+`Schema<A, B>` field and parameter type is unchanged, which is why the *root*
+keeps the short name.
+
+## The `Transform` overloads are not ambiguous, and it is worth knowing why
+
+`Transform(Func<TOut, TNext>)` and `Transform(Func<TOut, Result<TNext, Error>>)`
+both apply to a factory returning `Result<Money, Error>`, and after inference both
+reduce to the *same* parameter type. That looks like `CS0121`. It is not: C#
+prefers the more specific parameter type, and `Result<TNext, Error>` is more
+specific than a bare `TNext`, so the fallible overload wins and `TNext` binds to
+`Money`. Verified by scratch compile, not by reading the specification. Do not
+rename either overload to "fix" an ambiguity that does not exist.
+
+Only the total overload guards a null return. `Ok<TOk, TErr>`'s own constructor
+already rejects null, so the same guard on the fallible path was dead code and was
+removed — a test asserting it threw `InvalidOperationException` failed with
+`ArgumentNullException` from the monad, which is how it was caught.
+
+## Decorators go through `DecoratorSchema`, and there are two tiers under it
+
+`DecoratorSchema<TIn, TOut, TNext>` runs the inner schema and hands its `Outcome`
+to `Decorate`, **sealing both `Evaluate` and `EvaluateAsync`**. That seal is the
+point: a node written by hand has to override the asynchronous path too, and one
+that forgets runs an asynchronous inner schema synchronously, which nothing in the
+build notices.
+
+Two tiers sit under it, and each exists because its subclasses were writing a stub:
+
+- **`ContextSchema<TIn, TOut>`** — seals `Decorate` to the identity and makes
+  `Adjust` abstract. For a node that changes the *context* rather than the
+  outcome. `Named` and `Sensitive` are one method each.
+- **`RewritingSchema<TIn, TOut>`** — owns the "short-circuit on no violations,
+  rewrite each one, rebuild the outcome" loop and exposes a single `Rewrite`
+  hook. `WithMessage` and `WithCode` are one method each.
+
+**A stub override is the type telling you a tier is missing.** `Named` used to
+carry a `Decorate` that returned its argument unchanged, and `Sensitive` was still
+hand-rolling both paths — which contradicted this very file. Add the tier rather
+than the stub.
+
+Three nodes are outside the hierarchy and each has a reason. `Not` evaluates a
+*second* schema, so a synchronous `Decorate` would run that one synchronously on
+the asynchronous path. `When`/`Unless` may skip the inner schema entirely, so
+there is no outcome to decorate. `All`/`Any` fold over several branches.
+
+**A shared `CombinatorSchema` for `All` and `Any` was considered and rejected.**
+Folding over branches needs the accumulator to survive an `await`, and a `ref`
+local cannot cross one — so the base would have to allocate a mutable fold object
+on every parse to remove thirty lines of straight-line code. `CompositeNodeAsyncPathTests`
+guards the hazard instead, and costs nothing at runtime.
+
+## `Outcome<T>` owns "same shape, new contents"
+
+`WithViolations` keeps whether a value survived and swaps the violation list.
+`WithValue` keeps the violations and swaps the value. Use them; do not re-derive
+which of the three constructors applies.
+
+Five sites used to spell that rule out by hand, two as
+`Violations.Count == 0 ? Passed : Refined` and two as
+`HasValue ? Refined : Failed` — the same rule seen from opposite sides. A sixth
+node picking `Failed` where `Refined` was right silently stops the rest of a chain
+reporting, and no test that did not specifically look for it would fail.
+
+`WithViolations` requires a non-empty list, because `Refined` and `Failed` both
+reject an empty one. Callers short-circuit on `Violations.Count == 0` first, which
+they wanted to do anyway.
+
+## The synchronous and asynchronous pair is guarded by a test, not by the type
+
+`Evaluate` is `internal abstract`; `EvaluateAsync` is `internal virtual` with a
+synchronous default. The default is right for a **leaf** — a rule with no inner
+schema has nothing to await — and wrong for a node that holds one.
+
+Inverting that (an abstract async member plus a `SyncSchema` tier) would force an
+override onto every leaf and every test double, where the default is correct.
+`CompositeNodeAsyncPathTests` reflects over the assembly instead: any concrete
+`Schema<,>` holding a field of schema type must override `EvaluateAsync` somewhere
+below the root, which deriving from `DecoratorSchema` satisfies. Add a wrapping
+node in a later layer without an asynchronous path and that test names it.
+
+## `When` and `Unless` are extension methods on purpose
+
+Both can skip the schema they are called on, and skipping is only well typed when
+the schema hands back what it was given — otherwise there is no `TOut` to return
+for an input that was never parsed. So they sit on `Schema<T, T>` as extensions
+and are simply absent from `Schema<string, EmailAddress>`, which is a
+missing-method error rather than a runtime one. Do not "fix" this by moving them
+onto the base with a throw; that is the mistake `SchemaConfig` exists to undo.
+
+## `Any` nests its branch failures; do not flatten them
+
+When every branch fails, `AnySchema` emits one violation at its own path plus each
+branch's violations rebased under a numbered segment — `contact[0].email`. The
+numbering is why `ParseContext.AtIndex` exists. Flattening onto the field's own
+path would put a dozen irrelevant failures where a caller reading `ByPath()`
+expects one, which is the most complained-of part of Zod's output.
+
+**`Named` replaces a trailing name and appends after anything else.** Renaming an
+index is never what a caller means: inside an `Any`, the innermost segment is a
+branch number, so replacing it would turn `contact[1]` into `contact.byPhone` —
+losing the branch and colliding with a real property of that name.
+`ViolationPath.Rename` switches on `SegmentKind` to decide, which is a fact the
+type holds rather than something recovered from rendered text.
+
+`Any` allocates its rejection list before trying the first branch, so the
+short-circuit path pays for one list. That is deliberate: the alternative is a
+nullable local and a `!` on a state the type system cannot see is impossible,
+which costs a partially covered branch to save one allocation on a path that is
+not hot.
 
 ## RS0026 is suppressed for one file, and the reason is not stylistic
 
@@ -74,9 +190,9 @@ that schema renders its own messages before the outer context exists. Mark that
 schema itself. The doc comment on `Sensitive` says so; do not quietly widen the
 promise.
 
-Paths do not have this problem: `Schema<TIn, TOut>.Evaluate` re-bases a composed
-schema's violations under the parent's path through `ViolationPath.Nest`, so
-`order.subject` comes out right even though `subject` was rendered first.
+Paths do not have this problem: `SchemaConfig<TIn, TOut>.Evaluate` re-bases a
+composed schema's violations under the parent's path through `ViolationPath.Nest`,
+so `order.subject` comes out right even though `subject` was rendered first.
 
 **`ViolationPath` holds segments and renders on demand; do not collapse it back to
 a stored string.** An earlier version stored the rendered text and `Nest` decided

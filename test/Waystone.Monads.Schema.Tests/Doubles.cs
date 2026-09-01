@@ -1,16 +1,17 @@
 namespace Waystone.Monads.Schemas;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Waystone.Monads.Results;
 
-internal sealed class PassThrough<T> : SchemaNode<T, T> where T : notnull
+internal sealed class PassThrough<T> : Schema<T, T> where T : notnull
 {
     internal override Outcome<T> Evaluate(T input, ParseContext context) =>
         Outcome<T>.Passed(input);
 }
 
-internal sealed class Rejects<T> : SchemaNode<T, T> where T : notnull
+internal sealed class Rejects<T> : Schema<T, T> where T : notnull
 {
     private readonly string _template;
 
@@ -28,7 +29,7 @@ internal sealed class Rejects<T> : SchemaNode<T, T> where T : notnull
                 input));
 }
 
-internal sealed class RefinesAndKeeps<T> : SchemaNode<T, T> where T : notnull
+internal sealed class RefinesAndKeeps<T> : Schema<T, T> where T : notnull
 {
     internal override Outcome<T> Evaluate(T input, ParseContext context) =>
         Outcome<T>.Refined(
@@ -40,7 +41,7 @@ internal sealed class RefinesAndKeeps<T> : SchemaNode<T, T> where T : notnull
                 input));
 }
 
-internal sealed class Lengths : SchemaNode<string, int>
+internal sealed class Lengths : Schema<string, int>
 {
     internal override Outcome<int> Evaluate(
         string input,
@@ -48,7 +49,7 @@ internal sealed class Lengths : SchemaNode<string, int>
         Outcome<int>.Passed(input.Length);
 }
 
-internal sealed class RejectsText : SchemaNode<string, int>
+internal sealed class RejectsText : Schema<string, int>
 {
     internal override Outcome<int> Evaluate(
         string input,
@@ -61,7 +62,7 @@ internal sealed class RejectsText : SchemaNode<string, int>
                 input));
 }
 
-internal sealed class AsyncPassThrough<T> : SchemaNode<T, T> where T : notnull
+internal sealed class AsyncPassThrough<T> : Schema<T, T> where T : notnull
 {
     internal override Outcome<T> Evaluate(T input, ParseContext context) =>
         Outcome<T>.Passed(input);
@@ -77,7 +78,7 @@ internal sealed class AsyncPassThrough<T> : SchemaNode<T, T> where T : notnull
     }
 }
 
-internal sealed class ComposedOf : Schema<string, int>
+internal sealed class ComposedOf : SchemaConfig<string, int>
 {
     private readonly Schema<string, int> _inner;
 
@@ -90,4 +91,55 @@ internal sealed class ComposedOf : Schema<string, int>
         Schema.Required(subject, _inner)
               .EvaluateValue(ParseContext.Root)
               .ToResult();
+}
+
+internal sealed class AsyncRejects<T> : Schema<T, T> where T : notnull
+{
+    internal override Outcome<T> Evaluate(T input, ParseContext context) =>
+        throw new InvalidOperationException(
+            "This double exists to prove the asynchronous path is taken.");
+
+    internal override async ValueTask<Outcome<T>> EvaluateAsync(
+        T input,
+        ParseContext context,
+        CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+
+        return Outcome<T>.Failed(
+            Violations.One(
+                context,
+                ViolationCodeCatalog.Codes.Malformed,
+                "Rejected {Path} asynchronously.",
+                input));
+    }
+}
+
+internal sealed class Counting<T> : Schema<T, T> where T : notnull
+{
+    private readonly Schema<T, T> _inner;
+
+    internal Counting(Schema<T, T> inner)
+    {
+        _inner = inner;
+    }
+
+    internal int Evaluations { get; private set; }
+
+    internal override Outcome<T> Evaluate(T input, ParseContext context)
+    {
+        Evaluations++;
+
+        return _inner.Evaluate(input, context);
+    }
+
+    internal override ValueTask<Outcome<T>> EvaluateAsync(
+        T input,
+        ParseContext context,
+        CancellationToken cancellationToken)
+    {
+        Evaluations++;
+
+        return _inner.EvaluateAsync(input, context, cancellationToken);
+    }
 }
