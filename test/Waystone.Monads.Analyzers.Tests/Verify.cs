@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Analyzers;
+﻿namespace Waystone.Monads.Analyzers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Testing;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Waystone.Monads.Options;
+using Waystone.Monads.Schemas;
 
 internal static class Verify
 {
@@ -160,6 +161,25 @@ internal static class Verify
             TestCode = rawSource,
         };
 
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
+
+    /// <summary>
+    /// Compiles <paramref name="rawSource" /> against
+    /// <c>Waystone.Monads.Schema</c> as well, for the closed-hierarchy probes.
+    /// </summary>
+    public static Task SchemaCompilerDiagnosticsAsync(
+        string rawSource,
+        params DiagnosticResult[] expected)
+    {
+        var test = new AnalyzerTest<EmptyDiagnosticAnalyzer>
+        {
+            TestCode = rawSource,
+        };
+
+        test.TestState.AdditionalReferences.AddRange(SchemaReferences);
         test.ExpectedDiagnostics.AddRange(expected);
 
         return test.RunAsync();
@@ -404,6 +424,22 @@ internal static class Verify
         ImmutableArray.Create<MetadataReference>(
             MetadataReference.CreateFromFile(
                 typeof(Option<>).Assembly.Location));
+
+    /// <summary>
+    /// Added only by <see cref="SchemaCompilerDiagnosticsAsync" />, never to
+    /// <see cref="MonadReferences" />.
+    /// </summary>
+    /// <remarks>
+    /// <c>Waystone.Monads.Schema</c> declares an <c>[ErrorCodeCatalog]</c> enum, so
+    /// referencing it everywhere puts <c>ViolationCode</c>'s codes into every
+    /// compilation and changes what the error code registry rules see. That failed
+    /// four <c>UpdateErrorCodeRegistryCodeFixTests</c> cases, which assert on the
+    /// registry the fix writes.
+    /// </remarks>
+    private static readonly ImmutableArray<MetadataReference> SchemaReferences =
+        ImmutableArray.Create<MetadataReference>(
+            MetadataReference.CreateFromFile(
+                typeof(Field).Assembly.Location));
 
     private sealed class AnalyzerTest<TAnalyzer>
         : CSharpAnalyzerTest<TAnalyzer, DefaultVerifier>

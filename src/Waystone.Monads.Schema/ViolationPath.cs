@@ -2,6 +2,7 @@ namespace Waystone.Monads.Schemas;
 
 using System;
 using System.Globalization;
+using System.Text;
 
 /// <summary>Locates a <see cref="Violation" /> inside the value that was parsed.</summary>
 /// <remarks>
@@ -24,11 +25,22 @@ using System.Globalization;
 /// </remarks>
 public sealed class ViolationPath : IEquatable<ViolationPath>
 {
-    private readonly string _rendered;
+    private static readonly Segment[] NoSegments = Array.Empty<Segment>();
 
-    private ViolationPath(string rendered)
+    private readonly Segment[] _segments;
+
+    private string? _rendered;
+
+    private ViolationPath(Segment[] segments)
     {
-        _rendered = rendered;
+        _segments = segments;
+    }
+
+    private enum SegmentKind
+    {
+        Property,
+        Index,
+        Key,
     }
 
     /// <summary>Gets the path of the value that was passed to the schema itself.</summary>
@@ -37,45 +49,117 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
     /// the whole subject rather than about one of its fields — a cross-field rule,
     /// or a schema applied to a bare value.
     /// </remarks>
-    public static ViolationPath Root { get; } = new(string.Empty);
+    public static ViolationPath Root { get; } = new(NoSegments);
 
     /// <summary>Checks whether this path locates the parsed value itself.</summary>
     /// <remarks>
     /// True only for <see cref="Root" />. Useful for deciding whether a failure
     /// belongs against a form field or against the form.
     /// </remarks>
-    public bool IsRoot => _rendered.Length == 0;
+    public bool IsRoot => _segments.Length == 0;
 
     /// <summary>Checks whether another path locates the same place.</summary>
     /// <param name="other">The path to compare against. Null is never equal.</param>
     /// <returns>True if both render identically; false otherwise.</returns>
     public bool Equals(ViolationPath? other) =>
         other is not null
-     && string.Equals(_rendered, other._rendered, StringComparison.Ordinal);
+     && string.Equals(ToString(), other.ToString(), StringComparison.Ordinal);
 
     /// <summary>Returns the path as a reader would write the access.</summary>
     /// <returns>
     /// The rendered path, for example <c>items[3].sku</c>. The empty string for
     /// <see cref="Root" />.
     /// </returns>
-    public override string ToString() => _rendered;
+    /// <remarks>
+    /// Rendered once and kept, so grouping a large report by path does not re-render
+    /// the same path repeatedly.
+    /// </remarks>
+    public override string ToString() => _rendered ??= Render();
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => Equals(obj as ViolationPath);
 
     /// <inheritdoc />
     public override int GetHashCode() =>
-        StringComparer.Ordinal.GetHashCode(_rendered);
+        StringComparer.Ordinal.GetHashCode(ToString());
 
     internal ViolationPath Append(string property) =>
-        new(IsRoot ? property : _rendered + "." + property);
+        With(new Segment(SegmentKind.Property, property));
 
-    internal ViolationPath AppendIndex(int index) => new(
-        _rendered
-      + "["
-      + index.ToString(CultureInfo.InvariantCulture)
-      + "]");
+    internal ViolationPath AppendIndex(int index) => With(
+        new Segment(
+            SegmentKind.Index,
+            index.ToString(CultureInfo.InvariantCulture)));
 
     internal ViolationPath AppendKey(string key) =>
-        new(_rendered + "[\"" + key + "\"]");
+        With(new Segment(SegmentKind.Key, key));
+
+    internal ViolationPath Nest(ViolationPath child)
+    {
+        if (child.IsRoot) return this;
+
+        if (IsRoot) return child;
+
+        var segments = new Segment[_segments.Length + child._segments.Length];
+
+        Array.Copy(_segments, segments, _segments.Length);
+
+        Array.Copy(
+            child._segments,
+            0,
+            segments,
+            _segments.Length,
+            child._segments.Length);
+
+        return new ViolationPath(segments);
+    }
+
+    private ViolationPath With(Segment segment)
+    {
+        var segments = new Segment[_segments.Length + 1];
+
+        Array.Copy(_segments, segments, _segments.Length);
+        segments[_segments.Length] = segment;
+
+        return new ViolationPath(segments);
+    }
+
+    private string Render()
+    {
+        if (IsRoot) return string.Empty;
+
+        var builder = new StringBuilder();
+
+        foreach (Segment segment in _segments)
+        {
+            switch (segment.Kind)
+            {
+                case SegmentKind.Index:
+                    builder.Append('[').Append(segment.Text).Append(']');
+                    break;
+                case SegmentKind.Key:
+                    builder.Append("[\"").Append(segment.Text).Append("\"]");
+                    break;
+                default:
+                    if (builder.Length > 0) builder.Append('.');
+                    builder.Append(segment.Text);
+                    break;
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private readonly struct Segment
+    {
+        internal Segment(SegmentKind kind, string text)
+        {
+            Kind = kind;
+            Text = text;
+        }
+
+        internal SegmentKind Kind { get; }
+
+        internal string Text { get; }
+    }
 }

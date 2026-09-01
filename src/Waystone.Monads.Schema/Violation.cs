@@ -47,4 +47,7 @@ public sealed record Violation
     /// as carrying whatever the input carried.
     /// </remarks>
     public string Message { get; }
+
+    internal Violation Rebase(ViolationPath parent) =>
+        new(parent.Nest(Path), Code, Message);
 }

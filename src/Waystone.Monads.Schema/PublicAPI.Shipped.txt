@@ -2,6 +2,17 @@
 Waystone.Monads.Schemas.Checked
 Waystone.Monads.Schemas.Checked.Checked() -> void
 Waystone.Monads.Schemas.Checked.Equals(Waystone.Monads.Schemas.Checked other) -> bool
+Waystone.Monads.Schemas.Field
+Waystone.Monads.Schemas.Field.Field() -> void
+Waystone.Monads.Schemas.Field<T>
+Waystone.Monads.Schemas.Field<T>.Field() -> void
+Waystone.Monads.Schemas.Schema
+Waystone.Monads.Schemas.Schema.Schema() -> void
+Waystone.Monads.Schemas.Schema<TIn, TOut>
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Parse(TIn input) -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.ParseAsync(TIn input, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!>
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Schema() -> void
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Sensitive() -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 Waystone.Monads.Schemas.SchemaViolation
 Waystone.Monads.Schemas.SchemaViolation.ByCode() -> System.Collections.Generic.IReadOnlyDictionary<Waystone.Monads.Results.Errors.ErrorCode!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
 Waystone.Monads.Schemas.SchemaViolation.ByPath() -> System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
@@ -36,6 +47,7 @@ Waystone.Monads.Schemas.ViolationCollection.this[int index].get -> Waystone.Mona
 Waystone.Monads.Schemas.ViolationPath
 Waystone.Monads.Schemas.ViolationPath.Equals(Waystone.Monads.Schemas.ViolationPath? other) -> bool
 Waystone.Monads.Schemas.ViolationPath.IsRoot.get -> bool
+abstract Waystone.Monads.Schemas.Schema<TIn, TOut>.Configure(TIn subject) -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Conflicting = "schema_violation.conflicting" -> string!
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Duplicate = "schema_violation.duplicate" -> string!
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Incomplete = "schema_violation.incomplete" -> string!
@@ -60,6 +72,15 @@ override sealed Waystone.Monads.Schemas.SchemaViolation.Equals(Waystone.Monads.R
 static Waystone.Monads.Schemas.Checked.Instance.get -> Waystone.Monads.Schemas.Checked
 static Waystone.Monads.Schemas.Checked.operator !=(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
 static Waystone.Monads.Schemas.Checked.operator ==(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
+static Waystone.Monads.Schemas.Schema.Extend<T>(T subject, Waystone.Monads.Schemas.Schema<T, T>! rules) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
+static Waystone.Monads.Schemas.Schema.Forbidden<T>(T? value, string! message, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
+static Waystone.Monads.Schemas.Schema.Forbidden<T>(Waystone.Monads.Options.Option<T>! value, string! message, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
+static Waystone.Monads.Schemas.Schema.Optional<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn!, TOut>! schema, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Options.Option<TOut>!>!
+static Waystone.Monads.Schemas.Schema.Optional<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Options.Option<TOut>!>!
+static Waystone.Monads.Schemas.Schema.Optional<TIn, TOut>(Waystone.Monads.Options.Option<TIn>! value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Options.Option<TOut>!>!
+static Waystone.Monads.Schemas.Schema.Required<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn!, TOut>! schema, string? message = null, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<TOut>!
+static Waystone.Monads.Schemas.Schema.Required<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? message = null, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<TOut>!
+static Waystone.Monads.Schemas.Schema.Required<TIn, TOut>(Waystone.Monads.Options.Option<TIn>! value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? message = null, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<TOut>!
 static Waystone.Monads.Schemas.SchemaViolation.operator !=(Waystone.Monads.Schemas.SchemaViolation? left, Waystone.Monads.Schemas.SchemaViolation? right) -> bool
 static Waystone.Monads.Schemas.SchemaViolation.operator ==(Waystone.Monads.Schemas.SchemaViolation? left, Waystone.Monads.Schemas.SchemaViolation? right) -> bool
 static Waystone.Monads.Schemas.Violation.operator !=(Waystone.Monads.Schemas.Violation? left, Waystone.Monads.Schemas.Violation? right) -> bool
