@@ -6,8 +6,6 @@ using Waystone.Monads.Options;
 internal sealed class RequiredField<TIn, TOut> : Field<TOut>
     where TIn : notnull where TOut : notnull
 {
-    private const string AbsentMessage = "Expected {Path} to be present.";
-
     private readonly string _message;
     private readonly string _name;
     private readonly Schema<TIn, TOut> _schema;
@@ -22,7 +20,7 @@ internal sealed class RequiredField<TIn, TOut> : Field<TOut>
         _value = value ?? throw new ArgumentNullException(nameof(value));
         _schema = schema ?? throw new ArgumentNullException(nameof(schema));
         _name = name;
-        _message = message ?? AbsentMessage;
+        _message = message ?? Violations.AbsentMessage;
     }
 
     internal override Outcome<TOut> EvaluateValue(ParseContext context)
