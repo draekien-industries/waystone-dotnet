@@ -206,13 +206,14 @@ public sealed class ErrorCodeCatalogGenerator : IIncrementalGenerator
     /// False below C# 8, where <c>#nullable</c> is a compile error rather than a
     /// no-op. A <c>net472</c> project still defaults to 7.3, and the consumer
     /// cannot edit the file to fix it, so those compilations get the unannotated
-    /// source they have always got. Anything the generator cannot identify as a C#
-    /// compilation is treated the same way, since guessing high breaks a build and
-    /// guessing low only loses annotations.
+    /// source they have always got.
     /// </remarks>
+    /// <exception cref="InvalidCastException">
+    /// If the compilation is not a C# one. Unreachable: this generator matches C#
+    /// syntax, so it never runs anywhere else.
+    /// </exception>
     private static bool AnnotatesNullability(Compilation compilation) =>
-        compilation is CSharpCompilation csharp
-     && csharp.LanguageVersion >= LanguageVersion.CSharp8;
+        ((CSharpCompilation)compilation).LanguageVersion >= LanguageVersion.CSharp8;
 
     /// <summary>
     /// The format the enum asks for, then the one the assembly asks for, then

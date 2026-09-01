@@ -102,8 +102,10 @@ cannot edit.
 
 **`#nullable enable` is the one exception, and it is conditional.**
 `AnnotatesNullability` reads `LanguageVersion` off the `CSharpCompilation` and emits
-the directive only from C# 8 up; below that, and on any compilation that is not
-C# at all, the output is byte-for-byte what it has always been. Without it the whole
+the directive only from C# 8 up; below that the output is byte-for-byte what it has
+always been. It casts rather than pattern-matches, because a generator that matches
+C# syntax never sees another language and the false arm was an uncoverable
+partial. Without it the whole
 catalog is nullable-oblivious, which is `RS0041` in any consumer with a public API
 baseline — on public API they did not write and cannot annotate. `NoWarn` there
 would disable the rule for their hand-written code too, and an `.editorconfig`
