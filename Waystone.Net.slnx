@@ -48,6 +48,7 @@
     <Project Path="src/Waystone.Monads.FluentValidation/Waystone.Monads.FluentValidation.csproj" />
     <Project Path="src/Waystone.Monads.Linq/Waystone.Monads.Linq.csproj" />
     <Project Path="src/Waystone.Monads.NewtonsoftJson/Waystone.Monads.NewtonsoftJson.csproj" />
+    <Project Path="src/Waystone.Monads.Schema/Waystone.Monads.Schema.csproj" />
     <Project Path="src/Waystone.Monads.Shouldly.Analyzers.CodeFixes/Waystone.Monads.Shouldly.Analyzers.CodeFixes.csproj" />
     <Project Path="src/Waystone.Monads.Shouldly.Analyzers/Waystone.Monads.Shouldly.Analyzers.csproj" />
     <Project Path="src/Waystone.Monads.Shouldly/Waystone.Monads.Shouldly.csproj" />
@@ -62,6 +63,7 @@
     <Project Path="test/Serilog.Enrichers.Waystone.WideLogEvents.Tests/Serilog.Enrichers.Waystone.WideLogEvents.Tests.csproj" />
     <Project Path="test/Waystone.DocSnippets.Tests/Waystone.DocSnippets.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Analyzers.Tests/Waystone.Monads.Analyzers.Tests.csproj" />
+    <Project Path="test/Waystone.Monads.Schema.Tests/Waystone.Monads.Schema.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Shouldly.Analyzers.Tests/Waystone.Monads.Shouldly.Analyzers.Tests.csproj" />
     <Project Path="test/Waystone.Monads.SourceGenerators.Tests/Waystone.Monads.SourceGenerators.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Tests/Waystone.Monads.Tests.csproj" />

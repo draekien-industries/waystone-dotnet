@@ -1,0 +1,84 @@
+#nullable enable
+Waystone.Monads.Schemas.Checked
+Waystone.Monads.Schemas.Checked.Checked() -> void
+Waystone.Monads.Schemas.Checked.Equals(Waystone.Monads.Schemas.Checked other) -> bool
+Waystone.Monads.Schemas.SchemaViolation
+Waystone.Monads.Schemas.SchemaViolation.ByCode() -> System.Collections.Generic.IReadOnlyDictionary<Waystone.Monads.Results.Errors.ErrorCode!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.SchemaViolation.ByPath() -> System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.SchemaViolation.Equals(Waystone.Monads.Schemas.SchemaViolation? other) -> bool
+Waystone.Monads.Schemas.SchemaViolation.ToDictionary() -> System.Collections.Generic.IDictionary<string!, string![]!>!
+Waystone.Monads.Schemas.SchemaViolation.Violations.get -> Waystone.Monads.Schemas.ViolationCollection!
+Waystone.Monads.Schemas.Violation
+Waystone.Monads.Schemas.Violation.<Clone>$() -> Waystone.Monads.Schemas.Violation!
+Waystone.Monads.Schemas.Violation.Code.get -> Waystone.Monads.Results.Errors.ErrorCode!
+Waystone.Monads.Schemas.Violation.Equals(Waystone.Monads.Schemas.Violation? other) -> bool
+Waystone.Monads.Schemas.Violation.Message.get -> string!
+Waystone.Monads.Schemas.Violation.Path.get -> Waystone.Monads.Schemas.ViolationPath!
+Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Conflicting = 6 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Duplicate = 5 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Incomplete = 0 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Malformed = 1 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Mismatched = 4 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.NotAllowed = 2 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.OutOfRange = 3 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCodeCatalog
+Waystone.Monads.Schemas.ViolationCodeCatalog.Codes
+Waystone.Monads.Schemas.ViolationCodeCatalog.Errors
+Waystone.Monads.Schemas.ViolationCodeCatalog.Names
+Waystone.Monads.Schemas.ViolationCollection
+Waystone.Monads.Schemas.ViolationCollection.ByCode() -> System.Collections.Generic.IReadOnlyDictionary<Waystone.Monads.Results.Errors.ErrorCode!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.ViolationCollection.ByPath() -> System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.ViolationCollection.Count.get -> int
+Waystone.Monads.Schemas.ViolationCollection.GetEnumerator() -> System.Collections.Generic.IEnumerator<Waystone.Monads.Schemas.Violation!>!
+Waystone.Monads.Schemas.ViolationCollection.ToDictionary() -> System.Collections.Generic.IDictionary<string!, string![]!>!
+Waystone.Monads.Schemas.ViolationCollection.this[int index].get -> Waystone.Monads.Schemas.Violation!
+Waystone.Monads.Schemas.ViolationPath
+Waystone.Monads.Schemas.ViolationPath.Equals(Waystone.Monads.Schemas.ViolationPath? other) -> bool
+Waystone.Monads.Schemas.ViolationPath.IsRoot.get -> bool
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Conflicting = "schema_violation.conflicting" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Duplicate = "schema_violation.duplicate" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Incomplete = "schema_violation.incomplete" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Malformed = "schema_violation.malformed" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Mismatched = "schema_violation.mismatched" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.NotAllowed = "schema_violation.not-allowed" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.OutOfRange = "schema_violation.out-of-range" -> string!
+override Waystone.Monads.Schemas.Checked.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.Checked.GetHashCode() -> int
+override Waystone.Monads.Schemas.Checked.ToString() -> string!
+override Waystone.Monads.Schemas.SchemaViolation.<Clone>$() -> Waystone.Monads.Results.Errors.Error!
+override Waystone.Monads.Schemas.SchemaViolation.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.SchemaViolation.GetHashCode() -> int
+override Waystone.Monads.Schemas.SchemaViolation.ToString() -> string!
+override Waystone.Monads.Schemas.Violation.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.Violation.GetHashCode() -> int
+override Waystone.Monads.Schemas.Violation.ToString() -> string!
+override Waystone.Monads.Schemas.ViolationPath.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.ViolationPath.GetHashCode() -> int
+override Waystone.Monads.Schemas.ViolationPath.ToString() -> string!
+override sealed Waystone.Monads.Schemas.SchemaViolation.Equals(Waystone.Monads.Results.Errors.Error? other) -> bool
+static Waystone.Monads.Schemas.Checked.Instance.get -> Waystone.Monads.Schemas.Checked
+static Waystone.Monads.Schemas.Checked.operator !=(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
+static Waystone.Monads.Schemas.Checked.operator ==(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
+static Waystone.Monads.Schemas.SchemaViolation.operator !=(Waystone.Monads.Schemas.SchemaViolation? left, Waystone.Monads.Schemas.SchemaViolation? right) -> bool
+static Waystone.Monads.Schemas.SchemaViolation.operator ==(Waystone.Monads.Schemas.SchemaViolation? left, Waystone.Monads.Schemas.SchemaViolation? right) -> bool
+static Waystone.Monads.Schemas.Violation.operator !=(Waystone.Monads.Schemas.Violation? left, Waystone.Monads.Schemas.Violation? right) -> bool
+static Waystone.Monads.Schemas.Violation.operator ==(Waystone.Monads.Schemas.Violation? left, Waystone.Monads.Schemas.Violation? right) -> bool
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Conflicting(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Duplicate(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Incomplete(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Malformed(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Mismatched(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.NotAllowed(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.OutOfRange(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.ToError(this Waystone.Monads.Schemas.ViolationCode value, string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.ToErrorCode(this Waystone.Monads.Schemas.ViolationCode value) -> Waystone.Monads.Results.Errors.ErrorCode!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.ToErrorCodeName(this Waystone.Monads.Schemas.ViolationCode value) -> string!
+static Waystone.Monads.Schemas.ViolationPath.Root.get -> Waystone.Monads.Schemas.ViolationPath!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Conflicting -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Duplicate -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Incomplete -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Malformed -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Mismatched -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.NotAllowed -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.OutOfRange -> Waystone.Monads.Results.Errors.ErrorCode!
