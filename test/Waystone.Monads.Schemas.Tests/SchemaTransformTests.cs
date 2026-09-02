@@ -55,13 +55,33 @@ public sealed class SchemaTransformTests
     }
 
     [Fact]
-    public void GivenATotalConversionReturningNull_WhenTransforming_ThenThrow()
+    public void GivenATotalConversionReturningNull_WhenTransforming_ThenReportIt()
     {
-        Schema<string, string> sut = new PassThrough<string>()
-           .Transform(static _ => (string)null!);
+        Outcome<string> outcome = new PassThrough<string>()
+                                 .Transform(static _ => (string)null!)
+                                 .Evaluate("abcd", At);
 
-        Should.Throw<InvalidOperationException>(
-            () => sut.Evaluate("abcd", At));
+        outcome.HasValue.ShouldBeFalse();
+
+        Violation violation = outcome.Violations.ShouldHaveSingleItem();
+
+        violation.Code.ShouldBe(ViolationCodeCatalog.Codes.Malformed);
+        violation.Message.ShouldBe(
+            "Expected total to convert to a value, but the conversion produced none.");
+    }
+
+    [Fact]
+    public void GivenARefinedValueConvertingToNull_WhenTransforming_ThenKeepWhatWasReported()
+    {
+        Outcome<string> outcome = new RefinesAndKeeps<string>()
+                                 .Transform(static _ => (string)null!)
+                                 .Evaluate("abcd", At);
+
+        outcome.HasValue.ShouldBeFalse();
+        outcome.Violations.Count.ShouldBe(2);
+
+        outcome.Violations[^1]
+               .Code.ShouldBe(ViolationCodeCatalog.Codes.Malformed);
     }
 
     [Fact]
