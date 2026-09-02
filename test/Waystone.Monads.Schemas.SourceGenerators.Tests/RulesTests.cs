@@ -58,7 +58,7 @@ public sealed class RulesTests
                 descriptor => descriptor.DefaultSeverity
                            == DiagnosticSeverity.Warning)
            .Select(descriptor => descriptor.Id)
-           .ShouldBe(["WMSC0005", "WMSC0007"]);
+           .ShouldBe(["WMSC0005", "WMSC0007", "WMSC0008"]);
 
         Descriptors()
            .ShouldAllBe(

@@ -297,7 +297,7 @@ public sealed class LadderGeneratorTests
                    Configuring(
                        "Schema.Fields(Schema.Required(subject, Schema.Text)).Refine(Gate).Into(a => a);")
                  + "\n\n    static Field Gate => Schema.Forbidden((string?)null, \"Do not send {Path}.\");")
-              .DiagnosticIds.ShouldBeEmpty();
+              .DiagnosticIds.ShouldNotContain("WMSC0005");
 
     /// <summary>
     /// An argument that does not bind has no type to read, and the compiler already
@@ -324,7 +324,7 @@ public sealed class LadderGeneratorTests
                                    .Refine(new Field[] { Schema.Forbidden((string?)null, "Do not send {Path}.") })
                                    .Into(a => a);
                        """))
-              .DiagnosticIds.ShouldBeEmpty();
+              .DiagnosticIds.ShouldNotContain("WMSC0005");
 
     /// <summary>
     /// A <c>Fields</c> call on something that is not the schema entry point is

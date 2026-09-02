@@ -105,6 +105,23 @@ internal static class Rules
         "'{0}' spells its field-set call '{1}', which the generator matches by name rather than by binding it, so no ladder was generated; write the receiver as 'Schema', qualified by the type that contains it if you need to",
         "'Schema.Fields' is the member being generated, so it binds to nothing while the generator is deciding whether to emit it. The receiver therefore has to be recognised as written rather than resolved, and an alias, a renamed import or a call with no receiver at all carries nothing to recognise. Without this rule the only message is the compiler's, against a member the generator never created.");
 
+    /// <summary>
+    /// Reported at the argument the path was taken from, which is the expression the
+    /// author would have to change if they did not want to name the field instead.
+    /// </summary>
+    /// <remarks>
+    /// Advice, because the derived path is only usually wrong: an author who is not
+    /// showing violations to anybody outside may well not care what
+    /// <c>subject.Total.ToString()</c> reduces to. It stays on because the other
+    /// reading is that the text of an expression the author wrote is now in an API
+    /// response, and nothing else in the build says so.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor FieldPathNotDerivable = Advice(
+        "WMSC0008",
+        "Name a field whose path cannot be read from its argument",
+        "'{0}' takes this field's path from the expression itself, so a violation reports it as '{1}'; add '.Named(\"...\")' to report it under a name a caller can act on",
+        "A field's path comes from 'CallerArgumentExpression', which hands the runtime the argument's source text and nothing else. A member access reduces to the member's name, which is the case the design is built around. Anything else — a method call, an indexer, a literal, a null-forgiving operator — keeps its punctuation, and that text then reaches logs and API responses alongside the violation.");
+
     private const string DocsRoot =
         "https://draekien-industries.wpei.me/source-generation/diagnostics#";
 

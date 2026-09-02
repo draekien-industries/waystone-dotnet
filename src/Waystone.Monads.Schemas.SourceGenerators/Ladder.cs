@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas.SourceGenerators;
+﻿namespace Waystone.Monads.Schemas.SourceGenerators;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +15,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 /// whether to generate it. Everything else about the chain — what a <c>Refine</c>
 /// argument actually yields — binds normally, because those members already exist.
 /// <para>
-/// It also drives <c>Asynchrony</c>, which has nothing to do with the ladder. That
-/// rule needs the same walk over the same declarations, and walking them twice to
-/// keep the two apart would cost a consumer's build more than the tidier shape is
-/// worth.
+/// It also drives <c>Asynchrony</c> and <c>FieldNames</c>, neither of which has
+/// anything to do with the ladder. Both need the same walk over the same
+/// declarations, and walking them three times to keep them apart would cost a
+/// consumer's build more than the tidier shape is worth.
 /// </para>
 /// </remarks>
 internal static class Ladder
@@ -51,6 +51,12 @@ internal static class Ladder
                          .OfType<InvocationExpressionSyntax>())
             {
                 Asynchrony.Check(
+                    invocation,
+                    model,
+                    schema.Name,
+                    diagnostics);
+
+                FieldNames.Check(
                     invocation,
                     model,
                     schema.Name,
@@ -266,7 +272,7 @@ internal static class Ladder
     /// The invocation of a named member further along the same fluent chain, or
     /// null where the chain does not reach one.
     /// </summary>
-    private static InvocationExpressionSyntax? Chained(
+    public static InvocationExpressionSyntax? Chained(
         InvocationExpressionSyntax invocation,
         string member)
     {

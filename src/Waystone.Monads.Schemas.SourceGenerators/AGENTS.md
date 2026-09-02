@@ -101,6 +101,15 @@ then sends it somewhere else. Left alone deliberately: detecting it means
 re-implementing alias resolution for the one member that cannot bind, over a name
 collision the consumer created inside a type whose whole vocabulary is `Schema.`.
 
+**`WMSC0008` re-runs the runtime's own path derivation at build time.** A field's
+path comes from `CallerArgumentExpression`, and `PathName.From` keeps whatever
+follows the last dot — so a method call, an indexer or a literal leaves its
+punctuation in a path that reaches logs and API responses. `FieldNames` applies the
+same rule to the same text and names `.Named(...)` as the fix. The two derivations
+have to stay in step and cannot be shared, because the generator does not reference
+the runtime; a test asserts the derived path in the message rather than only the id,
+so a change to one shows up as a failure rather than as drift.
+
 **The ladder type is `FieldSet<T1..Tn>`, never `Fields`.** A member named `Fields`
 would hide a namespace-level `Fields<,>` in type-name lookup. Only the method is
 called `Fields`.

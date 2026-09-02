@@ -14,3 +14,4 @@ WMSC0004 | Usage | Error | Match the Into lambda to the number of fields
 WMSC0005 | Usage | Warning | Do not pass a value-producing field to Refine
 WMSC0006 | Usage | Error | Do not reach an asynchronous rule from a field set
 WMSC0007 | Usage | Warning | Call Schema.Fields through the name Schema
+WMSC0008 | Usage | Warning | Name a field whose path cannot be read from its argument
