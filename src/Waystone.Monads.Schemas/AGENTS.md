@@ -21,6 +21,30 @@ the bare `Schema` breaks, which is the one a reader types most.
 The package id followed the namespace rather than the other way round, so nobody
 has to hold two spellings of one word. The singular spelling appears nowhere.
 
+## The public surface is flat; the machinery is not
+
+Every public type is in the root namespace `Waystone.Monads.Schemas`, whatever
+folder its file sits in. `Fields/`, `Extensions/` and `Violations/` are navigation
+only, and moving a type between them is not an API change.
+
+That is forced three ways. The generator emits the literal text
+`global::Waystone.Monads.Schemas.Schema`, so the entry point cannot move without
+the generator moving with it. An extension method is only found through a `using`,
+so putting `TextSchemaExtensions` in a sub-namespace would make `.NotEmpty()` stop
+resolving until a consumer added a second one. And `PublicAPI.Shipped.txt` records
+fully-qualified names, so any move after the package ships is a major bump.
+
+**Everything under `Internal/` takes a sub-namespace, and that is the real split.**
+`Internal.Combinators` decorate and compose, `Internal.Structures` iterate,
+`Internal.Fields` are what `Schema.Required` and its siblings return, and
+`Internal.Reporting` is the plumbing a violation is built from. A type appearing
+in the root namespace is a claim that a consumer is meant to reach it.
+
+**The five namespaces are wired in with `global using`, in `Internal/InternalUsings.cs`
+and its counterpart in the test project.** Per-file usings would have put sixty
+files of churn in front of a reviewer reading a move, and the visibility is no
+wider than it was when all of this shared one namespace.
+
 ## `Configure` lives on `SchemaConfig`, and that is the whole hierarchy rule
 
 Three types, and the split is load-bearing:
@@ -140,6 +164,21 @@ on every parse to remove thirty lines of straight-line code. `CompositeNodeAsync
 guards the hazard instead, and costs nothing at runtime.
 
 ## `Outcome<T>` owns "same shape, new contents"
+
+**`Outcome<T>` is not a `Result` and must not become one.** A `Result` has two
+states; `Outcome<T>` has three, and the third one is the entire design. `Refined`
+carries a value *and* violations, which is what lets a failed refinement leave the
+value intact so the rest of that chain keeps running and keeps reporting. Collapse
+it to `Result<T, SchemaViolation>` and the first violation ends the parse — the
+gather-everything promise goes with it, and no existing test would fail loudly
+enough to say so.
+
+**Its internals were looked at for `Option<T>` and left alone.** `HasValue`, the
+`Value` throw and the `default!` are `Option<T>` hand-rolled, and swapping them
+would delete both. It would also allocate one `Option<T>` per outcome, and an
+outcome is built per field, per list entry and per dictionary pair — five hundred
+extra allocations on a five-hundred-item list. The type is internal, so nobody
+outside the assembly is reading the worse shape.
 
 `WithViolations` keeps whether a value survived and swaps the violation list.
 `WithValue` keeps the violations and swaps the value. Use them; do not re-derive
