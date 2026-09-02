@@ -18,6 +18,7 @@ working in — each is loaded when you touch files under it.
 | [src/Waystone.Monads.Schema](src/Waystone.Monads.Schema/AGENTS.md) | The plural namespace, which hierarchies are closed, eager message rendering |
 | [src/Waystone.Monads.Analyzers](src/Waystone.Monads.Analyzers/AGENTS.md) | Rule severity policy, Roslyn version targeting, analyzer testing |
 | [src/Waystone.Monads.Shouldly.Analyzers](src/Waystone.Monads.Shouldly.Analyzers/AGENTS.md) | Where the assertion-migration rules ship and why not in the core package |
+| [src/Waystone.Monads.Schema.SourceGenerators](src/Waystone.Monads.Schema.SourceGenerators/AGENTS.md) | Why it is its own package, the `WMSC` id space, the emission constraints |
 | [src/Waystone.Monads.SourceGenerators](src/Waystone.Monads.SourceGenerators/AGENTS.md) | The shipped error code generator contract and emission |
 | [src/Waystone.SourceGenerators](src/Waystone.SourceGenerators/AGENTS.md) | The awaited-receiver generator contract and emission |
 | [sample](sample/AGENTS.md) | Which samples are published, and the snippet regions the GitBook pages quote |

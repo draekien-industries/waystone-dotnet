@@ -38,6 +38,29 @@
     -->
     <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
     <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
+    <Import Project="..\Waystone.Monads.Schema.SourceGenerators\Waystone.Monads.Schema.SourceGenerators.props"/>
+
+    <!--
+        This package's own pack target, not an extra condition on PackMonadAnalyzers.
+        That one packs into Waystone.Monads, and the schema generator has no business
+        running in the compilation of every monads consumer.
+
+        The condition on the framework is load-bearing rather than tidy. This project
+        multi-targets, TargetsForTfmSpecificContentInPackage runs once per framework,
+        and both runs would put the same file at the same package path.
+    -->
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackSchemaAnalyzers</TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
+
+    <Target Name="PackSchemaAnalyzers" DependsOnTargets="ResolveProjectReferences"
+            Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="@(Analyzer)"
+                                    Condition="'%(Filename)' == 'Waystone.Monads.Schema.SourceGenerators'"
+                                    PackagePath="analyzers/dotnet/cs"/>
+        </ItemGroup>
+    </Target>
 
     <!--
         The baseline is split rather than duplicated. PublicApiAnalyzers unions
