@@ -8,6 +8,11 @@ Waystone.Monads.Schemas.Field
 Waystone.Monads.Schemas.Field.Field() -> void
 Waystone.Monads.Schemas.Field<T>
 Waystone.Monads.Schemas.Field<T>.Field() -> void
+Waystone.Monads.Schemas.FieldAccumulator
+Waystone.Monads.Schemas.FieldAccumulator.Failed<TOut>() -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
+Waystone.Monads.Schemas.FieldAccumulator.HasViolations.get -> bool
+Waystone.Monads.Schemas.FieldAccumulator.Refine(Waystone.Monads.Schemas.Field! field) -> void
+Waystone.Monads.Schemas.FieldAccumulator.Take<T>(Waystone.Monads.Schemas.Field<T>! field) -> T
 Waystone.Monads.Schemas.IdSchemaExtensions
 Waystone.Monads.Schemas.NumberSchemaExtensions
 Waystone.Monads.Schemas.Schema
@@ -98,6 +103,7 @@ static Waystone.Monads.Schemas.ComparableSchemaExtensions.AtLeast<TIn, T>(this W
 static Waystone.Monads.Schemas.ComparableSchemaExtensions.AtMost<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
 static Waystone.Monads.Schemas.ComparableSchemaExtensions.GreaterThan<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
 static Waystone.Monads.Schemas.ComparableSchemaExtensions.LessThan<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
+static Waystone.Monads.Schemas.FieldAccumulator.Start() -> Waystone.Monads.Schemas.FieldAccumulator!
 static Waystone.Monads.Schemas.IdSchemaExtensions.NotEmpty<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.Guid>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.Guid>!
 static Waystone.Monads.Schemas.NumberSchemaExtensions.Negative<TIn>(this Waystone.Monads.Schemas.Schema<TIn, decimal>! schema) -> Waystone.Monads.Schemas.Schema<TIn, decimal>!
 static Waystone.Monads.Schemas.NumberSchemaExtensions.Negative<TIn>(this Waystone.Monads.Schemas.Schema<TIn, double>! schema) -> Waystone.Monads.Schemas.Schema<TIn, double>!

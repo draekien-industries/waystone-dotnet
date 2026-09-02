@@ -43,12 +43,20 @@ internal static class Verify
     /// Runs the generator over several syntax trees, which is the only way to reach a
     /// partial class whose parts are in different files.
     /// </summary>
-    public static GeneratorRun RunRaw(IReadOnlyList<string> sources)
+    public static GeneratorRun RunRaw(
+        IReadOnlyList<string> sources,
+        LanguageVersion language = LanguageVersion.Latest)
     {
-        CSharpCompilation compilation = Compile(sources);
+        CSharpCompilation compilation = Compile(sources, language);
 
         GeneratorDriver driver =
-            CSharpGeneratorDriver.Create(new SchemaGenerator())
+            CSharpGeneratorDriver.Create(
+                                      [
+                                          new SchemaGenerator()
+                                             .AsSourceGenerator(),
+                                      ],
+                                      parseOptions: new CSharpParseOptions(
+                                          language))
                                  .RunGeneratorsAndUpdateCompilation(
                                       compilation,
                                       out Compilation output,
@@ -99,13 +107,33 @@ internal static class Verify
         return (first, Emitted(driver.GetRunResult()));
     }
 
-    private static CSharpCompilation Compile(IReadOnlyList<string> sources) =>
+    /// <summary>
+    /// Runs the generator over a subject compiled as C# 7.3, the version a net472
+    /// project still gets by default. The emitted generic constraints cannot be
+    /// spelled there, so this is the only thing that proves the generator notices.
+    /// </summary>
+    /// <remarks>
+    /// Nullable analysis is off as well, and has to be: enabling it under 7.3 is
+    /// <c>CS8630</c> before the generator runs at all.
+    /// </remarks>
+    public static GeneratorRun RunOnCSharp73(string source) =>
+        RunRaw([Preamble + source + Postscript], LanguageVersion.CSharp7_3);
+
+    private static CSharpCompilation Compile(
+        IReadOnlyList<string> sources,
+        LanguageVersion language = LanguageVersion.Latest) =>
         CSharpCompilation.Create(
             "Waystone.Monads.Schemas.SourceGenerators.Tests.Subject",
-            sources.Select(source => CSharpSyntaxTree.ParseText(source)),
+            sources.Select(
+                source => CSharpSyntaxTree.ParseText(
+                    source,
+                    new CSharpParseOptions(language))),
             References,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-               .WithNullableContextOptions(NullableContextOptions.Enable));
+               .WithNullableContextOptions(
+                    language == LanguageVersion.CSharp7_3
+                        ? NullableContextOptions.Disable
+                        : NullableContextOptions.Enable));
 
     private static string Emitted(GeneratorDriverRunResult result)
     {

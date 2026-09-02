@@ -52,6 +52,37 @@ name in a base clause written once per schema class; the frequently written
 `Schema<A, B>` field and parameter type is unchanged, which is why the *root*
 keeps the short name.
 
+## `FieldAccumulator` is public because generated code has to reach it
+
+Evaluating a field is internal — `Field.Evaluate`, `Field<T>.EvaluateValue`,
+`ParseContext` and `Outcome<T>` all are, deliberately, because they are what keeps
+every schema's reporting behaviour identical. But the `Schema.Fields` ladder is
+generated into the *consumer's* assembly, so it can see none of them.
+
+`FieldAccumulator` is the one seam that crosses that line, and it is kept as narrow
+as it can be: start one, take each field's value, refine with the ones that only
+gate, ask whether anything was reported. Five members, no way to construct a
+violation, no way to reach a `ParseContext`. **Anything the ladder needs in future
+is added here, and adding it widens the published surface of the package
+permanently** — so prefer teaching the generator to compose what already exists.
+
+**It offers no success half, and that is the shape rather than an omission.** An
+earlier draft took a `Func<TOut>` and called it only when nothing had been reported,
+which allocated a delegate and a display class on *every* parse of every schema to
+guard a branch the caller could take itself. `HasViolations` plus `Failed<TOut>()`
+gives the caller the same guarantee — the constructor never sees a `default` a field
+failed to produce — and the generated `Into` calls the caller's own delegate
+directly.
+
+`Take` returns the value rather than a success flag with an `out`. The flag was
+never read: the generator runs every field regardless, then branches once on
+`HasViolations`. A flag on the shipped surface would have implied a per-field
+decision that nothing makes.
+
+Note that it works at `ParseContext.Root`. A nested schema's paths are rebased by
+`SchemaConfig.Evaluate` after `Configure` returns, so the accumulator never needs to
+know where in a larger parse it sits.
+
 ## The `Transform` overloads are not ambiguous, and it is worth knowing why
 
 `Transform(Func<TOut, TNext>)` and `Transform(Func<TOut, Result<TNext, Error>>)`
