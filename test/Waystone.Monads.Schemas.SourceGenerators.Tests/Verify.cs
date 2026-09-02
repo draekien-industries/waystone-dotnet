@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Shouldly;
 using Waystone.Monads.Results;
 
 internal static class Verify
@@ -184,4 +185,15 @@ internal sealed record GeneratorRun(
 
     public IEnumerable<string> DiagnosticIds =>
         GeneratorDiagnostics.Select(diagnostic => diagnostic.Id);
+
+    /// <summary>Asserts the whole generated file matches a snapshot.</summary>
+    /// <param name="expected">
+    /// The entire expected file, as a raw string literal. Its line endings are
+    /// normalised before comparing, which <see cref="Source" /> alone cannot do:
+    /// the literal carries whatever endings git checked this test file out with,
+    /// so asserting on it directly passes on a LF checkout and fails on a CRLF
+    /// one.
+    /// </param>
+    public void ShouldEmit(string expected) =>
+        Source.ShouldBe(expected.Replace("\r\n", "\n"));
 }
