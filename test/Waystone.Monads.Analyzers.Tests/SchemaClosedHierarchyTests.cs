@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 /// <summary>
-/// Lives here rather than in <c>Waystone.Monads.Schema.Tests</c>, which has
+/// Lives here rather than in <c>Waystone.Monads.Schemas.Tests</c>, which has
 /// <c>InternalsVisibleTo</c> and would compile a derived field happily, proving
 /// nothing.
 /// </summary>

@@ -5,11 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Waystone.Monads.Schema\Waystone.Monads.Schema.csproj"/>
-        <ProjectReference Include="..\..\src\Waystone.Monads.Schema.SourceGenerators\Waystone.Monads.Schema.SourceGenerators.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Schemas\Waystone.Monads.Schemas.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Schemas.SourceGenerators\Waystone.Monads.Schemas.SourceGenerators.csproj"/>
     </ItemGroup>
 
-    <Import Project="..\..\src\Waystone.Monads.Schema.SourceGenerators\Waystone.Monads.Schema.SourceGenerators.props"/>
+    <Import Project="..\..\src\Waystone.Monads.Schemas.SourceGenerators\Waystone.Monads.Schemas.SourceGenerators.props"/>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="5.6.0"/>

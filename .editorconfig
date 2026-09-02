@@ -35,7 +35,7 @@ dotnet_diagnostic.RS1015.severity = warning
 dotnet_diagnostic.RS1020.severity = warning
 dotnet_diagnostic.RS1028.severity = warning
 
-[src/Waystone.Monads.Schema/Schema.cs]
+[src/Waystone.Monads.Schemas/Schema.cs]
 
 # RS0026 forbids several overloads of one name from carrying optional
 # parameters, because a later addition can silently rebind a call site. Every

@@ -8,18 +8,21 @@
     </PropertyGroup>
 
     <!--
-        The namespace is plural against a singular package id, and it has to be. A
-        namespace and a type may share a name, but the namespace wins lookup wherever
-        both are candidates, so a Waystone.Monads.Schema namespace turns Schema.Text
-        into a CS0234 for any consumer whose own namespace begins Waystone.Monads. —
-        which is every test project and every published doc sample in this repository.
+        The name is plural, and it has to be. A namespace and a type may share a
+        name, but the namespace wins lookup wherever both are candidates, so a
+        singular Waystone.Monads.Schema namespace turns Schema.Text into a CS0234
+        for any consumer whose own namespace begins Waystone.Monads. - which is
+        every test project and every published doc sample in this repository. The
+        package id follows the namespace so there is only one spelling to hold, and
+        this property is stated rather than inferred so a rename cannot quietly
+        take the namespace with it.
     -->
     <PropertyGroup>
         <RootNamespace>Waystone.Monads.Schemas</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
-        <Title>Waystone.Monads.Schema</Title>
+        <Title>Waystone.Monads.Schemas</Title>
         <Description>
             Composable schema parsing for Waystone.Monads. Declare reusable checks, compose them into a schema, and parse an untrusted input into a validated domain type as a Result, with every failure reported at once.
         </Description>
@@ -38,7 +41,7 @@
     -->
     <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
     <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
-    <Import Project="..\Waystone.Monads.Schema.SourceGenerators\Waystone.Monads.Schema.SourceGenerators.props"/>
+    <Import Project="..\Waystone.Monads.Schemas.SourceGenerators\Waystone.Monads.Schemas.SourceGenerators.props"/>
 
     <!--
         This package's own pack target, not an extra condition on PackMonadAnalyzers.
@@ -57,7 +60,7 @@
             Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <ItemGroup>
             <TfmSpecificPackageFile Include="@(Analyzer)"
-                                    Condition="'%(Filename)' == 'Waystone.Monads.Schema.SourceGenerators'"
+                                    Condition="'%(Filename)' == 'Waystone.Monads.Schemas.SourceGenerators'"
                                     PackagePath="analyzers/dotnet/cs"/>
         </ItemGroup>
     </Target>
@@ -99,7 +102,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="Waystone.Monads.Schema.Tests"/>
+        <InternalsVisibleTo Include="Waystone.Monads.Schemas.Tests"/>
     </ItemGroup>
 
 </Project>

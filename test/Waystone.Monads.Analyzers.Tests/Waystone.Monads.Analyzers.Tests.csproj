@@ -6,7 +6,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
-        <ProjectReference Include="..\..\src\Waystone.Monads.Schema\Waystone.Monads.Schema.csproj"/>
+        <ProjectReference Include="..\..\src\Waystone.Monads.Schemas\Waystone.Monads.Schemas.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Monads.Analyzers.CodeFixes\Waystone.Monads.Analyzers.CodeFixes.csproj"/>
     </ItemGroup>
