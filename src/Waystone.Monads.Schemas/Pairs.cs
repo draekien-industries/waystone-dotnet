@@ -17,23 +17,35 @@ internal sealed class Pairs<TKey, TValue>
 
     private bool _complete = true;
 
-    private bool _truncated;
+    private readonly int _count;
+
+    private bool _dropped;
+
+    private int _examined;
 
     internal Pairs(int count, ParseContext context)
     {
         _parsed = new Dictionary<TKey, TValue>(count);
+        _count = count;
         _context = context;
     }
 
-    internal bool IsFull => _truncated;
+    internal bool IsFull => Caps.IsFull(_violations);
+
+    /// <summary>
+    /// Whether the report is missing something: a violation that did not fit, or an
+    /// entry the caller stopped short of handing over once the list was full.
+    /// </summary>
+    private bool Truncated => _dropped || _examined < _count;
 
     internal void Take(
         ParseContext at,
         Outcome<TKey> key,
         Outcome<TValue> value)
     {
-        _truncated |= Caps.Gather(_violations, key.Violations);
-        _truncated |= Caps.Gather(_violations, value.Violations);
+        _examined++;
+        _dropped |= Caps.Gather(_violations, key.Violations);
+        _dropped |= Caps.Gather(_violations, value.Violations);
 
         if (!key.HasValue || !value.HasValue)
         {
@@ -44,7 +56,7 @@ internal sealed class Pairs<TKey, TValue>
 
         if (_parsed.ContainsKey(key.Value))
         {
-            _truncated |= Caps.Gather(
+            _dropped |= Caps.Gather(
                 _violations,
                 Violations.One(
                     at,
@@ -62,7 +74,7 @@ internal sealed class Pairs<TKey, TValue>
 
     internal Outcome<IReadOnlyDictionary<TKey, TValue>> ToOutcome()
     {
-        if (_truncated)
+        if (Truncated)
         {
             _complete = false;
             Caps.Truncate(_violations, _context);

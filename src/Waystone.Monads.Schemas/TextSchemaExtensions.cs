@@ -376,10 +376,10 @@ public static class TextSchemaExtensions
     /// </param>
     /// <returns>A schema that applies this rule after everything already on it.</returns>
     /// <remarks>
-    /// A literal, not an expression. Reach for this over <c>Matches("^tag:")</c>:
-    /// the characters are matched as themselves, so a dot or a bracket in the
-    /// prefix means what it looks like rather than what a regular expression would
-    /// make of it.
+    /// A literal, not an expression. Reach for this rather than building a
+    /// <c>Regex</c> for <c>Matches</c>: the characters are matched as themselves, so
+    /// a dot or a bracket in the prefix means what it looks like rather than what a
+    /// regular expression would make of it, and there is no pattern to compile.
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="schema" /> or <paramref name="prefix" /> is null.

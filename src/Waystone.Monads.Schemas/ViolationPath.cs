@@ -2,6 +2,7 @@ namespace Waystone.Monads.Schemas;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
 
@@ -36,6 +37,8 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
 
     private string? _rendered;
 
+    private ReadOnlyCollection<PathSegment>? _view;
+
     private ViolationPath(PathSegment[] segments)
     {
         _segments = segments;
@@ -62,7 +65,8 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
     /// whether a step is a list position or a union branch, which the rendered
     /// text leaves a reader to guess at.
     /// </remarks>
-    public IReadOnlyList<PathSegment> Segments => _segments;
+    public IReadOnlyList<PathSegment> Segments =>
+        _view ??= new ReadOnlyCollection<PathSegment>(_segments);
 
     /// <summary>Checks whether another path locates the same place.</summary>
     /// <remarks>

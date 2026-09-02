@@ -32,6 +32,13 @@ public sealed class SchemaPrimitiveTests
     }
 
     [Flags]
+    public enum Scopes
+    {
+        Read = 1,
+        Write = 2,
+    }
+
+    [Flags]
     public enum Signed
     {
         None = 0,
@@ -132,6 +139,22 @@ public sealed class SchemaPrimitiveTests
         Schema.Enum<Permissions>()
               .Evaluate(value, At)
               .Violations.Count.ShouldBe(accepted ? 0 : 1);
+
+    /// <summary>
+    /// Zero is made of no bits, so the bit test accepts it from every flags enum.
+    /// It is also what a deserialiser produces for a field the payload left out, so
+    /// accepting it where no member declares it certifies a value nobody sent.
+    /// </summary>
+    [Fact]
+    public void GivenAFlagsEnumerationWithNoZeroMember_WhenParsingZero_ThenRejectIt()
+    {
+        Schema.Enum<Scopes>().Evaluate(default, At).Violations
+              .ShouldHaveSingleItem();
+
+        Schema.Enum<Permissions>()
+              .Evaluate(default, At)
+              .Violations.ShouldBeEmpty();
+    }
 
     /// <summary>
     /// The attribute is the whole switch. <c>Ranks</c> declares the same numbers

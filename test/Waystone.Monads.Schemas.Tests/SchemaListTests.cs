@@ -294,8 +294,33 @@ public sealed class SchemaListTests
         last.Code.ShouldBe(ViolationCodeCatalog.Codes.Truncated);
         last.Path.ToString().ShouldBe("lines");
 
-        last.Message.ShouldBe(
-            "Stopped reporting lines after 64 problems; there are more.");
+        last.Message.ShouldBe("Stopped after 64 problems; there are more.");
+    }
+
+    /// <summary>
+    /// The boundary the cap is easiest to get wrong at. Reaching the cap on the last
+    /// entry loses nothing, so claiming "there are more" would be a lie — and it
+    /// would also fail a list whose entries only needed refining.
+    /// </summary>
+    [Fact]
+    public void GivenExactlyTheCapOfBadEntries_WhenParsing_ThenReportNoTruncation()
+    {
+        var entries = new string[Caps.ViolationsPerNode];
+
+        for (var index = 0; index < entries.Length; index++)
+        {
+            entries[index] = string.Empty;
+        }
+
+        Outcome<IReadOnlyList<string>> outcome =
+            Schema.List(Schema.Text.NotEmpty()).Evaluate(entries, At);
+
+        outcome.Violations.Count.ShouldBe(Caps.ViolationsPerNode);
+
+        foreach (Violation violation in outcome.Violations)
+        {
+            violation.Code.ShouldNotBe(ViolationCodeCatalog.Codes.Truncated);
+        }
     }
 
     [Fact]

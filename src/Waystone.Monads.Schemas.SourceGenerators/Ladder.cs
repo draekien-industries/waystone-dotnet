@@ -1,4 +1,4 @@
-﻿namespace Waystone.Monads.Schemas.SourceGenerators;
+namespace Waystone.Monads.Schemas.SourceGenerators;
 
 using System.Collections.Generic;
 using System.Linq;

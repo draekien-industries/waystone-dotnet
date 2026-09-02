@@ -1,5 +1,7 @@
 namespace Waystone.Monads.Schemas;
 
+using System;
+using System.Collections.Generic;
 using Shouldly;
 using Xunit;
 
@@ -275,6 +277,21 @@ public sealed class ViolationPathTests
     [Fact]
     public void GivenRoot_WhenReadingItsSegments_ThenReportNone() =>
         ViolationPath.Root.Segments.ShouldBeEmpty();
+
+    /// <summary>
+    /// The class doc calls a path immutable and safe to share, and the rendered text
+    /// is cached — so handing back the backing array would let a caller change what
+    /// <c>Segments</c> says while <c>ToString</c> kept the old answer, for every
+    /// violation holding that path.
+    /// </summary>
+    [Fact]
+    public void GivenAPath_WhenWritingToItsSegments_ThenRefuse()
+    {
+        ViolationPath sut = ViolationPath.Root.Append("sku");
+
+        Should.Throw<NotSupportedException>(
+            () => ((IList<PathSegment>)sut.Segments)[0] = default);
+    }
 
     [Fact]
     public void GivenTheSameSteps_WhenComparing_ThenBeEqual()

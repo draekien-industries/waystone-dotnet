@@ -30,8 +30,20 @@ internal static class DeclaredMembers<T> where T : struct, Enum
     /// <c>[Flags]</c> says its values are for. A bit no member declares still
     /// fails, so an unrecognised value is caught either way.
     /// </summary>
-    private static bool IsMadeOfDeclaredBits(T value) =>
-        (ToBits(value) & ~DeclaredBits) == 0;
+    /// <remarks>
+    /// Zero is the exception and is checked against the declared members instead. It
+    /// is made of no bits at all, so the bit test accepts it from every flags enum,
+    /// including one with no zero-valued member — and zero is exactly what a
+    /// deserialiser produces for a field the payload left out.
+    /// </remarks>
+    private static bool IsMadeOfDeclaredBits(T value)
+    {
+        ulong bits = ToBits(value);
+
+        return bits == 0
+            ? Declared.Contains(value)
+            : (bits & ~DeclaredBits) == 0;
+    }
 
     /// <summary>
     /// Reads the value as a bit pattern. A signed enum can declare a negative

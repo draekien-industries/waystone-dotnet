@@ -16,10 +16,17 @@ using System.Collections.Generic;
 /// argument from one.
 /// </para>
 /// <para>
-/// All four report <c>schema_violation.out-of-range</c> and supply the bound to
-/// <c>{Expected}</c>. They count entries, not their contents, and they run
-/// regardless of whether the entries themselves passed — so a list of three bad
-/// entries with a minimum of five reports four failures, not one.
+/// All six report <c>schema_violation.out-of-range</c> and supply the bound to
+/// <c>{Expected}</c>, and none of them looks at what an entry holds.
+/// </para>
+/// <para>
+/// The four that count what parsed run regardless of whether the entries passed,
+/// so a list of three bad entries with a minimum of five reports four failures,
+/// not one. The two <c>MaxCount</c> overloads that count the <i>input</i> are the
+/// exception and stop the parse dead: nothing is parsed and nothing later in the
+/// chain runs, so a collection past the bound reports the bound alone. That is
+/// what makes them a guard rather than a report, and it is why they bind in
+/// preference wherever both apply.
 /// </para>
 /// </remarks>
 public static class CollectionSchemaExtensions
@@ -94,6 +101,12 @@ public static class CollectionSchemaExtensions
     /// knowable there without parsing, so a list past the bound costs one
     /// comparison rather than one parse per entry — the difference between a bound
     /// that protects a service and a bound that only reports afterwards.
+    /// <para>
+    /// The cost is the rest of the report. Breaking the bound produces no value, so
+    /// the entries are never parsed and no rule after this one runs: a list of sixty
+    /// entries with a maximum of fifty reports "at most 50 entries" and nothing
+    /// about the entries. Put this last in a chain only if that is what you want.
+    /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="schema" /> is null.
@@ -173,7 +186,9 @@ public static class CollectionSchemaExtensions
     /// <remarks>
     /// The dictionary counterpart of the list overload above, and the one that
     /// binds for <c>Schema.Dictionary</c>. Counts the entries that arrived rather
-    /// than the ones that parsed, which is the difference that lets it run first.
+    /// than the ones that parsed, which is the difference that lets it run first —
+    /// and, as there, breaking the bound reports the bound alone, because nothing
+    /// is parsed and nothing after it runs.
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="schema" /> is null.

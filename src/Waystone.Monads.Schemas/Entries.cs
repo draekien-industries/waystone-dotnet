@@ -12,7 +12,9 @@ internal sealed class Entries<T> where T : notnull
 
     private bool _complete = true;
 
-    private bool _truncated;
+    private bool _dropped;
+
+    private int _examined;
 
     internal Entries(int count, ParseContext context)
     {
@@ -20,11 +22,18 @@ internal sealed class Entries<T> where T : notnull
         _context = context;
     }
 
-    internal bool IsFull => _truncated;
+    internal bool IsFull => Caps.IsFull(_violations);
+
+    /// <summary>
+    /// Whether the report is missing something: a violation that did not fit, or an
+    /// entry the caller stopped short of handing over once the list was full.
+    /// </summary>
+    private bool Truncated => _dropped || _examined < _parsed.Length;
 
     internal void Take(int index, Outcome<T> outcome)
     {
-        _truncated |= Caps.Gather(_violations, outcome.Violations);
+        _examined++;
+        _dropped |= Caps.Gather(_violations, outcome.Violations);
 
         if (outcome.HasValue)
         {
@@ -38,7 +47,7 @@ internal sealed class Entries<T> where T : notnull
 
     internal Outcome<IReadOnlyList<T>> ToOutcome()
     {
-        if (_truncated)
+        if (Truncated)
         {
             _complete = false;
             Caps.Truncate(_violations, _context);
