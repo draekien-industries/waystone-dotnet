@@ -29,11 +29,23 @@ internal static class Rules
             "'{0}' has no accessible parameterless constructor, so its generated 'Instance' cannot be constructed; give it one, or take the values it needs from the input it parses",
             "The generated 'Instance' is a static property initialised with 'new'. 'SchemaConfig' supplies a protected parameterless constructor, so a derived schema inherits one until it declares a constructor of its own, at which point the implicit one disappears with no diagnostic of its own.");
 
-    public static readonly DiagnosticDescriptor InstanceAlreadyDeclared = Create(
+    /// <summary>
+    /// Covers all three names the generator writes into the schema, not just
+    /// <c>Instance</c>. One rule rather than three, because the reader's problem and
+    /// the reader's fix are the same in every case and the name is already a message
+    /// argument.
+    /// </summary>
+    /// <remarks>
+    /// <c>Schema</c> and <c>FieldSet</c> are only checked where a ladder is actually
+    /// being emitted, so a schema that never calls <c>Schema.Fields</c> may keep a
+    /// member of either name. Reporting them unconditionally would fail a build over
+    /// a collision that does not exist.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor NameAlreadyDeclared = Create(
         "WMSC0003",
-        "Do not declare a member named Instance on a schema",
-        "'{0}' already declares a member named 'Instance', which is the name the generator emits; remove it and use the generated one",
-        "The generator emits 'Instance' into a second declaration of the class, so a hand-written member of that name is a duplicate definition. The compiler reports the collision against the generated file, which is not the file anyone can edit.");
+        "Do not declare a member the generator emits",
+        "'{0}' already declares a member named '{1}', which is a name the generator writes into this class; rename it, or remove it and use the generated one",
+        "The generator reopens the class and emits 'Instance', a nested 'Schema' and a 'FieldSet' struct per field count into it, so a hand-written member of any of those names is a duplicate definition. Type parameters do not separate them: a nested type collides with an existing member of the same name whatever its arity. The compiler reports the collision against the generated file, which is not the file anyone can edit.");
 
     /// <summary>
     /// Reported at the <c>Into</c> call, not at the field list. The field list is

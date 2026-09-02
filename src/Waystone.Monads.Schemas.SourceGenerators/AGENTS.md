@@ -56,6 +56,13 @@ protected one, so a derived schema has an implicit constructor until it declares
 constructor of its own — at which point the implicit one disappears with no
 diagnostic from the compiler.
 
+**`WMSC0003` covers every name the generator writes, not just `Instance`.** The other
+two are the nested `Schema` and the `FieldSet` struct, and both are checked only where
+a ladder is actually being emitted — a schema that never calls `Schema.Fields` receives
+neither name and may keep a member of either. Arity does not separate them: `CS0102`
+fires on a nested `FieldSet<T1>` beside a property called `FieldSet`. `SchemaWriter`
+holds all three names as constants so the guard and the emission cannot drift.
+
 **The generator anchors on the first part carrying a base list, not the first part.**
 A partial class reaches the pipeline once per part that names a base type, and
 emitting from each would add the same hint name twice. Anchoring on
