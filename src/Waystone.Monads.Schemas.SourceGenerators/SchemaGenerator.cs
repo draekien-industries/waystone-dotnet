@@ -4,20 +4,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 /// <summary>
-/// Generates the shared <c>Instance</c> of every concrete schema that derives from
-/// <c>SchemaConfig&lt;TIn, TOut&gt;</c>.
+/// Generates the members a schema declared as a set of fields cannot write for
+/// itself: the shared <c>Instance</c>, and the <c>Schema.Fields</c> ladder at
+/// every arity its <c>Configure</c> body uses.
 /// </summary>
 /// <remarks>
-/// Silent on a compilation with no such schema, and silent on an abstract one,
-/// which exists to be derived from rather than used. For a concrete schema it emits
+/// Silent on a compilation with no schema deriving from
+/// <c>SchemaConfig&lt;TIn, TOut&gt;</c>, and silent on an abstract one, which
+/// exists to be derived from rather than used. For a concrete schema it emits
 /// nothing and reports instead when the schema or a type containing it is not
-/// <c>partial</c> (<c>WMSC0001</c>), when it has no parameterless constructor to call
-/// (<c>WMSC0002</c>), or when it already declares a member named <c>Instance</c>
-/// (<c>WMSC0003</c>).
+/// <c>partial</c> (<c>WMSC0001</c>), when it has no parameterless constructor to
+/// call (<c>WMSC0002</c>), or when it already declares a member named
+/// <c>Instance</c> (<c>WMSC0003</c>). It emits <i>and</i> reports when an
+/// <c>Into</c> lambda does not match its field count (<c>WMSC0004</c>) or a
+/// <c>Refine</c> argument yields a value nobody will see (<c>WMSC0005</c>).
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 public sealed class SchemaGenerator : IIncrementalGenerator
@@ -29,35 +34,57 @@ public sealed class SchemaGenerator : IIncrementalGenerator
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        IncrementalValuesProvider<GenerationResult> results =
+        IncrementalValueProvider<bool> constrained =
+            context.ParseOptionsProvider.Select(
+                static (options, _) => Constrained(options));
+
+        IncrementalValuesProvider<Analysis> analyses =
             context.SyntaxProvider.CreateSyntaxProvider(
                         static (node, _) => node is ClassDeclarationSyntax
                         {
                             BaseList: not null,
                         },
                         static (ctx, _) => Analyse(ctx))
-                   .Where(static result => result is not null)
-                   .Select(static (result, _) => result!);
+                   .Where(static analysis => analysis is not null)
+                   .Select(static (analysis, _) => analysis!);
 
         context.RegisterSourceOutput(
-            results,
-            static (ctx, result) =>
+            analyses.Combine(constrained),
+            static (ctx, pair) =>
             {
-                if (result.Diagnostic is not null)
+                Analysis analysis = pair.Left;
+
+                foreach (DiagnosticInfo diagnostic in analysis.Diagnostics.Values)
                 {
-                    ctx.ReportDiagnostic(result.Diagnostic.ToDiagnostic());
+                    ctx.ReportDiagnostic(diagnostic.ToDiagnostic());
                 }
 
-                if (result.Source is not null)
-                {
-                    ctx.AddSource(
-                        result.HintName,
-                        SourceText.From(result.Source, Encoding.UTF8));
-                }
+                if (analysis.Model is null) return;
+
+                ctx.AddSource(
+                    analysis.HintName,
+                    SourceText.From(
+                        SchemaWriter.Emit(analysis.Model, pair.Right),
+                        Encoding.UTF8));
             });
     }
 
-    private static GenerationResult? Analyse(GeneratorSyntaxContext context)
+    /// <summary>
+    /// Whether the consumer's language version can spell the <c>notnull</c>
+    /// constraint the emitted generics need.
+    /// </summary>
+    /// <remarks>
+    /// Before C# 8 the word parses as a type name that does not exist, so emitting
+    /// it is a build failure. Omitting it there costs nothing, because a compiler
+    /// that cannot spell the constraint does not check nullability either. Read
+    /// from the parse options rather than the compilation, which changes on every
+    /// keystroke and would defeat the cache.
+    /// </remarks>
+    private static bool Constrained(ParseOptions options) =>
+        options is not CSharpParseOptions csharp
+     || csharp.LanguageVersion >= LanguageVersion.CSharp8;
+
+    private static Analysis? Analyse(GeneratorSyntaxContext context)
     {
         var declaration = (ClassDeclarationSyntax)context.Node;
 
@@ -80,7 +107,7 @@ public sealed class SchemaGenerator : IIncrementalGenerator
 
         if (notPartial is not null)
         {
-            return GenerationResult.Failed(
+            return Analysis.Failed(
                 hintName,
                 DiagnosticInfo.Create(
                     Rules.NotPartial,
@@ -89,9 +116,9 @@ public sealed class SchemaGenerator : IIncrementalGenerator
                     notPartial.Name));
         }
 
-        if (schema.GetMembers(SchemaInstanceWriter.InstanceMember).Length > 0)
+        if (schema.GetMembers(SchemaWriter.InstanceMember).Length > 0)
         {
-            return GenerationResult.Failed(
+            return Analysis.Failed(
                 hintName,
                 DiagnosticInfo.Create(
                     Rules.InstanceAlreadyDeclared,
@@ -102,7 +129,7 @@ public sealed class SchemaGenerator : IIncrementalGenerator
         if (!schema.InstanceConstructors.Any(
                 static constructor => constructor.Parameters.Length == 0))
         {
-            return GenerationResult.Failed(
+            return Analysis.Failed(
                 hintName,
                 DiagnosticInfo.Create(
                     Rules.NoParameterlessConstructor,
@@ -110,9 +137,41 @@ public sealed class SchemaGenerator : IIncrementalGenerator
                     schema.Name));
         }
 
-        return GenerationResult.Emitted(
+        var diagnostics = new List<DiagnosticInfo>();
+
+        int[] arities =
+            Ladder.Discover(schema, context.SemanticModel, diagnostics);
+
+        return new Analysis(
             hintName,
-            SchemaInstanceWriter.Emit(schema, containers));
+            ModelOf(schema, containers, arities),
+            new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
+    }
+
+    private static SchemaModel ModelOf(
+        INamedTypeSymbol schema,
+        IReadOnlyList<INamedTypeSymbol> containers,
+        int[] arities)
+    {
+        var declarations = new string[containers.Count];
+
+        for (var index = 0; index < containers.Count; index++)
+        {
+            declarations[index] = Symbols.Declaration(containers[index]);
+        }
+
+        return new SchemaModel(
+            schema.ContainingNamespace.IsGlobalNamespace
+                ? string.Empty
+                : schema.ContainingNamespace.ToDisplayString(),
+            new EquatableArray<string>(declarations),
+            Symbols.Declaration(schema),
+            schema.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            schema.Name,
+            schema.DeclaredAccessibility == Accessibility.Public
+                ? "public"
+                : "internal",
+            new EquatableArray<int>(arities));
     }
 
     /// <summary>
@@ -218,7 +277,7 @@ public sealed class SchemaGenerator : IIncrementalGenerator
         }
 
         name.Append(NameOf(schema));
-        name.Append(".Instance.g.cs");
+        name.Append(".Schema.g.cs");
 
         return name.ToString();
     }

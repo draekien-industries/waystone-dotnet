@@ -62,7 +62,7 @@ public sealed class SchemaGeneratorTests
         GeneratorRun run = Verify.Run(Declaring());
 
         run.HintNames.Single()
-           .ShouldEndWith("Sample.GreetingSchema.Instance.g.cs");
+           .ShouldEndWith("Sample.GreetingSchema.Schema.g.cs");
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public sealed class SchemaGeneratorTests
 
             """);
 
-        run.HintNames.Single().ShouldEndWith("GreetingSchema.Instance.g.cs");
+        run.HintNames.Single().ShouldEndWith("GreetingSchema.Schema.g.cs");
         run.CompilationDiagnostics.ShouldBeEmpty();
     }
 
@@ -134,7 +134,7 @@ public sealed class SchemaGeneratorTests
         run.Source.ShouldContain("partial class GreetingSchema");
 
         run.HintNames.Single()
-           .ShouldEndWith("Sample.Outer.Middle.GreetingSchema.Instance.g.cs");
+           .ShouldEndWith("Sample.Outer.Middle.GreetingSchema.Schema.g.cs");
 
         run.CompilationDiagnostics.ShouldBeEmpty();
     }
@@ -175,7 +175,7 @@ public sealed class SchemaGeneratorTests
         run.Source.ShouldContain("partial class PairSchema<TFirst, TSecond>");
 
         run.HintNames.Single()
-           .ShouldEndWith("Sample.PairSchema_2.Instance.g.cs");
+           .ShouldEndWith("Sample.PairSchema_2.Schema.g.cs");
 
         run.CompilationDiagnostics.ShouldBeEmpty();
     }
@@ -199,7 +199,7 @@ public sealed class SchemaGeneratorTests
             "public static global::Sample.BoxSchema<T> Instance { get; } = new global::Sample.BoxSchema<T>();");
 
         run.HintNames.Single()
-           .ShouldEndWith("Sample.BoxSchema_1.Instance.g.cs");
+           .ShouldEndWith("Sample.BoxSchema_1.Schema.g.cs");
 
         run.CompilationDiagnostics.ShouldBeEmpty();
     }

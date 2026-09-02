@@ -35,10 +35,36 @@ public sealed class RulesTests
 
     [Theory]
     [MemberData(nameof(AllRules))]
-    public void EveryRuleIsAnErrorAndOnByDefault(string id)
-    {
-        Rule(id).DefaultSeverity.ShouldBe(DiagnosticSeverity.Error);
+    public void EveryRuleIsOnByDefault(string id) =>
         Rule(id).IsEnabledByDefault.ShouldBeTrue();
+
+    /// <summary>
+    /// A schema that cannot be generated fails the build, because the alternative is
+    /// a missing member reported against a file its author cannot open. A schema
+    /// that generates and runs does not, however wrong it looks.
+    /// </summary>
+    /// <remarks>
+    /// The list is spelled out rather than derived, so promoting a rule to an error
+    /// has to be a deliberate edit here. Every rule that warns fires on code with a
+    /// reading that is correct, and an error would leave that author nothing but the
+    /// id in an <c>.editorconfig</c>.
+    /// </remarks>
+    [Fact]
+    public void OnlyTheRulesThatBlockGenerationAreErrors()
+    {
+        Descriptors()
+           .Where(
+                descriptor => descriptor.DefaultSeverity
+                           == DiagnosticSeverity.Warning)
+           .Select(descriptor => descriptor.Id)
+           .ShouldBe(["WMSC0005"]);
+
+        Descriptors()
+           .ShouldAllBe(
+                descriptor => descriptor.DefaultSeverity
+                           == DiagnosticSeverity.Error
+                           || descriptor.DefaultSeverity
+                           == DiagnosticSeverity.Warning);
     }
 
     /// <summary>

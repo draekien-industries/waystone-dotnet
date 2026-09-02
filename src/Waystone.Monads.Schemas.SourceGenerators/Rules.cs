@@ -35,20 +35,84 @@ internal static class Rules
         "'{0}' already declares a member named 'Instance', which is the name the generator emits; remove it and use the generated one",
         "The generator emits 'Instance' into a second declaration of the class, so a hand-written member of that name is a duplicate definition. The compiler reports the collision against the generated file, which is not the file anyone can edit.");
 
+    /// <summary>
+    /// Reported at the <c>Into</c> call, not at the field list. The field list is
+    /// what the author meant; the lambda is what disagrees with it.
+    /// </summary>
+    /// <remarks>
+    /// The compiler already rejects this, as a delegate conversion failure against
+    /// a generated type the author never wrote and cannot open. That message names
+    /// neither the field count nor the file that decided it, so this rule exists to
+    /// say the thing the reader needs rather than to catch something new.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor IntoArityMismatch = Create(
+        "WMSC0004",
+        "Match the Into lambda to the number of fields",
+        "'{0}' passes {1} fields to 'Schema.Fields' but its 'Into' lambda takes {2}; give the lambda one parameter per field, in the order the fields are listed",
+        "The generated 'Into' takes one parameter per field, so a lambda of any other arity cannot bind to it. The arity is decided by the 'Schema.Fields' call rather than declared anywhere, which is what makes the compiler's own message hard to act on.");
+
+    /// <summary>
+    /// The one rule here that fires on code which compiles and runs, which is why
+    /// it warns rather than fails.
+    /// </summary>
+    /// <remarks>
+    /// Gating on a value without keeping it is legitimate — a confirmation field
+    /// that must be a well-formed email but is never stored is the obvious case. So
+    /// this cannot be an error without breaking correct code. It stays on because
+    /// the other reading is the bug this package exists to prevent: a field that was
+    /// validated, looks validated, and never reaches the object being built.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor RefineDiscardsAValue = Advice(
+        "WMSC0005",
+        "Do not pass a value-producing field to Refine",
+        "'{0}' yields '{1}' and 'Refine' discards it; list it in 'Schema.Fields' to reach the 'Into' lambda, or gate with 'Schema.Forbidden' or 'Schema.Extend' if the value is not wanted",
+        "'Refine' takes the non-generic 'Field' base, which drops the value side, so it accepts any field and keeps only its violations. That is the right shape for a rule yielding 'Checked', which has nothing to contribute, and a silent mistake for one that parses a value somebody expected to find on the result.");
+
     private const string DocsRoot =
         "https://draekien-industries.wpei.me/source-generation/diagnostics#";
 
+    /// <summary>
+    /// A rule for a schema that cannot be generated. Failing the build is the whole
+    /// point: the alternative is a missing member reported against a file the author
+    /// cannot open.
+    /// </summary>
     private static DiagnosticDescriptor Create(
         string id,
         string title,
         string messageFormat,
         string description) =>
+        Descriptor(id, title, messageFormat, description, DiagnosticSeverity.Error);
+
+    /// <summary>
+    /// A rule for a schema that generates and runs, and is probably not what its
+    /// author meant. It warns, because there is a reading of the same code that is
+    /// correct and an error would leave that author no way forward but the rule's
+    /// own id in an <c>.editorconfig</c>.
+    /// </summary>
+    private static DiagnosticDescriptor Advice(
+        string id,
+        string title,
+        string messageFormat,
+        string description) =>
+        Descriptor(
+            id,
+            title,
+            messageFormat,
+            description,
+            DiagnosticSeverity.Warning);
+
+    private static DiagnosticDescriptor Descriptor(
+        string id,
+        string title,
+        string messageFormat,
+        string description,
+        DiagnosticSeverity severity) =>
         new DiagnosticDescriptor(
             id,
             title,
             messageFormat,
             "Usage",
-            DiagnosticSeverity.Error,
+            severity,
             true,
             description,
             DocsRoot + id.ToLowerInvariant());

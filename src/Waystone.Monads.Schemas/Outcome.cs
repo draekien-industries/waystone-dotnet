@@ -49,8 +49,7 @@ internal sealed class Outcome<T> where T : notnull
     public Result<T, SchemaViolation> ToResult() =>
         Violations.Count == 0
             ? Result.Ok<T, SchemaViolation>(_value)
-            : Result.Err<T, SchemaViolation>(
-                  new SchemaViolation(new ViolationCollection(Violations)));
+            : Gather.ToFailure<T>(Violations);
 
     private static IReadOnlyList<Violation> Require(
         IReadOnlyList<Violation> violations)
