@@ -114,6 +114,24 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
         return new ViolationPath(segments);
     }
 
+    internal ViolationPath Rename(string property)
+    {
+        if (_segments.Length == 0
+         || _segments[_segments.Length - 1].Kind != SegmentKind.Property)
+        {
+            return Append(property);
+        }
+
+        var segments = new Segment[_segments.Length];
+
+        Array.Copy(_segments, segments, _segments.Length);
+
+        segments[_segments.Length - 1] =
+            new Segment(SegmentKind.Property, property);
+
+        return new ViolationPath(segments);
+    }
+
     private ViolationPath With(Segment segment)
     {
         var segments = new Segment[_segments.Length + 1];

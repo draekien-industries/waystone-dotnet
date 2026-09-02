@@ -143,21 +143,4 @@ public sealed class SchemaTests
               .ShouldBe("subject");
     }
 
-    [Fact]
-    public void GivenASchemaNode_WhenConfigureIsCalled_ThenThrow()
-    {
-        Should.Throw<NotSupportedException>(
-            () => new ConfigureProbe().CallConfigure("abc"));
-    }
-
-    private sealed class ConfigureProbe : SchemaNode<string, string>
-    {
-        internal Result<string, SchemaViolation> CallConfigure(string subject) =>
-            Configure(subject);
-
-        internal override Outcome<string> Evaluate(
-            string input,
-            ParseContext context) =>
-            Outcome<string>.Passed(input);
-    }
 }

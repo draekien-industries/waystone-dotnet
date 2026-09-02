@@ -31,6 +31,74 @@ public abstract class Schema
     {
     }
 
+    /// <summary>Requires every one of several schemas to accept the value.</summary>
+    /// <typeparam name="TIn">The type every branch accepts.</typeparam>
+    /// <typeparam name="TOut">The type every branch produces.</typeparam>
+    /// <param name="branches">
+    /// The schemas to apply, all against the same input. Each contributes its
+    /// failures, so a value breaking three of them is reported three times.
+    /// </param>
+    /// <returns>A schema passing only when every branch passes.</returns>
+    /// <remarks>
+    /// <para>
+    /// For a conjunction of independent checks, not for a chain. The branches do
+    /// not feed one another; they all see the same input, and only the
+    /// <b>first</b> branch's value is kept. So a branch that transforms is a
+    /// mistake here — put transforms on the chain with <c>Check</c> and
+    /// <c>Transform</c>, where each step sees the one before it.
+    /// </para>
+    /// <para>
+    /// Every branch shares <typeparamref name="TIn" /> and
+    /// <typeparamref name="TOut" />. C# has no union type, so a combinator cannot
+    /// widen.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="branches" /> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// If <paramref name="branches" /> is empty or holds a null.
+    /// </exception>
+    public static Schema<TIn, TOut> All<TIn, TOut>(
+        params Schema<TIn, TOut>[] branches)
+        where TIn : notnull where TOut : notnull =>
+        new AllSchema<TIn, TOut>(branches);
+
+    /// <summary>Requires at least one of several schemas to accept the value.</summary>
+    /// <typeparam name="TIn">The type every branch accepts.</typeparam>
+    /// <typeparam name="TOut">The type every branch produces.</typeparam>
+    /// <param name="branches">
+    /// The alternatives, tried in the order given. The first to pass wins and the
+    /// rest are not run, so put the cheapest or likeliest first.
+    /// </param>
+    /// <returns>A schema passing as soon as one branch passes.</returns>
+    /// <remarks>
+    /// <para>
+    /// When every branch fails, the report gets one violation at this schema's own
+    /// path saying no alternative matched, and each branch's own failures beneath
+    /// it under a numbered segment — <c>contact[0].email</c> for the first branch.
+    /// They are deliberately not flattened onto the field's own path: a
+    /// three-branch union would otherwise drop a dozen irrelevant failures where a
+    /// caller reading <c>ByPath()</c> expects one, which is the most complained-of
+    /// part of Zod's output. Call <c>WithMessage</c> on the result to replace the
+    /// lot with one sentence.
+    /// </para>
+    /// <para>
+    /// Named <c>Any</c> rather than <c>Some</c>, which in this library already
+    /// means an <c>Option</c> holding a value.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="branches" /> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// If <paramref name="branches" /> is empty or holds a null.
+    /// </exception>
+    public static Schema<TIn, TOut> Any<TIn, TOut>(
+        params Schema<TIn, TOut>[] branches)
+        where TIn : notnull where TOut : notnull =>
+        new AnySchema<TIn, TOut>(branches);
+
     /// <summary>Binds a value that must be present to a schema.</summary>
     /// <typeparam name="TIn">The type the schema accepts.</typeparam>
     /// <typeparam name="TOut">The type the schema produces.</typeparam>

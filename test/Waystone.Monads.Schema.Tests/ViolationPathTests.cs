@@ -166,4 +166,40 @@ public sealed class ViolationPathTests
                     .ToString()
                     .ShouldBe("order.items[3].sku");
     }
+
+    [Fact]
+    public void GivenAPropertyLastSegment_WhenRenaming_ThenReplaceIt()
+    {
+        ViolationPath.Root.Append("order")
+                    .Append("email")
+                    .Rename("address")
+                    .ToString()
+                    .ShouldBe("order.address");
+    }
+
+    [Fact]
+    public void GivenAnIndexedLastSegment_WhenRenaming_ThenAppendTheName()
+    {
+        ViolationPath.Root.Append("items")
+                    .AppendIndex(3)
+                    .Rename("sku")
+                    .ToString()
+                    .ShouldBe("items[3].sku");
+    }
+
+    [Fact]
+    public void GivenAKeyedLastSegment_WhenRenaming_ThenAppendTheName()
+    {
+        ViolationPath.Root.Append("rates")
+                    .AppendKey("AUD")
+                    .Rename("value")
+                    .ToString()
+                    .ShouldBe("rates[\"AUD\"].value");
+    }
+
+    [Fact]
+    public void GivenRoot_WhenRenaming_ThenMakeTheNameTheOnlySegment()
+    {
+        ViolationPath.Root.Rename("sku").ToString().ShouldBe("sku");
+    }
 }

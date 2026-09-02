@@ -38,6 +38,14 @@ internal sealed class Outcome<T> where T : notnull
         IReadOnlyList<Violation> violations) =>
         new(true, value, Require(violations));
 
+    public Outcome<T> WithViolations(IReadOnlyList<Violation> violations) =>
+        HasValue ? Refined(_value, violations) : Failed(violations);
+
+    public Outcome<TNext> WithValue<TNext>(TNext value) where TNext : notnull =>
+        Violations.Count == 0
+            ? Outcome<TNext>.Passed(value)
+            : Outcome<TNext>.Refined(value, Violations);
+
     public Result<T, SchemaViolation> ToResult() =>
         Violations.Count == 0
             ? Result.Ok<T, SchemaViolation>(_value)
