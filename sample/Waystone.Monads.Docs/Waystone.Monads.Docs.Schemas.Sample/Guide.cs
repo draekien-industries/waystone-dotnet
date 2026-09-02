@@ -11,8 +11,6 @@ public sealed record RegistrationDto(
     bool? AcceptedTerms);
 
 #region schemas-guide-the-type
-// The constructor is not public, so the only way to hold a Registration is to
-// have passed the schema that builds one.
 public sealed class Registration
 {
     internal Registration(string email, string displayName, Option<int> age)
@@ -31,7 +29,6 @@ public sealed class Registration
 #endregion
 
 #region schemas-guide-the-checks
-// Each one is a value. Name it, and reuse it wherever that shape turns up.
 public static class Registrations
 {
     public static readonly Schema<string, string> Email =
@@ -43,8 +40,7 @@ public static class Registrations
     public static readonly Schema<int, int> Age =
         Schema.Number.Int32.Between(13, 130);
 
-    // A rule over the whole subject, because accepting the terms gates the
-    // registration without contributing anything to it.
+    // A rule over the whole subject rather than over one field.
     public static readonly Schema<RegistrationDto, RegistrationDto> Terms =
         Schema.For<RegistrationDto>()
               .Check(
@@ -74,7 +70,6 @@ public partial class RegistrationSchema
 internal static class GuidePage
 {
     #region schemas-guide-the-usual-way
-    // Nothing here is wrong on its own, and this is how most of us write it.
     public static Registration? Register(
         RegistrationDto dto,
         List<string> problems)
@@ -99,9 +94,6 @@ internal static class GuidePage
             return null;
         }
 
-        // Look at the null-forgiving operators. The compiler has no idea those
-        // checks ran, so nothing stops this line moving above them, or being
-        // written against a field nobody checked.
         return new Registration(
             dto.Email!,
             dto.DisplayName!,
@@ -112,8 +104,6 @@ internal static class GuidePage
     internal static IResponse Handle(RegistrationDto body)
     {
         #region schemas-guide-at-the-edge
-        // One call. Either you are holding a Registration, or you are holding
-        // every reason you are not.
         return RegistrationSchema.Instance
                                  .Parse(body)
                                  .Match<IResponse>(
