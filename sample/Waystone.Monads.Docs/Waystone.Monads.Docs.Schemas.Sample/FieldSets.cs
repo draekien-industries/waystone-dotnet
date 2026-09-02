@@ -8,9 +8,7 @@ using Waystone.Monads.Schemas;
 internal static class FieldSetsPage
 {
     #region schema-field-sets-cross-field
-    // A schema over the whole subject. Its violations land at the subject's own
-    // path rather than under a field name, which is what makes it the right home
-    // for a rule that spans two fields.
+    // A rule about two fields at once, so it takes the whole subject.
     public static readonly Schema<PartyDto, PartyDto> Chronology =
         Schema.For<PartyDto>()
               .Check(
@@ -24,29 +22,21 @@ internal static class FieldSetsPage
     internal static Field[] EveryKindOfField(PartyDto subject)
     {
         #region schema-field-sets-required
-        // Absent, null, or failing the schema is a violation at "name". The value
-        // reaches the constructor as a plain string.
         Field<string> name =
             Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty());
         #endregion
 
         #region schema-field-sets-required-message
-        // Overrides the message for the value being absent. The schema's own rules
-        // keep the messages they came with.
         Field<string> title =
             Schema.Required(subject.Title, Guild.Title, "Every party needs {Path}.");
         #endregion
 
         #region schema-field-sets-optional
-        // Absent is accepted. The value arrives as Option<int>, so null never
-        // reaches a rule and never reaches the constructed object.
         Field<Option<int>> size =
             Schema.Optional(subject.Size, Schema.Number.Int32.AtLeast(1).AtMost(6));
         #endregion
 
         #region schema-field-sets-forbidden
-        // Yields Checked rather than a value, so it goes to Refine and takes no
-        // slot in the Into lambda.
         Field<Checked> legacy =
             Schema.Forbidden(subject.LegacyId, "Do not send {Path}.");
         #endregion
