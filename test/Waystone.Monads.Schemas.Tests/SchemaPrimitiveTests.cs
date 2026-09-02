@@ -14,6 +14,30 @@ public sealed class SchemaPrimitiveTests
         Sent,
     }
 
+    [Flags]
+    public enum Permissions
+    {
+        None = 0,
+        Read = 1,
+        Write = 2,
+        Delete = 4,
+    }
+
+    public enum Ranks
+    {
+        None = 0,
+        Low = 1,
+        High = 2,
+        Top = 4,
+    }
+
+    [Flags]
+    public enum Signed
+    {
+        None = 0,
+        Everything = -1,
+    }
+
     [Fact]
     public void GivenAnyValue_WhenUsingAPrimitive_ThenProduceItUnchanged()
     {
@@ -88,4 +112,56 @@ public sealed class SchemaPrimitiveTests
         Schema.For<DateOnly>().ShouldBeSameAs(Schema.Date);
     }
 #endif
+
+    /// <summary>
+    /// A combined value is what a <c>[Flags]</c> enum exists to express, and it is
+    /// never a declared member, so checking membership alone rejected input that
+    /// was always legal.
+    /// </summary>
+    [Theory]
+    [InlineData(Permissions.None, true)]
+    [InlineData(Permissions.Read, true)]
+    [InlineData(Permissions.Read | Permissions.Write, true)]
+    [InlineData(Permissions.Read | Permissions.Write | Permissions.Delete, true)]
+    [InlineData((Permissions)8, false)]
+    [InlineData((Permissions)9, false)]
+    [InlineData((Permissions)99, false)]
+    public void GivenAFlagsEnumeration_WhenParsing_ThenAcceptDeclaredBitsOnly(
+        Permissions value,
+        bool accepted) =>
+        Schema.Enum<Permissions>()
+              .Evaluate(value, At)
+              .Violations.Count.ShouldBe(accepted ? 0 : 1);
+
+    /// <summary>
+    /// The attribute is the whole switch. <c>Ranks</c> declares the same numbers
+    /// as <c>Permissions</c> and carries no <c>[Flags]</c>, so the value 3 is a
+    /// combination there is no member for — which for a non-flags enum is a real
+    /// mistake rather than a legal value.
+    /// </summary>
+    [Fact]
+    public void GivenANonFlagsEnumeration_WhenParsingACombination_ThenRejectIt()
+    {
+        Schema.Enum<Ranks>().Evaluate((Ranks)3, At).Violations
+              .ShouldHaveSingleItem();
+
+        Schema.Enum<Permissions>()
+              .Evaluate((Permissions)3, At)
+              .Violations.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// A signed enum may declare a negative member, whose bit pattern does not fit
+    /// an unsigned conversion. Reading it through <c>long</c> is what stops that
+    /// throwing out of the parse.
+    /// </summary>
+    [Fact]
+    public void GivenANegativeFlagsMember_WhenParsing_ThenAcceptItRatherThanThrow()
+    {
+        Schema.Enum<Signed>()
+              .Evaluate(Signed.Everything, At)
+              .Violations.ShouldBeEmpty();
+
+        Schema.Enum<Signed>().Evaluate(Signed.None, At).Violations.ShouldBeEmpty();
+    }
 }
