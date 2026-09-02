@@ -56,7 +56,16 @@ internal static class Ladder
                     schema.Name,
                     diagnostics);
 
-                if (!IsFieldsCall(invocation)) continue;
+                if (!IsFieldsCall(invocation))
+                {
+                    CheckSpelling(
+                        invocation,
+                        model,
+                        schema.Name,
+                        diagnostics);
+
+                    continue;
+                }
 
                 int arity = invocation.ArgumentList.Arguments.Count;
 
@@ -90,14 +99,63 @@ internal static class Ladder
             : current.Compilation.GetSemanticModel(part.SyntaxTree);
 
     private static bool IsFieldsCall(InvocationExpressionSyntax invocation) =>
-        invocation.Expression is MemberAccessExpressionSyntax
+        invocation.Expression is MemberAccessExpressionSyntax access
+     && access.Name.Identifier.ValueText == SchemaWriter.FieldsMember
+     && NameOf(access.Expression) == SchemaReceiver;
+
+    /// <summary>
+    /// Reports a call that looks like a field set and was not recognised as one, so
+    /// that the receiver having to be spelled <c>Schema</c> is said somewhere rather
+    /// than only implied by a member that never appeared.
+    /// </summary>
+    /// <remarks>
+    /// The unbound test is what keeps this off a consumer's own <c>Fields</c> method.
+    /// A call that binds is somebody else's and no business of this generator; one
+    /// that binds badly — the right member with the wrong arguments — is the
+    /// compiler's to explain and comes back through <c>CandidateSymbols</c>. What is
+    /// left is a name that resolved to nothing, which for a member named
+    /// <c>Fields</c> inside a schema is nearly always this mistake.
+    /// </remarks>
+    private static void CheckSpelling(
+        InvocationExpressionSyntax invocation,
+        SemanticModel model,
+        string schemaName,
+        List<DiagnosticInfo> diagnostics)
+    {
+        if (NameOf(invocation.Expression) != SchemaWriter.FieldsMember) return;
+
+        SymbolInfo bound = model.GetSymbolInfo(invocation);
+
+        if (bound.Symbol is not null || bound.CandidateSymbols.Length > 0)
         {
-            Name.Identifier.ValueText: SchemaWriter.FieldsMember,
-            Expression: IdentifierNameSyntax
-            {
-                Identifier.ValueText: SchemaReceiver,
-            },
-        };
+            return;
+        }
+
+        diagnostics.Add(
+            DiagnosticInfo.Create(
+                Rules.FieldsNotRecognised,
+                invocation.Expression.GetLocation(),
+                schemaName,
+                invocation.Expression.ToString()));
+    }
+
+    /// <summary>
+    /// The right-most simple name of an expression, which for a member access is the
+    /// member and for a qualified name is its last segment. Null where the expression
+    /// ends in something that is not a name at all, such as an indexer or a call.
+    /// </summary>
+    private static string? NameOf(ExpressionSyntax expression)
+    {
+        switch (expression)
+        {
+            case SimpleNameSyntax simple:
+                return simple.Identifier.ValueText;
+            case MemberAccessExpressionSyntax access:
+                return access.Name.Identifier.ValueText;
+            default:
+                return null;
+        }
+    }
 
     private static void CheckInto(
         InvocationExpressionSyntax fields,

@@ -87,13 +87,19 @@ being generated, so it binds to nothing while the generator is deciding whether 
 generate it. Everything else about the chain binds normally, which is why
 `WMSC0005` can ask what a `Refine` argument actually yields.
 
-**Reading it syntactically means the receiver is matched as the bare identifier
-`Schema` and nothing else.** A consumer who writes `using Schema = Something;`, or
-who has a local or field of that name in scope, gets no ladder and no `WMSC` message
-— only the compiler's own error against a member that was never generated. Left
-alone deliberately: the alias is a name collision the consumer created inside a type
-whose whole vocabulary is `Schema.`, and a rule that tried to detect it would have to
-re-implement alias resolution for the one member that cannot bind.
+**Reading it syntactically means the receiver is matched on its last name.** Both
+`Schema.Fields(...)` and `OrderSchema.Schema.Fields(...)` reach the ladder; anything
+else — an unqualified `Fields(...)`, `this.Fields(...)`, a receiver of another name —
+does not, and gets `WMSC0007` saying so. **That rule fires only where the call binds
+to nothing**, which is what keeps it off a consumer's own method named `Fields`. It
+is the one warning here about code that does not compile: the compiler already
+reports the missing member, and this adds the reason.
+
+A consumer who writes `using Schema = Something;` is still outside all of it. The
+call matches by name, so a ladder is generated and nothing is reported, and the alias
+then sends it somewhere else. Left alone deliberately: detecting it means
+re-implementing alias resolution for the one member that cannot bind, over a name
+collision the consumer created inside a type whose whole vocabulary is `Schema.`.
 
 **The ladder type is `FieldSet<T1..Tn>`, never `Fields`.** A member named `Fields`
 would hide a namespace-level `Fields<,>` in type-name lookup. Only the method is

@@ -86,6 +86,25 @@ internal static class Rules
         "'{0}' reaches an asynchronous rule from 'Configure', which only ever runs the synchronous path, so the rule throws rather than deciding anything; use 'Check' if the rule can answer from the value alone, or compose this schema outside a field set and parse it with 'ParseAsync'",
         "'SchemaConfig.Configure' returns a value rather than a task, so a field set evaluates synchronously even when the caller uses 'ParseAsync'. An asynchronous rule reached that way throws 'InvalidOperationException'. Nothing in the type system says so, because 'CheckAsync' returns the same schema type a synchronous rule does.");
 
+    /// <summary>
+    /// Reported at the call the generator did not recognise, which is the only place
+    /// the reader can act on: the schema is fine and so is every other call in it.
+    /// </summary>
+    /// <remarks>
+    /// Advice rather than an error, and the one rule here that warns about code that
+    /// does not compile. The generator matches the receiver as written, so this fires
+    /// on any unbound call to a member named <c>Fields</c> — including one that has
+    /// nothing to do with a field set and failed to bind for its own reasons. The
+    /// compiler is already reporting that call, so a second error would only add a
+    /// build failure to a build that has one; a warning adds the explanation and
+    /// stays wrong quietly.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor FieldsNotRecognised = Advice(
+        "WMSC0007",
+        "Call Schema.Fields through the name Schema",
+        "'{0}' spells its field-set call '{1}', which the generator matches by name rather than by binding it, so no ladder was generated; write the receiver as 'Schema', qualified by the type that contains it if you need to",
+        "'Schema.Fields' is the member being generated, so it binds to nothing while the generator is deciding whether to emit it. The receiver therefore has to be recognised as written rather than resolved, and an alias, a renamed import or a call with no receiver at all carries nothing to recognise. Without this rule the only message is the compiler's, against a member the generator never created.");
+
     private const string DocsRoot =
         "https://draekien-industries.wpei.me/source-generation/diagnostics#";
 

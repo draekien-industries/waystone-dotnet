@@ -39,10 +39,11 @@ public sealed class RulesTests
         Rule(id).IsEnabledByDefault.ShouldBeTrue();
 
     /// <summary>
-    /// A rule warns when the code it fires on has a reading that is correct, and
-    /// fails the build otherwise. Generating is not the line: <c>WMSC0006</c>
-    /// generates a schema perfectly well and describes one that throws when anyone
-    /// runs it.
+    /// A rule warns when failing the build would add nothing, and fails the build
+    /// otherwise. Generating is not the line: <c>WMSC0006</c> generates a schema
+    /// perfectly well and describes one that throws when anyone runs it, while
+    /// <c>WMSC0007</c> fires on code the compiler is already rejecting and only
+    /// explains why.
     /// </summary>
     /// <remarks>
     /// The list is spelled out rather than derived, so promoting a rule to an error
@@ -57,7 +58,7 @@ public sealed class RulesTests
                 descriptor => descriptor.DefaultSeverity
                            == DiagnosticSeverity.Warning)
            .Select(descriptor => descriptor.Id)
-           .ShouldBe(["WMSC0005"]);
+           .ShouldBe(["WMSC0005", "WMSC0007"]);
 
         Descriptors()
            .ShouldAllBe(
