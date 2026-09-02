@@ -117,10 +117,18 @@ specific than a bare `TNext`, so the fallible overload wins and `TNext` binds to
 `Money`. Verified by scratch compile, not by reading the specification. Do not
 rename either overload to "fix" an ambiguity that does not exist.
 
-Only the total overload guards a null return. `Ok<TOk, TErr>`'s own constructor
-already rejects null, so the same guard on the fallible path was dead code and was
-removed — a test asserting it threw `InvalidOperationException` failed with
-`ArgumentNullException` from the monad, which is how it was caught.
+**Only the total overload guards a null return, and it reports rather than throws.**
+`MapSchema` turns a null conversion into a `Malformed` violation at the value's own
+path. It is a programming error, not bad data, so throwing was defensible — but it
+was the only place in a parse that ended the process instead of the report, and a
+consumer who picked the wrong overload got a crash rather than a message telling
+them which one to pick. `Waystone.Monads` throws on a null `Option` projection and
+that stays true; this package answers to a different promise.
+
+`Ok<TOk, TErr>`'s own constructor already rejects null, so the same guard on the
+fallible path was dead code and was removed — a test asserting it threw
+`InvalidOperationException` failed with `ArgumentNullException` from the monad,
+which is how it was caught.
 
 ## Decorators go through `DecoratorSchema`, and there are two tiers under it
 

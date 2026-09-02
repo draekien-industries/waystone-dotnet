@@ -261,9 +261,11 @@ public abstract class Schema<TIn, TOut>
     /// <summary>Narrows the parsed value to a type that cannot fail to be built.</summary>
     /// <typeparam name="TNext">The type the schema produces from here on.</typeparam>
     /// <param name="convert">
-    /// The conversion. Runs only when everything before it produced a value, and
-    /// must not return null — a conversion that can fail belongs on the
-    /// <see cref="Result{TOk,TErr}" /> overload.
+    /// The conversion. Runs only when everything before it produced a value. A
+    /// conversion that can refuse belongs on the
+    /// <see cref="Result{TOk,TErr}" /> overload; returning null from this one is
+    /// reported as <c>schema_violation.malformed</c> rather than throwing, so a
+    /// mistake here fails the parse rather than the process.
     /// </param>
     /// <returns>A schema producing <typeparamref name="TNext" />.</returns>
     /// <remarks>
@@ -274,9 +276,6 @@ public abstract class Schema<TIn, TOut>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="convert" /> is null.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// If <paramref name="convert" /> returns null.
     /// </exception>
     public Schema<TIn, TNext> Transform<TNext>(Func<TOut, TNext> convert)
         where TNext : notnull =>

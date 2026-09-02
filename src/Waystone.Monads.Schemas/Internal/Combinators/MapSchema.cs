@@ -6,6 +6,9 @@ internal sealed class MapSchema<TIn, TOut, TNext>
     : DecoratorSchema<TIn, TOut, TNext>
     where TIn : notnull where TOut : notnull where TNext : notnull
 {
+    internal const string NullMessage =
+        "Expected {Path} to convert to a value, but the conversion produced none.";
+
     private readonly Func<TOut, TNext> _convert;
 
     internal MapSchema(Schema<TIn, TOut> inner, Func<TOut, TNext> convert)
@@ -24,10 +27,16 @@ internal sealed class MapSchema<TIn, TOut, TNext>
             return Outcome<TNext>.Failed(outcome.Violations);
         }
 
-        TNext next = _convert(outcome.Value)
-                  ?? throw new InvalidOperationException(
-                         "A conversion passed to Transform returned null. Use the overload returning a Result and return an Err instead, so the parse reports a violation rather than throwing.");
+        TNext next = _convert(outcome.Value);
 
-        return outcome.WithValue(next);
+        return next is null
+            ? Outcome<TNext>.Failed(
+                Violations.Add(
+                    outcome.Violations,
+                    context,
+                    ViolationCodeCatalog.Codes.Malformed,
+                    NullMessage,
+                    outcome.Value))
+            : outcome.WithValue(next);
     }
 }
