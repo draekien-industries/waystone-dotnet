@@ -36,6 +36,7 @@ public sealed class SchemaTextFormatRuleTests
     [Theory]
     [InlineData("https://example.com", true)]
     [InlineData("javascript:alert(1)", true)]
+    [InlineData("file:///etc/passwd", true)]
     [InlineData("/quests/3", false)]
     [InlineData("not a url", false)]
     public void GivenAValue_WhenRequiringAnyUrl_ThenJudgeItAbsoluteOrNot(
@@ -43,6 +44,27 @@ public sealed class SchemaTextFormatRuleTests
         bool accepted) =>
         Schema.Text.Url().Evaluate(value, At).Violations.Count.ShouldBe(
             accepted ? 0 : 1);
+
+    /// <summary>
+    /// The rule has to decide the same way on every operating system.
+    /// <c>Uri.TryCreate</c> alone does not: on Unix a bare path is an absolute
+    /// <c>file:</c> URI and on Windows it is nothing, so this passed locally and
+    /// failed in CI. Requiring the parsed scheme to appear in the value is what
+    /// makes the answer the caller's rather than the host's.
+    /// </summary>
+    [Theory]
+    [InlineData("/quests/3")]
+    [InlineData("/etc/passwd")]
+    [InlineData("//example.com/quests")]
+    public void GivenABarePath_WhenRequiringAUrl_ThenRejectItOnEveryPlatform(
+        string value)
+    {
+        Schema.Text.Url().Evaluate(value, At).Violations.ShouldHaveSingleItem();
+
+        Schema.Text.Url("https")
+              .Evaluate(value, At)
+              .Violations.ShouldHaveSingleItem();
+    }
 
     [Theory]
     [InlineData("https://example.com", true)]

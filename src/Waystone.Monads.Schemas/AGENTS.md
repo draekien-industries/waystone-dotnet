@@ -396,6 +396,16 @@ bracketed IP literals, anything outside ASCII. It accepts a single-label host, s
 there would otherwise be no way to accept one. Narrowing any of that is a
 behavioural change to a shipped rule, not a bug fix.
 
+**`Url` requires the value to spell its own scheme, and that is a portability fix
+rather than strictness.** `Uri.TryCreate(value, UriKind.Absolute, out _)` answers
+differently by operating system: on Unix a bare path like `/quests/3` parses as an
+absolute `file:` URI, and on Windows it does not. A schema is a contract, so a rule
+that accepts a value on the deployment host and rejects it on the developer's is
+worse than one that is simply strict. `IsAbsoluteUrl` therefore checks that the
+parsed scheme actually appears at the front of the input. This was caught by CI on
+Linux after the full framework matrix passed on Windows — the matrix varies the
+framework, never the platform.
+
 **`Url` has an unrestricted overload and a scheme-restricted one, and the
 restricted one is the default in the docs.** An absolute URI includes
 `javascript:`, `data:` and `file:`, which is how an open redirect and a script

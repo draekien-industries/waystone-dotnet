@@ -221,11 +221,19 @@ public static class TextSchemaExtensions
     /// <param name="schema">The schema to add the rule to.</param>
     /// <returns>A schema that applies this rule after everything already on it.</returns>
     /// <remarks>
+    /// <para>
     /// Accepts any scheme, so <c>file:</c>, <c>javascript:</c> and <c>data:</c> all
     /// pass. Take the overload naming the schemes you accept whenever the value
     /// will be followed, rendered into a page, or stored as a link — those three
     /// are how an open redirect and a script injection arrive. Default message:
     /// <c>Expected {Path} to be a URL, but got {Received}.</c>
+    /// </para>
+    /// <para>
+    /// The value has to spell its scheme out, so <c>/quests/3</c> is rejected
+    /// everywhere. <see cref="Uri" /> alone would accept a bare path as a
+    /// <c>file:</c> URI on Unix and reject it on Windows, and a rule that decides
+    /// differently per host is worse than one that decides wrongly.
+    /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="schema" /> is null.
@@ -234,7 +242,7 @@ public static class TextSchemaExtensions
         where TIn : notnull =>
         Rules.Add(
             schema,
-            static value => Uri.TryCreate(value, UriKind.Absolute, out _),
+            static value => IsAbsoluteUrl(value, out _),
             ViolationCode.Malformed,
             "Expected {Path} to be a URL, but got {Received}.");
 
@@ -264,7 +272,7 @@ public static class TextSchemaExtensions
 
         return Rules.Add(
             schema,
-            value => Uri.TryCreate(value, UriKind.Absolute, out var parsed)
+            value => IsAbsoluteUrl(value, out Uri? parsed)
                   && Holds(
                          accepted,
                          parsed.Scheme,
@@ -478,6 +486,30 @@ public static class TextSchemaExtensions
             ViolationCode.Malformed,
             "Expected {Path} to contain {Expected}, but got {Received}.",
             text);
+    }
+
+    private static bool IsAbsoluteUrl(
+        string value,
+        [NotNullWhen(true)] out Uri? parsed)
+    {
+        parsed = Uri.TryCreate(value, UriKind.Absolute, out Uri? candidate)
+            ? candidate
+            : null;
+
+        if (parsed is null) return false;
+
+        string scheme = parsed.Scheme;
+
+        if (value.Length <= scheme.Length
+         || value[scheme.Length] != ':'
+         || !value.StartsWith(scheme, StringComparison.OrdinalIgnoreCase))
+        {
+            parsed = null;
+
+            return false;
+        }
+
+        return true;
     }
 
     private static bool Holds(
