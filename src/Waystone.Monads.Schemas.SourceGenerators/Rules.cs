@@ -68,6 +68,24 @@ internal static class Rules
         "'{0}' yields '{1}' and 'Refine' discards it; list it in 'Schema.Fields' to reach the 'Into' lambda, or gate with 'Schema.Forbidden' or 'Schema.Extend' if the value is not wanted",
         "'Refine' takes the non-generic 'Field' base, which drops the value side, so it accepts any field and keeps only its violations. That is the right shape for a rule yielding 'Checked', which has nothing to contribute, and a silent mistake for one that parses a value somebody expected to find on the result.");
 
+    /// <summary>
+    /// Reported at the <c>CheckAsync</c> call, which is the one place a reader can
+    /// act on: the schema holding it is fine, and so is every other rule in the
+    /// chain.
+    /// </summary>
+    /// <remarks>
+    /// An error rather than advice, even though nothing fails to generate. There is
+    /// no reading of this code that works — a field set only ever runs the
+    /// synchronous path, so the rule either throws or is skipped, and it never does
+    /// its job. <c>CheckAsync</c> ships in the same release as this rule, so no
+    /// existing code can be broken by failing the build on it.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor AsyncRuleInAFieldSet = Create(
+        "WMSC0006",
+        "Do not reach an asynchronous rule from a field set",
+        "'{0}' reaches an asynchronous rule from 'Configure', which only ever runs the synchronous path, so the rule throws rather than deciding anything; use 'Check' if the rule can answer from the value alone, or compose this schema outside a field set and parse it with 'ParseAsync'",
+        "'SchemaConfig.Configure' returns a value rather than a task, so a field set evaluates synchronously even when the caller uses 'ParseAsync'. An asynchronous rule reached that way throws 'InvalidOperationException'. Nothing in the type system says so, because 'CheckAsync' returns the same schema type a synchronous rule does.");
+
     private const string DocsRoot =
         "https://draekien-industries.wpei.me/source-generation/diagnostics#";
 

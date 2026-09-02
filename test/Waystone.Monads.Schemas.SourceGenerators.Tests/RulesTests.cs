@@ -39,18 +39,18 @@ public sealed class RulesTests
         Rule(id).IsEnabledByDefault.ShouldBeTrue();
 
     /// <summary>
-    /// A schema that cannot be generated fails the build, because the alternative is
-    /// a missing member reported against a file its author cannot open. A schema
-    /// that generates and runs does not, however wrong it looks.
+    /// A rule warns when the code it fires on has a reading that is correct, and
+    /// fails the build otherwise. Generating is not the line: <c>WMSC0006</c>
+    /// generates a schema perfectly well and describes one that throws when anyone
+    /// runs it.
     /// </summary>
     /// <remarks>
     /// The list is spelled out rather than derived, so promoting a rule to an error
-    /// has to be a deliberate edit here. Every rule that warns fires on code with a
-    /// reading that is correct, and an error would leave that author nothing but the
-    /// id in an <c>.editorconfig</c>.
+    /// has to be a deliberate edit here. An error on code somebody meant to write
+    /// leaves that author nothing but the id in an <c>.editorconfig</c>.
     /// </remarks>
     [Fact]
-    public void OnlyTheRulesThatBlockGenerationAreErrors()
+    public void OnlyTheRulesWithACorrectReadingAreWarnings()
     {
         Descriptors()
            .Where(

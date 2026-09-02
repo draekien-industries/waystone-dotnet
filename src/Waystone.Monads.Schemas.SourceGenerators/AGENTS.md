@@ -181,16 +181,20 @@ looked at and both were left alone; do not "fix" either without a new reason.
 
 ## Severity is not uniform, and the split is the point
 
-`Create` builds an error; `Advice` builds a warning. The line is whether the schema
-generates at all.
+`Create` builds an error; `Advice` builds a warning. **The line is whether the code
+has a reading that is correct**, not whether the schema generates.
 
 `WMSC0001`–`WMSC0004` describe a schema that cannot be built, so failing the build
 is the whole point — the alternative is a missing member reported against a
-generated file the author cannot open. `WMSC0005` describes one that generates and
-runs and is probably not what its author meant, and there is a correct reading of
-the same code: gating on a value deliberately not kept, such as a confirmation field
-that must be well-formed and is never stored. An error there would leave that author
-nothing but the id in an `.editorconfig`.
+generated file the author cannot open. `WMSC0006` describes one that builds
+perfectly and throws the moment anyone runs it, which is no better; a field set only
+ever runs the synchronous path, so an asynchronous rule reached from `Configure`
+never does its job under any input.
+
+`WMSC0005` is the only warning, because it is the only rule with a correct reading
+of the same code: gating on a value deliberately not kept, such as a confirmation
+field that must be well-formed and is never stored. An error there would leave that
+author nothing but the id in an `.editorconfig`.
 
 `RulesTests` spells out which ids warn rather than deriving it, so promoting a rule
 has to be a deliberate edit in two places.

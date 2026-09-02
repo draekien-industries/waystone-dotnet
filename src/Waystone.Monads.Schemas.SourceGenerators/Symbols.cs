@@ -60,6 +60,20 @@ internal static class Symbols
         return declaration.ToString();
     }
 
+    /// <summary>
+    /// Whether a namespace is the runtime package's own, which is what tells a
+    /// type named <c>Field</c> or a method named <c>CheckAsync</c> apart from
+    /// somebody else's.
+    /// </summary>
+    /// <remarks>
+    /// Compared as text because the generator does not reference the runtime and so
+    /// has no symbol to compare against. Call it last: rendering a namespace costs
+    /// more than the metadata name it follows.
+    /// </remarks>
+    public static bool IsSchemaNamespace(INamespaceSymbol? @namespace) =>
+        @namespace is { IsGlobalNamespace: false }
+     && @namespace.ToDisplayString() == SchemaGenerator.SchemaConfigNamespace;
+
     private static string KeywordOf(INamedTypeSymbol type)
     {
         if (type.TypeKind == TypeKind.Interface) return "interface";
