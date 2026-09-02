@@ -56,8 +56,17 @@ public abstract class Schema<TIn, TOut>
     /// </returns>
     /// <remarks>
     /// Throws rather than blocks if the schema contains an asynchronous rule. Use
-    /// <see cref="ParseAsync" /> for those.
+    /// <see cref="ParseAsync" /> for those, which accepts a schema either way.
+    /// Blocking on the rule instead would deadlock a caller on a synchronisation
+    /// context and hide the mistake everywhere else.
     /// </remarks>
+    /// <exception cref="InvalidOperationException">
+    /// If the parse reaches a rule added by
+    /// <see cref="CheckAsync(Func{TOut,CancellationToken,ValueTask{bool}},ViolationCode,string)" />.
+    /// Reaching it depends on the input, since a rule after a failed conversion
+    /// does not run — so a schema can pass this call for one input and throw for
+    /// the next.
+    /// </exception>
     public Result<TOut, SchemaViolation> Parse(TIn input) =>
         Evaluate(input, ParseContext.Root).ToResult();
 
@@ -170,6 +179,84 @@ public abstract class Schema<TIn, TOut>
         ErrorCode code,
         string message) =>
         new CheckSchema<TIn, TOut>(this, predicate, code, message);
+
+    /// <summary>Adds a rule that has to go somewhere to decide.</summary>
+    /// <param name="predicate">
+    /// The rule. Returning false records a violation. Called once, only when
+    /// everything before it produced a value, and given the parse's cancellation
+    /// token. Reach for it when deciding needs a database, a service or a file;
+    /// a rule that can answer from the value alone belongs on
+    /// <see cref="Check(Func{TOut,bool},ViolationCode,string)" />.
+    /// </param>
+    /// <param name="code">
+    /// The kind of failure to report. Use the <see cref="ErrorCode" /> overload to
+    /// report a code from your own domain instead.
+    /// </param>
+    /// <param name="message">
+    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c> and
+    /// <c>{Code}</c>, where <c>{Received}</c> is the value the rule rejected.
+    /// </param>
+    /// <returns>A schema that applies this rule after everything already on it.</returns>
+    /// <remarks>
+    /// <para>
+    /// A refinement, like <c>Check</c>: the value survives the failure, so every
+    /// later rule on the chain still runs and one parse still reports every problem
+    /// at once.
+    /// </para>
+    /// <para>
+    /// <b>The schema is asynchronous from here on, and
+    /// <see cref="Parse" /> will throw on it.</b> Parse the result with
+    /// <see cref="ParseAsync" />. This also rules the schema out of a
+    /// <see cref="SchemaConfig{TIn,TOut}" /> field set, whose <c>Configure</c>
+    /// returns a value rather than a task and so can only run the synchronous path
+    /// — the generator reports <c>WMSC0006</c> where it can see that happening.
+    /// </para>
+    /// <para>
+    /// The rule runs once per parse, in the order the chain declares. Nothing
+    /// batches or deduplicates the calls, so a schema checking a hundred list items
+    /// against a store makes a hundred round trips.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="predicate" /> or <paramref name="message" /> is null.
+    /// </exception>
+    public Schema<TIn, TOut> CheckAsync(
+        Func<TOut, CancellationToken, ValueTask<bool>> predicate,
+        ViolationCode code,
+        string message) =>
+        CheckAsync(predicate, ViolationCodeCatalog.ToErrorCode(code), message);
+
+    /// <summary>Adds a rule that goes somewhere to decide and reports a code of your own.</summary>
+    /// <param name="predicate">
+    /// The rule. Returning false records a violation. Called once, only when
+    /// everything before it produced a value, and given the parse's cancellation
+    /// token.
+    /// </param>
+    /// <param name="code">
+    /// The code to report. Anywhere a <see cref="ViolationCode" /> is accepted an
+    /// arbitrary <see cref="ErrorCode" /> is too, so a domain code such as
+    /// <c>order.sku_withdrawn</c> groups through
+    /// <see cref="ViolationCollection.ByCode" /> beside the built-in kinds.
+    /// </param>
+    /// <param name="message">
+    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c> and
+    /// <c>{Code}</c>.
+    /// </param>
+    /// <returns>A schema that applies this rule after everything already on it.</returns>
+    /// <remarks>
+    /// A refinement: the value survives, so later rules still run. The schema is
+    /// asynchronous from here on, so parse it with <see cref="ParseAsync" /> —
+    /// <see cref="Parse" /> throws rather than blocking.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="predicate" />, <paramref name="code" /> or
+    /// <paramref name="message" /> is null.
+    /// </exception>
+    public Schema<TIn, TOut> CheckAsync(
+        Func<TOut, CancellationToken, ValueTask<bool>> predicate,
+        ErrorCode code,
+        string message) =>
+        new AsyncCheckSchema<TIn, TOut>(this, predicate, code, message);
 
     /// <summary>Narrows the parsed value to a type that cannot fail to be built.</summary>
     /// <typeparam name="TNext">The type the schema produces from here on.</typeparam>

@@ -14,6 +14,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 /// member being generated, so it binds to nothing while the generator is deciding
 /// whether to generate it. Everything else about the chain — what a <c>Refine</c>
 /// argument actually yields — binds normally, because those members already exist.
+/// <para>
+/// It also drives <c>Asynchrony</c>, which has nothing to do with the ladder. That
+/// rule needs the same walk over the same declarations, and walking them twice to
+/// keep the two apart would cost a consumer's build more than the tidier shape is
+/// worth.
+/// </para>
 /// </remarks>
 internal static class Ladder
 {
@@ -44,6 +50,12 @@ internal static class Ladder
                      part.DescendantNodes()
                          .OfType<InvocationExpressionSyntax>())
             {
+                Asynchrony.Check(
+                    invocation,
+                    model,
+                    schema.Name,
+                    diagnostics);
+
                 if (!IsFieldsCall(invocation)) continue;
 
                 int arity = invocation.ArgumentList.Arguments.Count;
@@ -176,7 +188,7 @@ internal static class Ladder
              current = current.BaseType)
         {
             if (current.MetadataName != FieldMetadataName
-             || !IsSchemaNamespace(current.ContainingNamespace))
+             || !Symbols.IsSchemaNamespace(current.ContainingNamespace))
             {
                 continue;
             }
@@ -184,17 +196,13 @@ internal static class Ladder
             ITypeSymbol yielded = current.TypeArguments[0];
 
             return yielded.Name == CheckedName
-                && IsSchemaNamespace(yielded.ContainingNamespace)
+                && Symbols.IsSchemaNamespace(yielded.ContainingNamespace)
                     ? null
                     : yielded;
         }
 
         return null;
     }
-
-    private static bool IsSchemaNamespace(INamespaceSymbol? @namespace) =>
-        @namespace is { IsGlobalNamespace: false }
-     && @namespace.ToDisplayString() == SchemaGenerator.SchemaConfigNamespace;
 
     /// <summary>
     /// The invocation of a named member further along the same fluent chain, or

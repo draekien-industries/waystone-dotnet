@@ -120,10 +120,18 @@ carry a `Decorate` that returned its argument unchanged, and `Sensitive` was sti
 hand-rolling both paths — which contradicted this very file. Add the tier rather
 than the stub.
 
-Three nodes are outside the hierarchy and each has a reason. `Not` evaluates a
+Four nodes are outside the hierarchy and each has a reason. `Not` evaluates a
 *second* schema, so a synchronous `Decorate` would run that one synchronously on
 the asynchronous path. `When`/`Unless` may skip the inner schema entirely, so
 there is no outcome to decorate. `All`/`Any` fold over several branches.
+`AsyncCheckSchema` has a rule that must be awaited, and `Decorate` returns a value
+rather than a task.
+
+**`AsyncCheckSchema` was looked at for an async `Decorate` hook and left alone.**
+Adding one means a second abstract member on a base every decorator inherits, so
+every existing node grows an override or a default that reintroduces the exact seal
+`DecoratorSchema` exists to enforce — all to share about twenty lines with a single
+subclass. Revisit it when a second node needs to await; one does not make a tier.
 
 **A shared `CombinatorSchema` for `All` and `Any` was considered and rejected.**
 Folding over branches needs the accumulator to survive an `await`, and a `ref`
@@ -159,6 +167,30 @@ override onto every leaf and every test double, where the default is correct.
 `Schema<,>` holding a field of schema type must override `EvaluateAsync` somewhere
 below the root, which deriving from `DecoratorSchema` satisfies. Add a wrapping
 node in a later layer without an asynchronous path and that test names it.
+
+## Asynchrony reaches composition, and deliberately stops before `SchemaConfig`
+
+`CheckAsync` is the only rule that has to go somewhere to decide, and
+`AsyncCheckSchema` is the only node whose `Evaluate` throws instead of returning.
+There is no `AsyncSchema<TIn, TOut>`: a second hierarchy would double every type
+and every generator path to turn one misuse into a compile error, and the misuse is
+already reported at build time by `WMSC0006` wherever a generator can see it.
+
+**`SchemaConfig` is synchronous and stays that way.** `Configure` returns a value
+rather than a task, so a field set only ever runs `Evaluate` — even under
+`ParseAsync`. An asynchronous rule reached from a `Configure` body therefore never
+runs, whatever the caller does, which is why `WMSC0006` is an error rather than
+advice. A schema that needs one is composed instead, and parsed with `ParseAsync`.
+
+**`Parse` throws rather than blocking.** Blocking would deadlock a caller on a
+synchronisation context and quietly work everywhere else, which is the worst of the
+three options. Note that the throw depends on the input: a rule after a failed
+conversion, or under an absent `Schema.Optional`, is never reached — so a schema can
+pass one call and throw on the next.
+
+Widening this means adding an asynchronous path to `FieldAccumulator`, a
+`ConfigureAsync` to `SchemaConfig` and an `IntoAsync` to every generated
+`FieldSet`. That was considered here and deferred; it is not a small change.
 
 ## `When` and `Unless` are extension methods on purpose
 
