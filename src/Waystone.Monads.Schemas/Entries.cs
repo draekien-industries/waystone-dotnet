@@ -6,18 +6,22 @@ internal sealed class Entries<T> where T : notnull
 {
     private readonly T[] _parsed;
 
-    private readonly List<Violation> _violations = new();
+    private readonly Caps.Report _report;
 
     private bool _complete = true;
 
-    internal Entries(int count)
+    internal Entries(int count, ParseContext context)
     {
         _parsed = new T[count];
+        _report = new Caps.Report(count, context);
     }
+
+    internal bool IsFull => _report.IsFull;
 
     internal void Take(int index, Outcome<T> outcome)
     {
-        _violations.AddRange(outcome.Violations);
+        _report.Examined();
+        _report.Take(outcome.Violations);
 
         if (outcome.HasValue)
         {
@@ -30,5 +34,8 @@ internal sealed class Entries<T> where T : notnull
     }
 
     internal Outcome<IReadOnlyList<T>> ToOutcome() =>
-        Gather.ToOutcome<IReadOnlyList<T>>(_complete, _parsed, _violations);
+        Gather.ToOutcome<IReadOnlyList<T>>(
+            _complete && !_report.Truncated,
+            _parsed,
+            _report.Close());
 }

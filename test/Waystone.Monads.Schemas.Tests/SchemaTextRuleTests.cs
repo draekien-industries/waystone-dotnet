@@ -9,6 +9,11 @@ public sealed class SchemaTextRuleTests
 {
     private static readonly ParseContext At = ParseContext.Root.At("name");
 
+    private static readonly Regex OnlyAs = new(
+        "^a+$",
+        RegexOptions.None,
+        TimeSpan.FromSeconds(1));
+
     [Fact]
     public void GivenPaddedText_WhenTrimming_ThenRemoveTheWhitespace()
     {
@@ -104,7 +109,7 @@ public sealed class SchemaTextRuleTests
     [Fact]
     public void GivenMatchingText_WhenMatchingAPattern_ThenReportNothing()
     {
-        Schema.Text.Matches("^a+$")
+        Schema.Text.Matches(OnlyAs)
               .Evaluate("aaa", At)
               .Violations.ShouldBeEmpty();
     }
@@ -112,7 +117,7 @@ public sealed class SchemaTextRuleTests
     [Fact]
     public void GivenUnmatchedText_WhenMatchingAPattern_ThenNameThePattern()
     {
-        Violation violation = Schema.Text.Matches("^a+$")
+        Violation violation = Schema.Text.Matches(OnlyAs)
                                    .Evaluate("bbb", At)
                                    .Violations.ShouldHaveSingleItem();
 
@@ -137,7 +142,7 @@ public sealed class SchemaTextRuleTests
     [Fact]
     public void GivenASensitiveSchema_WhenTextFailsAPattern_ThenRedactTheValue()
     {
-        Schema.Text.Matches("^a+$")
+        Schema.Text.Matches(OnlyAs)
               .Sensitive()
               .Evaluate("hunter2", At)
               .Violations.ShouldHaveSingleItem()
@@ -164,7 +169,7 @@ public sealed class SchemaTextRuleTests
               .ParamName.ShouldBe("schema");
 
         Should.Throw<ArgumentNullException>(
-                   () => ((Schema<string, string>)null!).Matches("a"))
+                   () => ((Schema<string, string>)null!).Matches(OnlyAs))
               .ParamName.ShouldBe("schema");
     }
 
@@ -172,11 +177,7 @@ public sealed class SchemaTextRuleTests
     public void GivenNoPattern_WhenMatching_ThenThrow()
     {
         Should.Throw<ArgumentNullException>(
-                   () => Schema.Text.Matches((string)null!))
-              .ParamName.ShouldBe("pattern");
-
-        Should.Throw<ArgumentNullException>(
-                   () => Schema.Text.Matches((Regex)null!))
+                   () => Schema.Text.Matches(null!))
               .ParamName.ShouldBe("pattern");
     }
 }

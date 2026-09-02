@@ -110,11 +110,11 @@ public abstract class Schema<TIn, TOut>
     /// not be repeated back.
     /// </para>
     /// <para>
-    /// The marking reaches every rule this schema is built from, and every schema
-    /// nested beneath it that is evaluated as part of it. It cannot reach a nested
-    /// schema that renders its own messages first — one that overrides
-    /// <see cref="SchemaConfig{TIn,TOut}.Configure" /> — so mark that schema itself
-    /// rather than the one holding it.
+    /// The marking reaches every rule this schema is built from and every schema
+    /// nested beneath it, including one that overrides
+    /// <see cref="SchemaConfig{TIn,TOut}.Configure" /> and gathers its own
+    /// violations first. Marking the outermost schema is enough; marking an inner
+    /// one as well changes nothing.
     /// </para>
     /// <para>
     /// Opt-in. Rendering the received value is the default, because it is the most

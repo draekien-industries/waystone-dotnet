@@ -177,6 +177,35 @@ public sealed class SchemaReportingTests
         outcome.Violations.ShouldHaveSingleItem().Message.ShouldBe("Got ***.");
     }
 
+    /// <summary>
+    /// The rejected value is redacted by a schema that did not know it was
+    /// sensitive when it ran. A nested <c>SchemaConfig</c> starts its fields at
+    /// the root context, so it cannot see the mark; the message is rendered on
+    /// read instead, once the nesting is known. Rendering eagerly is what let a
+    /// password through here before.
+    /// </summary>
+    [Fact]
+    public void GivenASensitiveSchema_WhenItNestsAnother_ThenRedactInsideIt()
+    {
+        Outcome<string> outcome = new NestedSecret().Sensitive()
+                                                    .Evaluate("hunter2", At);
+
+        Violation violation = outcome.Violations.ShouldHaveSingleItem();
+
+        violation.Message.ShouldNotContain("hunter2");
+        violation.Message.ShouldContain(MessageTemplate.Redacted);
+    }
+
+    /// <summary>
+    /// The same schema unmarked still reports the value, so the test above is
+    /// showing redaction rather than a message that never carried it.
+    /// </summary>
+    [Fact]
+    public void GivenAnUnmarkedSchema_WhenItNestsAnother_ThenReportTheValue() =>
+        new NestedSecret().Evaluate("hunter2", At)
+                          .Violations.ShouldHaveSingleItem()
+                          .Message.ShouldContain("hunter2");
+
     [Fact]
     public void GivenANullArgument_WhenReporting_ThenThrow()
     {

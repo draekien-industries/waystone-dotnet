@@ -1,12 +1,31 @@
 namespace Waystone.Monads.Docs.Schemas.Sample;
 
+using System.Text.RegularExpressions;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
 using Waystone.Monads.Schemas;
 
 /// <summary>packages/schemas/composition.md</summary>
-internal static class CompositionPage
+internal static partial class CompositionPage
 {
+    [GeneratedRegex("^[^A-Z]*$", RegexOptions.None, 1000)]
+    private static partial Regex NoCapitals { get; }
+
+    [GeneratedRegex("[0-9]", RegexOptions.None, 1000)]
+    private static partial Regex HasADigit { get; }
+
+    [GeneratedRegex("[^a-zA-Z0-9]", RegexOptions.None, 1000)]
+    private static partial Regex HasASymbol { get; }
+
+    [GeneratedRegex(@"^[^@\s]+@[^@\s]+$", RegexOptions.None, 1000)]
+    private static partial Regex LooksLikeAnEmail { get; }
+
+    [GeneratedRegex(@"^\+?[0-9 ]{8,}$", RegexOptions.None, 1000)]
+    private static partial Regex LooksLikeAPhone { get; }
+
+    [GeneratedRegex("^[a-z-]+$", RegexOptions.None, 1000)]
+    private static partial Regex LowerCaseAndHyphens { get; }
+
     #region schema-composition-check
     // A refinement. The value survives a failure, so every later rule on the
     // chain still runs and one parse reports all of them.
@@ -60,15 +79,15 @@ internal static class CompositionPage
         Schema.Text.MinLength(8).When(text => text.StartsWith("guild:"));
 
     public static readonly Schema<string, string> NoShoutingUnlessUrgent =
-        Schema.Text.Matches("^[^A-Z]*$").Unless(text => text.EndsWith("!"));
+        Schema.Text.Matches(NoCapitals).Unless(text => text.EndsWith("!"));
     #endregion
 
     #region schema-composition-all
     // Every branch runs, and every failure is reported.
     public static readonly Schema<string, string> Passphrase = Schema.All(
         Schema.Text.MinLength(12),
-        Schema.Text.Matches("[0-9]"),
-        Schema.Text.Matches("[^a-zA-Z0-9]"));
+        Schema.Text.Matches(HasADigit),
+        Schema.Text.Matches(HasASymbol));
     #endregion
 
     #region schema-composition-any
@@ -76,8 +95,8 @@ internal static class CompositionPage
     // reported at the union's own path carrying the branch failures beneath it,
     // rather than a flat list a reader cannot attribute.
     public static readonly Schema<string, string> Contact = Schema.Any(
-        Schema.Text.Matches(@"^[^@\s]+@[^@\s]+$"),
-        Schema.Text.Matches(@"^\+?[0-9 ]{8,}$"));
+        Schema.Text.Matches(LooksLikeAnEmail),
+        Schema.Text.Matches(LooksLikeAPhone));
     #endregion
 
     #region schema-composition-message
@@ -88,7 +107,7 @@ internal static class CompositionPage
         Schema.Text.Trim()
               .NotEmpty()
               .MaxLength(40)
-              .Matches("^[a-z-]+$")
+              .Matches(LowerCaseAndHyphens)
               .WithMessage("{Path} has to be lower case words joined by hyphens.");
     #endregion
 
@@ -115,7 +134,7 @@ internal static class CompositionPage
     // field: a branch of Schema.Any, or one handed straight to Parse.
     public static readonly Schema<string, string> Contactable = Schema.Any(
         Schema.Text.Email().Named("email"),
-        Schema.Text.Matches(@"^\+?[0-9 ]{8,}$").Named("phone"));
+        Schema.Text.Matches(LooksLikeAPhone).Named("phone"));
     #endregion
 
     #region schema-composition-sensitive

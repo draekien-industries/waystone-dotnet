@@ -297,7 +297,7 @@ public sealed class LadderGeneratorTests
                    Configuring(
                        "Schema.Fields(Schema.Required(subject, Schema.Text)).Refine(Gate).Into(a => a);")
                  + "\n\n    static Field Gate => Schema.Forbidden((string?)null, \"Do not send {Path}.\");")
-              .DiagnosticIds.ShouldBeEmpty();
+              .DiagnosticIds.ShouldNotContain("WMSC0005");
 
     /// <summary>
     /// An argument that does not bind has no type to read, and the compiler already
@@ -324,18 +324,72 @@ public sealed class LadderGeneratorTests
                                    .Refine(new Field[] { Schema.Forbidden((string?)null, "Do not send {Path}.") })
                                    .Into(a => a);
                        """))
-              .DiagnosticIds.ShouldBeEmpty();
+              .DiagnosticIds.ShouldNotContain("WMSC0005");
 
     /// <summary>
     /// A <c>Fields</c> call on something that is not the schema entry point is
-    /// somebody else's method with a name this generator has no claim on.
+    /// somebody else's method with a name this generator has no claim on. It binds,
+    /// which is what keeps <c>WMSC0007</c> off it.
     /// </summary>
     [Fact]
-    public void AFieldsCallOnAnotherReceiverIsIgnored() =>
+    public void AFieldsCallOnAnotherReceiverIsIgnored()
+    {
+        GeneratorRun run = Verify.Run(
+            Configuring(
+                "Other.Fields(subject) is null ? Schema.Text.Parse(subject) : Schema.Text.Parse(subject);")
+          + "\n\npublic static class Other { public static string Fields(string value) => value; }");
+
+        run.Generated[0].ShouldNotContain("FieldSet");
+        run.DiagnosticIds.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// The receiver is matched on its last name, so qualifying the nested
+    /// <c>Schema</c> by the class holding it reaches the same ladder. Anchoring on a
+    /// bare identifier instead cost the author the ladder and told them nothing.
+    /// </summary>
+    [Fact]
+    public void AFieldsCallQualifiedByItsSchemaStillGetsTheLadder()
+    {
+        GeneratorRun run = Verify.Run(
+            Configuring(
+                "GreetingSchema.Schema.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);"));
+
+        run.Generated[0].ShouldContain("private readonly struct FieldSet<T1>");
+        run.DiagnosticIds.ShouldBeEmpty();
+    }
+
+    public static TheoryData<string> UnrecognisedSpellings() =>
+        new()
+        {
+            "Fields(Schema.Required(subject, Schema.Text)).Into(a => a);",
+            "this.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);",
+            "subject.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);",
+        };
+
+    /// <summary>
+    /// Every spelling here binds to nothing, which is the test that separates a
+    /// field set the generator failed to see from a consumer's own method. Left
+    /// unreported, the author sees only a missing member on a type they never wrote.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(UnrecognisedSpellings))]
+    public void AFieldsCallTheGeneratorDoesNotRecogniseIsReported(
+        string expression)
+    {
+        GeneratorRun run = Verify.Run(Configuring(expression));
+
+        run.DiagnosticIds.ShouldBe(["WMSC0007"]);
+        run.Generated[0].ShouldNotContain("FieldSet");
+    }
+
+    [Fact]
+    public void AnUnrecognisedFieldsCallIsNamedAsTheAuthorSpeltIt() =>
         Verify.Run(
                    Configuring(
-                       "Other.Fields(subject) is null ? Schema.Text.Parse(subject) : Schema.Text.Parse(subject);")
-                 + "\n\npublic static class Other { public static string Fields(string value) => value; }")
-              .Generated[0]
-              .ShouldNotContain("FieldSet");
+                       "Fields(Schema.Required(subject, Schema.Text)).Into(a => a);"))
+              .GeneratorDiagnostics.Single()
+              .GetMessage()
+              .ShouldStartWith(
+                   "'GreetingSchema' spells its field-set call 'Fields'");
 }

@@ -56,6 +56,13 @@ protected one, so a derived schema has an implicit constructor until it declares
 constructor of its own — at which point the implicit one disappears with no
 diagnostic from the compiler.
 
+**`WMSC0003` covers every name the generator writes, not just `Instance`.** The other
+two are the nested `Schema` and the `FieldSet` struct, and both are checked only where
+a ladder is actually being emitted — a schema that never calls `Schema.Fields` receives
+neither name and may keep a member of either. Arity does not separate them: `CS0102`
+fires on a nested `FieldSet<T1>` beside a property called `FieldSet`. `SchemaWriter`
+holds all three names as constants so the guard and the emission cannot drift.
+
 **The generator anchors on the first part carrying a base list, not the first part.**
 A partial class reaches the pipeline once per part that names a base type, and
 emitting from each would add the same hint name twice. Anchoring on
@@ -87,13 +94,28 @@ being generated, so it binds to nothing while the generator is deciding whether 
 generate it. Everything else about the chain binds normally, which is why
 `WMSC0005` can ask what a `Refine` argument actually yields.
 
-**Reading it syntactically means the receiver is matched as the bare identifier
-`Schema` and nothing else.** A consumer who writes `using Schema = Something;`, or
-who has a local or field of that name in scope, gets no ladder and no `WMSC` message
-— only the compiler's own error against a member that was never generated. Left
-alone deliberately: the alias is a name collision the consumer created inside a type
-whose whole vocabulary is `Schema.`, and a rule that tried to detect it would have to
-re-implement alias resolution for the one member that cannot bind.
+**Reading it syntactically means the receiver is matched on its last name.** Both
+`Schema.Fields(...)` and `OrderSchema.Schema.Fields(...)` reach the ladder; anything
+else — an unqualified `Fields(...)`, `this.Fields(...)`, a receiver of another name —
+does not, and gets `WMSC0007` saying so. **That rule fires only where the call binds
+to nothing**, which is what keeps it off a consumer's own method named `Fields`. It
+is the one warning here about code that does not compile: the compiler already
+reports the missing member, and this adds the reason.
+
+A consumer who writes `using Schema = Something;` is still outside all of it. The
+call matches by name, so a ladder is generated and nothing is reported, and the alias
+then sends it somewhere else. Left alone deliberately: detecting it means
+re-implementing alias resolution for the one member that cannot bind, over a name
+collision the consumer created inside a type whose whole vocabulary is `Schema.`.
+
+**`WMSC0008` re-runs the runtime's own path derivation at build time.** A field's
+path comes from `CallerArgumentExpression`, and `PathName.From` keeps whatever
+follows the last dot — so a method call, an indexer or a literal leaves its
+punctuation in a path that reaches logs and API responses. `FieldNames` applies the
+same rule to the same text and names `.Named(...)` as the fix. The two derivations
+have to stay in step and cannot be shared, because the generator does not reference
+the runtime; a test asserts the derived path in the message rather than only the id,
+so a change to one shows up as a failure rather than as drift.
 
 **The ladder type is `FieldSet<T1..Tn>`, never `Fields`.** A member named `Fields`
 would hide a namespace-level `Fields<,>` in type-name lookup. Only the method is

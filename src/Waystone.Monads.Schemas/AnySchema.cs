@@ -24,7 +24,7 @@ internal sealed class AnySchema<TIn, TOut> : Schema<TIn, TOut>
         for (var index = 0; index < _branches.Length; index++)
         {
             Outcome<TOut> outcome =
-                _branches[index].Evaluate(input, context.AtIndex(index));
+                _branches[index].Evaluate(input, context.AtBranch(index));
 
             if (outcome.Violations.Count == 0) return outcome;
 
@@ -46,7 +46,7 @@ internal sealed class AnySchema<TIn, TOut> : Schema<TIn, TOut>
             Outcome<TOut> outcome = await _branches[index]
                                          .EvaluateAsync(
                                               input,
-                                              context.AtIndex(index),
+                                              context.AtBranch(index),
                                               cancellationToken)
                                          .ConfigureAwait(false);
 

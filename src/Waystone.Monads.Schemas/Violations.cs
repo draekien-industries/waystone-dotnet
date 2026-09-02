@@ -21,13 +21,10 @@ internal static class Violations
         new(
             context.Path,
             code,
-            MessageTemplate.Render(
-                template,
-                context.Path,
-                code,
-                received,
-                expected,
-                context.IsSensitive));
+            template,
+            received,
+            expected,
+            context.IsSensitive);
 
     internal static IReadOnlyList<Violation> One(
         ParseContext context,
@@ -43,7 +40,12 @@ internal static class Violations
         ErrorCode code,
         string template,
         object? received = null,
-        object? expected = null)
+        object? expected = null) =>
+        Append(existing, Create(context, code, template, received, expected));
+
+    private static IReadOnlyList<Violation> Append(
+        IReadOnlyList<Violation> existing,
+        Violation violation)
     {
         var violations = new Violation[existing.Count + 1];
 
@@ -52,8 +54,7 @@ internal static class Violations
             violations[index] = existing[index];
         }
 
-        violations[existing.Count] =
-            Create(context, code, template, received, expected);
+        violations[existing.Count] = violation;
 
         return violations;
     }

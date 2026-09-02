@@ -14,18 +14,48 @@ using Waystone.Monads.Results.Errors;
 /// outside the schema that produced it, which is what keeps
 /// <see cref="Path" /> honest.
 /// </para>
+/// <para>
+/// The rejected value is held until <see cref="Message" /> is read, so that a
+/// schema which turns out to be nested inside a sensitive one can still redact
+/// it. It is never handed out: <see cref="Path" />, <see cref="Code" /> and
+/// <see cref="Message" /> are the whole surface. A caller wanting its own
+/// wording branches on <see cref="Code" />.
+/// </para>
 /// </remarks>
 public sealed record Violation
 {
-    internal Violation(ViolationPath path, ErrorCode code, string message)
+    private readonly ErrorCode _code;
+
+    private readonly object? _expected;
+
+    private readonly bool _isSensitive;
+
+    private readonly ViolationPath _path;
+
+    private readonly object? _received;
+
+    private readonly string _template;
+
+    private string? _rendered;
+
+    internal Violation(
+        ViolationPath path,
+        ErrorCode code,
+        string template,
+        object? received = null,
+        object? expected = null,
+        bool isSensitive = false)
     {
-        Path = path ?? throw new ArgumentNullException(nameof(path));
-        Code = code ?? throw new ArgumentNullException(nameof(code));
-        Message = message;
+        _path = path ?? throw new ArgumentNullException(nameof(path));
+        _code = code ?? throw new ArgumentNullException(nameof(code));
+        _template = template;
+        _received = received;
+        _expected = expected;
+        _isSensitive = isSensitive;
     }
 
     /// <summary>Gets the place in the parsed value this violation is about.</summary>
-    public ViolationPath Path { get; }
+    public ViolationPath Path => _path;
 
     /// <summary>Gets the kind of failure, for a caller that branches rather than reads.</summary>
     /// <remarks>
@@ -36,22 +66,82 @@ public sealed record Violation
     /// if (violation.Code == ViolationCodeCatalog.Codes.Malformed) { }
     /// </code>
     /// </remarks>
-    public ErrorCode Code { get; }
+    public ErrorCode Code => _code;
 
     /// <summary>Gets the failure described for a human reader.</summary>
     /// <remarks>
-    /// Rendered when the violation was created, so it reflects the message
-    /// template and the ambient options in force during the parse rather than
-    /// during the read. A schema marked sensitive renders the rejected value as
-    /// <c>***</c> here; every other schema renders it in full, so treat this text
-    /// as carrying whatever the input carried.
+    /// Rendered on the first read rather than when the violation was created, so
+    /// that <c>Sensitive</c> on a schema several levels up still reaches it. The
+    /// text is fixed from then on. A sensitive schema renders the rejected value
+    /// as <c>***</c>; every other schema renders it in full, so treat this text as
+    /// carrying whatever the input carried.
     /// </remarks>
-    public string Message { get; }
+    public string Message => _rendered ??= Render();
 
-    internal Violation Rebase(ViolationPath parent) =>
-        new(parent.Nest(Path), Code, Message);
+    /// <summary>Checks whether another violation reports the same thing.</summary>
+    /// <remarks>
+    /// Compares the path, the code and the rendered message. The template and the
+    /// rejected value behind that message take no part: two violations that read
+    /// identically to a caller are the same violation, however each was built.
+    /// </remarks>
+    /// <param name="other">The violation to compare against. Null is never equal.</param>
+    /// <returns>
+    /// True if both report the same failure at the same place in the same words;
+    /// false otherwise.
+    /// </returns>
+    public bool Equals(Violation? other) =>
+        other is not null
+     && Path.Equals(other.Path)
+     && Code.Equals(other.Code)
+     && string.Equals(Message, other.Message, StringComparison.Ordinal);
 
-    internal Violation Retold(string message) => new(Path, Code, message);
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            int hash = Path.GetHashCode();
 
-    internal Violation Recoded(ErrorCode code) => new(Path, code, Message);
+            hash = (hash * 397) ^ Code.GetHashCode();
+
+            return (hash * 397)
+                 ^ StringComparer.Ordinal.GetHashCode(Message);
+        }
+    }
+
+    internal Violation Nested(ParseContext context) =>
+        Moved(
+            context.Path.Nest(Path),
+            Code,
+            _isSensitive || context.IsSensitive);
+
+    internal Violation Retold(
+        string template,
+        object? received,
+        bool isSensitive) =>
+        new(
+            Path,
+            Code,
+            template,
+            received,
+            null,
+            _isSensitive || isSensitive);
+
+    internal Violation Recoded(ErrorCode code) =>
+        Moved(Path, code, _isSensitive);
+
+    private Violation Moved(
+        ViolationPath path,
+        ErrorCode code,
+        bool isSensitive) =>
+        new(path, code, _template, _received, _expected, isSensitive);
+
+    private string Render() =>
+        MessageTemplate.Render(
+            _template,
+            Path,
+            Code,
+            _received,
+            _expected,
+            _isSensitive);
 }

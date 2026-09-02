@@ -70,11 +70,11 @@ public abstract partial class Schema
     public static Schema<T, T> For<T>() where T : notnull =>
         IdentitySchema<T>.Instance;
 
-    /// <summary>Creates a schema accepting only the declared members of an enumeration.</summary>
+    /// <summary>Creates a schema accepting only the values an enumeration recognises.</summary>
     /// <typeparam name="T">The enumeration to accept and produce.</typeparam>
     /// <returns>
-    /// A schema reporting <c>schema_violation.mismatched</c> for a value that is not
-    /// a declared member.
+    /// A schema reporting <c>schema_violation.mismatched</c> for a value the
+    /// enumeration does not recognise.
     /// </returns>
     /// <remarks>
     /// <para>
@@ -84,12 +84,16 @@ public abstract partial class Schema
     /// <c>switch</c> over it afterwards falls to its default arm.
     /// </para>
     /// <para>
-    /// <b>Not suitable for an enumeration marked <c>[Flags]</c>.</b> Membership is
-    /// decided by <c>Enum.IsDefined</c>, which asks whether
-    /// the value equals a declared member — so a legitimate combination such as
-    /// <c>Read | Write</c> is rejected unless it happens to be declared as a member
-    /// in its own right. Check a flags enumeration with <c>Check</c> against a mask
-    /// of the bits you accept.
+    /// What counts as recognised depends on <c>[Flags]</c>. Without it, the value has
+    /// to equal a declared member. With it, any combination of the bits the members
+    /// declare is accepted — <c>Read | Write</c> passes without being declared in its
+    /// own right — while a bit no member declares still fails.
+    /// </para>
+    /// <para>
+    /// Zero is the case to watch on a flags enumeration. It passes only where a
+    /// member declares it, because zero is what a deserialiser produces for a field
+    /// the payload left out. Declare a <c>None = 0</c> member if an empty
+    /// combination is legitimate.
     /// </para>
     /// </remarks>
     public static Schema<T, T> Enum<T>() where T : struct, System.Enum =>

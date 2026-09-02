@@ -423,6 +423,74 @@ public sealed class SchemaGeneratorTests
 
         run.Generated.ShouldBeEmpty();
         run.DiagnosticIds.ShouldBe(["WMSC0003"]);
+
+        run.GeneratorDiagnostics.Single()
+           .GetMessage()
+           .ShouldContain("already declares a member named 'Instance'");
+    }
+
+    private const string ConfigureWithALadder = """
+                protected override Result<string, SchemaViolation> Configure(string subject) =>
+                    Schema.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);
+        """;
+
+    /// <summary>
+    /// The nested entry point and the ladder struct are emitted under names of their
+    /// own, and the compiler's message for either collision names a file the author
+    /// cannot open, exactly as it does for <c>Instance</c>.
+    /// </summary>
+    public static TheoryData<string, string> EmittedLadderNames() =>
+        new()
+        {
+            { "private sealed class Schema { }", "Schema" },
+            { "private readonly struct FieldSet { }", "FieldSet" },
+        };
+
+    [Theory]
+    [MemberData(nameof(EmittedLadderNames))]
+    public void ASchemaDeclaringAnEmittedLadderNameIsReported(
+        string member,
+        string name)
+    {
+        GeneratorRun run = Verify.Run(
+            $$"""
+                  public partial class GreetingSchema : SchemaConfig<string, string>
+                  {
+                      {{member}}
+
+              {{ConfigureWithALadder}}
+                  }
+              """);
+
+        run.Generated.ShouldBeEmpty();
+        run.DiagnosticIds.ShouldContain("WMSC0003");
+
+        run.GeneratorDiagnostics
+           .Single(diagnostic => diagnostic.Id == "WMSC0003")
+           .GetMessage()
+           .ShouldContain($"already declares a member named '{name}'");
+    }
+
+    /// <summary>
+    /// Neither ladder name is written into a schema that makes no
+    /// <c>Schema.Fields</c> call, so reporting one there would fail a build over a
+    /// collision that never happens.
+    /// </summary>
+    [Fact]
+    public void ASchemaWithNoLadderMayKeepAMemberOfThatName()
+    {
+        GeneratorRun run = Verify.Run(
+            $$"""
+                  public partial class GreetingSchema : SchemaConfig<string, string>
+                  {
+                      private readonly struct FieldSet { }
+
+              {{Configure}}
+                  }
+              """);
+
+        run.Generated.ShouldNotBeEmpty();
+        run.DiagnosticIds.ShouldBeEmpty();
     }
 
     /// <summary>

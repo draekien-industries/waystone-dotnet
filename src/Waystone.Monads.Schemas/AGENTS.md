@@ -204,16 +204,17 @@ onto the base with a throw; that is the mistake `SchemaConfig` exists to undo.
 ## `Any` nests its branch failures; do not flatten them
 
 When every branch fails, `AnySchema` emits one violation at its own path plus each
-branch's violations rebased under a numbered segment — `contact[0].email`. The
-numbering is why `ParseContext.AtIndex` exists. Flattening onto the field's own
-path would put a dozen irrelevant failures where a caller reading `ByPath()`
-expects one, which is the most complained-of part of Zod's output.
+branch's violations rebased under a numbered segment — `contact{0}.email`. The
+numbering is why `ParseContext.AtBranch` exists, and the braces are what keep a
+branch apart from a list position. Flattening onto the field's own path would put
+a dozen irrelevant failures where a caller reading `ByPath()` expects one, which
+is the most complained-of part of Zod's output.
 
 **`Named` replaces a trailing name and appends after anything else.** Renaming an
 index is never what a caller means: inside an `Any`, the innermost segment is a
-branch number, so replacing it would turn `contact[1]` into `contact.byPhone` —
+branch number, so replacing it would turn `contact{1}` into `contact.byPhone` —
 losing the branch and colliding with a real property of that name.
-`ViolationPath.Rename` switches on `SegmentKind` to decide, which is a fact the
+`ViolationPath.Rename` switches on `PathSegmentKind` to decide, which is a fact the
 type holds rather than something recovered from rendered text.
 
 ## There are two `Named` members, and the field one is the one to reach for
@@ -270,18 +271,21 @@ file added later, and suppressions do not decay. Note that a severity glob does
 reach a hand-written file; it is a *generated* document it cannot reach, which is
 the trap `Waystone.Monads.SourceGenerators/AGENTS.md` records.
 
-## Messages are rendered eagerly, and that bounds `.Sensitive()`
+## `.Sensitive()` reaches a nested `Configure`
 
-`Violation.Message` is a rendered string, fixed when the violation was created.
-That is deliberate — DRA-181 settles it — and it has one consequence worth
-knowing.
+`Violation.Message` reads as a rendered string, but the template and the raw
+received and expected values stay on the violation, private. That is what lets a
+schema learn it is sensitive *after* a nested one already reported: `SchemaConfig`
+re-creates the nested violations under `_isSensitive || context.IsSensitive` and
+they render again with `***`.
 
-`.Sensitive()` propagates through `ParseContext`, so it reaches every rule the
-schema is built from and every schema nested *beneath* it that this package
-evaluates. It cannot reach a nested schema that overrides `Configure`, because
-that schema renders its own messages before the outer context exists. Mark that
-schema itself. The doc comment on `Sensitive` says so; do not quietly widen the
-promise.
+So marking the outermost schema is enough, and marking an inner one as well
+changes nothing. The doc comment on `Sensitive` says so.
+
+**The template and the raw values stay private, and must.** Exposing either would
+hand back the value the redaction exists to withhold — a caller could read
+`Received` off a violation whose `Message` says `***`. A caller who wants to
+re-render has to be given a schema, not a violation.
 
 Paths do not have this problem: `SchemaConfig<TIn, TOut>.Evaluate` re-bases a
 composed schema's violations under the parent's path through `ViolationPath.Nest`,
@@ -293,7 +297,7 @@ whether to insert a `.` by testing whether the child's text began with `[`. That
 correct only by coincidence — both bracketed segment kinds happen to start with one
 — and a future segment kind that does not would silently glue two names together
 with no separator, no compile error and no failing test. `Nest` is now array
-concatenation and the separator is decided from `SegmentKind` at render time.
+concatenation and the separator is decided from `PathSegmentKind` at render time.
 
 **`MessageTemplate.Render` is a single pass, and must stay one.** Substituting
 token by token with `string.Replace` would re-substitute a rejected value that
@@ -446,6 +450,16 @@ schemas.** Both nodes hand-roll the synchronous and asynchronous paths — as
 help here — so the "gather violations, keep the value only if every entry produced
 one" rule would otherwise be written four times. It is written twice, in the
 accumulators, and each schema's two paths differ only in the `await`.
+
+**The cap is `Caps.Report`, and neither accumulator tracks it.** Both hold one and
+delegate, because a list and a dictionary differ in what an entry *is* and not in
+how a full report is decided — and the decision has two halves that read alike and
+are not: `IsFull` is the signal to stop examining entries, while `Truncated` asks
+whether anything was actually lost. They came apart once already. A report that
+fills the last slot exactly has lost nothing, so conflating them appended
+"there are more" to a report listing every problem there was, and turned an outcome
+that could still be refined into a failure. The sync/async duplication above does
+not extend to this: cap tracking has no `await` in it.
 
 **Both accumulators are classes, deliberately.** A struct would be the obvious
 choice for something this small, and it does not work: the asynchronous path

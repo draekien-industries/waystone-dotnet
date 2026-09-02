@@ -20,9 +20,11 @@ internal sealed class ListSchema<TIn, TOut>
         IReadOnlyList<TIn> input,
         ParseContext context)
     {
-        var entries = new Entries<TOut>(input.Count);
+        var entries = new Entries<TOut>(input.Count, context);
 
-        for (var index = 0; index < input.Count; index++)
+        for (var index = 0;
+             index < input.Count && !entries.IsFull;
+             index++)
         {
             ParseContext at = context.AtIndex(index);
             TIn item = input[index];
@@ -43,9 +45,11 @@ internal sealed class ListSchema<TIn, TOut>
             ParseContext context,
             CancellationToken cancellationToken)
     {
-        var entries = new Entries<TOut>(input.Count);
+        var entries = new Entries<TOut>(input.Count, context);
 
-        for (var index = 0; index < input.Count; index++)
+        for (var index = 0;
+             index < input.Count && !entries.IsFull;
+             index++)
         {
             ParseContext at = context.AtIndex(index);
             TIn item = input[index];

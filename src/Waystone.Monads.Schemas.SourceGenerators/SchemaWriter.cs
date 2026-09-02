@@ -8,6 +8,10 @@ internal static class SchemaWriter
 
     public const string FieldsMember = "Fields";
 
+    public const string EntryPointType = "Schema";
+
+    public const string LadderType = "FieldSet";
+
     private const string Root = "global::Waystone.Monads.Schemas.";
 
     private const string Field = Root + "Field";
@@ -127,7 +131,9 @@ internal static class SchemaWriter
             depth,
             "/// <remarks>Adds the <c>Fields</c> overloads this schema uses and inherits every other member of the schema entry point unchanged.</remarks>");
 
-        writer.Line(depth, "private sealed class Schema : " + Root + "Schema");
+        writer.Line(
+            depth,
+            "private sealed class " + EntryPointType + " : " + Root + "Schema");
         writer.Line(depth, "{");
 
         WriteCombine(writer, depth + 1);
@@ -182,7 +188,7 @@ internal static class SchemaWriter
 
         writer.Line(
             depth,
-            "public static FieldSet" + Parameters(arity) + " " + FieldsMember + Parameters(arity) + "(");
+            "public static " + LadderType + Parameters(arity) + " " + FieldsMember + Parameters(arity) + "(");
 
         for (var index = 1; index <= arity; index++)
         {
@@ -195,7 +201,7 @@ internal static class SchemaWriter
 
         writer.Line(
             depth + 1,
-            "=> new FieldSet" + Parameters(arity) + "(" + Arguments(arity, "field") + ", null);");
+            "=> new " + LadderType + Parameters(arity) + "(" + Arguments(arity, "field") + ", null);");
     }
 
     private static void WriteFieldSet(
@@ -204,7 +210,7 @@ internal static class SchemaWriter
         int arity,
         bool constrained)
     {
-        string self = "FieldSet" + Parameters(arity);
+        string self = LadderType + Parameters(arity);
 
         writer.Line(
             depth,
@@ -244,7 +250,7 @@ internal static class SchemaWriter
         int depth,
         int arity)
     {
-        writer.Line(depth, "internal FieldSet(");
+        writer.Line(depth, "internal " + LadderType + "(");
 
         for (var index = 1; index <= arity; index++)
         {

@@ -15,10 +15,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 /// whether to generate it. Everything else about the chain — what a <c>Refine</c>
 /// argument actually yields — binds normally, because those members already exist.
 /// <para>
-/// It also drives <c>Asynchrony</c>, which has nothing to do with the ladder. That
-/// rule needs the same walk over the same declarations, and walking them twice to
-/// keep the two apart would cost a consumer's build more than the tidier shape is
-/// worth.
+/// It also drives <c>Asynchrony</c> and <c>FieldNames</c>, neither of which has
+/// anything to do with the ladder. Both need the same walk over the same
+/// declarations, and walking them three times to keep them apart would cost a
+/// consumer's build more than the tidier shape is worth.
 /// </para>
 /// </remarks>
 internal static class Ladder
@@ -56,7 +56,22 @@ internal static class Ladder
                     schema.Name,
                     diagnostics);
 
-                if (!IsFieldsCall(invocation)) continue;
+                FieldNames.Check(
+                    invocation,
+                    model,
+                    schema.Name,
+                    diagnostics);
+
+                if (!IsFieldsCall(invocation))
+                {
+                    CheckSpelling(
+                        invocation,
+                        model,
+                        schema.Name,
+                        diagnostics);
+
+                    continue;
+                }
 
                 int arity = invocation.ArgumentList.Arguments.Count;
 
@@ -90,14 +105,63 @@ internal static class Ladder
             : current.Compilation.GetSemanticModel(part.SyntaxTree);
 
     private static bool IsFieldsCall(InvocationExpressionSyntax invocation) =>
-        invocation.Expression is MemberAccessExpressionSyntax
+        invocation.Expression is MemberAccessExpressionSyntax access
+     && access.Name.Identifier.ValueText == SchemaWriter.FieldsMember
+     && NameOf(access.Expression) == SchemaReceiver;
+
+    /// <summary>
+    /// Reports a call that looks like a field set and was not recognised as one, so
+    /// that the receiver having to be spelled <c>Schema</c> is said somewhere rather
+    /// than only implied by a member that never appeared.
+    /// </summary>
+    /// <remarks>
+    /// The unbound test is what keeps this off a consumer's own <c>Fields</c> method.
+    /// A call that binds is somebody else's and no business of this generator; one
+    /// that binds badly — the right member with the wrong arguments — is the
+    /// compiler's to explain and comes back through <c>CandidateSymbols</c>. What is
+    /// left is a name that resolved to nothing, which for a member named
+    /// <c>Fields</c> inside a schema is nearly always this mistake.
+    /// </remarks>
+    private static void CheckSpelling(
+        InvocationExpressionSyntax invocation,
+        SemanticModel model,
+        string schemaName,
+        List<DiagnosticInfo> diagnostics)
+    {
+        if (NameOf(invocation.Expression) != SchemaWriter.FieldsMember) return;
+
+        SymbolInfo bound = model.GetSymbolInfo(invocation);
+
+        if (bound.Symbol is not null || bound.CandidateSymbols.Length > 0)
         {
-            Name.Identifier.ValueText: SchemaWriter.FieldsMember,
-            Expression: IdentifierNameSyntax
-            {
-                Identifier.ValueText: SchemaReceiver,
-            },
-        };
+            return;
+        }
+
+        diagnostics.Add(
+            DiagnosticInfo.Create(
+                Rules.FieldsNotRecognised,
+                invocation.Expression.GetLocation(),
+                schemaName,
+                invocation.Expression.ToString()));
+    }
+
+    /// <summary>
+    /// The right-most simple name of an expression, which for a member access is the
+    /// member and for a qualified name is its last segment. Null where the expression
+    /// ends in something that is not a name at all, such as an indexer or a call.
+    /// </summary>
+    private static string? NameOf(ExpressionSyntax expression)
+    {
+        switch (expression)
+        {
+            case SimpleNameSyntax simple:
+                return simple.Identifier.ValueText;
+            case MemberAccessExpressionSyntax access:
+                return access.Name.Identifier.ValueText;
+            default:
+                return null;
+        }
+    }
 
     private static void CheckInto(
         InvocationExpressionSyntax fields,
@@ -208,7 +272,7 @@ internal static class Ladder
     /// The invocation of a named member further along the same fluent chain, or
     /// null where the chain does not reach one.
     /// </summary>
-    private static InvocationExpressionSyntax? Chained(
+    public static InvocationExpressionSyntax? Chained(
         InvocationExpressionSyntax invocation,
         string member)
     {

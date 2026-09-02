@@ -24,6 +24,9 @@ internal readonly struct ParseContext
     public ParseContext AtKey(string key) =>
         new(Path.AppendKey(key), IsSensitive);
 
+    public ParseContext AtBranch(int branch) =>
+        new(Path.AppendBranch(branch), IsSensitive);
+
     public ParseContext Renamed(string property) =>
         new(Path.Rename(property), IsSensitive);
 

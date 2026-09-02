@@ -29,10 +29,12 @@ internal sealed class DictionarySchema<TKeyIn, TValueIn, TKeyOut, TValueOut>
         IReadOnlyDictionary<TKeyIn, TValueIn> input,
         ParseContext context)
     {
-        var pairs = new Pairs<TKeyOut, TValueOut>(input.Count);
+        var pairs = new Pairs<TKeyOut, TValueOut>(input.Count, context);
 
         foreach (KeyValuePair<TKeyIn, TValueIn> entry in input)
         {
+            if (pairs.IsFull) break;
+
             ParseContext at = At(context, entry.Key);
 
             pairs.Take(
@@ -53,10 +55,12 @@ internal sealed class DictionarySchema<TKeyIn, TValueIn, TKeyOut, TValueOut>
             ParseContext context,
             CancellationToken cancellationToken)
     {
-        var pairs = new Pairs<TKeyOut, TValueOut>(input.Count);
+        var pairs = new Pairs<TKeyOut, TValueOut>(input.Count, context);
 
         foreach (KeyValuePair<TKeyIn, TValueIn> entry in input)
         {
+            if (pairs.IsFull) break;
+
             ParseContext at = At(context, entry.Key);
 
             Outcome<TKeyOut> key = await _key

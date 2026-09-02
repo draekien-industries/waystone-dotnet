@@ -29,11 +29,23 @@ internal static class Rules
             "'{0}' has no accessible parameterless constructor, so its generated 'Instance' cannot be constructed; give it one, or take the values it needs from the input it parses",
             "The generated 'Instance' is a static property initialised with 'new'. 'SchemaConfig' supplies a protected parameterless constructor, so a derived schema inherits one until it declares a constructor of its own, at which point the implicit one disappears with no diagnostic of its own.");
 
-    public static readonly DiagnosticDescriptor InstanceAlreadyDeclared = Create(
+    /// <summary>
+    /// Covers all three names the generator writes into the schema, not just
+    /// <c>Instance</c>. One rule rather than three, because the reader's problem and
+    /// the reader's fix are the same in every case and the name is already a message
+    /// argument.
+    /// </summary>
+    /// <remarks>
+    /// <c>Schema</c> and <c>FieldSet</c> are only checked where a ladder is actually
+    /// being emitted, so a schema that never calls <c>Schema.Fields</c> may keep a
+    /// member of either name. Reporting them unconditionally would fail a build over
+    /// a collision that does not exist.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor NameAlreadyDeclared = Create(
         "WMSC0003",
-        "Do not declare a member named Instance on a schema",
-        "'{0}' already declares a member named 'Instance', which is the name the generator emits; remove it and use the generated one",
-        "The generator emits 'Instance' into a second declaration of the class, so a hand-written member of that name is a duplicate definition. The compiler reports the collision against the generated file, which is not the file anyone can edit.");
+        "Do not declare a member the generator emits",
+        "'{0}' already declares a member named '{1}', which is a name the generator writes into this class; rename it, or remove it and use the generated one",
+        "The generator reopens the class and emits 'Instance', a nested 'Schema' and a 'FieldSet' struct per field count into it, so a hand-written member of any of those names is a duplicate definition. Type parameters do not separate them: a nested type collides with an existing member of the same name whatever its arity. The compiler reports the collision against the generated file, which is not the file anyone can edit.");
 
     /// <summary>
     /// Reported at the <c>Into</c> call, not at the field list. The field list is
@@ -85,6 +97,42 @@ internal static class Rules
         "Do not reach an asynchronous rule from a field set",
         "'{0}' reaches an asynchronous rule from 'Configure', which only ever runs the synchronous path, so the rule throws rather than deciding anything; use 'Check' if the rule can answer from the value alone, or compose this schema outside a field set and parse it with 'ParseAsync'",
         "'SchemaConfig.Configure' returns a value rather than a task, so a field set evaluates synchronously even when the caller uses 'ParseAsync'. An asynchronous rule reached that way throws 'InvalidOperationException'. Nothing in the type system says so, because 'CheckAsync' returns the same schema type a synchronous rule does.");
+
+    /// <summary>
+    /// Reported at the call the generator did not recognise, which is the only place
+    /// the reader can act on: the schema is fine and so is every other call in it.
+    /// </summary>
+    /// <remarks>
+    /// Advice rather than an error, and the one rule here that warns about code that
+    /// does not compile. The generator matches the receiver as written, so this fires
+    /// on any unbound call to a member named <c>Fields</c> — including one that has
+    /// nothing to do with a field set and failed to bind for its own reasons. The
+    /// compiler is already reporting that call, so a second error would only add a
+    /// build failure to a build that has one; a warning adds the explanation and
+    /// stays wrong quietly.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor FieldsNotRecognised = Advice(
+        "WMSC0007",
+        "Call Schema.Fields through the name Schema",
+        "'{0}' spells its field-set call '{1}', which the generator matches by name rather than by binding it, so no ladder was generated; write the receiver as 'Schema', qualified by the type that contains it if you need to",
+        "'Schema.Fields' is the member being generated, so it binds to nothing while the generator is deciding whether to emit it. The receiver therefore has to be recognised as written rather than resolved, and an alias, a renamed import or a call with no receiver at all carries nothing to recognise. Without this rule the only message is the compiler's, against a member the generator never created.");
+
+    /// <summary>
+    /// Reported at the argument the path was taken from, which is the expression the
+    /// author would have to change if they did not want to name the field instead.
+    /// </summary>
+    /// <remarks>
+    /// Advice, because the derived path is only usually wrong: an author who is not
+    /// showing violations to anybody outside may well not care what
+    /// <c>subject.Total.ToString()</c> reduces to. It stays on because the other
+    /// reading is that the text of an expression the author wrote is now in an API
+    /// response, and nothing else in the build says so.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor FieldPathNotDerivable = Advice(
+        "WMSC0008",
+        "Name a field whose path cannot be read from its argument",
+        "'{0}' takes this field's path from the expression itself, so a violation reports it as '{1}'; add '.Named(\"...\")' to report it under a name a caller can act on",
+        "A field's path comes from 'CallerArgumentExpression', which hands the runtime the argument's source text and nothing else. A member access reduces to the member's name, which is the case the design is built around. Anything else — a method call, an indexer, a literal, a null-forgiving operator — keeps its punctuation, and that text then reaches logs and API responses alongside the violation.");
 
     private const string DocsRoot =
         "https://draekien-industries.wpei.me/source-generation/diagnostics#";

@@ -19,8 +19,8 @@ using Microsoft.CodeAnalysis.Text;
 /// exists to be derived from rather than used. For a concrete schema it emits
 /// nothing and reports instead when the schema or a type containing it is not
 /// <c>partial</c> (<c>WMSC0001</c>), when it has no parameterless constructor to
-/// call (<c>WMSC0002</c>), or when it already declares a member named
-/// <c>Instance</c> (<c>WMSC0003</c>). It emits <i>and</i> reports when an
+/// call (<c>WMSC0002</c>), or when it already declares a member under one of the
+/// names the generator writes (<c>WMSC0003</c>). It emits <i>and</i> reports when an
 /// <c>Into</c> lambda does not match its field count (<c>WMSC0004</c>) or a
 /// <c>Refine</c> argument yields a value nobody will see (<c>WMSC0005</c>).
 /// </remarks>
@@ -116,14 +116,15 @@ public sealed class SchemaGenerator : IIncrementalGenerator
                     notPartial.Name));
         }
 
-        if (schema.GetMembers(SchemaWriter.InstanceMember).Length > 0)
+        if (Declares(schema, SchemaWriter.InstanceMember))
         {
             return Analysis.Failed(
                 hintName,
                 DiagnosticInfo.Create(
-                    Rules.InstanceAlreadyDeclared,
+                    Rules.NameAlreadyDeclared,
                     location,
-                    schema.Name));
+                    schema.Name,
+                    SchemaWriter.InstanceMember));
         }
 
         if (!schema.InstanceConstructors.Any(
@@ -142,11 +143,57 @@ public sealed class SchemaGenerator : IIncrementalGenerator
         int[] arities =
             Ladder.Discover(schema, context.SemanticModel, diagnostics);
 
+        string? taken = arities.Length == 0 ? null : LadderNameTaken(schema);
+
+        if (taken is not null)
+        {
+            diagnostics.Add(
+                DiagnosticInfo.Create(
+                    Rules.NameAlreadyDeclared,
+                    location,
+                    schema.Name,
+                    taken));
+
+            return new Analysis(
+                hintName,
+                null,
+                new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
+        }
+
         return new Analysis(
             hintName,
             ModelOf(schema, containers, arities),
             new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
     }
+
+    /// <summary>
+    /// The first of the two names the ladder needs that the schema has already
+    /// spent, or null where both are free.
+    /// </summary>
+    /// <remarks>
+    /// Called only where a ladder is being emitted. Neither name is written into a
+    /// schema that makes no <c>Schema.Fields</c> call, so reporting them there would
+    /// fail a build over a collision that never happens.
+    /// </remarks>
+    private static string? LadderNameTaken(INamedTypeSymbol schema)
+    {
+        if (Declares(schema, SchemaWriter.EntryPointType))
+        {
+            return SchemaWriter.EntryPointType;
+        }
+
+        return Declares(schema, SchemaWriter.LadderType)
+            ? SchemaWriter.LadderType
+            : null;
+    }
+
+    /// <summary>
+    /// Whether the schema already has a member of this name. Arity is not part of
+    /// the question: a nested generic type collides with an existing member of the
+    /// same name however many type parameters it takes.
+    /// </summary>
+    private static bool Declares(INamedTypeSymbol schema, string name) =>
+        schema.GetMembers(name).Length > 0;
 
     private static SchemaModel ModelOf(
         INamedTypeSymbol schema,

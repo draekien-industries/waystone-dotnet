@@ -11,22 +11,26 @@ internal sealed class Pairs<TKey, TValue>
 
     private readonly Dictionary<TKey, TValue> _parsed;
 
-    private readonly List<Violation> _violations = new();
+    private readonly Caps.Report _report;
 
     private bool _complete = true;
 
-    internal Pairs(int count)
+    internal Pairs(int count, ParseContext context)
     {
         _parsed = new Dictionary<TKey, TValue>(count);
+        _report = new Caps.Report(count, context);
     }
+
+    internal bool IsFull => _report.IsFull;
 
     internal void Take(
         ParseContext at,
         Outcome<TKey> key,
         Outcome<TValue> value)
     {
-        _violations.AddRange(key.Violations);
-        _violations.AddRange(value.Violations);
+        _report.Examined();
+        _report.Take(key.Violations);
+        _report.Take(value.Violations);
 
         if (!key.HasValue || !value.HasValue)
         {
@@ -37,8 +41,8 @@ internal sealed class Pairs<TKey, TValue>
 
         if (_parsed.ContainsKey(key.Value))
         {
-            _violations.Add(
-                Violations.Create(
+            _report.Take(
+                Violations.One(
                     at,
                     ViolationCodeCatalog.Codes.Duplicate,
                     DuplicateMessage,
@@ -54,7 +58,7 @@ internal sealed class Pairs<TKey, TValue>
 
     internal Outcome<IReadOnlyDictionary<TKey, TValue>> ToOutcome() =>
         Gather.ToOutcome<IReadOnlyDictionary<TKey, TValue>>(
-            _complete,
+            _complete && !_report.Truncated,
             _parsed,
-            _violations);
+            _report.Close());
 }

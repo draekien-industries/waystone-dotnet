@@ -217,4 +217,140 @@ public sealed class SchemaListTests
                        null!).MaxCount(1))
               .ParamName.ShouldBe("schema");
     }
+
+    /// <summary>
+    /// The bound has to cost one comparison, not one parse per entry. Bounding a
+    /// list after parsing it means an over-long payload still does all the work,
+    /// which is the whole thing the bound is set to prevent.
+    /// </summary>
+    [Fact]
+    public void GivenAListPastTheBound_WhenParsing_ThenParseNoEntryAtAll()
+    {
+        var item = new Counting<string>(new PassThrough<string>());
+
+        Outcome<IReadOnlyList<string>> outcome = Schema.List(item)
+           .MaxCount(2)
+           .Evaluate(new[] { "a", "b", "c" }, At);
+
+        item.Evaluations.ShouldBe(0);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldBe("Expected lines to hold at most 2 entries.");
+    }
+
+    [Fact]
+    public void GivenAListWithinTheBound_WhenParsing_ThenParseEveryEntry()
+    {
+        var item = new Counting<string>(new PassThrough<string>());
+
+        Schema.List(item)
+              .MaxCount(3)
+              .Evaluate(new[] { "a", "b", "c" }, At)
+              .Violations.ShouldBeEmpty();
+
+        item.Evaluations.ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task
+        GivenAListPastTheBound_WhenParsingAsynchronously_ThenParseNoEntryAtAll()
+    {
+        var item = new Counting<string>(new AsyncPassThrough<string>());
+
+        Outcome<IReadOnlyList<string>> outcome = await Schema.List(item)
+           .MaxCount(2)
+           .EvaluateAsync(
+                new[] { "a", "b", "c" },
+                At,
+                TestContext.Current.CancellationToken);
+
+        item.Evaluations.ShouldBe(0);
+        outcome.Violations.ShouldHaveSingleItem();
+    }
+
+    /// <summary>
+    /// Without a bound set, a list of bad entries would otherwise report one
+    /// violation per entry, each holding the value it rejected. The report stops
+    /// at the cap and says that it did, so a caller never reads a partial report
+    /// as a complete one.
+    /// </summary>
+    [Fact]
+    public void GivenMoreBadEntriesThanTheCap_WhenParsing_ThenStopAndSaySo()
+    {
+        var entries = new string[Caps.ViolationsPerNode * 4];
+
+        for (var index = 0; index < entries.Length; index++)
+        {
+            entries[index] = string.Empty;
+        }
+
+        Outcome<IReadOnlyList<string>> outcome =
+            Schema.List(Schema.Text.NotEmpty()).Evaluate(entries, At);
+
+        outcome.Violations.Count.ShouldBe(Caps.ViolationsPerNode + 1);
+
+        Violation last = outcome.Violations[Caps.ViolationsPerNode];
+
+        last.Code.ShouldBe(ViolationCodeCatalog.Codes.Truncated);
+        last.Path.ToString().ShouldBe("lines");
+
+        last.Message.ShouldBe("Stopped after 64 problems; there are more.");
+    }
+
+    /// <summary>
+    /// The boundary the cap is easiest to get wrong at. Reaching the cap on the last
+    /// entry loses nothing, so claiming "there are more" would be a lie — and it
+    /// would also fail a list whose entries only needed refining.
+    /// </summary>
+    [Fact]
+    public void GivenExactlyTheCapOfBadEntries_WhenParsing_ThenReportNoTruncation()
+    {
+        var entries = new string[Caps.ViolationsPerNode];
+
+        for (var index = 0; index < entries.Length; index++)
+        {
+            entries[index] = string.Empty;
+        }
+
+        Outcome<IReadOnlyList<string>> outcome =
+            Schema.List(Schema.Text.NotEmpty()).Evaluate(entries, At);
+
+        outcome.Violations.Count.ShouldBe(Caps.ViolationsPerNode);
+
+        foreach (Violation violation in outcome.Violations)
+        {
+            violation.Code.ShouldNotBe(ViolationCodeCatalog.Codes.Truncated);
+        }
+    }
+
+    [Fact]
+    public void GivenMoreBadEntriesThanTheCap_WhenParsing_ThenStopParsingToo()
+    {
+        var item = new Counting<string>(new Rejects<string>());
+        var entries = new string[Caps.ViolationsPerNode * 4];
+
+        for (var index = 0; index < entries.Length; index++)
+        {
+            entries[index] = "x";
+        }
+
+        Schema.List(item).Evaluate(entries, At);
+
+        item.Evaluations.ShouldBe(Caps.ViolationsPerNode);
+    }
+
+    [Fact]
+    public void GivenFewerBadEntriesThanTheCap_WhenParsing_ThenReportNoTruncation()
+    {
+        Outcome<IReadOnlyList<string>> outcome =
+            Schema.List(Schema.Text.NotEmpty())
+                  .Evaluate(new[] { string.Empty, string.Empty }, At);
+
+        outcome.Violations.Count.ShouldBe(2);
+
+        foreach (Violation violation in outcome.Violations)
+        {
+            violation.Code.ShouldNotBe(ViolationCodeCatalog.Codes.Truncated);
+        }
+    }
 }
