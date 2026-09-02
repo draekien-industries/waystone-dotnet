@@ -90,11 +90,39 @@ internal static class Verify
         return (first, Emitted(driver.GetRunResult()));
     }
 
-    private static GeneratorRun Run(string source, bool withMonadsReference)
-    {
-        CSharpCompilation compilation = Compile(source, withMonadsReference);
+    /// <summary>
+    /// Runs the generator over a compilation pinned to <paramref name="language" />,
+    /// for the emission choices that depend on what the consumer's compiler accepts.
+    /// The preamble uses a block namespace rather than the file-scoped one, so that
+    /// it parses under every version worth pinning.
+    /// </summary>
+    public static GeneratorRun RunAtLanguageVersion(
+        LanguageVersion language,
+        string source) =>
+        Run(
+            """
+            using System;
+            using Waystone.Monads.Results.Errors;
 
-        GeneratorDriver driver = Driver()
+            namespace Sample
+            {
+
+            """
+          + source
+          + Environment.NewLine
+          + "}",
+            withMonadsReference: true,
+            language);
+
+    private static GeneratorRun Run(
+        string source,
+        bool withMonadsReference,
+        LanguageVersion language = LanguageVersion.Preview)
+    {
+        CSharpCompilation compilation =
+            Compile(source, withMonadsReference, language);
+
+        GeneratorDriver driver = Driver(language)
            .RunGeneratorsAndUpdateCompilation(
                 compilation,
                 out Compilation output,
@@ -115,22 +143,28 @@ internal static class Verify
                   .ToImmutableArray());
     }
 
-    private static GeneratorDriver Driver() =>
+    private static GeneratorDriver Driver(
+        LanguageVersion language = LanguageVersion.Preview) =>
         CSharpGeneratorDriver.Create(new ErrorCodeCatalogGenerator())
-                             .WithUpdatedParseOptions(ParseOptions);
+                             .WithUpdatedParseOptions(ParseOptions(language));
 
-    private static CSharpParseOptions ParseOptions =>
-        new CSharpParseOptions(LanguageVersion.Preview);
+    private static CSharpParseOptions ParseOptions(
+        LanguageVersion language = LanguageVersion.Preview) =>
+        new CSharpParseOptions(language);
 
     private static CSharpCompilation Compile(
         string source,
-        bool withMonadsReference) =>
+        bool withMonadsReference,
+        LanguageVersion language = LanguageVersion.Preview) =>
         CSharpCompilation.Create(
             "Waystone.Monads.SourceGenerators.Tests.Subject",
-            [CSharpSyntaxTree.ParseText(source, ParseOptions)],
+            [CSharpSyntaxTree.ParseText(source, ParseOptions(language))],
             withMonadsReference ? References : FrameworkReferences,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-               .WithNullableContextOptions(NullableContextOptions.Enable));
+               .WithNullableContextOptions(
+                    language >= LanguageVersion.CSharp8
+                        ? NullableContextOptions.Enable
+                        : NullableContextOptions.Disable));
 
     private static string Emitted(GeneratorDriverRunResult result)
     {
