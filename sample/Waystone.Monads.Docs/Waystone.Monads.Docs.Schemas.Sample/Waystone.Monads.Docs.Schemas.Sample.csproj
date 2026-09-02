@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads.Schemas\Waystone.Monads.Schemas.csproj"/>
+    </ItemGroup>
+
+    <!--
+        Imported by hand because this project takes the library by
+        ProjectReference. A consumer with a PackageReference gets the generator
+        from analyzers/dotnet/cs in the nupkg and writes nothing.
+    -->
+    <Import Project="..\..\..\src\Waystone.Monads.Schemas.SourceGenerators\Waystone.Monads.Schemas.SourceGenerators.props"/>
+
+</Project>

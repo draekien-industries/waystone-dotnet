@@ -26,6 +26,7 @@
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Linq.Sample/Waystone.Monads.Docs.Linq.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.NewtonsoftJson.Sample/Waystone.Monads.Docs.NewtonsoftJson.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Shouldly.Sample/Waystone.Monads.Docs.Shouldly.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Schemas.Sample/Waystone.Monads.Docs.Schemas.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.SourceGeneration.Sample/Waystone.Monads.Docs.SourceGeneration.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.SystemTextJson.Sample/Waystone.Monads.Docs.SystemTextJson.Sample.csproj" />
   </Folder>
