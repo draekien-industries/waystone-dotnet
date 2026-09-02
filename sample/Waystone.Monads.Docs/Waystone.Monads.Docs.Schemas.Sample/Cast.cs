@@ -12,6 +12,7 @@ public enum QuestRank
     Gold,
 }
 
+#region schemas-the-two-types
 public sealed record QuestDto(
     string? Title,
     string? PatronEmail,
@@ -20,10 +21,7 @@ public sealed record QuestDto(
     QuestRank? Rank,
     string? Nickname);
 
-/// <summary>
-/// The thing a parse produces. Its constructor is not public, so the only way to
-/// hold one is to have passed the schema.
-/// </summary>
+/// <summary>The thing a parse produces.</summary>
 public sealed class Quest
 {
     internal Quest(
@@ -46,3 +44,4 @@ public sealed class Quest
 
     public Option<int> PartySize { get; }
 }
+#endregion
