@@ -30,6 +30,8 @@ public static class CollectionSchemaExtensions
     private const string TooMany =
         "Expected {Path} to hold at most {Expected} entries.";
 
+    internal const string TooManyMessage = TooMany;
+
     /// <summary>Requires a list to hold no fewer entries than a bound.</summary>
     /// <typeparam name="TIn">The type the schema accepts.</typeparam>
     /// <typeparam name="T">The type of a parsed entry.</typeparam>
@@ -62,7 +64,10 @@ public static class CollectionSchemaExtensions
     /// <remarks>
     /// Worth setting on anything that arrives from outside. Every entry is parsed
     /// before this rule runs, so an unbounded list is an unbounded amount of work
-    /// on behalf of whoever sent it.
+    /// on behalf of whoever sent it. The overload taking a schema over a list
+    /// counts first and parses nothing when the bound is broken; it is the one
+    /// that binds for <c>Schema.List</c>, and the one to reach for on untrusted
+    /// input.
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="schema" /> is null.
@@ -76,6 +81,35 @@ public static class CollectionSchemaExtensions
             ViolationCode.OutOfRange,
             TooMany,
             count);
+
+    /// <summary>Requires a list to hold no more entries than a bound, counting first.</summary>
+    /// <typeparam name="TIn">The type each entry arrives as.</typeparam>
+    /// <typeparam name="T">The type of a parsed entry.</typeparam>
+    /// <param name="schema">The schema to add the bound to.</param>
+    /// <param name="count">The most entries accepted. Inclusive.</param>
+    /// <returns>A schema that counts the input before parsing any of it.</returns>
+    /// <remarks>
+    /// Binds in preference to the overload above wherever the schema's input is
+    /// the list being counted, which is every <c>Schema.List</c>. The count is
+    /// knowable there without parsing, so a list past the bound costs one
+    /// comparison rather than one parse per entry — the difference between a bound
+    /// that protects a service and a bound that only reports afterwards.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="schema" /> is null.
+    /// </exception>
+    public static Schema<IReadOnlyList<TIn>, IReadOnlyList<T>>
+        MaxCount<TIn, T>(
+            this Schema<IReadOnlyList<TIn>, IReadOnlyList<T>> schema,
+            int count) where TIn : notnull where T : notnull
+    {
+        if (schema is null) throw new ArgumentNullException(nameof(schema));
+
+        return new InputCountSchema<IReadOnlyList<TIn>, IReadOnlyList<T>>(
+            schema,
+            static entries => entries.Count,
+            count);
+    }
 
     /// <summary>Requires a dictionary to hold no fewer entries than a bound.</summary>
     /// <typeparam name="TIn">The type the schema accepts.</typeparam>
@@ -125,4 +159,42 @@ public static class CollectionSchemaExtensions
             ViolationCode.OutOfRange,
             TooMany,
             count);
+
+    /// <summary>
+    /// Requires a dictionary to hold no more entries than a bound, counting first.
+    /// </summary>
+    /// <typeparam name="TKeyIn">The type each key arrives as.</typeparam>
+    /// <typeparam name="TValueIn">The type each value arrives as.</typeparam>
+    /// <typeparam name="TKey">The type of a parsed key.</typeparam>
+    /// <typeparam name="TValue">The type of a parsed value.</typeparam>
+    /// <param name="schema">The schema to add the bound to.</param>
+    /// <param name="count">The most entries accepted. Inclusive.</param>
+    /// <returns>A schema that counts the input before parsing any of it.</returns>
+    /// <remarks>
+    /// The dictionary counterpart of the list overload above, and the one that
+    /// binds for <c>Schema.Dictionary</c>. Counts the entries that arrived rather
+    /// than the ones that parsed, which is the difference that lets it run first.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="schema" /> is null.
+    /// </exception>
+    public static Schema<IReadOnlyDictionary<TKeyIn, TValueIn>,
+        IReadOnlyDictionary<TKey, TValue>> MaxCount<TKeyIn, TValueIn, TKey,
+        TValue>(
+        this Schema<IReadOnlyDictionary<TKeyIn, TValueIn>,
+            IReadOnlyDictionary<TKey, TValue>> schema,
+        int count)
+        where TKeyIn : notnull
+        where TValueIn : notnull
+        where TKey : notnull
+        where TValue : notnull
+    {
+        if (schema is null) throw new ArgumentNullException(nameof(schema));
+
+        return new InputCountSchema<IReadOnlyDictionary<TKeyIn, TValueIn>,
+            IReadOnlyDictionary<TKey, TValue>>(
+            schema,
+            static entries => entries.Count,
+            count);
+    }
 }

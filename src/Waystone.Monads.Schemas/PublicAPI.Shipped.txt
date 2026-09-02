@@ -71,6 +71,7 @@ Waystone.Monads.Schemas.ViolationCode.Malformed = 1 -> Waystone.Monads.Schemas.V
 Waystone.Monads.Schemas.ViolationCode.Mismatched = 4 -> Waystone.Monads.Schemas.ViolationCode
 Waystone.Monads.Schemas.ViolationCode.NotAllowed = 2 -> Waystone.Monads.Schemas.ViolationCode
 Waystone.Monads.Schemas.ViolationCode.OutOfRange = 3 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Truncated = 7 -> Waystone.Monads.Schemas.ViolationCode
 Waystone.Monads.Schemas.ViolationCodeCatalog
 Waystone.Monads.Schemas.ViolationCodeCatalog.Codes
 Waystone.Monads.Schemas.ViolationCodeCatalog.Errors
@@ -94,6 +95,7 @@ const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Malformed = "schema_vio
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Mismatched = "schema_violation.mismatched" -> string!
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.NotAllowed = "schema_violation.not-allowed" -> string!
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.OutOfRange = "schema_violation.out-of-range" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Truncated = "schema_violation.truncated" -> string!
 override Waystone.Monads.Schemas.Checked.Equals(object? obj) -> bool
 override Waystone.Monads.Schemas.Checked.GetHashCode() -> int
 override Waystone.Monads.Schemas.Checked.ToString() -> string!
@@ -115,8 +117,10 @@ static Waystone.Monads.Schemas.BoolSchemaExtensions.IsTrue<TIn>(this Waystone.Mo
 static Waystone.Monads.Schemas.Checked.Instance.get -> Waystone.Monads.Schemas.Checked
 static Waystone.Monads.Schemas.Checked.operator !=(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
 static Waystone.Monads.Schemas.Checked.operator ==(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TIn, T>(this Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyList<TIn>!, System.Collections.Generic.IReadOnlyList<T>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyList<TIn>!, System.Collections.Generic.IReadOnlyList<T>!>!
 static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>!
 static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TIn, TKey, TValue>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>!
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TKeyIn, TValueIn, TKey, TValue>(this Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyDictionary<TKeyIn, TValueIn>!, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyDictionary<TKeyIn, TValueIn>!, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>!
 static Waystone.Monads.Schemas.CollectionSchemaExtensions.MinCount<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>!
 static Waystone.Monads.Schemas.CollectionSchemaExtensions.MinCount<TIn, TKey, TValue>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>!
 static Waystone.Monads.Schemas.ComparableSchemaExtensions.AtLeast<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
@@ -193,6 +197,7 @@ static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Malformed(string! mes
 static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Mismatched(string! message) -> Waystone.Monads.Results.Errors.Error!
 static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.NotAllowed(string! message) -> Waystone.Monads.Results.Errors.Error!
 static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.OutOfRange(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Truncated(string! message) -> Waystone.Monads.Results.Errors.Error!
 static Waystone.Monads.Schemas.ViolationCodeCatalog.ToError(this Waystone.Monads.Schemas.ViolationCode value, string! message) -> Waystone.Monads.Results.Errors.Error!
 static Waystone.Monads.Schemas.ViolationCodeCatalog.ToErrorCode(this Waystone.Monads.Schemas.ViolationCode value) -> Waystone.Monads.Results.Errors.ErrorCode!
 static Waystone.Monads.Schemas.ViolationCodeCatalog.ToErrorCodeName(this Waystone.Monads.Schemas.ViolationCode value) -> string!
@@ -204,3 +209,4 @@ static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Malformed -> 
 static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Mismatched -> Waystone.Monads.Results.Errors.ErrorCode!
 static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.NotAllowed -> Waystone.Monads.Results.Errors.ErrorCode!
 static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.OutOfRange -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Truncated -> Waystone.Monads.Results.Errors.ErrorCode!

@@ -16,11 +16,12 @@ using Waystone.Monads.Results.Errors;
 /// restate the check.
 /// </para>
 /// <para>
-/// Seven kinds cover the whole surface deliberately. A caller that needs finer
+/// Eight kinds cover the whole surface deliberately. A caller that needs finer
 /// detail reads <see cref="Violation.Path" /> to learn where, and
 /// <see cref="Violation.Message" /> to learn what a human should be told; the code
 /// answers only what kind of thing went wrong, which is the part worth writing a
-/// branch against.
+/// branch against. Seven describe the input; <see cref="Truncated" /> describes
+/// the report.
 /// </para>
 /// <para>
 /// The enum carries <see cref="ErrorCodeCatalogAttribute" />, so
@@ -85,4 +86,14 @@ public enum ViolationCode
     /// rather than of either value, since neither one is individually at fault.
     /// </remarks>
     Conflicting,
+
+    /// <summary>A collection had more problems than the report carries.</summary>
+    /// <remarks>
+    /// The one code that describes the report rather than the input. A list or
+    /// dictionary stops gathering after a fixed number of failures, and says so
+    /// with this rather than letting a caller read a partial report as a complete
+    /// one. Every other violation beside it is still a real failure; there are
+    /// simply more that are not listed. Fix those and parse again to see the rest.
+    /// </remarks>
+    Truncated,
 }

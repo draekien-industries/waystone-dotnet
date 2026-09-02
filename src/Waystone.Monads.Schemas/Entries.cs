@@ -4,20 +4,27 @@ using System.Collections.Generic;
 
 internal sealed class Entries<T> where T : notnull
 {
+    private readonly ParseContext _context;
+
     private readonly T[] _parsed;
 
     private readonly List<Violation> _violations = new();
 
     private bool _complete = true;
 
-    internal Entries(int count)
+    private bool _truncated;
+
+    internal Entries(int count, ParseContext context)
     {
         _parsed = new T[count];
+        _context = context;
     }
+
+    internal bool IsFull => _truncated;
 
     internal void Take(int index, Outcome<T> outcome)
     {
-        _violations.AddRange(outcome.Violations);
+        _truncated |= Caps.Gather(_violations, outcome.Violations);
 
         if (outcome.HasValue)
         {
@@ -29,6 +36,17 @@ internal sealed class Entries<T> where T : notnull
         }
     }
 
-    internal Outcome<IReadOnlyList<T>> ToOutcome() =>
-        Gather.ToOutcome<IReadOnlyList<T>>(_complete, _parsed, _violations);
+    internal Outcome<IReadOnlyList<T>> ToOutcome()
+    {
+        if (_truncated)
+        {
+            _complete = false;
+            Caps.Truncate(_violations, _context);
+        }
+
+        return Gather.ToOutcome<IReadOnlyList<T>>(
+            _complete,
+            _parsed,
+            _violations);
+    }
 }

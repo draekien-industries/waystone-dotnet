@@ -9,24 +9,31 @@ internal sealed class Pairs<TKey, TValue>
         "Expected {Path} to parse to a key of its own, but an earlier entry "
       + "already produced {Received}.";
 
+    private readonly ParseContext _context;
+
     private readonly Dictionary<TKey, TValue> _parsed;
 
     private readonly List<Violation> _violations = new();
 
     private bool _complete = true;
 
-    internal Pairs(int count)
+    private bool _truncated;
+
+    internal Pairs(int count, ParseContext context)
     {
         _parsed = new Dictionary<TKey, TValue>(count);
+        _context = context;
     }
+
+    internal bool IsFull => _truncated;
 
     internal void Take(
         ParseContext at,
         Outcome<TKey> key,
         Outcome<TValue> value)
     {
-        _violations.AddRange(key.Violations);
-        _violations.AddRange(value.Violations);
+        _truncated |= Caps.Gather(_violations, key.Violations);
+        _truncated |= Caps.Gather(_violations, value.Violations);
 
         if (!key.HasValue || !value.HasValue)
         {
@@ -37,8 +44,9 @@ internal sealed class Pairs<TKey, TValue>
 
         if (_parsed.ContainsKey(key.Value))
         {
-            _violations.Add(
-                Violations.Create(
+            _truncated |= Caps.Gather(
+                _violations,
+                Violations.One(
                     at,
                     ViolationCodeCatalog.Codes.Duplicate,
                     DuplicateMessage,
@@ -52,9 +60,17 @@ internal sealed class Pairs<TKey, TValue>
         _parsed.Add(key.Value, value.Value);
     }
 
-    internal Outcome<IReadOnlyDictionary<TKey, TValue>> ToOutcome() =>
-        Gather.ToOutcome<IReadOnlyDictionary<TKey, TValue>>(
+    internal Outcome<IReadOnlyDictionary<TKey, TValue>> ToOutcome()
+    {
+        if (_truncated)
+        {
+            _complete = false;
+            Caps.Truncate(_violations, _context);
+        }
+
+        return Gather.ToOutcome<IReadOnlyDictionary<TKey, TValue>>(
             _complete,
             _parsed,
             _violations);
+    }
 }

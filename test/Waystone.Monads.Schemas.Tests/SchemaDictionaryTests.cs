@@ -263,4 +263,62 @@ public sealed class SchemaDictionaryTests
 
         return rates;
     }
+
+    /// <summary>
+    /// The dictionary counterpart of the list bound: counting the entries that
+    /// arrived costs nothing, so an over-large payload is refused before any key
+    /// or value is parsed.
+    /// </summary>
+    [Fact]
+    public void GivenADictionaryPastTheBound_WhenParsing_ThenParseNoEntryAtAll()
+    {
+        var value = new Counting<int>(new PassThrough<int>());
+
+        Outcome<IReadOnlyDictionary<string, int>> outcome =
+            Schema.Dictionary(Schema.Text, value)
+                  .MaxCount(1)
+                  .Evaluate(
+                       new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 },
+                       At);
+
+        value.Evaluations.ShouldBe(0);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldBe("Expected rates to hold at most 1 entries.");
+    }
+
+    [Fact]
+    public void GivenADictionaryWithinTheBound_WhenParsing_ThenParseEveryEntry()
+    {
+        var value = new Counting<int>(new PassThrough<int>());
+
+        Schema.Dictionary(Schema.Text, value)
+              .MaxCount(2)
+              .Evaluate(
+                   new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 },
+                   At)
+              .Violations.ShouldBeEmpty();
+
+        value.Evaluations.ShouldBe(2);
+    }
+
+    [Fact]
+    public void GivenMoreBadEntriesThanTheCap_WhenParsing_ThenStopAndSaySo()
+    {
+        var input = new Dictionary<string, string>();
+
+        for (var index = 0; index < Caps.ViolationsPerNode * 4; index++)
+        {
+            input[index.ToString()] = string.Empty;
+        }
+
+        Outcome<IReadOnlyDictionary<string, string>> outcome =
+            Schema.Dictionary(Schema.Text, Schema.Text.NotEmpty())
+                  .Evaluate(input, At);
+
+        outcome.Violations.Count.ShouldBe(Caps.ViolationsPerNode + 1);
+
+        outcome.Violations[Caps.ViolationsPerNode]
+               .Code.ShouldBe(ViolationCodeCatalog.Codes.Truncated);
+    }
 }
