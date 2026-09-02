@@ -100,4 +100,70 @@ public sealed class ViolationPathTests
         sut.Append("sku").ToString().ShouldBe("items.sku");
         sut.ToString().ShouldBe("items");
     }
+
+    [Fact]
+    public void GivenAPropertyChild_WhenNesting_ThenJoinWithADot()
+    {
+        ViolationPath.Root.Append("order")
+                    .Nest(ViolationPath.Root.Append("email"))
+                    .ToString()
+                    .ShouldBe("order.email");
+    }
+
+    [Fact]
+    public void GivenAnIndexedChild_WhenNesting_ThenJoinWithoutADot()
+    {
+        ViolationPath.Root.Append("order")
+                    .Nest(ViolationPath.Root.AppendIndex(2))
+                    .ToString()
+                    .ShouldBe("order[2]");
+    }
+
+    [Fact]
+    public void GivenAKeyedChild_WhenNesting_ThenJoinWithoutADot()
+    {
+        ViolationPath.Root.Append("rates")
+                    .Nest(ViolationPath.Root.AppendKey("AUD"))
+                    .ToString()
+                    .ShouldBe("rates[\"AUD\"]");
+    }
+
+    [Fact]
+    public void GivenAPath_WhenRenderedTwice_ThenReturnTheSameText()
+    {
+        ViolationPath sut = ViolationPath.Root.Append("items")
+                                        .AppendIndex(3)
+                                        .Append("sku");
+
+        sut.ToString().ShouldBe("items[3].sku");
+        sut.ToString().ShouldBe("items[3].sku");
+    }
+
+    [Fact]
+    public void GivenARootChild_WhenNesting_ThenKeepTheParent()
+    {
+        ViolationPath parent = ViolationPath.Root.Append("order");
+
+        parent.Nest(ViolationPath.Root).ShouldBe(parent);
+    }
+
+    [Fact]
+    public void GivenARootParent_WhenNesting_ThenKeepTheChild()
+    {
+        ViolationPath child = ViolationPath.Root.Append("email");
+
+        ViolationPath.Root.Nest(child).ShouldBe(child);
+    }
+
+    [Fact]
+    public void GivenADeepChild_WhenNesting_ThenKeepEverySegment()
+    {
+        ViolationPath.Root.Append("order")
+                    .Nest(
+                         ViolationPath.Root.Append("items")
+                                     .AppendIndex(3)
+                                     .Append("sku"))
+                    .ToString()
+                    .ShouldBe("order.items[3].sku");
+    }
 }
