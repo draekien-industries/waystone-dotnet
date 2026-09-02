@@ -20,10 +20,11 @@ using System;
 /// for values that are genuinely numeric or temporal.
 /// </para>
 /// <para>
-/// All four report <c>schema_violation.out-of-range</c> and supply the bound to
-/// <c>{Expected}</c>. Both bounds together take two calls —
-/// <c>AtLeast(1).AtMost(10)</c> — and a value outside both is reported twice,
-/// because each is a refinement and refinements do not stop one another.
+/// All of them report <c>schema_violation.out-of-range</c> and supply the bound to
+/// <c>{Expected}</c>. Use <c>Between</c> for a range rather than
+/// <c>AtLeast(1).AtMost(10)</c>: the two spellings accept the same values, but the
+/// chain is two refinements and so reports the range as two separate failures,
+/// while <c>Between</c> reports the one a caller can act on.
 /// </para>
 /// </remarks>
 public static class ComparableSchemaExtensions
@@ -127,4 +128,46 @@ public static class ComparableSchemaExtensions
             ViolationCode.OutOfRange,
             "Expected {Path} to be less than {Expected}, but got {Received}.",
             bound);
+
+    /// <summary>Requires a value to fall within a range.</summary>
+    /// <typeparam name="TIn">The type the schema accepts.</typeparam>
+    /// <typeparam name="T">The ordered type the schema produces.</typeparam>
+    /// <param name="schema">The schema to add the bound to.</param>
+    /// <param name="min">The smallest accepted value. Inclusive.</param>
+    /// <param name="max">The largest accepted value. Inclusive.</param>
+    /// <returns>A schema that applies this bound after everything already on it.</returns>
+    /// <remarks>
+    /// <para>
+    /// Both ends are inclusive, matching <c>AtLeast</c> and <c>AtMost</c>. For a
+    /// half-open range chain those two, or <c>GreaterThan</c> and <c>LessThan</c>
+    /// for an open one — this rule is the common case rather than every case.
+    /// </para>
+    /// <para>
+    /// Default message: <c>Expected {Path} to be between {Expected}, but got
+    /// {Received}.</c>, where <c>{Expected}</c> renders both ends.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="schema" /> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// If <paramref name="max" /> orders before <paramref name="min" />, which
+    /// describes a range no value can satisfy. Thrown when the schema is built
+    /// rather than when it parses, so the mistake surfaces at startup.
+    /// </exception>
+    public static Schema<TIn, T> Between<TIn, T>(
+        this Schema<TIn, T> schema,
+        T min,
+        T max)
+        where TIn : notnull where T : notnull, IComparable<T>
+    {
+        Rules.RequireOrdered(min, max, nameof(max));
+
+        return Rules.Add(
+            schema,
+            value => value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0,
+            ViolationCode.OutOfRange,
+            "Expected {Path} to be between {Expected}, but got {Received}.",
+            $"{min} and {max}");
+    }
 }

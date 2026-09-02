@@ -30,6 +30,9 @@ internal sealed class ForbiddenField<T> : Field<Checked> where T : notnull
             : Outcome<Checked>.Passed(Checked.Instance);
     }
 
+    internal override Field<Checked> WithName(string name) =>
+        new ForbiddenField<T>(_value, name, _message);
+
     internal override void OnlyThisAssemblyMayDerive()
     {
     }

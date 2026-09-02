@@ -36,6 +36,9 @@ internal sealed class RequiredField<TIn, TOut> : Field<TOut>
                     _message));
     }
 
+    internal override Field<TOut> WithName(string name) =>
+        new RequiredField<TIn, TOut>(_value, _schema, name, _message);
+
     internal override void OnlyThisAssemblyMayDerive()
     {
     }
