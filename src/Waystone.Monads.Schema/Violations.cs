@@ -5,6 +5,13 @@ using Waystone.Monads.Results.Errors;
 
 internal static class Violations
 {
+    internal const string AbsentMessage = "Expected {Path} to be present.";
+
+    internal static Outcome<T> Absent<T>(ParseContext context)
+        where T : notnull =>
+        Outcome<T>.Failed(
+            One(context, ViolationCodeCatalog.Codes.Incomplete, AbsentMessage));
+
     internal static Violation Create(
         ParseContext context,
         ErrorCode code,
