@@ -9,7 +9,8 @@ internal static class Violations
         ParseContext context,
         ErrorCode code,
         string template,
-        object? received = null) =>
+        object? received = null,
+        object? expected = null) =>
         new(
             context.Path,
             code,
@@ -18,21 +19,24 @@ internal static class Violations
                 context.Path,
                 code,
                 received,
+                expected,
                 context.IsSensitive));
 
     internal static IReadOnlyList<Violation> One(
         ParseContext context,
         ErrorCode code,
         string template,
-        object? received = null) =>
-        new[] { Create(context, code, template, received) };
+        object? received = null,
+        object? expected = null) =>
+        new[] { Create(context, code, template, received, expected) };
 
     internal static IReadOnlyList<Violation> Add(
         IReadOnlyList<Violation> existing,
         ParseContext context,
         ErrorCode code,
         string template,
-        object? received = null)
+        object? received = null,
+        object? expected = null)
     {
         var violations = new Violation[existing.Count + 1];
 
@@ -41,7 +45,8 @@ internal static class Violations
             violations[index] = existing[index];
         }
 
-        violations[existing.Count] = Create(context, code, template, received);
+        violations[existing.Count] =
+            Create(context, code, template, received, expected);
 
         return violations;
     }

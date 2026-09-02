@@ -18,7 +18,7 @@ using Waystone.Monads.Options;
 /// Deriving from it gains nothing, since it declares no instance members.
 /// </para>
 /// </remarks>
-public abstract class Schema
+public abstract partial class Schema
 {
     /// <summary>Creates a schema entry point.</summary>
     /// <remarks>

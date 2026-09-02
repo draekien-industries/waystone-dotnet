@@ -24,5 +24,6 @@ internal sealed class MessageSchema<TIn, TOut> : RewritingSchema<TIn, TOut>
                 violation.Path,
                 violation.Code,
                 input,
+                null,
                 context.IsSensitive));
 }

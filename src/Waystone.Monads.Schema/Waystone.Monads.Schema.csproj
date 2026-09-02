@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
         <LangVersion>latestMajor</LangVersion>
         <Nullable>enable</Nullable>
         <NoWarn>CS1591</NoWarn>
@@ -39,9 +39,25 @@
     <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
     <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
 
+    <!--
+        The baseline is split rather than duplicated. PublicApiAnalyzers unions
+        every AdditionalFile of a given name, so the root pair carries the surface
+        both target frameworks share and each folder carries only what that one
+        alone has. Copying the shared rows into two files instead would leave two
+        lists to keep in step, and nothing in the build compares them.
+
+        Two things land in a folder rather than the root. Schema.Date is net8.0
+        only, because DateOnly is, and PolySharp does not polyfill it. Less
+        obviously, SchemaViolation's compiler-generated <Clone>$ returns Error on
+        netstandard2.0 and SchemaViolation on net8.0 — a derived record gets a
+        covariant return only where the runtime supports one — so that row cannot
+        be shared either.
+    -->
     <ItemGroup>
         <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
         <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+        <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Unshipped.txt"/>
     </ItemGroup>
 
     <ItemGroup>
