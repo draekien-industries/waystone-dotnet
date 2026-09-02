@@ -159,8 +159,8 @@ public sealed class SchemaCombinatorTests
                .Message.ShouldBe(
                     "Expected contact to satisfy one of the permitted alternatives.");
 
-        outcome.Violations[1].Path.ToString().ShouldBe("contact[0]");
-        outcome.Violations[2].Path.ToString().ShouldBe("contact[1]");
+        outcome.Violations[1].Path.ToString().ShouldBe("contact{0}");
+        outcome.Violations[2].Path.ToString().ShouldBe("contact{1}");
     }
 
     [Fact]
@@ -178,7 +178,7 @@ public sealed class SchemaCombinatorTests
                                                .CancellationToken);
 
         outcome.Violations.Count.ShouldBe(3);
-        outcome.Violations[2].Path.ToString().ShouldBe("contact[1]");
+        outcome.Violations[2].Path.ToString().ShouldBe("contact{1}");
     }
 
     [Fact]
@@ -211,7 +211,7 @@ public sealed class SchemaCombinatorTests
 
         outcome.Violations[2]
                .Path.ToString()
-               .ShouldBe("contact[1].byPhone");
+               .ShouldBe("contact{1}.byPhone");
     }
 
     [Fact]

@@ -17,6 +17,16 @@ Waystone.Monads.Schemas.FieldAccumulator.Take<T>(Waystone.Monads.Schemas.Field<T
 Waystone.Monads.Schemas.FieldExtensions
 Waystone.Monads.Schemas.IdSchemaExtensions
 Waystone.Monads.Schemas.NumberSchemaExtensions
+Waystone.Monads.Schemas.PathSegment
+Waystone.Monads.Schemas.PathSegment.Equals(Waystone.Monads.Schemas.PathSegment other) -> bool
+Waystone.Monads.Schemas.PathSegment.Kind.get -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegment.PathSegment() -> void
+Waystone.Monads.Schemas.PathSegment.Text.get -> string!
+Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Branch = 3 -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Index = 1 -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Key = 2 -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Property = 0 -> Waystone.Monads.Schemas.PathSegmentKind
 Waystone.Monads.Schemas.Schema
 Waystone.Monads.Schemas.Schema.Number
 Waystone.Monads.Schemas.Schema.Schema() -> void
@@ -75,6 +85,7 @@ Waystone.Monads.Schemas.ViolationCollection.this[int index].get -> Waystone.Mona
 Waystone.Monads.Schemas.ViolationPath
 Waystone.Monads.Schemas.ViolationPath.Equals(Waystone.Monads.Schemas.ViolationPath? other) -> bool
 Waystone.Monads.Schemas.ViolationPath.IsRoot.get -> bool
+Waystone.Monads.Schemas.ViolationPath.Segments.get -> System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.PathSegment>!
 abstract Waystone.Monads.Schemas.SchemaConfig<TIn, TOut>.Configure(TIn subject) -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Conflicting = "schema_violation.conflicting" -> string!
 const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Duplicate = "schema_violation.duplicate" -> string!
@@ -86,6 +97,9 @@ const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.OutOfRange = "schema_vi
 override Waystone.Monads.Schemas.Checked.Equals(object? obj) -> bool
 override Waystone.Monads.Schemas.Checked.GetHashCode() -> int
 override Waystone.Monads.Schemas.Checked.ToString() -> string!
+override Waystone.Monads.Schemas.PathSegment.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.PathSegment.GetHashCode() -> int
+override Waystone.Monads.Schemas.PathSegment.ToString() -> string!
 override Waystone.Monads.Schemas.SchemaViolation.Equals(object? obj) -> bool
 override Waystone.Monads.Schemas.SchemaViolation.GetHashCode() -> int
 override Waystone.Monads.Schemas.SchemaViolation.ToString() -> string!
@@ -121,6 +135,8 @@ static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Wayston
 static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Waystone.Monads.Schemas.Schema<TIn, double>! schema) -> Waystone.Monads.Schemas.Schema<TIn, double>!
 static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Waystone.Monads.Schemas.Schema<TIn, int>! schema) -> Waystone.Monads.Schemas.Schema<TIn, int>!
 static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Waystone.Monads.Schemas.Schema<TIn, long>! schema) -> Waystone.Monads.Schemas.Schema<TIn, long>!
+static Waystone.Monads.Schemas.PathSegment.operator !=(Waystone.Monads.Schemas.PathSegment left, Waystone.Monads.Schemas.PathSegment right) -> bool
+static Waystone.Monads.Schemas.PathSegment.operator ==(Waystone.Monads.Schemas.PathSegment left, Waystone.Monads.Schemas.PathSegment right) -> bool
 static Waystone.Monads.Schemas.Schema.All<TIn, TOut>(params Waystone.Monads.Schemas.Schema<TIn, TOut>![]! branches) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 static Waystone.Monads.Schemas.Schema.Any<TIn, TOut>(params Waystone.Monads.Schemas.Schema<TIn, TOut>![]! branches) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 static Waystone.Monads.Schemas.Schema.Bool.get -> Waystone.Monads.Schemas.Schema<bool, bool>!

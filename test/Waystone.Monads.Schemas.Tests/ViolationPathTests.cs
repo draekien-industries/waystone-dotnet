@@ -202,4 +202,98 @@ public sealed class ViolationPathTests
     {
         ViolationPath.Root.Rename("sku").ToString().ShouldBe("sku");
     }
+
+    /// <summary>
+    /// A union branch and a list position are different things. Rendered with the
+    /// same brackets they were indistinguishable, so anything mapping a path onto
+    /// a form field pointed at the wrong one.
+    /// </summary>
+    [Fact]
+    public void GivenABranch_WhenRendering_ThenTellItApartFromAnIndex()
+    {
+        ViolationPath branch =
+            ViolationPath.Root.Append("payment").AppendBranch(0);
+
+        ViolationPath item = ViolationPath.Root.Append("payment").AppendIndex(0);
+
+        branch.ToString().ShouldBe("payment{0}");
+        item.ToString().ShouldBe("payment[0]");
+        branch.ShouldNotBe(item);
+    }
+
+    /// <summary>
+    /// A key holding the punctuation the renderer uses would otherwise render as
+    /// two lookups, and <c>ByPath</c> groups on that text, so two unrelated
+    /// failures merged into one entry.
+    /// </summary>
+    [Fact]
+    public void GivenAKeyHoldingPunctuation_WhenRendering_ThenEscapeIt()
+    {
+        ViolationPath forged =
+            ViolationPath.Root.Append("rates").AppendKey("a\"][\"b");
+
+        ViolationPath nested = ViolationPath.Root.Append("rates")
+                                            .AppendKey("a")
+                                            .AppendKey("b");
+
+        forged.ToString().ShouldBe("rates[\"a\\\"][\\\"b\"]");
+        nested.ToString().ShouldBe("rates[\"a\"][\"b\"]");
+        forged.ToString().ShouldNotBe(nested.ToString());
+        forged.ShouldNotBe(nested);
+    }
+
+    [Fact]
+    public void GivenABackslashInAKey_WhenRendering_ThenEscapeItToo() =>
+        ViolationPath.Root.Append("rates")
+                     .AppendKey("a\\b")
+                     .ToString()
+                     .ShouldBe("rates[\"a\\\\b\"]");
+
+    /// <summary>
+    /// The form a caller branches on. Reading the rendered text would mean
+    /// deciding what a bracket meant, which is the thing that was ambiguous.
+    /// </summary>
+    [Fact]
+    public void GivenAPath_WhenReadingItsSegments_ThenReportEachKind()
+    {
+        ViolationPath sut = ViolationPath.Root.Append("payment")
+                                         .AppendBranch(1)
+                                         .AppendIndex(3)
+                                         .AppendKey("AUD");
+
+        sut.Segments.Count.ShouldBe(4);
+
+        sut.Segments[0].ShouldBe(
+            new PathSegment(PathSegmentKind.Property, "payment"));
+
+        sut.Segments[1].Kind.ShouldBe(PathSegmentKind.Branch);
+        sut.Segments[2].Kind.ShouldBe(PathSegmentKind.Index);
+        sut.Segments[3].Kind.ShouldBe(PathSegmentKind.Key);
+        sut.Segments[3].Text.ShouldBe("AUD");
+    }
+
+    [Fact]
+    public void GivenRoot_WhenReadingItsSegments_ThenReportNone() =>
+        ViolationPath.Root.Segments.ShouldBeEmpty();
+
+    [Fact]
+    public void GivenTheSameSteps_WhenComparing_ThenBeEqual()
+    {
+        ViolationPath left = ViolationPath.Root.Append("items").AppendIndex(3);
+        ViolationPath right = ViolationPath.Root.Append("items").AppendIndex(3);
+
+        left.ShouldBe(right);
+        left.GetHashCode().ShouldBe(right.GetHashCode());
+    }
+
+    [Fact]
+    public void GivenADefaultSegment_WhenReadingIt_ThenReportEmptyText()
+    {
+        PathSegment sut = default;
+
+        sut.Text.ShouldBe(string.Empty);
+        sut.ToString().ShouldBe(string.Empty);
+        (sut == default).ShouldBeTrue();
+        (sut != new PathSegment(PathSegmentKind.Index, "0")).ShouldBeTrue();
+    }
 }

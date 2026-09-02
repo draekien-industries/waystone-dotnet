@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Schemas;
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
@@ -10,13 +11,16 @@ using System.Text;
 /// Renders the way a reader would write the access by hand, so
 /// <c>items[3].sku</c> is the <c>sku</c> of the fourth entry of <c>items</c>. A
 /// dictionary key renders in quotation marks — <c>rates["AUD"]</c> — so a numeric
-/// key stays distinguishable from a list position.
+/// key stays distinguishable from a list position, and a quotation mark or
+/// backslash inside a key is escaped so that a key cannot forge a path of its
+/// own. A failed <c>Schema.Any</c> branch renders in braces — <c>payment{0}</c> —
+/// which is what keeps it apart from a list position.
 /// </para>
 /// <para>
-/// Compare and group by the rendered form through
-/// <see cref="ViolationCollection.ByPath" /> rather than taking the path apart.
-/// The segments are deliberately not exposed: the rendering is the contract, and
-/// the representation behind it is free to change.
+/// <see cref="Segments" /> is the form to branch on. The rendered text is built
+/// for a human, and a caller deciding what to do with a violation should ask a
+/// segment its <see cref="PathSegment.Kind" /> rather than look for brackets —
+/// a list position and a union branch are different things that read alike.
 /// </para>
 /// <para>
 /// Immutable and safe to share. Every path is built by the parse and handed out
@@ -25,22 +29,16 @@ using System.Text;
 /// </remarks>
 public sealed class ViolationPath : IEquatable<ViolationPath>
 {
-    private static readonly Segment[] NoSegments = Array.Empty<Segment>();
+    private static readonly PathSegment[] NoSegments =
+        Array.Empty<PathSegment>();
 
-    private readonly Segment[] _segments;
+    private readonly PathSegment[] _segments;
 
     private string? _rendered;
 
-    private ViolationPath(Segment[] segments)
+    private ViolationPath(PathSegment[] segments)
     {
         _segments = segments;
-    }
-
-    private enum SegmentKind
-    {
-        Property,
-        Index,
-        Key,
     }
 
     /// <summary>Gets the path of the value that was passed to the schema itself.</summary>
@@ -58,12 +56,37 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
     /// </remarks>
     public bool IsRoot => _segments.Length == 0;
 
+    /// <summary>Gets the steps of the path, outermost first.</summary>
+    /// <remarks>
+    /// Empty for <see cref="Root" />. This is the form to branch on: it says
+    /// whether a step is a list position or a union branch, which the rendered
+    /// text leaves a reader to guess at.
+    /// </remarks>
+    public IReadOnlyList<PathSegment> Segments => _segments;
+
     /// <summary>Checks whether another path locates the same place.</summary>
+    /// <remarks>
+    /// Compares the segments, not the rendered text. Two paths that render alike
+    /// are still unequal if they got there differently — a dictionary key holding
+    /// bracket punctuation against the nested lookup it imitates, say.
+    /// </remarks>
     /// <param name="other">The path to compare against. Null is never equal.</param>
-    /// <returns>True if both render identically; false otherwise.</returns>
-    public bool Equals(ViolationPath? other) =>
-        other is not null
-     && string.Equals(ToString(), other.ToString(), StringComparison.Ordinal);
+    /// <returns>True if both locate the same place by the same steps; false otherwise.</returns>
+    public bool Equals(ViolationPath? other)
+    {
+        if (other is null) return false;
+
+        if (ReferenceEquals(this, other)) return true;
+
+        if (_segments.Length != other._segments.Length) return false;
+
+        for (var index = 0; index < _segments.Length; index++)
+        {
+            if (!_segments[index].Equals(other._segments[index])) return false;
+        }
+
+        return true;
+    }
 
     /// <summary>Returns the path as a reader would write the access.</summary>
     /// <returns>
@@ -80,19 +103,36 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
     public override bool Equals(object? obj) => Equals(obj as ViolationPath);
 
     /// <inheritdoc />
-    public override int GetHashCode() =>
-        StringComparer.Ordinal.GetHashCode(ToString());
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hash = 17;
+
+            foreach (PathSegment segment in _segments)
+            {
+                hash = (hash * 397) ^ segment.GetHashCode();
+            }
+
+            return hash;
+        }
+    }
 
     internal ViolationPath Append(string property) =>
-        With(new Segment(SegmentKind.Property, property));
+        With(new PathSegment(PathSegmentKind.Property, property));
 
     internal ViolationPath AppendIndex(int index) => With(
-        new Segment(
-            SegmentKind.Index,
+        new PathSegment(
+            PathSegmentKind.Index,
             index.ToString(CultureInfo.InvariantCulture)));
 
     internal ViolationPath AppendKey(string key) =>
-        With(new Segment(SegmentKind.Key, key));
+        With(new PathSegment(PathSegmentKind.Key, key));
+
+    internal ViolationPath AppendBranch(int branch) => With(
+        new PathSegment(
+            PathSegmentKind.Branch,
+            branch.ToString(CultureInfo.InvariantCulture)));
 
     internal ViolationPath Nest(ViolationPath child)
     {
@@ -100,7 +140,7 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
 
         if (IsRoot) return child;
 
-        var segments = new Segment[_segments.Length + child._segments.Length];
+        var segments = new PathSegment[_segments.Length + child._segments.Length];
 
         Array.Copy(_segments, segments, _segments.Length);
 
@@ -117,24 +157,24 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
     internal ViolationPath Rename(string property)
     {
         if (_segments.Length == 0
-         || _segments[_segments.Length - 1].Kind != SegmentKind.Property)
+         || _segments[_segments.Length - 1].Kind != PathSegmentKind.Property)
         {
             return Append(property);
         }
 
-        var segments = new Segment[_segments.Length];
+        var segments = new PathSegment[_segments.Length];
 
         Array.Copy(_segments, segments, _segments.Length);
 
         segments[_segments.Length - 1] =
-            new Segment(SegmentKind.Property, property);
+            new PathSegment(PathSegmentKind.Property, property);
 
         return new ViolationPath(segments);
     }
 
-    private ViolationPath With(Segment segment)
+    private ViolationPath With(PathSegment segment)
     {
-        var segments = new Segment[_segments.Length + 1];
+        var segments = new PathSegment[_segments.Length + 1];
 
         Array.Copy(_segments, segments, _segments.Length);
         segments[_segments.Length] = segment;
@@ -148,15 +188,20 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
 
         var builder = new StringBuilder();
 
-        foreach (Segment segment in _segments)
+        foreach (PathSegment segment in _segments)
         {
             switch (segment.Kind)
             {
-                case SegmentKind.Index:
+                case PathSegmentKind.Index:
                     builder.Append('[').Append(segment.Text).Append(']');
                     break;
-                case SegmentKind.Key:
-                    builder.Append("[\"").Append(segment.Text).Append("\"]");
+                case PathSegmentKind.Branch:
+                    builder.Append('{').Append(segment.Text).Append('}');
+                    break;
+                case PathSegmentKind.Key:
+                    builder.Append("[\"");
+                    Escape(builder, segment.Text);
+                    builder.Append("\"]");
                     break;
                 default:
                     if (builder.Length > 0) builder.Append('.');
@@ -168,16 +213,14 @@ public sealed class ViolationPath : IEquatable<ViolationPath>
         return builder.ToString();
     }
 
-    private readonly struct Segment
+    private static void Escape(StringBuilder builder, string key)
     {
-        internal Segment(SegmentKind kind, string text)
+        foreach (char character in key)
         {
-            Kind = kind;
-            Text = text;
+            if (character is '"' or '\\') builder.Append('\\');
+
+            builder.Append(character);
         }
-
-        internal SegmentKind Kind { get; }
-
-        internal string Text { get; }
     }
+
 }
