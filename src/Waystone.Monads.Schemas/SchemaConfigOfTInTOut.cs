@@ -70,21 +70,21 @@ public abstract class SchemaConfig<TIn, TOut> : Schema<TIn, TOut>
                 context,
                 static (value, _) => Outcome<TOut>.Passed(value),
                 static (violation, inner) => Outcome<TOut>.Failed(
-                    Rebase(violation.Violations, inner)));
+                    Nest(violation.Violations, inner)));
 
-    private static IReadOnlyList<Violation> Rebase(
+    private static IReadOnlyList<Violation> Nest(
         ViolationCollection violations,
         ParseContext context)
     {
-        if (context.Path.IsRoot) return violations;
+        if (context.Path.IsRoot && !context.IsSensitive) return violations;
 
-        var rebased = new Violation[violations.Count];
+        var nested = new Violation[violations.Count];
 
         for (var index = 0; index < violations.Count; index++)
         {
-            rebased[index] = violations[index].Rebase(context.Path);
+            nested[index] = violations[index].Nested(context);
         }
 
-        return rebased;
+        return nested;
     }
 }

@@ -18,12 +18,5 @@ internal sealed class MessageSchema<TIn, TOut> : RewritingSchema<TIn, TOut>
         Violation violation,
         TIn input,
         ParseContext context) =>
-        violation.Retold(
-            MessageTemplate.Render(
-                _template,
-                violation.Path,
-                violation.Code,
-                input,
-                null,
-                context.IsSensitive));
+        violation.Retold(_template, input, context.IsSensitive);
 }

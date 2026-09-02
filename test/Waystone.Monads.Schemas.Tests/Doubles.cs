@@ -143,3 +143,23 @@ internal sealed class Counting<T> : Schema<T, T> where T : notnull
         return _inner.EvaluateAsync(input, context, cancellationToken);
     }
 }
+
+/// <summary>
+/// A schema declared the way a consumer declares one, so that a rule inside it
+/// is reached through <c>SchemaConfig.Evaluate</c> rather than directly. The
+/// hand-written <c>Configure</c> body stands in for the generated ladder.
+/// </summary>
+internal sealed class NestedSecret : SchemaConfig<string, string>
+{
+    protected override Result<string, SchemaViolation> Configure(string subject)
+    {
+        FieldAccumulator fields = FieldAccumulator.Start();
+
+        string token = fields.Take(
+            Schema.Required(subject, new Rejects<string>()));
+
+        return fields.HasViolations
+            ? fields.Failed<string>()
+            : Result.Ok<string, SchemaViolation>(token);
+    }
+}
