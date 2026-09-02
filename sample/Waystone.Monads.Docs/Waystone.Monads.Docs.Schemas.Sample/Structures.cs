@@ -1,10 +1,14 @@
 namespace Waystone.Monads.Docs.Schemas.Sample;
 
+using System.Text.RegularExpressions;
 using Waystone.Monads.Schemas;
 
 /// <summary>packages/schemas/structures.md</summary>
-internal static class StructuresPage
+internal static partial class StructuresPage
 {
+    [GeneratedRegex("^[a-z-]+$", RegexOptions.None, 1000)]
+    private static partial Regex BountyName { get; }
+
     #region schema-structures-list
     // Every item is parsed, so a bad item at index 3 does not hide a bad one at
     // index 7. Both are reported.
@@ -26,7 +30,7 @@ internal static class StructuresPage
     public static readonly
         Schema<IReadOnlyDictionary<string, int>, IReadOnlyDictionary<string, int>>
         Bounties = Schema.Dictionary(
-                              Schema.Text.Trim().Matches("^[a-z-]+$"),
+                              Schema.Text.Trim().Matches(BountyName),
                               Schema.Number.Int32.Positive())
                          .MaxCount(50);
     #endregion

@@ -178,7 +178,6 @@ static Waystone.Monads.Schemas.TextSchemaExtensions.EndsWith<TIn>(this Waystone.
 static Waystone.Monads.Schemas.TextSchemaExtensions.Length<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int length) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.LengthBetween<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int min, int max) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.Matches<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.Text.RegularExpressions.Regex! pattern) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
-static Waystone.Monads.Schemas.TextSchemaExtensions.Matches<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, string! pattern) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.MaxLength<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int length) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.MinLength<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int length) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.NotEmpty<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!

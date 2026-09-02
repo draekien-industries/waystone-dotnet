@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using Waystone.Monads.Schemas;
 
 /// <summary>packages/schemas/primitives.md</summary>
-internal static class PrimitivesPage
+internal static partial class PrimitivesPage
 {
     #region schema-primitives-text
     public static readonly Schema<string, string> Sigil =
@@ -27,15 +27,24 @@ internal static class PrimitivesPage
     #endregion
 
     #region schema-primitives-text-pattern
-    // A string pattern is compiled once and matched with a one-second timeout, so
-    // a pathological input cannot hang the parse.
-    public static readonly Schema<string, string> Rune =
-        Schema.Text.Matches("^[a-z-]+$");
+    // Matches takes a Regex rather than a pattern string, which is what puts the
+    // choice of a match timeout in front of you. [GeneratedRegex] compiles the
+    // expression at build time instead of at start-up.
+    [GeneratedRegex("^[a-z-]+$", RegexOptions.None, matchTimeoutMilliseconds: 1000)]
+    private static partial Regex RunePattern { get; }
 
-    // Pass a Regex when you need options the string overload does not set.
+    public static readonly Schema<string, string> Rune =
+        Schema.Text.Matches(RunePattern);
+
+    // Build it by hand where the expression is not known at compile time. Give it
+    // a timeout: the pattern is yours, the value is not, and an expression with no
+    // ceiling runs against a crafted input for as long as that input takes.
     public static readonly Schema<string, string> Incantation =
         Schema.Text.Matches(
-            new Regex(@"^\p{L}[\p{L}\s]*$", RegexOptions.CultureInvariant));
+            new Regex(
+                @"^\p{L}[\p{L}\s]*$",
+                RegexOptions.CultureInvariant,
+                TimeSpan.FromSeconds(1)));
     #endregion
 
     #region schema-primitives-text-shapes

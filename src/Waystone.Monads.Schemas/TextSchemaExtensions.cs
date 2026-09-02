@@ -13,8 +13,6 @@ using System.Text.RegularExpressions;
 /// </remarks>
 public static class TextSchemaExtensions
 {
-    private static readonly TimeSpan MatchTimeout = TimeSpan.FromSeconds(1);
-
     /// <summary>Removes the whitespace from both ends of the value.</summary>
     /// <typeparam name="TIn">The type the schema accepts.</typeparam>
     /// <param name="schema">The schema whose value to trim.</param>
@@ -109,59 +107,35 @@ public static class TextSchemaExtensions
             "Expected {Path} to be at most {Expected} characters.",
             length);
 
-    /// <summary>Requires the value to match a regular expression.</summary>
-    /// <typeparam name="TIn">The type the schema accepts.</typeparam>
-    /// <param name="schema">The schema to add the rule to.</param>
-    /// <param name="pattern">
-    /// The expression, which has to be found <i>somewhere</i> in the value unless
-    /// you anchor it with <c>^</c> and <c>$</c>. Compiled once when the schema is
-    /// built, not once per parse, and reaches the message through
-    /// <c>{Expected}</c>.
-    /// </param>
-    /// <returns>A schema that applies this rule after everything already on it.</returns>
-    /// <remarks>
-    /// Matching is given one second, after which it throws rather than blocking the
-    /// caller. That is a guard against a pattern whose cost explodes on a crafted
-    /// input, which is a live risk here because the pattern is yours and the value
-    /// is not. Pass a <see cref="Regex" /> you built yourself to choose a different
-    /// limit, or to use a source-generated one.
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// If <paramref name="schema" /> or <paramref name="pattern" /> is null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// If <paramref name="pattern" /> is not a valid regular expression.
-    /// </exception>
-    /// <exception cref="RegexMatchTimeoutException">
-    /// Thrown from the parse, not from here, if matching a value takes longer than
-    /// a second.
-    /// </exception>
-    public static Schema<TIn, string> Matches<TIn>(
-        this Schema<TIn, string> schema,
-        [StringSyntax(StringSyntaxAttribute.Regex)]
-        string pattern) where TIn : notnull
-    {
-        if (pattern is null) throw new ArgumentNullException(nameof(pattern));
-
-        return Matches(
-            schema,
-            new Regex(pattern, RegexOptions.None, MatchTimeout));
-    }
-
     /// <summary>Requires the value to match a regular expression you built.</summary>
     /// <typeparam name="TIn">The type the schema accepts.</typeparam>
     /// <param name="schema">The schema to add the rule to.</param>
     /// <param name="pattern">
-    /// The expression. Take this overload to set <see cref="RegexOptions" />, to
-    /// choose your own match timeout, or to pass a source-generated
-    /// <see cref="Regex" />; the string overload fixes all three.
+    /// The expression, which has to be found <i>somewhere</i> in the value unless
+    /// you anchor it with <c>^</c> and <c>$</c>. Reaches the message through
+    /// <c>{Expected}</c>.
     /// </param>
     /// <returns>A schema that applies this rule after everything already on it.</returns>
     /// <remarks>
+    /// <para>
+    /// There is deliberately no overload taking a pattern string. Building the
+    /// <see cref="Regex" /> yourself is what puts the choice of
+    /// <see cref="RegexOptions" /> and of a match timeout in front of you, and it
+    /// is what lets the compiler point you at <c>[GeneratedRegex]</c>. A string
+    /// overload would have made the interpreted, uncached spelling the shortest
+    /// one to write.
+    /// </para>
+    /// <para>
+    /// <b>Give it a match timeout.</b> An expression built with none runs against
+    /// an untrusted value for as long as it takes, and the pattern is yours while
+    /// the value is not — which is the shape of a denial of service. One second is
+    /// a reasonable ceiling. A timeout surfaces as
+    /// <see cref="RegexMatchTimeoutException" /> from the parse, not from here.
+    /// </para>
+    /// <para>
     /// <see cref="Regex" /> is thread-safe for matching, so one instance is safely
-    /// shared by every parse this schema runs. Give it a match timeout — an
-    /// expression built with none will run against an untrusted value for as long
-    /// as it takes.
+    /// shared by every parse this schema runs. Build it once, in a static field.
+    /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="schema" /> or <paramref name="pattern" /> is null.
