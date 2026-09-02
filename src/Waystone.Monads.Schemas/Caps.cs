@@ -22,44 +22,80 @@ internal static class Caps
     internal const int ViolationsPerNode = 64;
 
     /// <summary>
-    /// Whether the gathered list has no room left, which is the signal to stop
-    /// examining entries rather than a claim that anything was lost.
-    /// </summary>
-    internal static bool IsFull(List<Violation> violations) =>
-        violations.Count >= ViolationsPerNode;
-
-    /// <summary>
-    /// Adds what a nested outcome reported, up to the cap, and reports whether any
-    /// of it had to be left out.
+    /// What one list or dictionary has gathered, and whether that report is missing
+    /// anything.
     /// </summary>
     /// <remarks>
-    /// Reaching the cap is not the same as losing something: a report that fills the
-    /// last slot exactly has lost nothing, and saying otherwise would append
-    /// "there are more" to a report that lists every problem there is.
+    /// Held by both accumulators rather than written into each. A list and a
+    /// dictionary differ in what an entry is, not in how a full report is decided,
+    /// and the two halves of the decision are easy to conflate: being full is the
+    /// signal to stop examining entries, while only a violation that did not fit or
+    /// an entry never examined makes the report incomplete. Getting that wrong
+    /// appends "there are more" to a report that already lists everything.
     /// </remarks>
-    internal static bool Gather(
-        List<Violation> violations,
-        IReadOnlyList<Violation> reported)
+    internal sealed class Report
     {
-        var index = 0;
+        private readonly ParseContext _context;
 
-        for (; index < reported.Count && !IsFull(violations); index++)
+        private readonly int _total;
+
+        private readonly List<Violation> _violations = new();
+
+        private bool _dropped;
+
+        private int _examined;
+
+        internal Report(int total, ParseContext context)
         {
-            violations.Add(reported[index]);
+            _total = total;
+            _context = context;
         }
 
-        return index < reported.Count;
-    }
+        /// <summary>
+        /// Whether there is no room left. The signal to stop examining entries, not
+        /// a claim that anything has been lost.
+        /// </summary>
+        internal bool IsFull => _violations.Count >= ViolationsPerNode;
 
-    internal static void Truncate(
-        List<Violation> violations,
-        ParseContext context)
-    {
-        violations.Add(
-            Violations.Create(
-                context,
-                ViolationCodeCatalog.ToErrorCode(ViolationCode.Truncated),
-                TruncatedMessage,
-                expected: ViolationsPerNode));
+        /// <summary>
+        /// Whether the report is missing something: a violation that did not fit, or
+        /// an entry the caller stopped short of handing over once it was full.
+        /// </summary>
+        internal bool Truncated => _dropped || _examined < _total;
+
+        /// <summary>Records that one more entry was handed over.</summary>
+        internal void Examined() => _examined++;
+
+        /// <summary>Adds what a nested outcome reported, up to the cap.</summary>
+        internal void Take(IReadOnlyList<Violation> reported)
+        {
+            var index = 0;
+
+            for (; index < reported.Count && !IsFull; index++)
+            {
+                _violations.Add(reported[index]);
+            }
+
+            _dropped |= index < reported.Count;
+        }
+
+        /// <summary>
+        /// The gathered violations, with the truncation violation appended if
+        /// anything is missing. Call once.
+        /// </summary>
+        internal List<Violation> Close()
+        {
+            if (Truncated)
+            {
+                _violations.Add(
+                    Violations.Create(
+                        _context,
+                        ViolationCodeCatalog.ToErrorCode(ViolationCode.Truncated),
+                        TruncatedMessage,
+                        expected: ViolationsPerNode));
+            }
+
+            return _violations;
+        }
     }
 }

@@ -56,7 +56,7 @@ internal sealed class InputCountSchema<TIn, TOut> : Schema<TIn, TOut>
             Violations.One(
                 context,
                 ViolationCodeCatalog.Codes.OutOfRange,
-                CollectionSchemaExtensions.TooManyMessage,
+                CollectionSchemaExtensions.TooMany,
                 _count(input),
                 _max));
 }

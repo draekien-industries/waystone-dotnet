@@ -451,6 +451,16 @@ help here — so the "gather violations, keep the value only if every entry prod
 one" rule would otherwise be written four times. It is written twice, in the
 accumulators, and each schema's two paths differ only in the `await`.
 
+**The cap is `Caps.Report`, and neither accumulator tracks it.** Both hold one and
+delegate, because a list and a dictionary differ in what an entry *is* and not in
+how a full report is decided — and the decision has two halves that read alike and
+are not: `IsFull` is the signal to stop examining entries, while `Truncated` asks
+whether anything was actually lost. They came apart once already. A report that
+fills the last slot exactly has lost nothing, so conflating them appended
+"there are more" to a report listing every problem there was, and turned an outcome
+that could still be refined into a failure. The sync/async duplication above does
+not extend to this: cap tracking has no `await` in it.
+
 **Both accumulators are classes, deliberately.** A struct would be the obvious
 choice for something this small, and it does not work: the asynchronous path
 mutates the accumulator across an `await`, and a `ref` local cannot cross one.

@@ -34,10 +34,8 @@ public static class CollectionSchemaExtensions
     private const string TooFew =
         "Expected {Path} to hold at least {Expected} entries.";
 
-    private const string TooMany =
+    internal const string TooMany =
         "Expected {Path} to hold at most {Expected} entries.";
-
-    internal const string TooManyMessage = TooMany;
 
     /// <summary>Requires a list to hold no fewer entries than a bound.</summary>
     /// <typeparam name="TIn">The type the schema accepts.</typeparam>
