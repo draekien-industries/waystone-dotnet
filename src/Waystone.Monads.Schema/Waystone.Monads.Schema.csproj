@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latestMajor</LangVersion>
+        <Nullable>enable</Nullable>
+        <NoWarn>CS1591</NoWarn>
+    </PropertyGroup>
+
+    <!--
+        The namespace is plural against a singular package id, and it has to be. A
+        namespace and a type may share a name, but the namespace wins lookup wherever
+        both are candidates, so a Waystone.Monads.Schema namespace turns Schema.Text
+        into a CS0234 for any consumer whose own namespace begins Waystone.Monads. —
+        which is every test project and every published doc sample in this repository.
+    -->
+    <PropertyGroup>
+        <RootNamespace>Waystone.Monads.Schemas</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>Waystone.Monads.Schema</Title>
+        <Description>
+            Composable schema parsing for Waystone.Monads. Declare reusable checks, compose them into a schema, and parse an untrusted input into a validated domain type as a Result, with every failure reported at once.
+        </Description>
+        <PackageTags>result pattern option monad aspnetcore rust error handling framework validation schema parsing</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <!--
+        Waystone.Monads reaches consumers with its generators packed into
+        analyzers/dotnet/cs, but a ProjectReference does not carry them, so
+        ViolationCode's [ErrorCodeCatalog] needs the generator imported by hand.
+    -->
+    <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
+    <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
+
+    <ItemGroup>
+        <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="PolySharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Waystone.Monads.Schema.Tests"/>
+    </ItemGroup>
+
+</Project>
