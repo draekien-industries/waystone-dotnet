@@ -168,7 +168,7 @@ internal static class Verify
 
     /// <summary>
     /// Compiles <paramref name="rawSource" /> against
-    /// <c>Waystone.Monads.Schema</c> as well, for the closed-hierarchy probes.
+    /// <c>Waystone.Monads.Schemas</c> as well, for the closed-hierarchy probes.
     /// </summary>
     public static Task SchemaCompilerDiagnosticsAsync(
         string rawSource,
@@ -430,7 +430,7 @@ internal static class Verify
     /// <see cref="MonadReferences" />.
     /// </summary>
     /// <remarks>
-    /// <c>Waystone.Monads.Schema</c> declares an <c>[ErrorCodeCatalog]</c> enum, so
+    /// <c>Waystone.Monads.Schemas</c> declares an <c>[ErrorCodeCatalog]</c> enum, so
     /// referencing it everywhere puts <c>ViolationCode</c>'s codes into every
     /// compilation and changes what the error code registry rules see. That failed
     /// four <c>UpdateErrorCodeRegistryCodeFixTests</c> cases, which assert on the

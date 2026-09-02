@@ -1,4 +1,4 @@
-# Waystone.Monads.Schema
+# Waystone.Monads.Schemas
 
 Composable schema parsing for [Waystone.Monads](https://www.nuget.org/packages/Waystone.Monads).
 

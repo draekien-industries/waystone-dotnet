@@ -1,14 +1,14 @@
-# Waystone.Monads.Schema
+# Waystone.Monads.Schemas
 
 Composable schema validation that *parses*: what comes out is a type the caller
 could not have built without passing. The design lives in
 [DRA-181](https://linear.app/draekien-industries/issue/DRA-181/design-waystonemonadsschema-composable-schema-validation);
 this file carries only what a change here has to obey.
 
-## The namespace is plural and the package is not
+## The name is plural, and it has to be
 
-Package and assembly `Waystone.Monads.Schema`. Namespace
-`Waystone.Monads.Schemas`. The mismatch is forced, not a preference.
+Package, assembly, root namespace and directory are all `Waystone.Monads.Schemas`.
+The plural is forced, not a preference.
 
 A namespace and a type may share a name, but **the namespace wins lookup wherever
 both are candidates**. With a singular namespace, any consumer whose own namespace
@@ -17,6 +17,9 @@ begins `Waystone.Monads.` resolves `Schema.Text` against the *namespace* and get
 repository. Verified by scratch compile in both spellings. `Schema<TIn, TOut>` is
 unaffected either way, since arity 2 excludes the namespace as a candidate; only
 the bare `Schema` breaks, which is the one a reader types most.
+
+The package id followed the namespace rather than the other way round, so nobody
+has to hold two spellings of one word. The singular spelling appears nowhere.
 
 ## `Configure` lives on `SchemaConfig`, and that is the whole hierarchy rule
 

@@ -1,4 +1,4 @@
-# Waystone.Monads.Schema.SourceGenerators
+# Waystone.Monads.Schemas.SourceGenerators
 
 Emits the members a schema declared as a set of fields cannot write for itself.
 Today that is the shared `Instance`; the field-set ladder follows.
@@ -13,7 +13,7 @@ compiler for that class's symbol. Shipped with `Waystone.Monads`, that work woul
 run over every class in codebases that never installed the schema package, and
 `WMSC0001`–`WMSC0003` would reach people with no `SchemaConfig` to get wrong.
 
-`Waystone.Monads.Schema.csproj` therefore carries its own `PackSchemaAnalyzers`
+`Waystone.Monads.Schemas.csproj` therefore carries its own `PackSchemaAnalyzers`
 target rather than a condition added to `PackMonadAnalyzers`. **That target is
 conditioned on `netstandard2.0`, and the condition is load-bearing**: the runtime
 package multi-targets, `TargetsForTfmSpecificContentInPackage` runs once per

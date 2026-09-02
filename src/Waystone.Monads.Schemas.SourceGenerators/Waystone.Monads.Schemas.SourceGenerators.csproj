@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="Waystone.Monads.Schema.SourceGenerators.Tests"/>
+        <InternalsVisibleTo Include="Waystone.Monads.Schemas.SourceGenerators.Tests"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -101,7 +101,7 @@ internal static class Verify
 
     private static CSharpCompilation Compile(IReadOnlyList<string> sources) =>
         CSharpCompilation.Create(
-            "Waystone.Monads.Schema.SourceGenerators.Tests.Subject",
+            "Waystone.Monads.Schemas.SourceGenerators.Tests.Subject",
             sources.Select(source => CSharpSyntaxTree.ParseText(source)),
             References,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
