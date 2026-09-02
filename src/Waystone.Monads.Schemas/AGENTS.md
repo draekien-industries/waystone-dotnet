@@ -216,6 +216,33 @@ losing the branch and colliding with a real property of that name.
 `ViolationPath.Rename` switches on `SegmentKind` to decide, which is a fact the
 type holds rather than something recovered from rendered text.
 
+## There are two `Named` members, and the field one is the one to reach for
+
+`Schema.Named` renames through the parse context; `FieldExtensions.Named` rebuilds
+the field with a different segment. They are not redundant, and the split is about
+what each thing's lifetime is.
+
+**A schema is shared and a field is not.** A schema declared as a static field is
+reused by every field of its shape, so `.Named("patron")` baked into one silently
+renames all of them, and nothing reports it — the parse succeeds and the paths are
+simply wrong. A field is built inside `Configure`, once per parse, so the same call
+cannot leak. Inside a field set, use the field one.
+
+**`Schema.Named` stays, because a schema is not always reached through a field.** A
+branch of `Schema.Any` and a schema handed straight to `Parse` both need a name and
+have no field to hang it on.
+
+**It is implemented as `Field<T>.WithName`, not as a wrapper.** A wrapping field
+would append its own segment on top of the one the inner field already appends,
+giving `patronEmail.patron`. Each field type instead rebuilds itself with the new
+name, which is four two-line overrides and no new node in the hierarchy.
+
+**On `ExtendField` it nests rather than replaces, and that is not an inconsistency.**
+An extension reports at the subject's own path precisely so a cross-field rule is
+not filed under one of the fields it spans, so it has no segment of its own to
+overwrite. Naming one gives those violations somewhere to live; leaving it unnamed
+keeps them at the root, which is the default.
+
 `Any` allocates its rejection list before trying the first branch, so the
 short-circuit path pays for one list. That is deliberate: the alternative is a
 nullable local and a `!` on a state the type system cannot see is impossible,
@@ -320,14 +347,91 @@ per-type copy.
 `Positive` and `Negative` are four overloads apiece because they need a zero of
 the value's own type, and `netstandard2.0` has no numeric constraint to get one
 from. `INumber<T>` would collapse them, and cannot be used while that target
-framework is in the list. `Before` and `After` are likewise aliases rather than
-generic: they exist so the sentence reads the way a person says it about time.
+framework is in the list. `Before`, `After`, `OnOrBefore` and `OnOrAfter` are
+likewise aliases rather than generic: they exist so the sentence reads the way a
+person says it about time.
+
+**Inclusivity is spelled in the name, never passed as a flag.** `AtLeast` and
+`AtMost` include the bound, `GreaterThan` and `LessThan` exclude it, and the
+temporal four mirror that pair for pair. An `inclusive: true` argument was
+considered and rejected: it says at the call site what the name already says, and
+`Before(closing, inclusive: true)` is a thing a reader has to decode where
+`OnOrBefore(closing)` is not.
+
+**`Between` exists even though `AtLeast(1).AtMost(10)` accepts the same values.**
+The chain is two refinements, and refinements do not stop one another, so a value
+outside the range is reported once per bound it missed. One mistake should read as
+one failure. `LengthBetween` is the same argument for text, and both throw
+`ArgumentException` when the upper bound orders below the lower one — a range no
+value can satisfy is a mistake in the schema, and it surfaces when the schema is
+built rather than on the first parse that happens to reach it.
 
 **Inside `Schema.Number`, write `decimal` and `double`, not `Decimal` and
 `Double`.** The two properties shadow the framework types in that scope. The
 keywords are never shadowed, which is why the code reads normally; a future editor
 spelling the type name instead gets a confusing error, and `global::System.Decimal`
 is the escape hatch.
+
+## The text rules avoid a regular expression wherever a scan will do
+
+`Matches` carries a one-second timeout because a pattern's cost can explode on
+crafted input, and the pattern is the schema author's while the value is a
+stranger's. Every rule that reaches for `Regex` inherits that risk and the
+`RegexMatchTimeoutException` that guards it, so a rule that can be written as a
+linear scan is written as one.
+
+**`Email` is a hand-written scan in `EmailAddress`, not a pattern and not
+`MailAddress`.** `MailAddress.TryCreate` is .NET 5 and later, so the
+netstandard2.0 leg would need a `try`/`catch` around the constructor — paying a
+thrown exception for every invalid address, on a path where invalid is the
+expected case rather than the exceptional one. `MailAddress` is itself a
+hand-written parser, so nothing is gained by inheriting its policy instead of
+stating our own.
+
+**The accepted subset is a decision, and it is written down twice on purpose** —
+in the rule's doc comment for a consumer, and in `EmailAddressTests` as cases. It
+rejects what RFC 5322 allows and nobody sends: quoted local parts, comments,
+bracketed IP literals, anything outside ASCII. It accepts a single-label host, so
+`root@localhost` passes, because that is a real address on an internal network and
+there would otherwise be no way to accept one. Narrowing any of that is a
+behavioural change to a shipped rule, not a bug fix.
+
+**`Url` requires the value to spell its own scheme, and that is a portability fix
+rather than strictness.** `Uri.TryCreate(value, UriKind.Absolute, out _)` answers
+differently by operating system: on Unix a bare path like `/quests/3` parses as an
+absolute `file:` URI, and on Windows it does not. A schema is a contract, so a rule
+that accepts a value on the deployment host and rejects it on the developer's is
+worse than one that is simply strict. `IsAbsoluteUrl` therefore checks that the
+parsed scheme actually appears at the front of the input. This was caught by CI on
+Linux after the full framework matrix passed on Windows — the matrix varies the
+framework, never the platform.
+
+**`Url` has an unrestricted overload and a scheme-restricted one, and the
+restricted one is the default in the docs.** An absolute URI includes
+`javascript:`, `data:` and `file:`, which is how an open redirect and a script
+injection arrive. Passing no scheme accepts none rather than widening to the
+unrestricted rule: an empty array is far more likely to be a bug than an
+intention.
+
+**`StartsWith`, `EndsWith` and `Contains` are literals, and that is the point.**
+Each replaces a `Matches` call where a dot or a bracket in the argument would
+quietly mean something else. They take a `StringComparison` rather than a
+`bool ignoreCase`, for the reason the bounds do.
+
+**`OneOf` copies its array, as `Url` does with its schemes.** A `params` array is
+the caller's, and a schema built once and parsed for the life of a process would
+otherwise follow whatever the caller did to it afterwards.
+
+**Neither predicate nests a lambda inside `Array.Exists`.** The inner delegate
+would capture a parse-time local, so it is allocated on every parse rather than
+once when the schema is built. `Holds` is a plain loop for that reason, and the
+same applies to any rule later added over a set.
+
+**`EmailAddress.IsLetterOrDigit` is hand-rolled, and `char.IsAsciiLetterOrDigit`
+is not the fix.** That method is .NET 7 and later, PolySharp polyfills types and
+attributes rather than BCL methods, and this package still targets
+netstandard2.0 — verified by compiling it there, not assumed. Four lines beat a
+`#if` around two call sites.
 
 ## The structures are the only schemas that iterate
 

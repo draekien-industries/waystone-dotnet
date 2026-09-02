@@ -22,6 +22,8 @@ public abstract class Field<T> : Field where T : notnull
 
     internal abstract Outcome<T> EvaluateValue(ParseContext context);
 
+    internal abstract Field<T> WithName(string name);
+
     internal sealed override IReadOnlyList<Violation> Evaluate(
         ParseContext context) =>
         EvaluateValue(context).Violations;

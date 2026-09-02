@@ -137,6 +137,52 @@ public sealed class SchemaComparisonRuleTests
         Should.Throw<ArgumentNullException>(
                    () => ((Schema<int, int>)null!).LessThan(1))
               .ParamName.ShouldBe("schema");
+
+        Should.Throw<ArgumentNullException>(
+                   () => ((Schema<int, int>)null!).Between(1, 2))
+              .ParamName.ShouldBe("schema");
+    }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(1, true)]
+    [InlineData(5, true)]
+    [InlineData(10, true)]
+    [InlineData(11, false)]
+    public void GivenARange_WhenChecking_ThenIncludeBothEnds(
+        int value,
+        bool accepted)
+    {
+        Schema.Number.Int32.Between(1, 10)
+              .Evaluate(value, At)
+              .Violations.Count.ShouldBe(accepted ? 0 : 1);
+    }
+
+    /// <summary>
+    /// The reason the rule exists rather than the chain that accepts the same
+    /// values: one mistake reads as one failure.
+    /// </summary>
+    [Fact]
+    public void GivenAValueOutsideARange_WhenChecking_ThenReportBothEndsOnce()
+    {
+        Message(Schema.Number.Int32.Between(1, 10), 42)
+           .ShouldBe("Expected total to be between 1 and 10, but got 42.");
+    }
+
+    [Fact]
+    public void GivenARangeOfOneValue_WhenChecking_ThenAcceptThatValue()
+    {
+        Schema.Number.Int32.Between(4, 4)
+              .Evaluate(4, At)
+              .Violations.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GivenAnInvertedRange_WhenChecking_ThenThrowAtBuildTime()
+    {
+        Should.Throw<ArgumentException>(
+                   () => Schema.Number.Int32.Between(10, 1))
+              .ParamName.ShouldBe("max");
     }
 
     private static string Message(Schema<int, int> schema, int value) =>

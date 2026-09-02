@@ -49,6 +49,7 @@ public class SchemaClosedHierarchyTests
             }
             """,
             DiagnosticResult.CompilerError("CS0534").WithLocation(0),
+            DiagnosticResult.CompilerError("CS0534").WithLocation(0),
             DiagnosticResult.CompilerError("CS0534").WithLocation(0));
 
     [Fact]

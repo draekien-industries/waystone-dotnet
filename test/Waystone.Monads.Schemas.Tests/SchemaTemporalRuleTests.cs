@@ -126,6 +126,102 @@ public sealed class SchemaTemporalRuleTests
         Should.Throw<ArgumentNullException>(
                    () => ((Schema<DateOnly, DateOnly>)null!).After(Day))
               .ParamName.ShouldBe("schema");
+
+        Should.Throw<ArgumentNullException>(
+                   () => ((Schema<DateOnly, DateOnly>)null!).OnOrBefore(Day))
+              .ParamName.ShouldBe("schema");
+
+        Should.Throw<ArgumentNullException>(
+                   () => ((Schema<DateOnly, DateOnly>)null!).OnOrAfter(Day))
+              .ParamName.ShouldBe("schema");
+    }
+
+    /// <summary>
+    /// The rule a deadline wants. The closing date itself is still open, which is
+    /// the whole difference from <c>Before</c>.
+    /// </summary>
+    [Theory]
+    [InlineData(-1, true)]
+    [InlineData(0, true)]
+    [InlineData(1, false)]
+    public void GivenADay_WhenRequiringItNoLater_ThenIncludeTheBound(
+        int offset,
+        bool accepted)
+    {
+        Schema.Date.OnOrBefore(Day)
+              .Evaluate(Day.AddDays(offset), At)
+              .Violations.Count.ShouldBe(accepted ? 0 : 1);
+    }
+
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(0, true)]
+    [InlineData(-1, false)]
+    public void GivenADay_WhenRequiringItNoEarlier_ThenIncludeTheBound(
+        int offset,
+        bool accepted)
+    {
+        Schema.Date.OnOrAfter(Day)
+              .Evaluate(Day.AddDays(offset), At)
+              .Violations.Count.ShouldBe(accepted ? 0 : 1);
     }
 #endif
+
+    [Theory]
+    [InlineData(-1, true)]
+    [InlineData(0, true)]
+    [InlineData(1, false)]
+    public void GivenAnInstant_WhenRequiringItNoLater_ThenIncludeTheBound(
+        int offset,
+        bool accepted)
+    {
+        Schema.Timestamp.OnOrBefore(Bound)
+              .Evaluate(Bound.AddTicks(offset), At)
+              .Violations.Count.ShouldBe(accepted ? 0 : 1);
+    }
+
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(0, true)]
+    [InlineData(-1, false)]
+    public void GivenAnInstant_WhenRequiringItNoEarlier_ThenIncludeTheBound(
+        int offset,
+        bool accepted)
+    {
+        Schema.Timestamp.OnOrAfter(Bound)
+              .Evaluate(Bound.AddTicks(offset), At)
+              .Violations.Count.ShouldBe(accepted ? 0 : 1);
+    }
+
+    [Fact]
+    public void GivenALateInstant_WhenRequiringItNoLater_ThenNameTheBound()
+    {
+        Schema.Timestamp.OnOrBefore(Bound)
+              .Evaluate(Bound.AddTicks(1), At)
+              .Violations.ShouldHaveSingleItem()
+              .Message.ShouldStartWith("Expected expiresOn to be no later than");
+    }
+
+    [Fact]
+    public void GivenAnEarlyInstant_WhenRequiringItNoEarlier_ThenNameTheBound()
+    {
+        Schema.Timestamp.OnOrAfter(Bound)
+              .Evaluate(Bound.AddTicks(-1), At)
+              .Violations.ShouldHaveSingleItem()
+              .Message.ShouldStartWith("Expected expiresOn to be no earlier than");
+    }
+
+    [Fact]
+    public void GivenNoSchema_WhenAddingAnInclusiveInstantBound_ThenThrow()
+    {
+        Should.Throw<ArgumentNullException>(
+                   () => ((Schema<DateTimeOffset, DateTimeOffset>)null!)
+                      .OnOrBefore(Bound))
+              .ParamName.ShouldBe("schema");
+
+        Should.Throw<ArgumentNullException>(
+                   () => ((Schema<DateTimeOffset, DateTimeOffset>)null!)
+                      .OnOrAfter(Bound))
+              .ParamName.ShouldBe("schema");
+    }
 }

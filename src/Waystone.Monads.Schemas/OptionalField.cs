@@ -41,6 +41,9 @@ internal sealed class OptionalField<TIn, TOut> : Field<Option<TOut>>
             : Outcome<Option<TOut>>.Refined(lifted, inner.Violations);
     }
 
+    internal override Field<Option<TOut>> WithName(string name) =>
+        new OptionalField<TIn, TOut>(_value, _schema, name);
+
     internal override void OnlyThisAssemblyMayDerive()
     {
     }
