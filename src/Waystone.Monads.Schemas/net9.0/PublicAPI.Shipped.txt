@@ -1,0 +1,2 @@
+#nullable enable
+static Waystone.Monads.Schemas.UuidSchemaExtensions.IsVersion7<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.Guid>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.Guid>!

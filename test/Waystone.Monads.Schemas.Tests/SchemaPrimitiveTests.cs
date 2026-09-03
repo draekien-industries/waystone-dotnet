@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas;
+﻿namespace Waystone.Monads.Schemas;
 
 using System;
 using Shouldly;
@@ -60,7 +60,7 @@ public sealed class SchemaPrimitiveTests
     public void GivenAnyValue_WhenUsingAPrimitive_ThenReportNothing()
     {
         Schema.Text.Evaluate(string.Empty, At).Violations.ShouldBeEmpty();
-        Schema.Id.Evaluate(Guid.Empty, At).Violations.ShouldBeEmpty();
+        Schema.Uuid.Evaluate(Guid.Empty, At).Violations.ShouldBeEmpty();
 
         Schema.Timestamp.Evaluate(DateTimeOffset.MinValue, At)
               .Violations.ShouldBeEmpty();
@@ -71,7 +71,7 @@ public sealed class SchemaPrimitiveTests
     {
         Schema.For<string>().ShouldBeSameAs(Schema.Text);
         Schema.For<bool>().ShouldBeSameAs(Schema.Bool);
-        Schema.For<Guid>().ShouldBeSameAs(Schema.Id);
+        Schema.For<Guid>().ShouldBeSameAs(Schema.Uuid);
         Schema.For<DateTimeOffset>().ShouldBeSameAs(Schema.Timestamp);
         Schema.For<int>().ShouldBeSameAs(Schema.Number.Int32);
         Schema.For<long>().ShouldBeSameAs(Schema.Number.Int64);

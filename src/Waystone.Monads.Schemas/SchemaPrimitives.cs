@@ -30,18 +30,27 @@ public abstract partial class Schema
     /// </remarks>
     public static Schema<bool, bool> Bool { get; } = For<bool>();
 
-    /// <summary>Gets a schema accepting any identifier, as a base for id rules.</summary>
+    /// <summary>Gets a schema accepting any UUID, as a base for identifier rules.</summary>
     /// <value>
     /// A schema that produces its input unchanged. Chain <c>NotEmpty</c> to reject
-    /// <see cref="Guid.Empty" />.
+    /// <see cref="Guid.Empty" />, and <c>IsVersion4</c> to insist on how it was
+    /// generated.
     /// </value>
     /// <remarks>
+    /// <para>
     /// Accepts <see cref="Guid.Empty" /> unless you say otherwise. An unset
     /// <see cref="Guid" /> field deserialises to <see cref="Guid.Empty" /> rather
-    /// than to null, so a required id field that omits <c>NotEmpty</c> accepts a
+    /// than to null, so a required identifier that omits <c>NotEmpty</c> accepts a
     /// value the sender never supplied.
+    /// </para>
+    /// <para>
+    /// Named for the standard rather than for the role, because the rules on it are
+    /// about the UUID layout — which version generated it, and whether it is set. A
+    /// schema for an identifier that happens not to be a UUID starts at
+    /// <c>For&lt;T&gt;()</c> instead.
+    /// </para>
     /// </remarks>
-    public static Schema<Guid, Guid> Id { get; } = For<Guid>();
+    public static Schema<Guid, Guid> Uuid { get; } = For<Guid>();
 
     /// <summary>Gets a schema accepting any instant, as a base for temporal rules.</summary>
     /// <value>

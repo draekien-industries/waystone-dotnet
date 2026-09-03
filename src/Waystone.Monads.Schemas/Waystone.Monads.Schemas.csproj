@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
         <LangVersion>latestMajor</LangVersion>
         <Nullable>enable</Nullable>
         <NoWarn>CS1591</NoWarn>
@@ -72,16 +72,24 @@
         alone has. Copying the shared rows into two files instead would leave two
         lists to keep in step, and nothing in the build compares them.
 
-        Two things land in a folder rather than the root. Schema.Date is net8.0
-        only, because DateOnly is, and PolySharp does not polyfill it. Less
-        obviously, SchemaViolation's compiler-generated <Clone>$ returns Error on
-        netstandard2.0 and SchemaViolation on net8.0 — a derived record gets a
-        covariant return only where the runtime supports one — so that row cannot
+        Two things land in a folder rather than the root. Schema.Date is not on
+        netstandard2.0, because DateOnly is not, and PolySharp does not polyfill it.
+        Less obviously, SchemaViolation's compiler-generated <Clone>$ returns Error
+        on netstandard2.0 and SchemaViolation everywhere else — a derived record gets
+        a covariant return only where the runtime supports one — so that row cannot
         be shared either.
+
+        net9.0 reads net8.0's folder as well as its own, rather than repeating it.
+        Everything net8.0 has, net9.0 has; only UuidSchemaExtensions.IsVersion7 is
+        net9.0 alone, because Guid.CreateVersion7 is. Copying the shared rows into a
+        second folder instead would leave two lists to keep in step, which is the
+        thing this split exists to avoid.
     -->
     <ItemGroup>
         <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
         <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+        <AdditionalFiles Include="net8.0\PublicAPI.Shipped.txt" Condition="'$(TargetFramework)' == 'net9.0'"/>
+        <AdditionalFiles Include="net8.0\PublicAPI.Unshipped.txt" Condition="'$(TargetFramework)' == 'net9.0'"/>
         <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Shipped.txt"/>
         <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Unshipped.txt"/>
     </ItemGroup>

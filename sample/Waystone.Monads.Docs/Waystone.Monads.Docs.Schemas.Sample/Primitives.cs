@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Docs.Schemas.Sample;
+﻿namespace Waystone.Monads.Docs.Schemas.Sample;
 
 using System.Text.RegularExpressions;
 using Waystone.Monads.Schemas;
@@ -80,7 +80,9 @@ internal static partial class PrimitivesPage
     #endregion
 
     #region schema-primitives-identifiers
-    public static readonly Schema<Guid, Guid> QuestId = Schema.Id.NotEmpty();
+    public static readonly Schema<Guid, Guid> QuestId = Schema.Uuid.NotEmpty();
+
+    public static readonly Schema<Guid, Guid> PatronId = Schema.Uuid.IsVersion4();
     #endregion
 
     #region schema-primitives-temporal
