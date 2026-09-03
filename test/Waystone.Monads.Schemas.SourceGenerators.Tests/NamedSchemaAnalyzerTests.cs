@@ -99,6 +99,73 @@ public sealed class NamedSchemaAnalyzerTests
                   .ShouldBe("Schema.For<string>()");
     }
 
+    /// <summary>
+    /// A type parameter has no containing namespace at all, so reading one would
+    /// throw inside the analyzer rather than report anything.
+    /// </summary>
+    [Fact]
+    public void ATypeParameterIsLeftAlone() =>
+        Analyze(
+                "public static class Rules { public static Schema<T, T> Of<T>() where T : notnull => Schema.For<T>(); }")
+           .ShouldBeEmpty();
+
+    /// <summary>
+    /// A type in the global namespace cannot match a key, since every named spelling
+    /// is a type in <c>System</c>.
+    /// </summary>
+    [Fact]
+    public void ATypeInTheGlobalNamespaceIsLeftAlone() =>
+        Verify.AnalyzeRaw(
+                   new NamedSchemaAnalyzer(),
+                   """
+                   using Waystone.Monads.Schemas;
+
+                   public sealed class Quest { }
+
+                   public static class Rules
+                   {
+                       public static readonly Schema<Quest, Quest> Value = Schema.For<Quest>();
+                   }
+                   """)
+              .Where(diagnostic => diagnostic.Id == "WMSC0009")
+              .ShouldBeEmpty();
+
+    /// <summary>
+    /// The named schemas are themselves <c>For&lt;T&gt;()</c> initialisers, so the
+    /// rule has to leave the assembly declaring them alone or it reports nine times
+    /// on the definitions it is recommending — and this generator's build props are
+    /// imported into that very project.
+    /// </summary>
+    /// <remarks>
+    /// The subject declares its own <c>Schema</c> in the runtime's namespace, which
+    /// is what puts <c>For</c> in the compilation's own assembly. A source
+    /// declaration wins over the referenced one, so this binds where it has to.
+    /// </remarks>
+    [Fact]
+    public void TheAssemblyThatDeclaresForIsLeftAlone() =>
+        Verify.AnalyzeRaw(
+                   new NamedSchemaAnalyzer(),
+                   """
+                   namespace Waystone.Monads.Schemas
+                   {
+                       public abstract class Schema
+                       {
+                           public static Schema<T, T> For<T>() where T : notnull => null!;
+                       }
+
+                       public class Schema<TIn, TOut> where TIn : notnull where TOut : notnull
+                       {
+                       }
+
+                       public static class Rules
+                       {
+                           public static readonly Schema<string, string> Value = Schema.For<string>();
+                       }
+                   }
+                   """)
+              .Where(diagnostic => diagnostic.Id == "WMSC0009")
+              .ShouldBeEmpty();
+
     private static ImmutableArray<Diagnostic> Analyze(string source) =>
         Verify.Analyze(new NamedSchemaAnalyzer(), source)
               .Where(diagnostic => diagnostic.Id == "WMSC0009")

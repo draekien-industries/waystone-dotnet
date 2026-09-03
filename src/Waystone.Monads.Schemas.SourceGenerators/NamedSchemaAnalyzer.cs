@@ -80,9 +80,24 @@ public sealed class NamedSchemaAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        ITypeSymbol argument = method.TypeArguments[0];
+        // Every named spelling is a type in System, so anything that is not one
+        // cannot match and is left before its namespace is read. A type parameter is
+        // the case that matters: 'Schema.For<T>()' inside a generic method has no
+        // containing namespace to render at all.
+        if (method.TypeArguments[0] is not INamedTypeSymbol
+            {
+                ContainingNamespace: { IsGlobalNamespace: false } @namespace,
+            } argument)
+        {
+            return;
+        }
 
-        if (!NamedSpellings.TryGetValue(MetadataNameOf(argument), out string named))
+        // The key is built rather than rendered, because every display format that
+        // qualifies a namespace also spells the built-in types as keywords — so
+        // 'string' would never match a key, while 'System.Guid' would.
+        if (!NamedSpellings.TryGetValue(
+                @namespace.ToDisplayString() + "." + argument.MetadataName,
+                out string named))
         {
             return;
         }
@@ -95,15 +110,4 @@ public sealed class NamedSchemaAnalyzer : DiagnosticAnalyzer
                     SymbolDisplayFormat.MinimallyQualifiedFormat),
                 named));
     }
-
-    /// <remarks>
-    /// Built from the namespace and the metadata name rather than rendered, because
-    /// every display format that qualifies a namespace also spells the built-in types
-    /// as keywords — so <c>string</c> would never match a key, while
-    /// <c>System.Guid</c> would.
-    /// </remarks>
-    private static string MetadataNameOf(ITypeSymbol type) =>
-        type.ContainingNamespace is { IsGlobalNamespace: false } @namespace
-            ? @namespace.ToDisplayString() + "." + type.MetadataName
-            : type.MetadataName;
 }

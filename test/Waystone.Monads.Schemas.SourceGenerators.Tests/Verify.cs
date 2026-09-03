@@ -101,6 +101,26 @@ internal static class Verify
            .GetResult();
 
     /// <summary>
+    /// Runs an analyzer over source given exactly as written, for the subject that
+    /// has to declare its own <c>Waystone.Monads.Schemas</c> namespace and so cannot
+    /// sit inside the shared one.
+    /// </summary>
+    /// <remarks>
+    /// A source declaration wins over a referenced assembly for the same
+    /// fully-qualified name, so a subject spelling out <c>Schema.For</c> itself binds
+    /// to its own and puts the method in the compilation's own assembly. That is the
+    /// only way to reach the rule that leaves such an assembly alone.
+    /// </remarks>
+    public static ImmutableArray<Diagnostic> AnalyzeRaw(
+        DiagnosticAnalyzer analyzer,
+        string source) =>
+        Compile([source])
+           .WithAnalyzers(ImmutableArray.Create(analyzer))
+           .GetAnalyzerDiagnosticsAsync()
+           .GetAwaiter()
+           .GetResult();
+
+    /// <summary>
     /// Runs one driver over two identical but separately parsed compilations. The
     /// second run makes Roslyn compare the values its steps produced against the
     /// cached ones, which is the only thing that exercises the pipeline's equality.
