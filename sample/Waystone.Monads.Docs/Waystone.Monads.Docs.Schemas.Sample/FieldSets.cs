@@ -46,9 +46,6 @@ internal static class FieldSetsPage
         #endregion
 
         #region schema-field-sets-as-checked
-        // A field the caller must send correctly but that the parsed type has no
-        // place for. AsChecked runs its rules, drops its value, and keeps its own
-        // path, so it goes to Refine rather than spending a slot in Into.
         Field<Checked> confirmation =
             Schema.Required(subject.ConfirmEmail, Schema.Text.Email())
                   .AsChecked();
