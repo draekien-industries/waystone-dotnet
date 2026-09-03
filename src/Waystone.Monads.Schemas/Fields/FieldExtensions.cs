@@ -44,4 +44,52 @@ public static class FieldExtensions
 
         return field.WithName(name);
     }
+
+    /// <summary>Keeps this field's rules and drops the value they passed.</summary>
+    /// <typeparam name="T">What the field yields once it passes, and what this discards.</typeparam>
+    /// <param name="field">
+    /// The field to run for its rules alone, as returned by <c>Schema.Required</c>
+    /// or one of its siblings.
+    /// </param>
+    /// <returns>
+    /// A field reporting the same violations at the same path, yielding
+    /// <see cref="Checked" /> rather than <typeparamref name="T" />.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// For a field the caller must send correctly but that the parsed type has no
+    /// place for — a wire contract another system reads, a confirmation address
+    /// checked and never stored. Pass the result to <c>Refine</c>, which leaves the
+    /// arity of <c>Schema.Fields</c> and the <c>Into</c> lambda for the fields that
+    /// do contribute. Positionally discarding it in <c>Into</c> instead spends a
+    /// slot on it and rebinds its neighbours if the field list is ever reordered.
+    /// </para>
+    /// <para>
+    /// This is the deliberate form of what <c>WMSC0005</c> warns about, and turns
+    /// that warning off here without turning it off anywhere else: the rule reads
+    /// the yielded type, and this yields <see cref="Checked" />. Reach for it only
+    /// where the value is genuinely unwanted — the accidental case the rule was
+    /// written for looks identical afterwards.
+    /// </para>
+    /// <para>
+    /// Prefer <c>Schema.Forbidden</c> where the field must be absent rather than
+    /// merely unused, and the generated <c>Checked</c> on a field set where no field
+    /// contributes a value. This one covers the mixed schema the other two do not:
+    /// some fields build the result, the rest only gate it.
+    /// </para>
+    /// <para>
+    /// Composes with <see cref="Named{T}" /> in either order, since the name belongs
+    /// to the field underneath.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="field" /> is null.
+    /// </exception>
+    public static Field<Checked> AsChecked<T>(this Field<T> field)
+        where T : notnull
+    {
+        if (field is null) throw new ArgumentNullException(nameof(field));
+
+        return new CheckedField<T>(field);
+    }
 }
