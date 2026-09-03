@@ -31,10 +31,10 @@ Waystone.Monads.Schemas.Schema
 Waystone.Monads.Schemas.Schema.Number
 Waystone.Monads.Schemas.Schema.Schema() -> void
 Waystone.Monads.Schemas.Schema<TIn, TOut>
-Waystone.Monads.Schemas.Schema<TIn, TOut>.Check(System.Func<TOut, bool>! predicate, Waystone.Monads.Results.Errors.ErrorCode! code, string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
-Waystone.Monads.Schemas.Schema<TIn, TOut>.Check(System.Func<TOut, bool>! predicate, Waystone.Monads.Schemas.ViolationCode code, string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
-Waystone.Monads.Schemas.Schema<TIn, TOut>.CheckAsync(System.Func<TOut, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<bool>>! predicate, Waystone.Monads.Results.Errors.ErrorCode! code, string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
-Waystone.Monads.Schemas.Schema<TIn, TOut>.CheckAsync(System.Func<TOut, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<bool>>! predicate, Waystone.Monads.Schemas.ViolationCode code, string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Check(System.Func<TOut, bool>! predicate, Waystone.Monads.Results.Errors.ErrorCode! code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Check(System.Func<TOut, bool>! predicate, Waystone.Monads.Schemas.ViolationCode code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.CheckAsync(System.Func<TOut, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<bool>>! predicate, Waystone.Monads.Results.Errors.ErrorCode! code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.CheckAsync(System.Func<TOut, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<bool>>! predicate, Waystone.Monads.Schemas.ViolationCode code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Named(string! name) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Not(Waystone.Monads.Schemas.Schema<TIn, TOut>! rejected, string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Parse(TIn input) -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!

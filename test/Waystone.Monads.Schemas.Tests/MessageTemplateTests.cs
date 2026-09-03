@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas;
+﻿namespace Waystone.Monads.Schemas;
 
 using Shouldly;
 using Xunit;
@@ -9,14 +9,43 @@ public sealed class MessageTemplateTests
         string template,
         object? received = null,
         object? expected = null,
-        bool isSensitive = false) =>
+        bool isSensitive = false,
+        string? predicate = null) =>
         MessageTemplate.Render(
             template,
             ViolationPath.Root.Append("email"),
             ViolationCodeCatalog.Codes.Malformed,
             received,
             expected,
+            predicate,
             isSensitive);
+
+    [Fact]
+    public void GivenAPredicate_WhenRendering_ThenSubstituteItsSourceText()
+    {
+        Render(
+                "Expected email to satisfy {Predicate}.",
+                predicate: "value => value.Length > 2")
+           .ShouldBe("Expected email to satisfy value => value.Length > 2.");
+    }
+
+    [Fact]
+    public void GivenNoPredicate_WhenRendering_ThenLeaveTheTokenInPlace()
+    {
+        Render("Must satisfy {Predicate}.")
+           .ShouldBe("Must satisfy {Predicate}.");
+    }
+
+    [Fact]
+    public void GivenASensitiveSchema_WhenRendering_ThenStillShowThePredicate()
+    {
+        Render(
+                "{Received} failed {Predicate}.",
+                "hunter2",
+                isSensitive: true,
+                predicate: "value => value.Length > 2")
+           .ShouldBe("*** failed value => value.Length > 2.");
+    }
 
     [Fact]
     public void GivenNoTokens_WhenRendering_ThenReturnTheTemplateUnchanged()
@@ -88,6 +117,7 @@ public sealed class MessageTemplateTests
                 "at [{Path}]",
                 ViolationPath.Root,
                 ViolationCodeCatalog.Codes.Duplicate,
+                null,
                 null,
                 null,
                 false)

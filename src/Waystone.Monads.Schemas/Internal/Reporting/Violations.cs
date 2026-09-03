@@ -17,13 +17,15 @@ internal static class Violations
         ErrorCode code,
         string template,
         object? received = null,
-        object? expected = null) =>
+        object? expected = null,
+        string? predicate = null) =>
         new(
             context.Path,
             code,
             template,
             received,
             expected,
+            predicate,
             context.IsSensitive);
 
     internal static IReadOnlyList<Violation> One(
@@ -40,8 +42,11 @@ internal static class Violations
         ErrorCode code,
         string template,
         object? received = null,
-        object? expected = null) =>
-        Append(existing, Create(context, code, template, received, expected));
+        object? expected = null,
+        string? predicate = null) =>
+        Append(
+            existing,
+            Create(context, code, template, received, expected, predicate));
 
     private static IReadOnlyList<Violation> Append(
         IReadOnlyList<Violation> existing,

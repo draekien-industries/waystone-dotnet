@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Schemas;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Waystone.Monads.Results;
@@ -62,7 +63,7 @@ public abstract class Schema<TIn, TOut>
     /// </remarks>
     /// <exception cref="InvalidOperationException">
     /// If the parse reaches a rule added by
-    /// <see cref="CheckAsync(Func{TOut,CancellationToken,ValueTask{bool}},ViolationCode,string)" />.
+    /// <see cref="CheckAsync(Func{TOut,CancellationToken,ValueTask{bool}},ViolationCode,string,string)" />.
     /// Reaching it depends on the input, since a rule after a failed conversion
     /// does not run — so a schema can pass this call for one input and throw for
     /// the next.
@@ -135,8 +136,17 @@ public abstract class Schema<TIn, TOut>
     /// report a code from your own domain instead.
     /// </param>
     /// <param name="message">
-    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c> and
-    /// <c>{Code}</c>, where <c>{Received}</c> is the value the rule rejected.
+    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c>,
+    /// <c>{Predicate}</c> and <c>{Code}</c>, where <c>{Received}</c> is the value
+    /// the rule rejected. <c>{Expected}</c> renders literally here — a rule added
+    /// through <c>Check</c> carries no bound to name.
+    /// </param>
+    /// <param name="predicateExpression">
+    /// Leave this to the compiler, which fills it with the source text of
+    /// <paramref name="predicate" />. That text is what <c>{Predicate}</c> renders,
+    /// so a message can describe the rule without the condition being written out
+    /// a second time. Pass a string to override it where the lambda reads badly
+    /// mid-sentence.
     /// </param>
     /// <returns>A schema that applies this rule after everything already on it.</returns>
     /// <remarks>
@@ -150,8 +160,14 @@ public abstract class Schema<TIn, TOut>
     public Schema<TIn, TOut> Check(
         Func<TOut, bool> predicate,
         ViolationCode code,
-        string message) =>
-        Check(predicate, ViolationCodeCatalog.ToErrorCode(code), message);
+        string message,
+        [CallerArgumentExpression(nameof(predicate))]
+        string? predicateExpression = null) =>
+        Check(
+            predicate,
+            ViolationCodeCatalog.ToErrorCode(code),
+            message,
+            predicateExpression);
 
     /// <summary>Adds a rule that reports a code of your own when it fails.</summary>
     /// <param name="predicate">
@@ -165,8 +181,14 @@ public abstract class Schema<TIn, TOut>
     /// <see cref="ViolationCollection.ByCode" /> beside the built-in kinds.
     /// </param>
     /// <param name="message">
-    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c> and
-    /// <c>{Code}</c>.
+    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c>,
+    /// <c>{Predicate}</c> and <c>{Code}</c>. <c>{Expected}</c> renders literally
+    /// here — a rule added through <c>Check</c> carries no bound to name.
+    /// </param>
+    /// <param name="predicateExpression">
+    /// Leave this to the compiler, which fills it with the source text of
+    /// <paramref name="predicate" />. That text is what <c>{Predicate}</c> renders.
+    /// Pass a string to override it where the lambda reads badly mid-sentence.
     /// </param>
     /// <returns>A schema that applies this rule after everything already on it.</returns>
     /// <remarks>A refinement: the value survives, so later rules still run.</remarks>
@@ -177,8 +199,16 @@ public abstract class Schema<TIn, TOut>
     public Schema<TIn, TOut> Check(
         Func<TOut, bool> predicate,
         ErrorCode code,
-        string message) =>
-        new CheckSchema<TIn, TOut>(this, predicate, code, message);
+        string message,
+        [CallerArgumentExpression(nameof(predicate))]
+        string? predicateExpression = null) =>
+        new CheckSchema<TIn, TOut>(
+            this,
+            predicate,
+            code,
+            message,
+            null,
+            predicateExpression);
 
     /// <summary>Adds a rule that has to go somewhere to decide.</summary>
     /// <param name="predicate">
@@ -186,15 +216,24 @@ public abstract class Schema<TIn, TOut>
     /// everything before it produced a value, and given the parse's cancellation
     /// token. Reach for it when deciding needs a database, a service or a file;
     /// a rule that can answer from the value alone belongs on
-    /// <see cref="Check(Func{TOut,bool},ViolationCode,string)" />.
+    /// <see cref="Check(Func{TOut,bool},ViolationCode,string,string)" />.
     /// </param>
     /// <param name="code">
     /// The kind of failure to report. Use the <see cref="ErrorCode" /> overload to
     /// report a code from your own domain instead.
     /// </param>
     /// <param name="message">
-    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c> and
-    /// <c>{Code}</c>, where <c>{Received}</c> is the value the rule rejected.
+    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c>,
+    /// <c>{Predicate}</c> and <c>{Code}</c>, where <c>{Received}</c> is the value
+    /// the rule rejected. <c>{Expected}</c> renders literally here — a rule added
+    /// through <c>CheckAsync</c> carries no bound to name.
+    /// </param>
+    /// <param name="predicateExpression">
+    /// Leave this to the compiler, which fills it with the source text of
+    /// <paramref name="predicate" />. That text is what <c>{Predicate}</c> renders,
+    /// so a message can describe the rule without the condition being written out
+    /// a second time. Pass a string to override it where the lambda reads badly
+    /// mid-sentence.
     /// </param>
     /// <returns>A schema that applies this rule after everything already on it.</returns>
     /// <remarks>
@@ -223,8 +262,14 @@ public abstract class Schema<TIn, TOut>
     public Schema<TIn, TOut> CheckAsync(
         Func<TOut, CancellationToken, ValueTask<bool>> predicate,
         ViolationCode code,
-        string message) =>
-        CheckAsync(predicate, ViolationCodeCatalog.ToErrorCode(code), message);
+        string message,
+        [CallerArgumentExpression(nameof(predicate))]
+        string? predicateExpression = null) =>
+        CheckAsync(
+            predicate,
+            ViolationCodeCatalog.ToErrorCode(code),
+            message,
+            predicateExpression);
 
     /// <summary>Adds a rule that goes somewhere to decide and reports a code of your own.</summary>
     /// <param name="predicate">
@@ -239,8 +284,14 @@ public abstract class Schema<TIn, TOut>
     /// <see cref="ViolationCollection.ByCode" /> beside the built-in kinds.
     /// </param>
     /// <param name="message">
-    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c> and
-    /// <c>{Code}</c>.
+    /// What to tell a human. Supports <c>{Path}</c>, <c>{Received}</c>,
+    /// <c>{Predicate}</c> and <c>{Code}</c>. <c>{Expected}</c> renders literally
+    /// here — a rule added through <c>CheckAsync</c> carries no bound to name.
+    /// </param>
+    /// <param name="predicateExpression">
+    /// Leave this to the compiler, which fills it with the source text of
+    /// <paramref name="predicate" />. That text is what <c>{Predicate}</c> renders.
+    /// Pass a string to override it where the lambda reads badly mid-sentence.
     /// </param>
     /// <returns>A schema that applies this rule after everything already on it.</returns>
     /// <remarks>
@@ -255,8 +306,15 @@ public abstract class Schema<TIn, TOut>
     public Schema<TIn, TOut> CheckAsync(
         Func<TOut, CancellationToken, ValueTask<bool>> predicate,
         ErrorCode code,
-        string message) =>
-        new AsyncCheckSchema<TIn, TOut>(this, predicate, code, message);
+        string message,
+        [CallerArgumentExpression(nameof(predicate))]
+        string? predicateExpression = null) =>
+        new AsyncCheckSchema<TIn, TOut>(
+            this,
+            predicate,
+            code,
+            message,
+            predicateExpression);
 
     /// <summary>Narrows the parsed value to a type that cannot fail to be built.</summary>
     /// <typeparam name="TNext">The type the schema produces from here on.</typeparam>

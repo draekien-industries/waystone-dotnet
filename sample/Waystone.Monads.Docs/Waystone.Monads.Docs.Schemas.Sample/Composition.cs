@@ -36,6 +36,30 @@ internal static partial class CompositionPage
                    "{Path} may not name a dragon, got {Received}.");
     #endregion
 
+    #region schema-composition-check-predicate
+    // {Predicate} renders the rule's own source text, so the condition is
+    // written once. A failure here reads: "Expected reward to satisfy
+    // reward => reward % 10 == 0."
+    public static readonly Schema<int, int> Reward =
+        Schema.Number.Int32.Positive()
+              .Check(
+                   reward => reward % 10 == 0,
+                   ViolationCode.Mismatched,
+                   "Expected {Path} to satisfy {Predicate}.");
+    #endregion
+
+    #region schema-composition-check-predicate-override
+    // The fourth argument replaces that source text where the lambda reads
+    // badly mid-sentence: "Expected reward to satisfy a multiple of ten."
+    public static readonly Schema<int, int> RoundReward =
+        Schema.Number.Int32.Positive()
+              .Check(
+                   reward => reward % 10 == 0,
+                   ViolationCode.Mismatched,
+                   "Expected {Path} to satisfy {Predicate}.",
+                   "a multiple of ten");
+    #endregion
+
     #region schema-composition-transform
     public static readonly Schema<string, QuestTitle> Titled =
         Schema.Text.Trim().NotEmpty().Transform(text => new QuestTitle(text));

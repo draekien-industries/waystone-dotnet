@@ -251,15 +251,15 @@ A domain code goes through the `ErrorCode` overload —
 `schema.Check(predicate, OrderCatalog.Codes.LineCountExceeded, message)` — and
 groups through `SchemaViolation.ByCode()` beside the built-in kinds.
 
-### The message template has four tokens, and one you cannot fill
+### The message template has five tokens, and one you cannot fill
 
-`{Path}`, `{Received}`, `{Expected}` and `{Code}`. **Anything else renders
-literally**, so a misspelled `{Exepcted}` reaches a caller as those exact
+`{Path}`, `{Received}`, `{Predicate}`, `{Expected}` and `{Code}`. **Anything else
+renders literally**, so a misspelled `{Exepcted}` reaches a caller as those exact
 characters — no exception, no warning, nothing in the build.
 
-`{Expected}` is the trap, because it is the token a rule with a bound most wants.
-The public `Check` has nowhere to put the bound, so `{Expected}` never resolves
-and renders literally too. **Interpolate the bound into the message yourself:**
+`{Expected}` is the one to avoid. It renders a bound, and the public `Check` has
+nowhere to put one, so it renders literally in any message you write.
+**Interpolate the bound yourself, or reach for `{Predicate}`:**
 
 ```csharp
 // Poor — the caller is told "Expected sku to be at least {Expected}."
@@ -268,7 +268,7 @@ schema.Check(
     ViolationCode.OutOfRange,
     "Expected {Path} to be at least {Expected}.");
 
-// Good
+// Good — the bound is interpolated, so it survives into the message
 schema.Check(
     value => value >= floor,
     ViolationCode.OutOfRange,
@@ -276,9 +276,26 @@ schema.Check(
 ```
 
 `{Path}` still has to survive the interpolation, hence the doubled braces.
-`{Received}` needs no argument and is safe to use as it is — it renders the
-rejected value, or `***` under `Sensitive()`. `{Expected}` is never redacted,
-because it is a bound the rule's author wrote rather than anything that arrived.
+
+`{Predicate}` needs no argument at all. The compiler captures the predicate's
+source text through `CallerArgumentExpression` and that text is what renders, so
+a rule describes itself without the condition being written out twice:
+
+```csharp
+// "Expected sku to satisfy value => value >= floor."
+schema.Check(
+    value => value >= floor,
+    ViolationCode.OutOfRange,
+    "Expected {Path} to satisfy {Predicate}.");
+```
+
+Pass a fourth argument to override that text where the lambda reads badly
+mid-sentence — `"at least the floor price"` rather than the source.
+
+`{Received}` also needs no argument: it renders the rejected value, or `***` under
+`Sensitive()`. Neither `{Expected}` nor `{Predicate}` is ever redacted, because
+both come from what the rule's author wrote rather than from anything that
+arrived.
 
 ### What the predicate must obey
 

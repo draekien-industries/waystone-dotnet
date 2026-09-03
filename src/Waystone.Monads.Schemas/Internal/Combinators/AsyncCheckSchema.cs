@@ -19,6 +19,8 @@ internal sealed class AsyncCheckSchema<TIn, TOut> : Schema<TIn, TOut>
 
     private readonly Func<TOut, CancellationToken, ValueTask<bool>> _predicate;
 
+    private readonly string? _predicateExpression;
+
     /// <remarks>
     /// The inner schema is unguarded on purpose: the only caller is
     /// <c>Schema.CheckAsync</c>, which passes itself.
@@ -27,7 +29,8 @@ internal sealed class AsyncCheckSchema<TIn, TOut> : Schema<TIn, TOut>
         Schema<TIn, TOut> inner,
         Func<TOut, CancellationToken, ValueTask<bool>> predicate,
         ErrorCode code,
-        string message)
+        string message,
+        string? predicateExpression = null)
     {
         _inner = inner;
 
@@ -36,6 +39,7 @@ internal sealed class AsyncCheckSchema<TIn, TOut> : Schema<TIn, TOut>
 
         _code = code ?? throw new ArgumentNullException(nameof(code));
         _message = message ?? throw new ArgumentNullException(nameof(message));
+        _predicateExpression = predicateExpression;
     }
 
     internal override Outcome<TOut> Evaluate(TIn input, ParseContext context) =>
@@ -67,6 +71,7 @@ internal sealed class AsyncCheckSchema<TIn, TOut> : Schema<TIn, TOut>
                 context,
                 _code,
                 _message,
-                outcome.Value));
+                outcome.Value,
+                predicate: _predicateExpression));
     }
 }

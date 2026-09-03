@@ -351,22 +351,36 @@ token by token with `string.Replace` would re-substitute a rejected value that
 happens to contain `{Code}` — and rejected values are exactly the untrusted input
 this package exists to handle.
 
-**`{Expected}` is not redacted by `.Sensitive()`, and must not be.** The other
-tokens render something derived from the input; this one renders a bound the
-schema's *author* wrote down. Redacting `Expected {Path} to be at least ***` costs
-the reader the only actionable part of the sentence and protects nothing.
+**Neither `{Expected}` nor `{Predicate}` is redacted by `.Sensitive()`, and
+neither must be.** `{Path}` and `{Received}` render something derived from the
+input; these two render a bound and a lambda the schema's *author* wrote down.
+Redacting `Expected {Path} to be at least ***` costs the reader the only
+actionable part of the sentence and protects nothing.
 
 **A rule supplies `{Expected}` by constructing `CheckSchema` with a bound, not
-through public `Check`.** `Check` has two overloads and no optional parameter;
-adding one would trip RS0026, which this package already suppresses once and
-should not suppress twice. `Rules.Add` is the in-assembly path, and it is also
-where the `schema` null guard lives so every extension reports the same parameter
-name.
+through public `Check`.** `Check` takes no bound, so `{Expected}` renders
+literally in a message a caller writes. `Rules.Add` is the in-assembly path, and
+it is also where the `schema` null guard lives so every extension reports the same
+parameter name.
 
-**`WithMessage` renders `{Expected}` literally, on purpose.** It replaces the
-messages of every rule on the chain at once, so there is no single bound left to
-name. Documented on the member; do not "fix" it by threading the last bound
-through, which would silently pick one rule out of several.
+**`{Predicate}` is what public `Check` fills instead.** A
+`CallerArgumentExpression` parameter captures the predicate's source text, so a
+caller's own rule describes itself without the condition being written out twice.
+That parameter is why `.editorconfig` suppresses RS0026 for `SchemaOfTInTOut.cs`
+as well as `Schema.cs`: the silent-rebind hazard cannot arise, because each name
+has two overloads separated by the type of their second parameter, and no argument
+is both a `ViolationCode` and an `ErrorCode`.
+
+**A forwarding overload has to pass the captured text on by hand.**
+`Check(predicate, ViolationCode, …)` calls its `ErrorCode` sibling, and left to
+the compiler that inner call captures its own argument — so every violation would
+read `predicate` rather than the caller's lambda. The tests assert the rendered
+text through both overloads, which is the only thing that catches this.
+
+**`WithMessage` renders `{Expected}` and `{Predicate}` literally, on purpose.** It
+replaces the messages of every rule on the chain at once, so there is no single
+bound or predicate left to name. Documented on the member; do not "fix" it by
+threading the last one through, which would silently pick one rule out of several.
 
 ## The primitives are cached, and identity is the whole implementation
 
