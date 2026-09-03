@@ -1,4 +1,4 @@
-; Shipped analyzer releases
+﻿; Shipped analyzer releases
 ; https://github.com/dotnet/roslyn-analyzers/blob/main/src/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
 ## Release 7.1.0
@@ -15,3 +15,4 @@ WMSC0005 | Usage | Warning | Do not pass a value-producing field to Refine
 WMSC0006 | Usage | Error | Do not reach an asynchronous rule from a field set
 WMSC0007 | Usage | Warning | Call Schema.Fields through the name Schema
 WMSC0008 | Usage | Warning | Name a field whose path cannot be read from its argument
+WMSC0009 | Usage | Info | Prefer a named schema over Schema.For

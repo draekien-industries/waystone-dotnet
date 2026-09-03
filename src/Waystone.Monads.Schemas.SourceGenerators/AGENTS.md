@@ -203,8 +203,9 @@ looked at and both were left alone; do not "fix" either without a new reason.
 
 ## Severity is not uniform, and the split is the point
 
-`Create` builds an error; `Advice` builds a warning. **The line is whether the code
-has a reading that is correct**, not whether the schema generates.
+`Create` builds an error; `Advice` builds a warning; `Suggestion` builds an
+information diagnostic. **The line is whether the code has a reading that is
+correct**, not whether the schema generates.
 
 `WMSC0001`–`WMSC0004` describe a schema that cannot be built, so failing the build
 is the whole point — the alternative is a missing member reported against a
@@ -218,5 +219,25 @@ of the same code: gating on a value deliberately not kept, such as a confirmatio
 field that must be well-formed and is never stored. An error there would leave that
 author nothing but the id in an `.editorconfig`.
 
-`RulesTests` spells out which ids warn rather than deriving it, so promoting a rule
-has to be a deliberate edit in two places.
+`WMSC0009` is quieter still, and is the only rule here reporting on code with
+nothing wrong with it: both spellings of a named schema are the same cached object,
+and one is merely easier to find the rules for. A warning would put a line in the
+build log of a consumer who wrote correct code on an upgrade they did not choose, so
+it suggests — an IDE offers it and a build never mentions it.
+
+**An analyzer ships in this assembly as well as the generator, and `WMSC0009` is
+why.** The generator only ever sees a `Configure` body, and a schema is as likely to
+sit in a shared static field, which is the shape the documentation recommends. The
+assembly is packed to `analyzers/dotnet/cs`, which Roslyn loads analyzers and
+generators from alike, so nothing about the packaging changed.
+
+**That analyzer skips the assembly it is compiling when that assembly declares
+`Schema.For` itself.** The named schemas *are* `For<T>()` initialisers, so without
+the guard the rule reports nine times on the definitions it is recommending — and
+this project's `.props` is imported into `Waystone.Monads.Schemas.csproj`, so it runs
+there. No unit test covers it, because the harness compiles a subject assembly that
+is never the runtime one; it was verified by raising the rule to an error and
+building both the package and a consumer.
+
+`RulesTests` spells out which ids warn and which suggest rather than deriving
+either, so promoting a rule has to be a deliberate edit in two places.

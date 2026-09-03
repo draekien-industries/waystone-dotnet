@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas.SourceGenerators;
+﻿namespace Waystone.Monads.Schemas.SourceGenerators;
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Shouldly;
 using Waystone.Monads.Results;
 
@@ -78,6 +79,26 @@ internal static class Verify
                            diagnostic.Severity >= DiagnosticSeverity.Warning)
                   .ToImmutableArray());
     }
+
+    /// <summary>
+    /// Runs an analyzer over <paramref name="source" /> wrapped the same way
+    /// <see cref="Run" /> wraps it, and returns every diagnostic it reported.
+    /// </summary>
+    /// <remarks>
+    /// Separate from <see cref="Run" /> because an analyzer is not a generator: it
+    /// runs over the finished compilation rather than contributing to one, so it
+    /// reaches calls in places a generator never sees. The compilation references the
+    /// real runtime assembly, which is what makes a rule that compares assemblies
+    /// meaningful here.
+    /// </remarks>
+    public static ImmutableArray<Diagnostic> Analyze(
+        DiagnosticAnalyzer analyzer,
+        string source) =>
+        Compile([Preamble + source + Postscript])
+           .WithAnalyzers(ImmutableArray.Create(analyzer))
+           .GetAnalyzerDiagnosticsAsync()
+           .GetAwaiter()
+           .GetResult();
 
     /// <summary>
     /// Runs one driver over two identical but separately parsed compilations. The
