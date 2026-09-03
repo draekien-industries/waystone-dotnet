@@ -14,12 +14,15 @@ internal sealed class CheckSchema<TIn, TOut> : DecoratorSchema<TIn, TOut, TOut>
 
     private readonly Func<TOut, bool> _predicate;
 
+    private readonly string? _predicateExpression;
+
     internal CheckSchema(
         Schema<TIn, TOut> inner,
         Func<TOut, bool> predicate,
         ErrorCode code,
         string message,
-        object? expected = null) : base(inner)
+        object? expected = null,
+        string? predicateExpression = null) : base(inner)
     {
         _predicate = predicate
                   ?? throw new ArgumentNullException(nameof(predicate));
@@ -27,6 +30,7 @@ internal sealed class CheckSchema<TIn, TOut> : DecoratorSchema<TIn, TOut, TOut>
         _code = code ?? throw new ArgumentNullException(nameof(code));
         _message = message ?? throw new ArgumentNullException(nameof(message));
         _expected = expected;
+        _predicateExpression = predicateExpression;
     }
 
     protected override Outcome<TOut> Decorate(
@@ -46,6 +50,7 @@ internal sealed class CheckSchema<TIn, TOut> : DecoratorSchema<TIn, TOut, TOut>
                 _code,
                 _message,
                 outcome.Value,
-                _expected));
+                _expected,
+                _predicateExpression));
     }
 }

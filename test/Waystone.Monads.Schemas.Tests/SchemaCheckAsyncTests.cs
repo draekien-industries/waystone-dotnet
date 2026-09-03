@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas;
+﻿namespace Waystone.Monads.Schemas;
 
 using System;
 using System.Threading;
@@ -165,4 +165,45 @@ public sealed class SchemaCheckAsyncTests
             static (value, _) => new ValueTask<bool>(value != "taken"),
             ViolationCode.Mismatched,
             "{Path} is already taken, got {Received}.");
+
+    [Fact]
+    public async Task GivenAPredicateToken_WhenCheckingAsync_ThenRenderThePredicateSource()
+    {
+        Outcome<string> outcome = await new PassThrough<string>()
+                                       .CheckAsync(
+                                            static (value, _) =>
+                                                new ValueTask<bool>(
+                                                    value != "taken"),
+                                            ViolationCode.Mismatched,
+                                            "Expected {Path} to satisfy {Predicate}.")
+                                       .EvaluateAsync(
+                                            "taken",
+                                            ParseContext.Root.At("name"),
+                                            TestContext.Current
+                                               .CancellationToken);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldStartWith("Expected name to satisfy static (value, _) =>");
+    }
+
+    [Fact]
+    public async Task GivenAnOverridingExpression_WhenCheckingAsync_ThenRenderThatInstead()
+    {
+        Outcome<string> outcome = await new PassThrough<string>()
+                                       .CheckAsync(
+                                            static (value, _) =>
+                                                new ValueTask<bool>(
+                                                    value != "taken"),
+                                            ViolationCode.Mismatched,
+                                            "Expected {Path} to satisfy {Predicate}.",
+                                            "an unused name")
+                                       .EvaluateAsync(
+                                            "taken",
+                                            ParseContext.Root.At("name"),
+                                            TestContext.Current
+                                               .CancellationToken);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldBe("Expected name to satisfy an unused name.");
+    }
 }

@@ -456,8 +456,8 @@ Where a schema was written or edited, four more:
 - [ ] Every `Schema.For<T>()` that has a named spelling — replaced with it
       (`WMSC0009`)
 - [ ] Every message template — read for a token that is not `{Path}`,
-      `{Received}` or `{Code}`, since anything else reaches the caller verbatim
-      and `{Expected}` cannot be filled from `Check` at all
+      `{Received}`, `{Predicate}` or `{Code}`, since anything else reaches the
+      caller verbatim and `{Expected}` cannot be filled from `Check` at all
 - [ ] Every field passed to `Refine` that produces a value — listed in
       `Schema.Fields` if the value was wanted, `.AsChecked()` if it was not
       (`WMSC0005`)

@@ -15,6 +15,7 @@ internal static class MessageTemplate
         ErrorCode code,
         object? received,
         object? expected,
+        string? predicate,
         bool isSensitive)
     {
         if (template.IndexOf('{') < 0) return template;
@@ -45,6 +46,7 @@ internal static class MessageTemplate
                 code,
                 received,
                 expected,
+                predicate,
                 isSensitive);
 
             if (replacement is null)
@@ -68,6 +70,7 @@ internal static class MessageTemplate
         ErrorCode code,
         object? received,
         object? expected,
+        string? predicate,
         bool isSensitive) =>
         token switch
         {
@@ -76,6 +79,7 @@ internal static class MessageTemplate
                 ? Redacted
                 : received?.ToString() ?? AbsentReceived,
             "Expected" => expected?.ToString(),
+            "Predicate" => predicate,
             "Code" => code.Value,
             _ => null,
         };

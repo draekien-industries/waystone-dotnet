@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas;
+﻿namespace Waystone.Monads.Schemas;
 
 using System;
 using System.Threading.Tasks;
@@ -152,5 +152,66 @@ public sealed class SchemaCheckTests
                        ViolationCodeCatalog.Codes.Malformed,
                        null!))
               .ParamName.ShouldBe("message");
+    }
+
+    [Fact]
+    public void GivenAPredicateToken_WhenChecking_ThenRenderThePredicateSource()
+    {
+        Outcome<string> outcome = new PassThrough<string>()
+                                 .Check(
+                                      static value => value.Length > 2,
+                                      ViolationCode.OutOfRange,
+                                      "Expected {Path} to satisfy {Predicate}.")
+                                 .Evaluate("a", At);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldBe(
+                    "Expected password to satisfy static value => value.Length > 2.");
+    }
+
+    [Fact]
+    public void GivenAnErrorCodeOverload_WhenChecking_ThenRenderThePredicateSource()
+    {
+        Outcome<string> outcome = new PassThrough<string>()
+                                 .Check(
+                                      static value => value.Length > 2,
+                                      ViolationCodeCatalog.Codes.OutOfRange,
+                                      "Expected {Path} to satisfy {Predicate}.")
+                                 .Evaluate("a", At);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldBe(
+                    "Expected password to satisfy static value => value.Length > 2.");
+    }
+
+    [Fact]
+    public void GivenAnOverridingExpression_WhenChecking_ThenRenderThatInstead()
+    {
+        Outcome<string> outcome = new PassThrough<string>()
+                                 .Check(
+                                      static value => value.Length > 2,
+                                      ViolationCode.OutOfRange,
+                                      "Expected {Path} to satisfy {Predicate}.",
+                                      "more than two characters")
+                                 .Evaluate("a", At);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldBe(
+                    "Expected password to satisfy more than two characters.");
+    }
+
+    [Fact]
+    public void GivenWithMessage_WhenChecking_ThenLeaveThePredicateTokenInPlace()
+    {
+        Outcome<string> outcome = new PassThrough<string>()
+                                 .Check(
+                                      static value => value.Length > 2,
+                                      ViolationCode.OutOfRange,
+                                      "Replaced.")
+                                 .WithMessage("Failed {Predicate}.")
+                                 .Evaluate("a", At);
+
+        outcome.Violations.ShouldHaveSingleItem()
+               .Message.ShouldBe("Failed {Predicate}.");
     }
 }

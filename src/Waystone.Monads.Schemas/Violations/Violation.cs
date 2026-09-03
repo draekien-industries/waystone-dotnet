@@ -32,6 +32,8 @@ public sealed record Violation
 
     private readonly ViolationPath _path;
 
+    private readonly string? _predicate;
+
     private readonly object? _received;
 
     private readonly string _template;
@@ -44,6 +46,7 @@ public sealed record Violation
         string template,
         object? received = null,
         object? expected = null,
+        string? predicate = null,
         bool isSensitive = false)
     {
         _path = path ?? throw new ArgumentNullException(nameof(path));
@@ -51,6 +54,7 @@ public sealed record Violation
         _template = template;
         _received = received;
         _expected = expected;
+        _predicate = predicate;
         _isSensitive = isSensitive;
     }
 
@@ -125,6 +129,7 @@ public sealed record Violation
             template,
             received,
             null,
+            null,
             _isSensitive || isSensitive);
 
     internal Violation Recoded(ErrorCode code) =>
@@ -134,7 +139,14 @@ public sealed record Violation
         ViolationPath path,
         ErrorCode code,
         bool isSensitive) =>
-        new(path, code, _template, _received, _expected, isSensitive);
+        new(
+            path,
+            code,
+            _template,
+            _received,
+            _expected,
+            _predicate,
+            isSensitive);
 
     private string Render() =>
         MessageTemplate.Render(
@@ -143,5 +155,6 @@ public sealed record Violation
             Code,
             _received,
             _expected,
+            _predicate,
             _isSensitive);
 }
