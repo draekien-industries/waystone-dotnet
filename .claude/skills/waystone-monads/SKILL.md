@@ -1,6 +1,6 @@
 ---
 name: waystone-monads
-description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM or WMS diagnostic fires, when extracting a reusable chain of fallible steps, when serializing or asserting on a monad, when configuring MonadOptions or observing the exceptions Try swallows, or when the user says "use an Option", "return a Result", "make this monadic", "make this chain reusable".
+description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM, WMS or WMSC diagnostic fires, when extracting a reusable chain of fallible steps, when parsing untrusted input with Waystone.Monads.Schemas or adding a schema rule of your own, when serializing or asserting on a monad, when configuring MonadOptions or observing the exceptions Try swallows, or when the user says "use an Option", "return a Result", "make this monadic", "make this chain reusable", "parse this payload", "add a schema rule".
 ---
 
 # Waystone.Monads
@@ -79,7 +79,7 @@ group rather than a lambda, and it is the constraint to design backwards from.
 
 | A step needs | Give it |
 | --- | --- |
-| A dependency — a repository, a clock, a rate | A field set in the constructor, never a second parameter |
+| A dependency — a repository, a clock, a rate | A readonly field assigned in the constructor, never a second parameter |
 | A value an earlier step produced | A tuple carried forward, so the step still takes one parameter |
 | Only to validate what it was handed | The same `T` back, so it slots in anywhere that `T` flows |
 | To fail | One error code, so the failure names which step it was |
@@ -330,15 +330,40 @@ Read [references/observability.md](references/observability.md) before wiring up
 either channel and before writing a test that asserts a `Try` swallowed
 something.
 
+## Parse at the boundary
+
+`Waystone.Monads.Schemas` is a separate package that **parses rather than
+validates**: it does not check an object you already built, it builds one. `Parse`
+hands back `Result<TOut, SchemaViolation>` and reports every failure at once, so a
+parse collapses and composes like any other `Result` — a step in a chain, not a
+parallel mechanism.
+
+```csharp
+Result<Quest, SchemaViolation> quest = QuestSchema.Instance.Parse(posting);
+```
+
+Two things decide most of what the code looks like. **A schema is composition all
+the way down** — there is no rule interface and no schema to subclass, so a rule
+of your own is an extension method returning `schema.Check(...)`. And **a field
+set is synchronous**: `Configure` returns a value rather than a task, so an
+asynchronous rule reached from one throws `InvalidOperationException` however the
+caller parsed, which is why `WMSC0006` is an error rather than advice.
+
+Read [references/schemas.md](references/schemas.md) before writing one — the
+surface is large, and the traps that bite hardest are silent: a message token that
+renders literally rather than failing, a `Schema.Uuid` that accepts `Guid.Empty`,
+and a `Refine` that discards a value you meant to keep.
+
 ## Where the detail lives
 
 These areas carry more than the chain above needs. Load the one the code is
-actually touching. Three further references —
+actually touching. Four further references —
 [references/diagnostics.md](references/diagnostics.md) for the full rule table,
 [references/state-overloads.md](references/state-overloads.md) for closure
-mechanics and [references/observability.md](references/observability.md) for the
-metrics, logging and raw-event channels — are pointed to above, where the
-situation that needs them arises.
+mechanics, [references/observability.md](references/observability.md) for the
+metrics, logging and raw-event channels, and
+[references/schemas.md](references/schemas.md) for parsing untrusted input — are
+pointed to above, where the situation that needs them arises.
 
 **Every code sample, here and in the references, is illustrative.** The recurring
 `Order`, `Quote`, `Invoice` and `Shipment` types are there to make a shape legible
@@ -364,11 +389,15 @@ member is missing.
 ## The companion packages
 
 Core ships the monads, the analyzer and the error-code generator. Everything else
-is a package a project installs deliberately, and each shadows the namespace of
-the library it companions rather than sitting under a parallel `Waystone` tree —
-so the types appear under a `using` the file already has. Check which are
-referenced before concluding a shape is unavailable, and read the one being used
-rather than guessing at its surface.
+is a package a project installs deliberately. Check which are referenced before
+concluding a shape is unavailable, and read the one being used rather than
+guessing at its surface.
+
+Each package below **shadows the namespace of the library it companions** rather
+than sitting under a parallel `Waystone` tree, so its types appear under a `using`
+the file already has. `Waystone.Monads.Schemas` is the exception — it companions
+no third party, so it keeps its own namespace, and
+[references/schemas.md](references/schemas.md) covers it.
 
 | Read | When |
 | --- | --- |
@@ -422,10 +451,25 @@ Run over the code just written and rewrite each of these where it appears:
 - [ ] Every assertion on `IsSome`/`IsOk` or on an `Unwrap` in a test — replaced
       with the assertion that reports the monad (`WMS2001`)
 
+Where a schema was written or edited, four more:
+
+- [ ] Every `Schema.For<T>()` that has a named spelling — replaced with it
+      (`WMSC0009`)
+- [ ] Every message template — read for a token that is not `{Path}`,
+      `{Received}` or `{Code}`, since anything else reaches the caller verbatim
+      and `{Expected}` cannot be filled from `Check` at all
+- [ ] Every field passed to `Refine` that produces a value — listed in
+      `Schema.Fields` if the value was wanted, `.AsChecked()` if it was not
+      (`WMSC0005`)
+- [ ] Every field whose path came from something other than a member access —
+      given a `.Named(...)` (`WMSC0008`)
+
 The build is the check that this landed: `WM1xxx` rules are warnings and
 `WM2xxx` are informational, both enabled by default, and both ship inside the
-`Waystone.Monads` package. A clean build with no `WM` diagnostic — and no `WMS`
-diagnostic where the assertions package is referenced — is the completion bar.
+`Waystone.Monads` package. A clean build with no `WM` diagnostic — no `WMS` where
+the assertions package is referenced, and no `WMSC` where the schemas package is —
+is the completion bar. `WMSC0009` is the one rule a build never shows, so it takes
+a read rather than a build to clear.
 `WM3001` and `WM3002`, which flag nullable returns and throws that could become
 monads, are **disabled by default** — enable them deliberately when migrating a
 codebase onto the library, since they fire on every nullable return and every

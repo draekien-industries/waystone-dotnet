@@ -1,7 +1,11 @@
-# The WM diagnostics
+# The diagnostics
 
-The analyzer ships inside the `Waystone.Monads` package and every consumer gets
-it on upgrade. Three tiers, and the tier sets the severity:
+Three prefixes are covered here. `WM` is the core analyzer and carries most of
+the rules; `WMS` and `WMSC` come from packages a project installs deliberately,
+and each has its own section below.
+
+The `WM` analyzer ships inside the `Waystone.Monads` package and every consumer
+gets it on upgrade. Three tiers, and the tier sets the severity:
 
 | Tier | Category | Severity | Enabled by default |
 | --- | --- | --- | --- |
@@ -82,6 +86,46 @@ is no `WMS1` tier — both fire on tests that pass, so both are `Info`.
 `WMS2001` overlaps `WM2001` on the `Unwrap` shape deliberately: applying the
 `WMS2001` fix resolves both, because the rewrite is what removes the `Unwrap`.
 
+## The schemas package has its own prefix
+
+`Waystone.Monads.Schemas` ships its rules under `WMSC` — four characters, not
+the three of `WMS`, and nothing to do with them. An `.editorconfig` entry or a
+`#pragma` naming the wrong prefix silences a rule you wanted and leaves the one
+you meant still firing.
+
+Most of these are **errors**, which no `WM` rule is. A schema is generated, so
+the failure they describe otherwise surfaces as a missing member reported against
+a file the author cannot open. Failing the build with the reason beats failing it
+without one, and that is the whole justification for the severity.
+
+| Id | Severity | Flags | Fix |
+| --- | --- | --- | --- |
+| `WMSC0001` | Error | The schema, or a type containing it, is not `partial` | Add `partial` to the type the diagnostic names — for a nested schema that is the outer one, not the schema |
+| `WMSC0002` | Error | No constructor callable with no arguments | Add a parameterless one, or take what the schema needs from the input it parses. `SchemaConfig` supplies one implicitly until the class declares a constructor of its own, and the compiler says nothing when it disappears |
+| `WMSC0003` | Error | A hand-written member named `Instance`, `Schema` or `FieldSet` | Rename it, or delete it and use the generated one. Arity does not separate them — a `FieldSet<T>` collides with a generated `FieldSet<T1, T2>` |
+| `WMSC0004` | Error | The `Into` lambda's arity does not match the field count | One parameter per field, in the order the fields are listed |
+| `WMSC0005` | Warning | `Refine` handed a field that produces a value | List it in `Schema.Fields` if the value was wanted; call `.AsChecked()` on it if it was not |
+| `WMSC0006` | Error | An asynchronous rule reached from a `Configure` body | `Check` where the rule can answer from the value alone, otherwise compose the asynchronous rule *around* the generated schema and parse with `ParseAsync` |
+| `WMSC0007` | Warning | A `Fields` call the generator did not recognise | Write the receiver as `Schema`, qualifying it if necessary. An alias or a bare `Fields(...)` matches nothing and generates nothing |
+| `WMSC0008` | Warning | A field path derived from an expression rather than a name | `.Named("...")`, which reports it under a name a caller can act on |
+| `WMSC0009` | Suggestion | `Schema.For<T>()` where a named schema exists | The named spelling. Both are the same cached object, so nothing is wrong — only harder to find the rules for |
+
+`WMSC0006` is an error despite the code compiling and generating, because it has
+no reading that works. Reached, the rule throws `InvalidOperationException`;
+short-circuited by an earlier failure, it is skipped. It never decides anything
+under any input.
+
+`WMSC0007` and `WMSC0008` each warn rather than fail because each has a known
+false positive. `WMSC0007` fires on *any* unbound call to a member named `Fields`,
+including one that failed to bind for its own unrelated reasons — the compiler is
+already reporting that call, and this adds the reason rather than a second build
+failure. `WMSC0008`'s derived path is only *usually* wrong; a parse whose
+violations never leave the process does not care what the expression reduced to.
+
+`WMSC0009` is the quietest rule of any prefix here, and the only one
+reporting on code with nothing wrong with it. It never appears in a build log —
+an IDE offers it as a refactoring and that is all.
+
 ## Raising the tier as a whole
 
 The shipped defaults stay quiet, and a codebase adopting the library opts into
@@ -93,8 +137,10 @@ more with one property rather than a rule-by-rule `.editorconfig`:
 
 `recommended` raises the `WM1` tier to error and leaves everything else alone. `strict` does that and raises `WM2` to warning and both `WM3` rules on —
 expect the migration pair to report by a wide margin on any existing codebase.
-`Waystone.Monads.Shouldly` reads the *same* property, so one posture covers
-every Waystone package installed.
+`Waystone.Monads.Shouldly` reads the *same* property, so one posture covers both
+of them. **It does not reach `WMSC`** — the schemas package ships no preset, so
+its severities are what its descriptors declare until an `.editorconfig` says
+otherwise.
 
 Both presets are global analyzer configs, and a path-matched `.editorconfig`
 section beats them — that is the route to override a single rule. The one rule
