@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas.Internal.Fields;
+﻿namespace Waystone.Monads.Schemas.Internal.Fields;
 
 using System;
 
@@ -19,11 +19,7 @@ internal sealed class ExtendField<T> : Field<Checked> where T : notnull
     {
         ParseContext scope = _name is null ? context : context.At(_name);
 
-        Outcome<T> outcome = _rules.Evaluate(_subject, scope);
-
-        return outcome.Violations.Count == 0
-            ? Outcome<Checked>.Passed(Checked.Instance)
-            : Outcome<Checked>.Failed(outcome.Violations);
+        return _rules.Evaluate(_subject, scope).ToChecked();
     }
 
     internal override Field<Checked> WithName(string name) =>

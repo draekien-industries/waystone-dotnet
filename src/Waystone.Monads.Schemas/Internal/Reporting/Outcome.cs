@@ -46,6 +46,11 @@ internal sealed class Outcome<T> where T : notnull
             ? Outcome<TNext>.Passed(value)
             : Outcome<TNext>.Refined(value, Violations);
 
+    public Outcome<Checked> ToChecked() =>
+        Violations.Count == 0
+            ? Outcome<Checked>.Passed(Checked.Instance)
+            : Outcome<Checked>.Failed(Violations);
+
     public Result<T, SchemaViolation> ToResult() =>
         Violations.Count == 0
             ? Result.Ok<T, SchemaViolation>(_value)

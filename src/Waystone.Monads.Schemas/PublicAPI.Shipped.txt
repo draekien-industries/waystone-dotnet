@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 Waystone.Monads.Schemas.BoolSchemaExtensions
 Waystone.Monads.Schemas.Checked
 Waystone.Monads.Schemas.Checked.Checked() -> void
@@ -129,6 +129,7 @@ static Waystone.Monads.Schemas.ComparableSchemaExtensions.Between<TIn, T>(this W
 static Waystone.Monads.Schemas.ComparableSchemaExtensions.GreaterThan<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
 static Waystone.Monads.Schemas.ComparableSchemaExtensions.LessThan<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
 static Waystone.Monads.Schemas.FieldAccumulator.Start() -> Waystone.Monads.Schemas.FieldAccumulator!
+static Waystone.Monads.Schemas.FieldExtensions.AsChecked<T>(this Waystone.Monads.Schemas.Field<T>! field) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
 static Waystone.Monads.Schemas.FieldExtensions.Named<T>(this Waystone.Monads.Schemas.Field<T>! field, string! name) -> Waystone.Monads.Schemas.Field<T>!
 static Waystone.Monads.Schemas.IdSchemaExtensions.NotEmpty<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.Guid>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.Guid>!
 static Waystone.Monads.Schemas.NumberSchemaExtensions.Negative<TIn>(this Waystone.Monads.Schemas.Schema<TIn, decimal>! schema) -> Waystone.Monads.Schemas.Schema<TIn, decimal>!

@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas.SourceGenerators;
+﻿namespace Waystone.Monads.Schemas.SourceGenerators;
 
 using System;
 using System.Linq;
@@ -286,6 +286,22 @@ public sealed class LadderGeneratorTests
 
         run.Generated[0].ShouldContain("private readonly struct FieldSet<T1>");
     }
+
+    /// <summary>
+    /// <c>AsChecked</c> is the deliberate form of the thing this rule warns about,
+    /// and turns it off by yielding <c>Checked</c> rather than by suppressing
+    /// anything. A field the caller wrote out in full still reports.
+    /// </summary>
+    [Fact]
+    public void ARefinementDiscardedWithAsCheckedIsNotReported() =>
+        Verify.Run(
+                   Configuring(
+                       """
+                       Schema.Fields(Schema.Required(subject, Schema.Text))
+                                   .Refine(Schema.Required(subject, Schema.Text).AsChecked())
+                                   .Into(a => a);
+                       """))
+              .DiagnosticIds.ShouldNotContain("WMSC0005");
 
     /// <summary>
     /// The non-generic field has already erased its value side, which is what

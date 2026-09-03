@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas.SourceGenerators;
+﻿namespace Waystone.Monads.Schemas.SourceGenerators;
 
 using Microsoft.CodeAnalysis;
 
@@ -77,8 +77,8 @@ internal static class Rules
     public static readonly DiagnosticDescriptor RefineDiscardsAValue = Advice(
         "WMSC0005",
         "Do not pass a value-producing field to Refine",
-        "'{0}' yields '{1}' and 'Refine' discards it; list it in 'Schema.Fields' to reach the 'Into' lambda, or gate with 'Schema.Forbidden' or 'Schema.Extend' if the value is not wanted",
-        "'Refine' takes the non-generic 'Field' base, which drops the value side, so it accepts any field and keeps only its violations. That is the right shape for a rule yielding 'Checked', which has nothing to contribute, and a silent mistake for one that parses a value somebody expected to find on the result.");
+        "'{0}' yields '{1}' and 'Refine' discards it; list it in 'Schema.Fields' to reach the 'Into' lambda, or call 'AsChecked' on it to drop the value on purpose",
+        "'Refine' takes the non-generic 'Field' base, which drops the value side, so it accepts any field and keeps only its violations. That is the right shape for a rule yielding 'Checked', which has nothing to contribute, and a silent mistake for one that parses a value somebody expected to find on the result. 'AsChecked' is how a caller says the discard was meant: it yields 'Checked' and so stops this rule here rather than everywhere.");
 
     /// <summary>
     /// Reported at the <c>CheckAsync</c> call, which is the one place a reader can

@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Docs.Schemas.Sample;
+﻿namespace Waystone.Monads.Docs.Schemas.Sample;
 
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
@@ -45,7 +45,13 @@ internal static class FieldSetsPage
         Field<Checked> chronology = Schema.Extend(subject, Chronology);
         #endregion
 
-        return [name, title, size, legacy, chronology];
+        #region schema-field-sets-as-checked
+        Field<Checked> confirmation =
+            Schema.Required(subject.ConfirmEmail, Schema.Text.Email())
+                  .AsChecked();
+        #endregion
+
+        return [name, title, size, legacy, chronology, confirmation];
     }
 }
 
@@ -81,7 +87,8 @@ public sealed record PartyDto(
     int? Size,
     string? LegacyId,
     DateTimeOffset? Formed,
-    DateTimeOffset? Disbanded);
+    DateTimeOffset? Disbanded,
+    string? ConfirmEmail);
 
 public sealed class Party
 {
