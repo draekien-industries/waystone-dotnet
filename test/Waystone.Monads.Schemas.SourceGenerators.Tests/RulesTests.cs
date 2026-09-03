@@ -1,4 +1,4 @@
-namespace Waystone.Monads.Schemas.SourceGenerators;
+﻿namespace Waystone.Monads.Schemas.SourceGenerators;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -61,11 +61,16 @@ public sealed class RulesTests
            .ShouldBe(["WMSC0005", "WMSC0007", "WMSC0008"]);
 
         Descriptors()
+           .Where(
+                descriptor => descriptor.DefaultSeverity
+                           == DiagnosticSeverity.Info)
+           .Select(descriptor => descriptor.Id)
+           .ShouldBe(["WMSC0009"]);
+
+        Descriptors()
            .ShouldAllBe(
                 descriptor => descriptor.DefaultSeverity
-                           == DiagnosticSeverity.Error
-                           || descriptor.DefaultSeverity
-                           == DiagnosticSeverity.Warning);
+                           != DiagnosticSeverity.Hidden);
     }
 
     /// <summary>

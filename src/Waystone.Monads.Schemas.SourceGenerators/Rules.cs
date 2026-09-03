@@ -134,6 +134,22 @@ internal static class Rules
         "'{0}' takes this field's path from the expression itself, so a violation reports it as '{1}'; add '.Named(\"...\")' to report it under a name a caller can act on",
         "A field's path comes from 'CallerArgumentExpression', which hands the runtime the argument's source text and nothing else. A member access reduces to the member's name, which is the case the design is built around. Anything else — a method call, an indexer, a literal, a null-forgiving operator — keeps its punctuation, and that text then reaches logs and API responses alongside the violation.");
 
+    /// <summary>
+    /// The only rule here that reports on code with nothing wrong with it, which is
+    /// why it suggests rather than warns. Both spellings are the same object; one is
+    /// merely easier to find the rules for.
+    /// </summary>
+    /// <remarks>
+    /// Deliberately silent where a named spelling does not exist. <c>For&lt;T&gt;()</c>
+    /// over a domain type is the documented starting point for one's own rules, and a
+    /// rule that fired there would report on the design working as intended.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor PreferANamedSchema = Suggestion(
+        "WMSC0009",
+        "Prefer a named schema over Schema.For",
+        "'Schema.For<{0}>()' returns the same instance as '{1}'; prefer '{1}', which is where the rules for '{0}' are listed",
+        "Every named schema is initialised with 'Schema.For<T>()' and the result is cached per type, so the two spellings are the same object and neither checks anything the other does not. The named one is what the documentation and the rule sets are organised under, so it is what a reader looking for the rules that apply to a type will find. This reports nothing for a type that has no named spelling, which is what 'Schema.For<T>()' is for.");
+
     private const string DocsRoot =
         "https://draekien-industries.wpei.me/source-generation/diagnostics#";
 
@@ -166,6 +182,18 @@ internal static class Rules
             messageFormat,
             description,
             DiagnosticSeverity.Warning);
+
+    /// <summary>
+    /// A rule for code that is correct and has a better spelling. It suggests, so an
+    /// IDE offers it and a build never mentions it: nothing here is wrong enough to
+    /// put a line in somebody's build log on an upgrade they did not choose.
+    /// </summary>
+    private static DiagnosticDescriptor Suggestion(
+        string id,
+        string title,
+        string messageFormat,
+        string description) =>
+        Descriptor(id, title, messageFormat, description, DiagnosticSeverity.Info);
 
     private static DiagnosticDescriptor Descriptor(
         string id,
