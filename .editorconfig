@@ -34,3 +34,29 @@ max_line_length = 80
 dotnet_diagnostic.RS1015.severity = warning
 dotnet_diagnostic.RS1020.severity = warning
 dotnet_diagnostic.RS1028.severity = warning
+
+[src/Waystone.Monads.Schemas/Schema.cs]
+
+# RS0026 forbids several overloads of one name from carrying optional
+# parameters, because a later addition can silently rebind a call site. Every
+# field constructor in this file needs one: CallerArgumentExpression is what
+# derives the violation path, and the compiler only fills it in on an optional
+# parameter. The hazard cannot arise here, because the overloads are separated
+# by mutually exclusive generic constraints - an Option<TIn>, a reference TIn
+# and a nullable value TIn are three shapes no single argument satisfies at
+# once, so an ambiguity is a CS0121 at the call site rather than a silent
+# rebind. Scoped to this file so a genuine overload hazard elsewhere in the
+# package still reports.
+dotnet_diagnostic.RS0026.severity = none
+
+[src/Waystone.Monads.Schemas/SchemaOfTInTOut.cs]
+
+# The same exemption, for the same reason, on Check and CheckAsync.
+# CallerArgumentExpression captures the predicate's source text so {Predicate}
+# can render it, and the compiler fills it only on an optional parameter. The
+# silent-rebind hazard cannot arise: each name has exactly two overloads, they
+# are separated by the type of the second parameter - a ViolationCode struct
+# against an ErrorCode reference - and no argument is both, so a would-be
+# ambiguity is a compile error at the call site rather than a quiet move to the
+# other overload. Scoped to this file for the same reason as above.
+dotnet_diagnostic.RS0026.severity = none

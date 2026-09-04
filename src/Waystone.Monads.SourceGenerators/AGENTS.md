@@ -95,10 +95,29 @@ files; do not number into `WSG`, which belongs to the other generator assembly.
 
 **The emitted source targets C# 7.3, not the repository's language version.** A
 `switch` statement rather than a switch expression, `new T(...)` rather than a
-target-typed `new`, a block namespace, and no `#nullable` directive. The generator
-runs in the *consumer's* compilation, and the default `LangVersion` for a `net472`
-project is still 7.3 — a switch expression there is a compile error in a file the
-consumer did not write and cannot edit.
+target-typed `new`, and a block namespace. The generator runs in the *consumer's*
+compilation, and the default `LangVersion` for a `net472` project is still 7.3 — a
+switch expression there is a compile error in a file the consumer did not write and
+cannot edit.
+
+**`#nullable enable` is the one exception, and it is conditional.**
+`AnnotatesNullability` reads `LanguageVersion` off the `CSharpCompilation` and emits
+the directive only from C# 8 up; below that the output is byte-for-byte what it has
+always been. It casts rather than pattern-matches, because a generator that matches
+C# syntax never sees another language and the false arm was an uncoverable
+partial. Without it the whole
+catalog is nullable-oblivious, which is `RS0041` in any consumer with a public API
+baseline — on public API they did not write and cannot annotate. `NoWarn` there
+would disable the rule for their hand-written code too, and an `.editorconfig`
+severity glob does not reach a generated document; both were tried.
+
+The directive is the whole change. The emitted `Errors.{Member}(string message)`
+and `ToError(..., string message)` keep a *non-nullable* `message`, matching
+`Error`'s own constructor. Annotating them `string?` only moves the problem: the
+generated body passes the value straight into `new Error(code, message)`, so it
+buys a `CS8604` and a suppression to silence it. The doc comment's note that a
+blank message is replaced by the configured fallback describes a runtime safety
+net, not permission to pass null.
 
 **Generated doc comments use `<c>` and never `<see cref="..." />`.** An unresolved
 cref is CS1574, which is an error in any consumer with

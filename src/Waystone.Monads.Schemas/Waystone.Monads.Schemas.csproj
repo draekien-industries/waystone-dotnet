@@ -1,0 +1,116 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
+        <LangVersion>latestMajor</LangVersion>
+        <Nullable>enable</Nullable>
+        <NoWarn>CS1591</NoWarn>
+    </PropertyGroup>
+
+    <!--
+        The name is plural, and it has to be. A namespace and a type may share a
+        name, but the namespace wins lookup wherever both are candidates, so a
+        singular Waystone.Monads.Schema namespace turns Schema.Text into a CS0234
+        for any consumer whose own namespace begins Waystone.Monads. - which is
+        every test project and every published doc sample in this repository. The
+        package id follows the namespace so there is only one spelling to hold, and
+        this property is stated rather than inferred so a rename cannot quietly
+        take the namespace with it.
+    -->
+    <PropertyGroup>
+        <RootNamespace>Waystone.Monads.Schemas</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>Waystone.Monads.Schemas</Title>
+        <Description>
+            Composable schema parsing for Waystone.Monads. Declare reusable checks, compose them into a schema, and parse an untrusted input into a validated domain type as a Result, with every failure reported at once.
+        </Description>
+        <PackageTags>result pattern option monad aspnetcore rust error handling framework validation schema parsing</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <!--
+        Waystone.Monads reaches consumers with its generators packed into
+        analyzers/dotnet/cs, but a ProjectReference does not carry them, so
+        ViolationCode's [ErrorCodeCatalog] needs the generator imported by hand.
+    -->
+    <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
+    <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
+    <Import Project="..\Waystone.Monads.Schemas.SourceGenerators\Waystone.Monads.Schemas.SourceGenerators.props"/>
+
+    <!--
+        This package's own pack target, not an extra condition on PackMonadAnalyzers.
+        That one packs into Waystone.Monads, and the schema generator has no business
+        running in the compilation of every monads consumer.
+
+        The condition on the framework is load-bearing rather than tidy. This project
+        multi-targets, TargetsForTfmSpecificContentInPackage runs once per framework,
+        and both runs would put the same file at the same package path.
+    -->
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackSchemaAnalyzers</TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
+
+    <Target Name="PackSchemaAnalyzers" DependsOnTargets="ResolveProjectReferences"
+            Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="@(Analyzer)"
+                                    Condition="'%(Filename)' == 'Waystone.Monads.Schemas.SourceGenerators'"
+                                    PackagePath="analyzers/dotnet/cs"/>
+        </ItemGroup>
+    </Target>
+
+    <!--
+        The baseline is split rather than duplicated. PublicApiAnalyzers unions
+        every AdditionalFile of a given name, so the root pair carries the surface
+        both target frameworks share and each folder carries only what that one
+        alone has. Copying the shared rows into two files instead would leave two
+        lists to keep in step, and nothing in the build compares them.
+
+        Two things land in a folder rather than the root. Schema.Date is not on
+        netstandard2.0, because DateOnly is not, and PolySharp does not polyfill it.
+        Less obviously, SchemaViolation's compiler-generated <Clone>$ returns Error
+        on netstandard2.0 and SchemaViolation everywhere else — a derived record gets
+        a covariant return only where the runtime supports one — so that row cannot
+        be shared either.
+
+        net9.0 reads net8.0's folder as well as its own, rather than repeating it.
+        Everything net8.0 has, net9.0 has; only UuidSchemaExtensions.IsVersion7 is
+        net9.0 alone, because Guid.CreateVersion7 is. Copying the shared rows into a
+        second folder instead would leave two lists to keep in step, which is the
+        thing this split exists to avoid.
+    -->
+    <ItemGroup>
+        <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+        <AdditionalFiles Include="net8.0\PublicAPI.Shipped.txt" Condition="'$(TargetFramework)' == 'net9.0'"/>
+        <AdditionalFiles Include="net8.0\PublicAPI.Unshipped.txt" Condition="'$(TargetFramework)' == 'net9.0'"/>
+        <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Unshipped.txt"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="PolySharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Waystone.Monads.Schemas.Tests"/>
+    </ItemGroup>
+
+</Project>

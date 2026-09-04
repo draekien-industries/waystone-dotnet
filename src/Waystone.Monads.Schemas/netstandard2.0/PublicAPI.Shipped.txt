@@ -1,0 +1,2 @@
+#nullable enable
+override Waystone.Monads.Schemas.SchemaViolation.<Clone>$() -> Waystone.Monads.Results.Errors.Error!

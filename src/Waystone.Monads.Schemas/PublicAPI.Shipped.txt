@@ -1,0 +1,213 @@
+﻿#nullable enable
+Waystone.Monads.Schemas.BoolSchemaExtensions
+Waystone.Monads.Schemas.Checked
+Waystone.Monads.Schemas.Checked.Checked() -> void
+Waystone.Monads.Schemas.Checked.Equals(Waystone.Monads.Schemas.Checked other) -> bool
+Waystone.Monads.Schemas.CollectionSchemaExtensions
+Waystone.Monads.Schemas.ComparableSchemaExtensions
+Waystone.Monads.Schemas.Field
+Waystone.Monads.Schemas.Field.Field() -> void
+Waystone.Monads.Schemas.Field<T>
+Waystone.Monads.Schemas.Field<T>.Field() -> void
+Waystone.Monads.Schemas.FieldAccumulator
+Waystone.Monads.Schemas.FieldAccumulator.Failed<TOut>() -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
+Waystone.Monads.Schemas.FieldAccumulator.HasViolations.get -> bool
+Waystone.Monads.Schemas.FieldAccumulator.Refine(Waystone.Monads.Schemas.Field! field) -> void
+Waystone.Monads.Schemas.FieldAccumulator.Take<T>(Waystone.Monads.Schemas.Field<T>! field) -> T
+Waystone.Monads.Schemas.FieldExtensions
+Waystone.Monads.Schemas.UuidSchemaExtensions
+Waystone.Monads.Schemas.NumberSchemaExtensions
+Waystone.Monads.Schemas.PathSegment
+Waystone.Monads.Schemas.PathSegment.Equals(Waystone.Monads.Schemas.PathSegment other) -> bool
+Waystone.Monads.Schemas.PathSegment.Kind.get -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegment.PathSegment() -> void
+Waystone.Monads.Schemas.PathSegment.Text.get -> string!
+Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Branch = 3 -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Index = 1 -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Key = 2 -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.PathSegmentKind.Property = 0 -> Waystone.Monads.Schemas.PathSegmentKind
+Waystone.Monads.Schemas.Schema
+Waystone.Monads.Schemas.Schema.Number
+Waystone.Monads.Schemas.Schema.Schema() -> void
+Waystone.Monads.Schemas.Schema<TIn, TOut>
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Check(System.Func<TOut, bool>! predicate, Waystone.Monads.Results.Errors.ErrorCode! code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Check(System.Func<TOut, bool>! predicate, Waystone.Monads.Schemas.ViolationCode code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.CheckAsync(System.Func<TOut, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<bool>>! predicate, Waystone.Monads.Results.Errors.ErrorCode! code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.CheckAsync(System.Func<TOut, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<bool>>! predicate, Waystone.Monads.Schemas.ViolationCode code, string! message, string? predicateExpression = null) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Named(string! name) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Not(Waystone.Monads.Schemas.Schema<TIn, TOut>! rejected, string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Parse(TIn input) -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.ParseAsync(TIn input, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!>
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Schema() -> void
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Sensitive() -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Transform<TNext>(System.Func<TOut, TNext>! convert) -> Waystone.Monads.Schemas.Schema<TIn, TNext>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Transform<TNext>(System.Func<TOut, Waystone.Monads.Results.Result<TNext, Waystone.Monads.Results.Errors.Error!>!>! convert) -> Waystone.Monads.Schemas.Schema<TIn, TNext>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.WithCode(Waystone.Monads.Results.Errors.ErrorCode! code) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.WithCode(Waystone.Monads.Schemas.ViolationCode code) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.Schema<TIn, TOut>.WithMessage(string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+Waystone.Monads.Schemas.SchemaConfig<TIn, TOut>
+Waystone.Monads.Schemas.SchemaConfig<TIn, TOut>.SchemaConfig() -> void
+Waystone.Monads.Schemas.SchemaExtensions
+Waystone.Monads.Schemas.SchemaViolation
+Waystone.Monads.Schemas.SchemaViolation.ByCode() -> System.Collections.Generic.IReadOnlyDictionary<Waystone.Monads.Results.Errors.ErrorCode!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.SchemaViolation.ByPath() -> System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.SchemaViolation.Equals(Waystone.Monads.Schemas.SchemaViolation? other) -> bool
+Waystone.Monads.Schemas.SchemaViolation.ToDictionary() -> System.Collections.Generic.IDictionary<string!, string![]!>!
+Waystone.Monads.Schemas.SchemaViolation.Violations.get -> Waystone.Monads.Schemas.ViolationCollection!
+Waystone.Monads.Schemas.TemporalSchemaExtensions
+Waystone.Monads.Schemas.TextSchemaExtensions
+Waystone.Monads.Schemas.Violation
+Waystone.Monads.Schemas.Violation.<Clone>$() -> Waystone.Monads.Schemas.Violation!
+Waystone.Monads.Schemas.Violation.Code.get -> Waystone.Monads.Results.Errors.ErrorCode!
+Waystone.Monads.Schemas.Violation.Equals(Waystone.Monads.Schemas.Violation? other) -> bool
+Waystone.Monads.Schemas.Violation.Message.get -> string!
+Waystone.Monads.Schemas.Violation.Path.get -> Waystone.Monads.Schemas.ViolationPath!
+Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Conflicting = 6 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Duplicate = 5 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Incomplete = 0 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Malformed = 1 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Mismatched = 4 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.NotAllowed = 2 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.OutOfRange = 3 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCode.Truncated = 7 -> Waystone.Monads.Schemas.ViolationCode
+Waystone.Monads.Schemas.ViolationCodeCatalog
+Waystone.Monads.Schemas.ViolationCodeCatalog.Codes
+Waystone.Monads.Schemas.ViolationCodeCatalog.Errors
+Waystone.Monads.Schemas.ViolationCodeCatalog.Names
+Waystone.Monads.Schemas.ViolationCollection
+Waystone.Monads.Schemas.ViolationCollection.ByCode() -> System.Collections.Generic.IReadOnlyDictionary<Waystone.Monads.Results.Errors.ErrorCode!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.ViolationCollection.ByPath() -> System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.Violation!>!>!
+Waystone.Monads.Schemas.ViolationCollection.Count.get -> int
+Waystone.Monads.Schemas.ViolationCollection.GetEnumerator() -> System.Collections.Generic.IEnumerator<Waystone.Monads.Schemas.Violation!>!
+Waystone.Monads.Schemas.ViolationCollection.ToDictionary() -> System.Collections.Generic.IDictionary<string!, string![]!>!
+Waystone.Monads.Schemas.ViolationCollection.this[int index].get -> Waystone.Monads.Schemas.Violation!
+Waystone.Monads.Schemas.ViolationPath
+Waystone.Monads.Schemas.ViolationPath.Equals(Waystone.Monads.Schemas.ViolationPath? other) -> bool
+Waystone.Monads.Schemas.ViolationPath.IsRoot.get -> bool
+Waystone.Monads.Schemas.ViolationPath.Segments.get -> System.Collections.Generic.IReadOnlyList<Waystone.Monads.Schemas.PathSegment>!
+abstract Waystone.Monads.Schemas.SchemaConfig<TIn, TOut>.Configure(TIn subject) -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Conflicting = "schema_violation.conflicting" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Duplicate = "schema_violation.duplicate" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Incomplete = "schema_violation.incomplete" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Malformed = "schema_violation.malformed" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Mismatched = "schema_violation.mismatched" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.NotAllowed = "schema_violation.not-allowed" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.OutOfRange = "schema_violation.out-of-range" -> string!
+const Waystone.Monads.Schemas.ViolationCodeCatalog.Names.Truncated = "schema_violation.truncated" -> string!
+override Waystone.Monads.Schemas.Checked.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.Checked.GetHashCode() -> int
+override Waystone.Monads.Schemas.Checked.ToString() -> string!
+override Waystone.Monads.Schemas.PathSegment.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.PathSegment.GetHashCode() -> int
+override Waystone.Monads.Schemas.PathSegment.ToString() -> string!
+override Waystone.Monads.Schemas.SchemaViolation.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.SchemaViolation.GetHashCode() -> int
+override Waystone.Monads.Schemas.SchemaViolation.ToString() -> string!
+override Waystone.Monads.Schemas.Violation.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.Violation.GetHashCode() -> int
+override Waystone.Monads.Schemas.Violation.ToString() -> string!
+override Waystone.Monads.Schemas.ViolationPath.Equals(object? obj) -> bool
+override Waystone.Monads.Schemas.ViolationPath.GetHashCode() -> int
+override Waystone.Monads.Schemas.ViolationPath.ToString() -> string!
+override sealed Waystone.Monads.Schemas.SchemaViolation.Equals(Waystone.Monads.Results.Errors.Error? other) -> bool
+static Waystone.Monads.Schemas.BoolSchemaExtensions.IsFalse<TIn>(this Waystone.Monads.Schemas.Schema<TIn, bool>! schema) -> Waystone.Monads.Schemas.Schema<TIn, bool>!
+static Waystone.Monads.Schemas.BoolSchemaExtensions.IsTrue<TIn>(this Waystone.Monads.Schemas.Schema<TIn, bool>! schema) -> Waystone.Monads.Schemas.Schema<TIn, bool>!
+static Waystone.Monads.Schemas.Checked.Instance.get -> Waystone.Monads.Schemas.Checked
+static Waystone.Monads.Schemas.Checked.operator !=(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
+static Waystone.Monads.Schemas.Checked.operator ==(Waystone.Monads.Schemas.Checked left, Waystone.Monads.Schemas.Checked right) -> bool
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TIn, T>(this Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyList<TIn>!, System.Collections.Generic.IReadOnlyList<T>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyList<TIn>!, System.Collections.Generic.IReadOnlyList<T>!>!
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>!
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TIn, TKey, TValue>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>!
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MaxCount<TKeyIn, TValueIn, TKey, TValue>(this Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyDictionary<TKeyIn, TValueIn>!, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyDictionary<TKeyIn, TValueIn>!, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>!
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MinCount<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyList<T>!>!
+static Waystone.Monads.Schemas.CollectionSchemaExtensions.MinCount<TIn, TKey, TValue>(this Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>! schema, int count) -> Waystone.Monads.Schemas.Schema<TIn, System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>!>!
+static Waystone.Monads.Schemas.ComparableSchemaExtensions.AtLeast<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
+static Waystone.Monads.Schemas.ComparableSchemaExtensions.AtMost<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
+static Waystone.Monads.Schemas.ComparableSchemaExtensions.Between<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T min, T max) -> Waystone.Monads.Schemas.Schema<TIn, T>!
+static Waystone.Monads.Schemas.ComparableSchemaExtensions.GreaterThan<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
+static Waystone.Monads.Schemas.ComparableSchemaExtensions.LessThan<TIn, T>(this Waystone.Monads.Schemas.Schema<TIn, T>! schema, T bound) -> Waystone.Monads.Schemas.Schema<TIn, T>!
+static Waystone.Monads.Schemas.FieldAccumulator.Start() -> Waystone.Monads.Schemas.FieldAccumulator!
+static Waystone.Monads.Schemas.FieldExtensions.AsChecked<T>(this Waystone.Monads.Schemas.Field<T>! field) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
+static Waystone.Monads.Schemas.FieldExtensions.Named<T>(this Waystone.Monads.Schemas.Field<T>! field, string! name) -> Waystone.Monads.Schemas.Field<T>!
+static Waystone.Monads.Schemas.UuidSchemaExtensions.IsVersion4<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.Guid>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.Guid>!
+static Waystone.Monads.Schemas.UuidSchemaExtensions.NotEmpty<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.Guid>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.Guid>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Negative<TIn>(this Waystone.Monads.Schemas.Schema<TIn, decimal>! schema) -> Waystone.Monads.Schemas.Schema<TIn, decimal>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Negative<TIn>(this Waystone.Monads.Schemas.Schema<TIn, double>! schema) -> Waystone.Monads.Schemas.Schema<TIn, double>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Negative<TIn>(this Waystone.Monads.Schemas.Schema<TIn, int>! schema) -> Waystone.Monads.Schemas.Schema<TIn, int>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Negative<TIn>(this Waystone.Monads.Schemas.Schema<TIn, long>! schema) -> Waystone.Monads.Schemas.Schema<TIn, long>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Waystone.Monads.Schemas.Schema<TIn, decimal>! schema) -> Waystone.Monads.Schemas.Schema<TIn, decimal>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Waystone.Monads.Schemas.Schema<TIn, double>! schema) -> Waystone.Monads.Schemas.Schema<TIn, double>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Waystone.Monads.Schemas.Schema<TIn, int>! schema) -> Waystone.Monads.Schemas.Schema<TIn, int>!
+static Waystone.Monads.Schemas.NumberSchemaExtensions.Positive<TIn>(this Waystone.Monads.Schemas.Schema<TIn, long>! schema) -> Waystone.Monads.Schemas.Schema<TIn, long>!
+static Waystone.Monads.Schemas.PathSegment.operator !=(Waystone.Monads.Schemas.PathSegment left, Waystone.Monads.Schemas.PathSegment right) -> bool
+static Waystone.Monads.Schemas.PathSegment.operator ==(Waystone.Monads.Schemas.PathSegment left, Waystone.Monads.Schemas.PathSegment right) -> bool
+static Waystone.Monads.Schemas.Schema.All<TIn, TOut>(params Waystone.Monads.Schemas.Schema<TIn, TOut>![]! branches) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+static Waystone.Monads.Schemas.Schema.Any<TIn, TOut>(params Waystone.Monads.Schemas.Schema<TIn, TOut>![]! branches) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
+static Waystone.Monads.Schemas.Schema.Bool.get -> Waystone.Monads.Schemas.Schema<bool, bool>!
+static Waystone.Monads.Schemas.Schema.Dictionary<TKeyIn, TValueIn, TKeyOut, TValueOut>(Waystone.Monads.Schemas.Schema<TKeyIn, TKeyOut>! key, Waystone.Monads.Schemas.Schema<TValueIn, TValueOut>! value) -> Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyDictionary<TKeyIn, TValueIn>!, System.Collections.Generic.IReadOnlyDictionary<TKeyOut, TValueOut>!>!
+static Waystone.Monads.Schemas.Schema.Enum<T>() -> Waystone.Monads.Schemas.Schema<T, T>!
+static Waystone.Monads.Schemas.Schema.Extend<T>(T subject, Waystone.Monads.Schemas.Schema<T, T>! rules) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
+static Waystone.Monads.Schemas.Schema.For<T>() -> Waystone.Monads.Schemas.Schema<T, T>!
+static Waystone.Monads.Schemas.Schema.Forbidden<T>(T? value, string! message, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
+static Waystone.Monads.Schemas.Schema.Forbidden<T>(Waystone.Monads.Options.Option<T>! value, string! message, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Schemas.Checked>!
+static Waystone.Monads.Schemas.Schema.Uuid.get -> Waystone.Monads.Schemas.Schema<System.Guid, System.Guid>!
+static Waystone.Monads.Schemas.Schema.List<TIn, TOut>(Waystone.Monads.Schemas.Schema<TIn, TOut>! item) -> Waystone.Monads.Schemas.Schema<System.Collections.Generic.IReadOnlyList<TIn>!, System.Collections.Generic.IReadOnlyList<TOut>!>!
+static Waystone.Monads.Schemas.Schema.Number.Decimal.get -> Waystone.Monads.Schemas.Schema<decimal, decimal>!
+static Waystone.Monads.Schemas.Schema.Number.Double.get -> Waystone.Monads.Schemas.Schema<double, double>!
+static Waystone.Monads.Schemas.Schema.Number.Int32.get -> Waystone.Monads.Schemas.Schema<int, int>!
+static Waystone.Monads.Schemas.Schema.Number.Int64.get -> Waystone.Monads.Schemas.Schema<long, long>!
+static Waystone.Monads.Schemas.Schema.Optional<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn!, TOut>! schema, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Options.Option<TOut>!>!
+static Waystone.Monads.Schemas.Schema.Optional<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Options.Option<TOut>!>!
+static Waystone.Monads.Schemas.Schema.Optional<TIn, TOut>(Waystone.Monads.Options.Option<TIn>! value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<Waystone.Monads.Options.Option<TOut>!>!
+static Waystone.Monads.Schemas.Schema.Required<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn!, TOut>! schema, string? message = null, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<TOut>!
+static Waystone.Monads.Schemas.Schema.Required<TIn, TOut>(TIn? value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? message = null, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<TOut>!
+static Waystone.Monads.Schemas.Schema.Required<TIn, TOut>(Waystone.Monads.Options.Option<TIn>! value, Waystone.Monads.Schemas.Schema<TIn, TOut>! schema, string? message = null, string? valueExpression = null) -> Waystone.Monads.Schemas.Field<TOut>!
+static Waystone.Monads.Schemas.Schema.Text.get -> Waystone.Monads.Schemas.Schema<string!, string!>!
+static Waystone.Monads.Schemas.Schema.Timestamp.get -> Waystone.Monads.Schemas.Schema<System.DateTimeOffset, System.DateTimeOffset>!
+static Waystone.Monads.Schemas.SchemaExtensions.Unless<T>(this Waystone.Monads.Schemas.Schema<T, T>! schema, System.Func<T, bool>! predicate) -> Waystone.Monads.Schemas.Schema<T, T>!
+static Waystone.Monads.Schemas.SchemaExtensions.When<T>(this Waystone.Monads.Schemas.Schema<T, T>! schema, System.Func<T, bool>! predicate) -> Waystone.Monads.Schemas.Schema<T, T>!
+static Waystone.Monads.Schemas.SchemaViolation.operator !=(Waystone.Monads.Schemas.SchemaViolation? left, Waystone.Monads.Schemas.SchemaViolation? right) -> bool
+static Waystone.Monads.Schemas.SchemaViolation.operator ==(Waystone.Monads.Schemas.SchemaViolation? left, Waystone.Monads.Schemas.SchemaViolation? right) -> bool
+static Waystone.Monads.Schemas.TemporalSchemaExtensions.After<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>! schema, System.DateTimeOffset bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>!
+static Waystone.Monads.Schemas.TemporalSchemaExtensions.Before<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>! schema, System.DateTimeOffset bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>!
+static Waystone.Monads.Schemas.TemporalSchemaExtensions.OnOrAfter<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>! schema, System.DateTimeOffset bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>!
+static Waystone.Monads.Schemas.TemporalSchemaExtensions.OnOrBefore<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>! schema, System.DateTimeOffset bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.Contains<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, string! text, System.StringComparison comparison = System.StringComparison.Ordinal) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.Email<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.EndsWith<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, string! suffix, System.StringComparison comparison = System.StringComparison.Ordinal) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.Length<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int length) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.LengthBetween<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int min, int max) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.Matches<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.Text.RegularExpressions.Regex! pattern) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.MaxLength<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int length) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.MinLength<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, int length) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.NotEmpty<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.OneOf<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.StringComparison comparison, params string![]! accepted) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.OneOf<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, params string![]! accepted) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.StartsWith<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, string! prefix, System.StringComparison comparison = System.StringComparison.Ordinal) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.Trim<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.Url<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.Url<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, params string![]! schemes) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
+static Waystone.Monads.Schemas.Violation.operator !=(Waystone.Monads.Schemas.Violation? left, Waystone.Monads.Schemas.Violation? right) -> bool
+static Waystone.Monads.Schemas.Violation.operator ==(Waystone.Monads.Schemas.Violation? left, Waystone.Monads.Schemas.Violation? right) -> bool
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Conflicting(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Duplicate(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Incomplete(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Malformed(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Mismatched(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.NotAllowed(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.OutOfRange(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.Errors.Truncated(string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.ToError(this Waystone.Monads.Schemas.ViolationCode value, string! message) -> Waystone.Monads.Results.Errors.Error!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.ToErrorCode(this Waystone.Monads.Schemas.ViolationCode value) -> Waystone.Monads.Results.Errors.ErrorCode!
+static Waystone.Monads.Schemas.ViolationCodeCatalog.ToErrorCodeName(this Waystone.Monads.Schemas.ViolationCode value) -> string!
+static Waystone.Monads.Schemas.ViolationPath.Root.get -> Waystone.Monads.Schemas.ViolationPath!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Conflicting -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Duplicate -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Incomplete -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Malformed -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Mismatched -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.NotAllowed -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.OutOfRange -> Waystone.Monads.Results.Errors.ErrorCode!
+static readonly Waystone.Monads.Schemas.ViolationCodeCatalog.Codes.Truncated -> Waystone.Monads.Results.Errors.ErrorCode!

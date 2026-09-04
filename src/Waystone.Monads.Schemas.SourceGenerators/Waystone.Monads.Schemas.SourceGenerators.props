@@ -1,0 +1,7 @@
+<Project>
+    <ItemGroup Label="Load the shipped schema source generators into the importing project's build">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)Waystone.Monads.Schemas.SourceGenerators.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+</Project>

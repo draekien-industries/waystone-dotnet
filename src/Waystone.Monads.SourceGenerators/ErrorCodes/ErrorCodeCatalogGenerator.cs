@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -192,9 +193,27 @@ public sealed class ErrorCodeCatalogGenerator : IIncrementalGenerator
                     enumType,
                     catalogName,
                     members,
-                    format),
+                    format,
+                    AnnotatesNullability(compilation)),
             new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
     }
+
+    /// <summary>
+    /// Whether the consumer's compilation can read the nullable annotations the
+    /// catalog would otherwise omit.
+    /// </summary>
+    /// <remarks>
+    /// False below C# 8, where <c>#nullable</c> is a compile error rather than a
+    /// no-op. A <c>net472</c> project still defaults to 7.3, and the consumer
+    /// cannot edit the file to fix it, so those compilations get the unannotated
+    /// source they have always got.
+    /// </remarks>
+    /// <exception cref="InvalidCastException">
+    /// If the compilation is not a C# one. Unreachable: this generator matches C#
+    /// syntax, so it never runs anywhere else.
+    /// </exception>
+    private static bool AnnotatesNullability(Compilation compilation) =>
+        ((CSharpCompilation)compilation).LanguageVersion >= LanguageVersion.CSharp8;
 
     /// <summary>
     /// The format the enum asks for, then the one the assembly asks for, then

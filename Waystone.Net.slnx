@@ -26,6 +26,7 @@
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Linq.Sample/Waystone.Monads.Docs.Linq.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.NewtonsoftJson.Sample/Waystone.Monads.Docs.NewtonsoftJson.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Shouldly.Sample/Waystone.Monads.Docs.Shouldly.Sample.csproj" />
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Schemas.Sample/Waystone.Monads.Docs.Schemas.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.SourceGeneration.Sample/Waystone.Monads.Docs.SourceGeneration.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.SystemTextJson.Sample/Waystone.Monads.Docs.SystemTextJson.Sample.csproj" />
   </Folder>
@@ -48,6 +49,8 @@
     <Project Path="src/Waystone.Monads.FluentValidation/Waystone.Monads.FluentValidation.csproj" />
     <Project Path="src/Waystone.Monads.Linq/Waystone.Monads.Linq.csproj" />
     <Project Path="src/Waystone.Monads.NewtonsoftJson/Waystone.Monads.NewtonsoftJson.csproj" />
+    <Project Path="src/Waystone.Monads.Schemas.SourceGenerators/Waystone.Monads.Schemas.SourceGenerators.csproj" />
+    <Project Path="src/Waystone.Monads.Schemas/Waystone.Monads.Schemas.csproj" />
     <Project Path="src/Waystone.Monads.Shouldly.Analyzers.CodeFixes/Waystone.Monads.Shouldly.Analyzers.CodeFixes.csproj" />
     <Project Path="src/Waystone.Monads.Shouldly.Analyzers/Waystone.Monads.Shouldly.Analyzers.csproj" />
     <Project Path="src/Waystone.Monads.Shouldly/Waystone.Monads.Shouldly.csproj" />
@@ -62,6 +65,8 @@
     <Project Path="test/Serilog.Enrichers.Waystone.WideLogEvents.Tests/Serilog.Enrichers.Waystone.WideLogEvents.Tests.csproj" />
     <Project Path="test/Waystone.DocSnippets.Tests/Waystone.DocSnippets.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Analyzers.Tests/Waystone.Monads.Analyzers.Tests.csproj" />
+    <Project Path="test/Waystone.Monads.Schemas.SourceGenerators.Tests/Waystone.Monads.Schemas.SourceGenerators.Tests.csproj" />
+    <Project Path="test/Waystone.Monads.Schemas.Tests/Waystone.Monads.Schemas.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Shouldly.Analyzers.Tests/Waystone.Monads.Shouldly.Analyzers.Tests.csproj" />
     <Project Path="test/Waystone.Monads.SourceGenerators.Tests/Waystone.Monads.SourceGenerators.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Tests/Waystone.Monads.Tests.csproj" />
