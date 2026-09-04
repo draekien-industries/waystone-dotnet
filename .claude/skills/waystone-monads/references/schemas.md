@@ -225,6 +225,33 @@ public static class QuestRules
 Either spelling is fine, and both are found the same way — through a `using` for
 the namespace the static class sits in.
 
+### A field extends the same way, within a narrower limit
+
+`Field` and `Field<T>` are closed exactly as `Schema<TIn, TOut>` is — an internal
+abstract member a derived type must override and cannot see — so a field kind of
+your own is not available either. `AsChecked` and `Named` are the shipped shape: an
+**extension method on `Field<T>` that returns a `Field`**.
+
+The limit is tighter than for a rule, and it is the part worth knowing before
+trying. Evaluating a field is internal, and so is every field type the package
+wraps with, so an extension **cannot introduce a new kind of field** — only
+re-arrange `Required`, `Optional`, `Forbidden`, `Extend`, `Named` and `AsChecked`
+into a spelling that suits the domain:
+
+```csharp
+public static class QuestFields
+{
+    public static Field<string> RequiredEmail(
+        string? value,
+        [CallerArgumentExpression(nameof(value))] string? valueExpression = null) =>
+        Schema.Required(value, Guild.Email, valueExpression: valueExpression);
+}
+```
+
+Pass `valueExpression` through. A helper that omits it reports every field under
+the helper's own parameter name instead of the caller's, and `WMSC0008` does not
+fire, because from inside the helper the expression *is* a plain member access.
+
 **Do not copy the package's own rule source literally.** Every rule it ships
 calls an internal `Rules.Add`, which a consumer's assembly cannot see, so a rule
 written that way fails to compile with nothing explaining why. `Check` is the
