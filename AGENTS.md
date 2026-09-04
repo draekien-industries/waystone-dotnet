@@ -83,8 +83,15 @@ being removed.
 **One version covers every package.** A change to one package bumps and
 republishes the rest. Packages cannot be versioned independently.
 
-**Merging to `main` publishes to NuGet.org.** There is no staging gate and a
-published version cannot be withdrawn, so "merge and see" is not available.
+**Merging to `main` publishes to NuGet.org only when the change touches `src`.**
+`release.yml` triggers on `src/**`, with `!**/*.md` after it and
+`src/**/AnalyzerReleases.*.md` re-included. So a change confined to `sample`,
+`test`, `bench`, `docs`, `tools` or `.github` merges without publishing, and so does
+a markdown-only change inside `src`. Do not raise the cost of a release against a PR
+that cannot trigger one — read the filter before you do.
+
+For a change that does publish, there is no staging gate and a published version
+cannot be withdrawn, so "merge and see" is not available.
 
 ## Public API
 
