@@ -225,6 +225,33 @@ public static class QuestRules
 Either spelling is fine, and both are found the same way — through a `using` for
 the namespace the static class sits in.
 
+### A field extends the same way, within a narrower limit
+
+`Field` and `Field<T>` are closed exactly as `Schema<TIn, TOut>` is — an internal
+abstract member a derived type must override and cannot see — so a field kind of
+your own is not available either. `AsChecked` and `Named` are the shipped shape: an
+**extension method on `Field<T>` that returns a `Field`**.
+
+The limit is tighter than for a rule, and it is the part worth knowing before
+trying. Evaluating a field is internal, and so is every field type the package
+wraps with, so an extension **cannot introduce a new kind of field** — only
+re-arrange `Required`, `Optional`, `Forbidden`, `Extend`, `Named` and `AsChecked`
+into a spelling that suits the domain:
+
+```csharp
+public static class QuestFields
+{
+    public static Field<string> RequiredEmail(
+        string? value,
+        [CallerArgumentExpression(nameof(value))] string? valueExpression = null) =>
+        Schema.Required(value, Guild.Email, valueExpression: valueExpression);
+}
+```
+
+Pass `valueExpression` through. A helper that omits it reports every field under
+the helper's own parameter name instead of the caller's, and `WMSC0008` does not
+fire, because from inside the helper the expression *is* a plain member access.
+
 **Do not copy the package's own rule source literally.** Every rule it ships
 calls an internal `Rules.Add`, which a consumer's assembly cannot see, so a rule
 written that way fails to compile with nothing explaining why. `Check` is the
@@ -327,6 +354,38 @@ message. The total overload reports a `null` return as a `Malformed` violation
 rather than throwing — so a mistake there fails the parse instead of the process
 — but it cannot say *why* the conversion refused.
 
+## Read the failure back
+
+The `Err` side is the whole report, not the first thing that went wrong.
+`SchemaViolation` derives from `Error`, so it collapses like any other — and it
+carries a collection nothing else does.
+
+| Reach for | To get |
+| --- | --- |
+| `Violations` | The `ViolationCollection` — a `Count`, an indexer and an enumerator |
+| `ByPath()` | Violations grouped by field path, for a per-field display |
+| `ByCode()` | Violations grouped by `ErrorCode`, for deciding a status code |
+| `ToDictionary()` | `IDictionary<string, string[]>` — the shape a problem-details payload takes |
+
+The last three sit on `SchemaViolation` *and* on the collection it holds. The
+outer ones delegate, so reach for whichever is nearer.
+
+A single `Violation` carries a `Code`, a `Message` and a `Path`, and nothing else —
+the value that failed is not on it, by design.
+
+**Read a path through `Path.Segments`, not the rendered string.**
+`PathSegment.Kind` is `Property`, `Index`, `Key` or `Branch`, and only the kind
+distinguishes a property named `0` from the index `0`. `ViolationPath.IsRoot` is
+true where the failure belongs to the subject rather than to any field, which is
+what `Schema.Extend` and a cross-field `Check` produce — so a caller grouping by
+path finds those under the root rather than under a field name.
+
+The eight built-in codes are an `[ErrorCodeCatalog]` enum like any other, so the
+generated `ViolationCodeCatalog.Names`, `.Codes` and `.Errors` exist for them.
+`ViolationCodeCatalog.Names.OutOfRange` is the constant
+`"schema_violation.out-of-range"`, which is what a `case` label or a wire contract
+wants rather than the enum member.
+
 ## Asynchrony stops before the field set
 
 `CheckAsync` is the rule that has to go somewhere to decide, and it takes the
@@ -363,6 +422,10 @@ next.
 
 ## Traps
 
+- **`FieldAccumulator` is public but is not the entry point.** The generated
+  `Schema.Fields` ladder is built on it, and reaching for it directly gives up the
+  arity checking that makes a wrong-sized `Into` lambda a compile error
+  (`WMSC0004`). Declare the field set and let the generator write the ladder.
 - **`Schema.Uuid` accepts `Guid.Empty`.** An omitted `Guid` deserialises to
   `Guid.Empty` rather than to null, so `Required` alone does not catch it. Chain
   `NotEmpty`. Both version rules already reject it, so adding `NotEmpty` beside
@@ -383,6 +446,3 @@ next.
   which is what makes it a guard on untrusted input rather than a report
   afterwards. It stops the parse there, so an eleventh item is rejected with
   nothing said about the ten.
-- **Read a `Violation`'s path through `Segments`, not the rendered string.**
-  `PathSegment.Kind` is `Property`, `Index`, `Key` or `Branch`, and only the kind
-  distinguishes them.
