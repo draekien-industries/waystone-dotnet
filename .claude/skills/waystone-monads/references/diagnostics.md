@@ -1,8 +1,9 @@
 # The diagnostics
 
-Three prefixes are covered here. `WM` is the core analyzer and carries most of
-the rules; `WMS` and `WMSC` come from packages a project installs deliberately,
-and each has its own section below.
+Four prefixes are covered here. `WM` is the core analyzer and carries most of
+the rules, and `WMG` is the error code generator that ships beside it — both
+reach every consumer on upgrade. `WMS` and `WMSC` come from packages a project
+installs deliberately. Each has its own section below.
 
 The `WM` analyzer ships inside the `Waystone.Monads` package and every consumer
 gets it on upgrade. Three tiers, and the tier sets the severity:
@@ -70,6 +71,30 @@ again.
 | --- | --- | --- |
 | `WM3001` | A member returning a nullable type | An `Option<T>` return, which makes the absent case impossible to ignore |
 | `WM3002` | A `throw` statement | A `Result<TOk, Error>` return, which states the failure in the signature |
+
+## The error code generator has its own prefix
+
+The generator inside `Waystone.Monads` reports under `WMG`. It ships with the
+core package rather than an optional one, so every consumer can hit these
+without installing anything — which is what separates them from the two
+prefixes below.
+
+All six are **errors**, and each one means the generator **emitted nothing**.
+The constants, `ErrorCode` fields and `Error` factories the enum was marked for
+never appear, so the build also reports a `CS0117` at every call site reaching
+for one. Read the `WMG` and ignore the crowd; fixing it clears them.
+
+| Id | Flags | Fix |
+| --- | --- | --- |
+| `WMG0001` | An enum marked both `[ErrorCodeCatalog]` and `[Flags]` | Drop one — a combined flags value has no single error code to return |
+| `WMG0002` | Two members sharing a value | Give each its own, so each has a code the generated members can return |
+| `WMG0003` | A member named `Names`, `Codes` or `Errors` | Rename it — those three are the nested types the generator writes into the catalog |
+| `WMG0004` | The `Waystone.Monads` error types not resolvable in the compilation | Reference the package. The attribute is visible and the types it generates against are not, which is what the split assembly makes possible |
+| `WMG0005` | An `[ErrorCodeFormat]` the generator cannot parse | Correct the format — the message names what it choked on |
+| `WMG0006` | A format with no `{member}` placeholder | Add `{member}`, or every member gets the same code |
+
+`WMG0002` and `WMG0003` are collected across the whole enum, so one offending
+member suppresses the source for all of them rather than for itself alone.
 
 ## Assertions have their own prefix
 

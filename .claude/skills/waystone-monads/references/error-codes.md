@@ -28,6 +28,25 @@ Three nested classes hold one member per enum member, named verbatim:
 | `…Catalog.Codes.NotFound` | An `ErrorCode` field | Comparing or passing a code without a message |
 | `…Catalog.Errors.NotFound(message)` | An `Error` factory | Constructing the failure to return |
 
+## What stops a catalog generating
+
+Six constraints, each an **error** under `WMG`, and each meaning the generator
+emitted *nothing*. The three nested classes above never appear, so the same build
+also reports a `CS0117` at every call site reaching for one — read the `WMG` and
+ignore the crowd.
+
+- The enum must not be `[Flags]` (`WMG0001`) — a combined value has no single code.
+- No two members may share a value (`WMG0002`).
+- No member may be named `Names`, `Codes` or `Errors` (`WMG0003`), which are the
+  nested types above.
+- The `Waystone.Monads` error types must be resolvable in the compilation
+  (`WMG0004`).
+- The format must parse (`WMG0005`) and must contain `{member}` (`WMG0006`), or
+  every member would get the same code.
+
+`WMG0002` and `WMG0003` are collected across the whole enum, so one offending
+member suppresses the source for every member rather than for itself alone.
+
 ## Build errors through the generated factory
 
 `{EnumName}Catalog.Errors.{Member}(message)` is the default way to construct a

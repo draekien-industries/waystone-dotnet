@@ -1,6 +1,6 @@
 ---
 name: waystone-monads
-description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM, WMS or WMSC diagnostic fires, when extracting a reusable chain of fallible steps, when parsing untrusted input with Waystone.Monads.Schemas or adding a schema rule of your own, when serializing or asserting on a monad, when configuring MonadOptions or observing the exceptions Try swallows, or when the user says "use an Option", "return a Result", "make this monadic", "make this chain reusable", "parse this payload", "add a schema rule".
+description: Write idiomatic Waystone.Monads C# — compose Option<T> and Result<TOk, TErr> with Map, AndThen, Filter and Match rather than IsSome checks, Unwrap calls and nested branching. Use when writing or reviewing C# that returns Option or Result, when porting a nullable return or a thrown exception onto one, when a WM, WMG, WMS or WMSC diagnostic fires, when extracting a reusable chain of fallible steps, when parsing untrusted input with Waystone.Monads.Schemas or adding a schema rule of your own, when serializing or asserting on a monad, when configuring MonadOptions or observing the exceptions Try swallows, or when the user says "use an Option", "return a Result", "make this monadic", "make this chain reusable", "parse this payload", "add a schema rule".
 ---
 
 # Waystone.Monads
@@ -134,9 +134,9 @@ nothing about what it found. Read
 ## Traps
 
 Each of these is a real failure mode with a diagnostic behind it. When a `WM`
-code fires and its meaning is not obvious, look it up in
-[references/diagnostics.md](references/diagnostics.md), which carries all of
-them with the tier and the fix.
+or `WMG` code fires and its meaning is not obvious, look it up in
+[references/diagnostics.md](references/diagnostics.md), which carries all four
+prefixes with the tier and the fix.
 
 ### Nested matching
 
@@ -466,9 +466,12 @@ Where a schema was written or edited, four more:
 
 The build is the check that this landed: `WM1xxx` rules are warnings and
 `WM2xxx` are informational, both enabled by default, and both ship inside the
-`Waystone.Monads` package. A clean build with no `WM` diagnostic — no `WMS` where
-the assertions package is referenced, and no `WMSC` where the schemas package is —
-is the completion bar. `WMSC0009` is the one rule a build never shows, so it takes
+`Waystone.Monads` package. `WMG` ships from that same package — six **errors**
+from the error code generator, each meaning no catalog was generated at all, so
+every call site reaching for a generated member fails to compile alongside it. A
+clean build with no `WM` or `WMG` diagnostic — no `WMS` where the assertions
+package is referenced, and no `WMSC` where the schemas package is — is the
+completion bar. `WMSC0009` is the one rule a build never shows, so it takes
 a read rather than a build to clear.
 `WM3001` and `WM3002`, which flag nullable returns and throws that could become
 monads, are **disabled by default** — enable them deliberately when migrating a
