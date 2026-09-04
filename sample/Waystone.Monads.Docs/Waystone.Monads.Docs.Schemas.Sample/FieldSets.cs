@@ -143,3 +143,42 @@ public partial class ConsentSchema : SchemaConfig<ConsentDto, Checked>
               .Checked();
 }
 #endregion
+
+public sealed record RecruitDto(
+    string? Name,
+    string? Email,
+    string? ConfirmEmail,
+    string? Referral);
+
+public sealed class Recruit
+{
+    internal Recruit(string name, string email)
+    {
+        Name = name;
+        Email = email;
+    }
+
+    public string Name { get; }
+
+    public string Email { get; }
+}
+
+#region schema-field-sets-as-checked-in-refine
+public partial class RecruitSchema : SchemaConfig<RecruitDto, Recruit>
+{
+    protected override Result<Recruit, SchemaViolation> Configure(
+        RecruitDto subject) =>
+        Schema.Fields(
+                   Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty()),
+                   Schema.Required(subject.Email, Guild.Email))
+
+              // Either kind reaches Refine the same way. Required still means the
+              // caller has to send it and Optional still means they may — AsChecked
+              // drops the value and nothing else.
+              .Refine(
+                   Schema.Required(subject.ConfirmEmail, Guild.Email).AsChecked(),
+                   Schema.Optional(subject.Referral, Schema.Text.Trim().NotEmpty())
+                         .AsChecked())
+              .Into((name, email) => new Recruit(name, email));
+}
+#endregion
