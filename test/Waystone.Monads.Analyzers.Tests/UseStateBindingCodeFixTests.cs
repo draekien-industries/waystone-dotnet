@@ -257,6 +257,110 @@ public class UseStateBindingCodeFixTests
                .WithArguments("Match", "offset"));
 
     /// <remarks>
+    /// The first argument is a value rather than a delegate, and it stays where
+    /// it is — only the delegate grows a parameter, and only the receiver moves.
+    /// </remarks>
+    [Fact]
+    public Task BindsAMemberWithAValueArgumentBesideTheDelegate() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal int Read(Option<int> option, int offset, int fallback) =>
+                option.{|#0:MapOr|}(fallback, value => value + offset);
+            """,
+            """
+            internal int Read(Option<int> option, int offset, int fallback) =>
+                option.With(offset).MapOr(fallback, static (value, state) => value + state);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MapOr", "offset"));
+
+    /// <remarks>
+    /// Both <c>state</c> and <c>state1</c> are taken, so the search for a free
+    /// name has to run past its first candidate. It cannot run out: each name it
+    /// rejects is itself one of the names in scope.
+    /// </remarks>
+    [Fact]
+    public Task NamesTheParameterAroundEveryTakenState() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal Option<int> Shift(Option<int> option, int offset)
+            {
+                var state = 1;
+                var state1 = 2;
+
+                return option.{|#0:Map|}(value => value + offset + state + state1);
+            }
+            """,
+            """
+            internal Option<int> Shift(Option<int> option, int offset)
+            {
+                var state = 1;
+                var state1 = 2;
+
+                return option.With((offset, state, state1)).Map(static (value, state2) => value + state2.offset + state2.state + state2.state1);
+            }
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Map", "offset', 'state', 'state1"));
+
+    /// <remarks>
+    /// The shadow is a local inside one delegate rather than a parameter of it,
+    /// and it belongs to the delegate that does not capture. Rewriting the other
+    /// one would compile and would silently change which <c>offset</c> the body
+    /// of this one reads, so the fix declines here too.
+    /// </remarks>
+    [Fact]
+    public Task DeclinesACaptureShadowedByALocalInAnotherDelegate() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal int Fold(Option<int> option, int offset) =>
+                option.{|#0:Match|}(
+                    value =>
+                    {
+                        int offset = value;
+
+                        return offset;
+                    },
+                    () => offset);
+            """,
+            """
+            internal int Fold(Option<int> option, int offset) =>
+                option.{|#0:Match|}(
+                    value =>
+                    {
+                        int offset = value;
+
+                        return offset;
+                    },
+                    () => offset);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Match", "offset"));
+
+    /// <remarks>
+    /// <c>ItemN</c> names a tuple member only in position <c>N</c>, and the
+    /// capture order is the reader's rather than something the fix may reorder.
+    /// The companion to the <c>Rest</c> case below, which is barred everywhere.
+    /// </remarks>
+    [Fact]
+    public Task DeclinesACaptureThatCannotNameATupleMemberInItsPosition() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal int Fold(Option<int> option, int Item2, int fallback) =>
+                option.{|#0:Match|}(value => value + Item2, () => fallback);
+            """,
+            """
+            internal int Fold(Option<int> option, int Item2, int fallback) =>
+                option.{|#0:Match|}(value => value + Item2, () => fallback);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Match", "Item2', 'fallback"));
+
+    /// <remarks>
     /// <c>Rest</c> cannot be a tuple member name, so the inferred tuple would
     /// not carry it and <c>state.Rest</c> would not compile. A single capture of
     /// the same name is fine, because it is passed as itself rather than as a
@@ -276,4 +380,219 @@ public class UseStateBindingCodeFixTests
             Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
                .WithLocation(0)
                .WithArguments("Match", "Rest', 'fallback"));
+
+    /// <remarks>
+    /// The import lands beside the usings already there, keeping their
+    /// indentation and the blank line that followed the last of them. Nothing
+    /// formats this node, so the trivia in the output is the trivia the fix
+    /// wrote.
+    /// </remarks>
+    [Fact]
+    public Task AppendsTheImportAfterAnExistingUsing() =>
+        Verify.RawCodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            using System;
+
+            internal class Subject
+            {
+                internal Waystone.Monads.Options.Option<int> Shift(
+                    Waystone.Monads.Options.Option<int> option,
+                    int offset) =>
+                    option.{|#0:Map|}(value => value + offset);
+            }
+            """,
+            """
+            using System;
+            using Waystone.Monads.Options.Extensions;
+
+            internal class Subject
+            {
+                internal Waystone.Monads.Options.Option<int> Shift(
+                    Waystone.Monads.Options.Option<int> option,
+                    int offset) =>
+                    option.With(offset).Map(static (value, state) => value + state);
+            }
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Map", "offset"));
+
+    /// <remarks>
+    /// A file that puts its usings inside the namespace gets the import there
+    /// too, indented to match. Adding it at the top of such a file would compile
+    /// and would still be wrong, because the next author would move it.
+    /// </remarks>
+    [Fact]
+    public Task AppendsTheImportInsideANamespaceThatHoldsTheUsings() =>
+        Verify.RawCodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            namespace Consumer
+            {
+                using System;
+
+                internal class Subject
+                {
+                    internal Waystone.Monads.Options.Option<int> Shift(
+                        Waystone.Monads.Options.Option<int> option,
+                        int offset) =>
+                        option.{|#0:Map|}(value => value + offset);
+                }
+            }
+            """,
+            """
+            namespace Consumer
+            {
+                using System;
+                using Waystone.Monads.Options.Extensions;
+
+                internal class Subject
+                {
+                    internal Waystone.Monads.Options.Option<int> Shift(
+                        Waystone.Monads.Options.Option<int> option,
+                        int offset) =>
+                        option.With(offset).Map(static (value, state) => value + state);
+                }
+            }
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Map", "offset"));
+
+    /// <remarks>
+    /// A namespace with no usings of its own says nothing about where they go, so
+    /// the import takes the file's own list rather than opening one inside the
+    /// namespace.
+    /// </remarks>
+    [Fact]
+    public Task ImportsAboveANamespaceThatHoldsNoUsings() =>
+        Verify.RawCodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            namespace Consumer
+            {
+                internal class Subject
+                {
+                    internal Waystone.Monads.Options.Option<int> Shift(
+                        Waystone.Monads.Options.Option<int> option,
+                        int offset) =>
+                        option.{|#0:Map|}(value => value + offset);
+                }
+            }
+            """,
+            """
+            using Waystone.Monads.Options.Extensions;
+
+            namespace Consumer
+            {
+                internal class Subject
+                {
+                    internal Waystone.Monads.Options.Option<int> Shift(
+                        Waystone.Monads.Options.Option<int> option,
+                        int offset) =>
+                        option.With(offset).Map(static (value, state) => value + state);
+                }
+            }
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Map", "offset"));
+
+    /// <remarks>
+    /// The namespace already imports it, so the fix adds nothing. A second
+    /// directive would compile, and a fix that leaves one behind on every call it
+    /// rewrites is one a consumer stops trusting.
+    /// </remarks>
+    [Fact]
+    public Task AddsNoImportWhenTheNamespaceAlreadyHasIt() =>
+        Verify.RawCodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            namespace Consumer
+            {
+                using Waystone.Monads.Options.Extensions;
+
+                internal class Subject
+                {
+                    internal Waystone.Monads.Options.Option<int> Shift(
+                        Waystone.Monads.Options.Option<int> option,
+                        int offset) =>
+                        option.{|#0:Map|}(value => value + offset);
+                }
+            }
+            """,
+            """
+            namespace Consumer
+            {
+                using Waystone.Monads.Options.Extensions;
+
+                internal class Subject
+                {
+                    internal Waystone.Monads.Options.Option<int> Shift(
+                        Waystone.Monads.Options.Option<int> option,
+                        int offset) =>
+                        option.With(offset).Map(static (value, state) => value + state);
+                }
+            }
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Map", "offset"));
+
+    /// <remarks>
+    /// A file with no line ending anywhere in it still has to get one with the
+    /// import, and LF is the ending to pick — the fix has nothing to copy, and a
+    /// repository that normalises on commit would rewrite CRLF anyway. Keep the
+    /// source on a single line: an end-of-line trivia anywhere in it is one the
+    /// fix would copy instead, and this is the only case that has none.
+    /// </remarks>
+    [Fact]
+    public Task ImportsWithLineFeedIntoASourceThatHasNoLineEnding() =>
+        Verify.RawCodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal class S { internal Waystone.Monads.Options.Option<int> M(Waystone.Monads.Options.Option<int> o, int x) => o.{|#0:Map|}(v => v + x); }
+            """,
+            """
+            using Waystone.Monads.Options.Extensions;
+
+            internal class S { internal Waystone.Monads.Options.Option<int> M(Waystone.Monads.Options.Option<int> o, int x) => o.With(x).Map(static (v, state) => v + state); }
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Map", "x"));
+
+    /// <remarks>
+    /// Neither directive brings <c>With</c> into scope: an alias names the
+    /// namespace without importing it, and a static import names a type. Reading
+    /// either as the import already being there would leave a rewrite that does
+    /// not compile.
+    /// </remarks>
+    [Fact]
+    public Task ImportsPastAnAliasAndAStaticDirective() =>
+        Verify.RawCodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            using static System.Math;
+            using S = Waystone.Monads.Options.Extensions;
+
+            internal class Subject
+            {
+                internal Waystone.Monads.Options.Option<int> Shift(
+                    Waystone.Monads.Options.Option<int> option,
+                    int offset) =>
+                    option.{|#0:Map|}(value => value + offset);
+            }
+            """,
+            """
+            using static System.Math;
+            using S = Waystone.Monads.Options.Extensions;
+            using Waystone.Monads.Options.Extensions;
+
+            internal class Subject
+            {
+                internal Waystone.Monads.Options.Option<int> Shift(
+                    Waystone.Monads.Options.Option<int> option,
+                    int offset) =>
+                    option.With(offset).Map(static (value, state) => value + state);
+            }
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Map", "offset"));
 }

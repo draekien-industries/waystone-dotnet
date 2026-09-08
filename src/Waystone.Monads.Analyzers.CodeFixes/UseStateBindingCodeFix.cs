@@ -51,11 +51,12 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
 
         if (captured.Count == 0
          || !CanCarryState(captured, version)
-         || ShadowsACapture(lambdas, captured)
-         || FreshStateName(target.Invocation) is not { } state)
+         || ShadowsACapture(lambdas, captured))
         {
             return;
         }
+
+        string state = FreshStateName(target.Invocation);
 
         var rewritten = Rewrite(
             lambdas,
@@ -94,10 +95,17 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
                 ? OptionExtensionsNamespace
                 : ResultExtensionsNamespace;
 
+    /// <remarks>
+    /// The cast is total: this fix is exported for <c>LanguageNames.CSharp</c>
+    /// alone, and a C# tree's options are always <c>CSharpParseOptions</c>. An
+    /// earlier version fell back to <c>LanguageVersion.Default</c> instead, which
+    /// read as caution and was really a rewrite decided by an unreachable
+    /// branch — <c>Default</c> is C# 7.0, so the fallback would have quietly
+    /// stopped emitting <c>static</c> and stopped packing tuples.
+    /// </remarks>
     private static LanguageVersion VersionOf(SemanticModel model) =>
-        model.SyntaxTree.Options is CSharpParseOptions options
-            ? options.LanguageVersion.MapSpecifiedToEffectiveVersion()
-            : LanguageVersion.Default;
+        ((CSharpParseOptions)model.SyntaxTree.Options).LanguageVersion
+       .MapSpecifiedToEffectiveVersion();
 
     private static bool CanCarryState(
         List<ISymbol> captured,
@@ -142,7 +150,7 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
             lambdas.Add(lambda);
         }
 
-        return lambdas.Count == 0 ? null : lambdas;
+        return lambdas;
     }
 
     private static List<ISymbol> CapturedBy(
@@ -205,7 +213,14 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
         return false;
     }
 
-    private static string? FreshStateName(SyntaxNode invocation)
+    /// <remarks>
+    /// The loop has no bound because it cannot run out of names. Every candidate it
+    /// rejects is itself an identifier in <c>taken</c>, so a set of <c>n</c> names
+    /// blocks at most <c>n</c> suffixes and <c>state(n + 1)</c> is free — an earlier
+    /// version bounded the loop by <c>taken.Count</c> and returned
+    /// <see langword="null" /> after it, which no source could reach.
+    /// </remarks>
+    private static string FreshStateName(SyntaxNode invocation)
     {
         var scope = invocation.FirstAncestorOrSelf<MemberDeclarationSyntax>()
                  ?? invocation;
@@ -221,7 +236,7 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
 
         var taken = identifiers.ToImmutableHashSet(StringComparer.Ordinal);
 
-        for (int suffix = 1; suffix <= taken.Count; suffix++)
+        for (int suffix = 1;; suffix++)
         {
             string candidate = StateParameterName
                              + suffix.ToString(
@@ -233,8 +248,6 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
                 return candidate;
             }
         }
-
-        return null;
     }
 
     private static ExpressionSyntax Bind(
@@ -318,6 +331,14 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
                 SyntaxFactory.IdentifierName(state),
                 SyntaxFactory.IdentifierName(name));
 
+    /// <remarks>
+    /// The two branches are the whole of <c>LambdaExpressionSyntax</c>, so the cast
+    /// cannot fail — <c>Lambdas</c> has already turned away the anonymous-method
+    /// form, which is the only other thing an <c>IAnonymousFunctionOperation</c>
+    /// can be. It has also turned away a lambda that is already <c>static</c>, so
+    /// <paramref name="markStatic" /> is asked about the language version alone
+    /// rather than about the modifiers this one carries.
+    /// </remarks>
     private static LambdaExpressionSyntax WithStateParameter(
         LambdaExpressionSyntax lambda,
         string state,
@@ -326,17 +347,14 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
         var parameter =
             SyntaxFactory.Parameter(SyntaxFactory.Identifier(state));
 
-        var parameters = lambda switch
-        {
-            SimpleLambdaExpressionSyntax simple => SyntaxFactory.SeparatedList(
-                new[] { simple.Parameter.WithoutTrivia(), parameter }),
-            ParenthesizedLambdaExpressionSyntax parenthesized =>
-                parenthesized.ParameterList.AddParameters(parameter).Parameters,
-            _ => SyntaxFactory.SingletonSeparatedList(parameter),
-        };
+        var parameters = lambda is SimpleLambdaExpressionSyntax simple
+            ? SyntaxFactory.SeparatedList(
+                new[] { simple.Parameter.WithoutTrivia(), parameter })
+            : ((ParenthesizedLambdaExpressionSyntax)lambda).ParameterList
+               .AddParameters(parameter)
+               .Parameters;
 
         var modifiers = markStatic
-                     && !lambda.Modifiers.Any(SyntaxKind.StaticKeyword)
             ? lambda.Modifiers.Insert(
                 0,
                 SyntaxFactory.Token(SyntaxKind.StaticKeyword))
@@ -351,6 +369,12 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
            .WithAdditionalAnnotations(Formatter.Annotation);
     }
 
+    /// <remarks>
+    /// The root is cast rather than tested. It comes from a document this method
+    /// has just rewritten, so a C# compilation unit is the only thing it can be —
+    /// and treating a missing one as "skip the import" would hand the consumer a
+    /// rewrite that does not compile, which is the one outcome worth throwing over.
+    /// </remarks>
     private static async Task<Document> ApplyAsync(
         Document document,
         SyntaxNode target,
@@ -373,9 +397,8 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
         var root = await replaced.GetSyntaxRootAsync(cancellationToken)
            .ConfigureAwait(false);
 
-        return root is CompilationUnitSyntax unit
-            ? replaced.WithSyntaxRoot(Import(unit, import))
-            : replaced;
+        return replaced.WithSyntaxRoot(
+            Import((CompilationUnitSyntax)root!, import));
     }
 
     private static CompilationUnitSyntax Import(
@@ -451,7 +474,35 @@ public sealed class UseStateBindingCodeFix : MonadCodeFix
         var last = usings[usings.Count - 1];
 
         return usings.Replace(last, last.WithTrailingTrivia(end))
-           .Add(directive.WithTrailingTrivia(last.GetTrailingTrivia()));
+           .Add(
+                directive.WithLeadingTrivia(IndentOf(last))
+                   .WithTrailingTrivia(last.GetTrailingTrivia()));
+    }
+
+    /// <remarks>
+    /// Only the whitespace run immediately before the directive, never its whole
+    /// leading trivia, which can carry a comment the copy would then duplicate.
+    /// Usings inside a namespace are indented and an appended sibling has to match
+    /// them, since nothing formats this node — a directive at the top of a file has
+    /// no run to copy, and none is the right answer there.
+    /// <para>
+    /// Indenting through <see cref="Formatter.Annotation" /> instead was tried and
+    /// measured, because that is what every other node in this fix defers to. It
+    /// indents the new directive correctly and then rewrites the line ending of the
+    /// directive *above* it to <c>Environment.NewLine</c>, so
+    /// <c>AppendsTheImportInsideANamespaceThatHoldsTheUsings</c> fails on a CRLF
+    /// host with a stray <c>using System;\r\n</c> in an otherwise LF document. The
+    /// annotation has no per-node line-ending option to correct that with, which is
+    /// why this one node formats itself.
+    /// </para>
+    /// </remarks>
+    private static SyntaxTriviaList IndentOf(UsingDirectiveSyntax directive)
+    {
+        var indent = directive.GetLeadingTrivia().LastOrDefault();
+
+        return indent.IsKind(SyntaxKind.WhitespaceTrivia)
+            ? SyntaxFactory.TriviaList(indent)
+            : SyntaxFactory.TriviaList();
     }
 
     private static bool Imports(

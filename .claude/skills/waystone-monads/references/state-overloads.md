@@ -68,9 +68,10 @@ name, which would shadow the enclosing local.
 
 It declines rather than guesses in three cases, so expect a report with no
 lightbulb behind it: a method group cannot grow the parameter the binder's
-delegate needs, a capture whose name one of the lambdas already declares would
-be shadowed by the rewrite, and a capture named `Rest` cannot name a tuple
-member. Rewrite those by hand.
+delegate needs, a capture whose name one of the lambdas already declares as a
+parameter or a local would be shadowed by the rewrite, and a capture cannot name
+a tuple member if it is called `Rest` or `ItemN` out of position. Rewrite those
+by hand.
 
 The async surface has a state overload wherever the synchronous one does — the
 awaited-receiver generator lifts each one onto both task receivers, so the two
