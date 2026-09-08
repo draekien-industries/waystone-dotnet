@@ -170,8 +170,16 @@ built at all — because virtual dispatch has already chosen the case. The binde
 cannot: it branches on `Source is Some<T>` inside one method, so the state machine is
 entered either way. What it costs is the machine's construction on a branch that
 never awaits, not an allocation, since a synchronously-completing `async ValueTask`
-does not reach the heap. `StateBindingAsyncBenchmarks` measures both cases so the
-claim is checkable rather than asserted.
+does not reach the heap.
+
+`StateBindingAsyncBenchmarks` puts numbers on that, and they are not one-sided.
+Against a `None`, `IsSomeAndAsync` through the binder allocates nothing where the
+closure allocates 88 bytes — and takes 9.2ns against the closure's 5.2ns to do it,
+1.76x, on the cheapest member in the set. The populated branches go the other way:
+`MapAsync` on a `Some` runs at 0.66x the closure's time for half its allocation, and
+`MatchAsync` drops 224 bytes to 72. So the binder trades time for allocation on the
+empty branch and wins on both counts on the full one. Reach for it under GC
+pressure. Do not claim it makes an empty option faster, because it does not.
 
 **Match the success case, never the failure case.** The async bodies read
 `Source is Some<T>` and `Source is Ok<TOk, TErr>`, and reach the other side through
