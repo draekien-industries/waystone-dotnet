@@ -130,4 +130,27 @@ internal class Idioms
 
         return haul;
     }
+
+    // One WM2024, on the first of the pair below. These two do produce the same
+    // value — the difference is that the first allocates a delegate to defer a
+    // literal that was already built. The fallback is 100 rather than 0 so the
+    // second does not trip WM2007 as well.
+
+    internal int DefersAValueAlreadyBuilt(Option<int> reward)
+    {
+        #region idioms-wm2024-deferred
+        int gold = reward.UnwrapOrElse(() => 100);
+        #endregion
+
+        return gold;
+    }
+
+    internal int TakesTheValueDirectly(Option<int> reward)
+    {
+        #region idioms-wm2024-direct
+        int gold = reward.UnwrapOr(100);
+        #endregion
+
+        return gold;
+    }
 }

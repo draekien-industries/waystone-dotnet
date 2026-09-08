@@ -430,6 +430,43 @@ internal static class Rules
         "'With' binds '{0}' as state, so the delegate has to unwrap it by hand and an absent value slips past. Use 'Zip' or 'ZipWith', which give 'None' when either option is absent.",
         "With binds any value as state so that the delegate after it can be static and allocate no closure. Its type parameter is unconstrained, so an Option is as acceptable to it as an int, and nothing in the signature says the pairing is a mistake. It is one, because the binder hands the state to the delegate untouched: the delegate runs whenever the receiver is Some, which leaves the second option's absence for the author to handle and to forget. Zip pairs the two values into a tuple and ZipWith combines them with a function, and both give None when either side is absent.");
 
+    /// <remarks>
+    /// The inverse of <c>WM2016</c> over the same pairs, and the two cannot both
+    /// fire on one call site: that rule reads the non-delegate argument of an eager
+    /// member, this one the delegate argument of a lazy member, and the two name
+    /// sets are disjoint.
+    /// <para>
+    /// Free is deliberately narrower here than <c>CostOf</c> makes it there, and the
+    /// gap is <c>IPropertyReferenceOperation</c>. <c>WM2016</c> counts a property
+    /// read as free and so stays silent on <c>UnwrapOr(x.Prop)</c>, which costs a
+    /// suggestion nobody sees. Counting it free here would report
+    /// <c>UnwrapOrElse(() =&gt; x.Prop)</c> and tell a consumer to run a getter that
+    /// may compute, on every call, unconditionally. The failure modes are not
+    /// symmetric, so the definitions are not either.
+    /// </para>
+    /// <para>
+    /// Synchronous members only. A free body is nearly unreachable on the async
+    /// pairs — the value has to be a task the caller already holds — and the rewrite
+    /// there swaps an async lambda for a task rather than unwrapping an expression.
+    /// </para>
+    /// <para>
+    /// Gated on <c>IsMonadInvocation</c>, which excludes a binder receiver. The
+    /// binders declare <c>MapOr</c> but not <c>UnwrapOr</c>, <c>Or</c>, <c>And</c>
+    /// or <c>OkOr</c>, so the message would name a member that is not there.
+    /// </para>
+    /// <para>
+    /// No <c>Unnecessary</c> tag, though the fix does remove code. The tag fades the
+    /// diagnostic's own span, and the span is the member name to match <c>WM2016</c>
+    /// and <c>WM2017</c>. Moving it to the lambda to earn the tag would fade the
+    /// body along with the arrow, and the body is what survives the fix.
+    /// </para>
+    /// </remarks>
+    public static readonly DiagnosticDescriptor FreeDelegatePassedToLazyMember = Idiom(
+        "WM2024",
+        "Prefer the eager variant when the delegate is free",
+        "'{0}' defers a value that is already built, so the call allocates a delegate and defers nothing. Use '{1}', which takes the value directly.",
+        "The Else members take a delegate so that an expensive fallback runs only on the branch that needs it. Where the delegate's body is a literal, a constant, or a variable already in scope, the value was built before the delegate was handed over, so there is nothing left to defer. The call allocates a delegate for no gain, and it tells whoever reads it that the fallback is costly when it is not. And, Or, UnwrapOr, MapOr and OkOr take the value directly.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",
