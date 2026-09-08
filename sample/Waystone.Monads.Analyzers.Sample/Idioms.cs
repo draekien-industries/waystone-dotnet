@@ -76,21 +76,27 @@ internal class Idioms
     // Change one half and change the other, or the page shows a before and an
     // after that are not the same call.
 
-    internal Option<int> CapturesInsteadOfBindingState(Option<int> reward)
+    internal Option<int> CapturesInsteadOfBindingState(
+        Option<int> reward,
+        int partySize)
     {
         #region idioms-wm2017-capture
-        int partySize = 4;
-
-        return reward.Map(gold => gold / partySize);
+        Option<int> share = reward.Map(gold => gold / partySize);
         #endregion
+
+        return share;
     }
 
-    internal Option<int> BindsTheStateInstead(Option<int> reward)
+    internal Option<int> BindsTheStateInstead(
+        Option<int> reward,
+        int partySize)
     {
         #region idioms-wm2017-bound
-        int partySize = 4;
-
-        return reward.With(partySize).Map(static (gold, party) => gold / party);
+        Option<int> share = reward
+            .With(partySize)
+            .Map(static (gold, party) => gold / party);
         #endregion
+
+        return share;
     }
 }
