@@ -67,4 +67,30 @@ internal class Idioms
 
     internal int UnwrapsOrDefaultOnAStruct(Option<int> option) =>
         option.UnwrapOrDefault();
+
+    // The pair below is WM2017 before and after, and both halves belong in this
+    // project rather than one of them in Waystone.Monads.Docs. The rule is on
+    // here, so the second method asserts something the documentation samples
+    // cannot: that the rewrite the message names actually silences the rule.
+    // Watch the build output — one WM2017 for the whole pair, on the first.
+    // Change one half and change the other, or the page shows a before and an
+    // after that are not the same call.
+
+    internal Option<int> CapturesInsteadOfBindingState(Option<int> reward)
+    {
+        #region idioms-wm2017-capture
+        int partySize = 4;
+
+        return reward.Map(gold => gold / partySize);
+        #endregion
+    }
+
+    internal Option<int> BindsTheStateInstead(Option<int> reward)
+    {
+        #region idioms-wm2017-bound
+        int partySize = 4;
+
+        return reward.With(partySize).Map(static (gold, party) => gold / party);
+        #endregion
+    }
 }
