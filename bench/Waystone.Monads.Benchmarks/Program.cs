@@ -8,7 +8,7 @@ using BenchmarkDotNet.Running;
 public static class Program
 {
     private const string LabelVariable = "WAYSTONE_BENCH_LABEL";
-    private const string SolutionFile = "Waystone.Net.sln";
+    private const string SolutionFile = "Waystone.Net.slnx";
 
     public static void Main(string[] args)
     {
