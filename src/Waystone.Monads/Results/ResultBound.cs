@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Results;
 
 using System;
+using System.Threading.Tasks;
 #if !DEBUG
 using System.Diagnostics;
 #endif
@@ -367,5 +368,402 @@ public abstract partial record Result<TOk, TErr>
         public Result<TOk, TOut> MapErr<TOut>(Func<TErr, TState, TOut> map)
             where TOut : notnull =>
             Source.MapErr(_state, map);
+
+        /// <summary>
+        /// Awaits a predicate against the contained ok value and the bound state,
+        /// answering false for an error.
+        /// </summary>
+        /// <remarks>
+        /// An <see cref="Err{TOk,TErr}" /> never invokes
+        /// <paramref name="predicate" />, so the returned
+        /// <see cref="ValueTask{TResult}" /> is already complete and allocates
+        /// no state machine on the failed branch.
+        /// </remarks>
+        /// <param name="predicate">
+        /// Tests the contained ok value against the bound state.
+        /// </param>
+        /// <returns>
+        /// True if the result succeeded and <paramref name="predicate" />
+        /// accepted its value; false otherwise.
+        /// </returns>
+        public async ValueTask<bool> IsOkAndAsync(
+            Func<TOk, TState, Task<bool>> predicate)
+        {
+            return Source is Ok<TOk, TErr> ok
+                && await predicate(ok.Value, _state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits a predicate against the contained error and the bound state,
+        /// answering false for a success.
+        /// </summary>
+        /// <remarks>
+        /// Not the negation of <see cref="IsOkAndAsync" />: both answer false for
+        /// the case they do not describe, so a success and a rejected error are
+        /// indistinguishable here.
+        /// </remarks>
+        /// <param name="predicate">
+        /// Tests the contained error against the bound state.
+        /// </param>
+        /// <returns>
+        /// True if the result failed and <paramref name="predicate" /> accepted
+        /// its error; false otherwise.
+        /// </returns>
+        public async ValueTask<bool> IsErrAndAsync(
+            Func<TErr, TState, Task<bool>> predicate)
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is not Ok<TOk, TErr>
+                && await predicate(result.UnwrapErr(), _state)
+                      .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits whichever of two branches the result selects, handing the bound
+        /// state and that branch's value to it.
+        /// </summary>
+        /// <remarks>
+        /// Only the both-asynchronous form is offered, where
+        /// <see cref="Result{TOk,TErr}" /> itself also carries the mixed ones. To
+        /// await one branch and not the other, call
+        /// <see cref="Match{TOut}(Func{TOk,TState,TOut},Func{TErr,TState,TOut})" />
+        /// and await inside the branch that needs it.
+        /// </remarks>
+        /// <param name="onOk">
+        /// Produces the result from the contained ok value and the bound state.
+        /// </param>
+        /// <param name="onErr">
+        /// Produces the result from the contained error and the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+        /// <returns>Whatever the delegate for the result's case returned.</returns>
+        public async ValueTask<TOut> MatchAsync<TOut>(
+            Func<TOk, TState, Task<TOut>> onOk,
+            Func<TErr, TState, Task<TOut>> onErr)
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? await onOk(ok.Value, _state).ConfigureAwait(false)
+                : await onErr(result.UnwrapErr(), _state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits whichever of two branches the result selects, for their side
+        /// effect alone.
+        /// </summary>
+        /// <remarks>
+        /// The counterpart of
+        /// <see cref="Match(Action{TOk,TState},Action{TErr,TState})" /> for work
+        /// that has no result to return. Prefer the value-producing overload
+        /// wherever one can be produced, since a side effect is harder to test
+        /// than a return.
+        /// </remarks>
+        /// <param name="onOk">
+        /// Handles the contained ok value and the bound state.
+        /// </param>
+        /// <param name="onErr">
+        /// Handles the contained error and the bound state.
+        /// </param>
+        public async ValueTask MatchAsync(
+            Func<TOk, TState, Task> onOk,
+            Func<TErr, TState, Task> onErr)
+        {
+            Result<TOk, TErr> result = Source;
+
+            if (result is Ok<TOk, TErr> ok)
+            {
+                await onOk(ok.Value, _state).ConfigureAwait(false);
+
+                return;
+            }
+
+            await onErr(result.UnwrapErr(), _state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits a result-producing step against the contained ok value and the
+        /// bound state, leaving an error untouched.
+        /// </summary>
+        /// <remarks>
+        /// The step may fail in its own right, so this is where a chain's error
+        /// can first appear. It returns a <see cref="ValueTask{TResult}" /> so a
+        /// chain of these composes by name: a method group returning
+        /// <see cref="Task{TResult}" /> does not convert to it, and
+        /// <c>WSG0003</c> reports that shape at the declaration.
+        /// </remarks>
+        /// <param name="resultFactory">
+        /// Produces the next result from the contained ok value and the bound
+        /// state.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The ok type the produced result holds.
+        /// </typeparam>
+        /// <returns>
+        /// Whatever <paramref name="resultFactory" /> produced, or the original
+        /// error.
+        /// </returns>
+        public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
+            Func<TOk, TState, ValueTask<Result<TOut, TErr>>> resultFactory)
+            where TOut : notnull
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? await resultFactory(ok.Value, _state).ConfigureAwait(false)
+                : Result.Err<TOut, TErr>(result.UnwrapErr());
+        }
+
+        /// <summary>
+        /// Awaits a recovery step against the contained error and the bound
+        /// state, leaving a success untouched.
+        /// </summary>
+        /// <remarks>
+        /// The recovery chooses a new error type, so this is how a chain
+        /// translates one failure vocabulary into another. It may also fail
+        /// again, so this is an attempt at recovery rather than a guarantee of
+        /// one.
+        /// </remarks>
+        /// <param name="resultFactory">
+        /// Produces the replacement from the contained error and the bound state.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The error type the produced result carries.
+        /// </typeparam>
+        /// <returns>
+        /// The original ok value, or whatever
+        /// <paramref name="resultFactory" /> produced.
+        /// </returns>
+        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
+            Func<TErr, TState, ValueTask<Result<TOk, TOut>>> resultFactory)
+            where TOut : notnull
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? Result.Ok<TOk, TOut>(ok.Value)
+                : await resultFactory(result.UnwrapErr(), _state)
+                     .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Returns the contained ok value, awaiting a replacement built from the
+        /// error and the bound state when there is none.
+        /// </summary>
+        /// <remarks>
+        /// The factory receives the error, so the fallback can depend on what
+        /// went wrong rather than being a single blanket value.
+        /// </remarks>
+        /// <param name="valueFactory">
+        /// Produces the fallback from the contained error and the bound state.
+        /// </param>
+        /// <returns>
+        /// The contained ok value, or what <paramref name="valueFactory" />
+        /// produced.
+        /// </returns>
+        public async ValueTask<TOk> UnwrapOrElseAsync(
+            Func<TErr, TState, Task<TOk>> valueFactory)
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? ok.Value
+                : await valueFactory(result.UnwrapErr(), _state)
+                     .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits a side effect against the contained ok value and the bound
+        /// state, handing the result back unchanged.
+        /// </summary>
+        /// <remarks>
+        /// The result is returned as it was, so this drops into a chain without
+        /// altering what flows through it. An <see cref="Err{TOk,TErr}" />
+        /// completes synchronously.
+        /// </remarks>
+        /// <param name="action">
+        /// Acts on the contained ok value and the bound state.
+        /// </param>
+        /// <returns>The same result, whichever case it is in.</returns>
+        public async ValueTask<Result<TOk, TErr>> InspectAsync(
+            Func<TOk, TState, Task> action)
+        {
+            Result<TOk, TErr> result = Source;
+
+            if (result is Ok<TOk, TErr> ok)
+            {
+                await action(ok.Value, _state).ConfigureAwait(false);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Awaits a side effect against the contained error and the bound state,
+        /// handing the result back unchanged.
+        /// </summary>
+        /// <remarks>
+        /// The mirror of <see cref="InspectAsync" /> on the failed branch, and the
+        /// usual place to log a failure without handling it. An
+        /// <see cref="Ok{TOk,TErr}" /> completes synchronously.
+        /// </remarks>
+        /// <param name="action">
+        /// Acts on the contained error and the bound state.
+        /// </param>
+        /// <returns>The same result, whichever case it is in.</returns>
+        public async ValueTask<Result<TOk, TErr>> InspectErrAsync(
+            Func<TErr, TState, Task> action)
+        {
+            Result<TOk, TErr> result = Source;
+
+            if (result is not Ok<TOk, TErr>)
+            {
+                await action(result.UnwrapErr(), _state).ConfigureAwait(false);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained ok value and the bound state,
+        /// leaving an error untouched.
+        /// </summary>
+        /// <remarks>
+        /// The error type is carried across unchanged, so this changes what
+        /// success looks like without touching what failure means.
+        /// </remarks>
+        /// <param name="map">
+        /// Transforms the contained ok value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The type the transform produces.</typeparam>
+        /// <returns>
+        /// <see cref="Ok{TOk,TErr}" /> of the transformed value, or the original
+        /// error.
+        /// </returns>
+        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
+            Func<TOk, TState, Task<TOut>> map) where TOut : notnull
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? Result.Ok<TOut, TErr>(
+                      await map(ok.Value, _state).ConfigureAwait(false))
+                : Result.Err<TOut, TErr>(result.UnwrapErr());
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained ok value and the bound state,
+        /// falling back to a value already in hand.
+        /// </summary>
+        /// <remarks>
+        /// The error is discarded rather than reported, so reach for
+        /// <see cref="MapOrElseAsync{TOut}" /> when the fallback should depend on
+        /// what went wrong.
+        /// </remarks>
+        /// <param name="defaultValue">
+        /// Returned for an <see cref="Err{TOk,TErr}" />, and evaluated whether or
+        /// not it is used.
+        /// </param>
+        /// <param name="map">
+        /// Transforms the contained ok value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The type the transform and the fallback share.
+        /// </typeparam>
+        /// <returns>
+        /// The transformed value, or <paramref name="defaultValue" />.
+        /// </returns>
+        public async ValueTask<TOut> MapOrAsync<TOut>(
+            TOut defaultValue,
+            Func<TOk, TState, Task<TOut>> map) where TOut : notnull
+        {
+            return Source is Ok<TOk, TErr> ok
+                ? await map(ok.Value, _state).ConfigureAwait(false)
+                : defaultValue;
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained ok value and the bound state,
+        /// falling back to the default of the produced type.
+        /// </summary>
+        /// <remarks>
+        /// The error is discarded and the fallback is indistinguishable from a
+        /// transform that produced the same default, so this suits a type whose
+        /// default already reads as failure.
+        /// </remarks>
+        /// <param name="map">
+        /// Transforms the contained ok value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The type the transform produces.</typeparam>
+        /// <returns>
+        /// The transformed value, or the default of
+        /// <typeparamref name="TOut" />.
+        /// </returns>
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
+            Func<TOk, TState, Task<TOut>> map) where TOut : notnull
+        {
+            return Source is Ok<TOk, TErr> ok
+                ? await map(ok.Value, _state).ConfigureAwait(false)
+                : default;
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained ok value, or awaits a fallback
+        /// built from the error, handing the bound state to whichever runs.
+        /// </summary>
+        /// <remarks>
+        /// Exactly one of the two runs, and the fallback receives the error, so
+        /// this is the overload that answers both cases without discarding why
+        /// the failed one failed.
+        /// </remarks>
+        /// <param name="defaultFactory">
+        /// Produces the result from the contained error and the bound state.
+        /// </param>
+        /// <param name="map">
+        /// Transforms the contained ok value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+        /// <returns>Whatever the delegate selected produced.</returns>
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
+            Func<TErr, TState, Task<TOut>> defaultFactory,
+            Func<TOk, TState, Task<TOut>> map) where TOut : notnull
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? await map(ok.Value, _state).ConfigureAwait(false)
+                : await defaultFactory(result.UnwrapErr(), _state)
+                     .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits a restatement of the contained error and the bound state,
+        /// leaving a success untouched.
+        /// </summary>
+        /// <remarks>
+        /// The ok type is carried across unchanged, so this is the mirror of
+        /// <see cref="MapAsync{TOut}" /> and the usual way to translate a failure
+        /// into the vocabulary of the caller above.
+        /// </remarks>
+        /// <param name="map">
+        /// Restates the contained error using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The error type the transform produces.</typeparam>
+        /// <returns>
+        /// The original ok value, or <see cref="Err{TOk,TErr}" /> of the restated
+        /// error.
+        /// </returns>
+        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
+            Func<TErr, TState, Task<TOut>> map) where TOut : notnull
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? Result.Ok<TOk, TOut>(ok.Value)
+                : Result.Err<TOk, TOut>(
+                      await map(result.UnwrapErr(), _state)
+                         .ConfigureAwait(false));
+        }
     }
 }

@@ -148,6 +148,23 @@ vocabulary rather than core behaviour, and it is why the LINQ names ship in
 `Waystone.Monads.Linq` instead of here. Weigh it before hand-writing a member:
 the surface you are adding is not the surface you typed.
 
+**The state binder's async members do not forward, and must not be made to.**
+`Option<T>.Bound<TState>` and `Result<TOk, TErr>.Bound<TState>` forward their
+*sync* members to state overloads on the monad — `Source.Map(_state, map)` — and
+their *async* members to nothing, matching on the case themselves. The asymmetry
+reads as an oversight and is not: those state overloads are abstract on
+`Option<T>` and `Result<TOk, TErr>` and overridden in both derived types, 57 and
+59 declarations on the bases with 43 and 45 in each derived type, and **not one of
+them is async**. There is nothing to forward to.
+
+Do not close the gap by adding async state overloads to the monads. Each one costs
+three declarations — abstract plus two overrides — so the 27 the binder needs is
+81, and the abstract ones land in the baseline where **deprecate; never remove**
+locks them until the next major. They would also be 27 more of exactly the surface
+`With` exists to replace. The binder reaches both cases through the public API it
+already has, which is why the async side is hand-written case analysis rather than
+forwarding.
+
 **`MonadOptionsScope.Dispose` restores only when it is the innermost live scope,
 and reports rather than throws.** It compares `ScopedOptions.Value` against the
 instance it installed, which is why the struct holds two fields rather than one —
