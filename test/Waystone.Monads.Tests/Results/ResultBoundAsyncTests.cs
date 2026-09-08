@@ -461,19 +461,40 @@ public sealed class ResultBoundAsyncTests
     }
 
     /// <remarks>
-    /// As on the option side: an async member returns a faulted task rather than
-    /// throwing from the call, so the misuse surfaces at the await instead.
+    /// As on the option side: the outer method carries no
+    /// <see langword="async" />, so the misuse arrives at the call. Asserted
+    /// synchronously for that reason — a faulted task would throw nothing
+    /// here.
     /// </remarks>
     [Fact]
-    public async Task ADefaultBoundFaultsRatherThanDereferencingNothing()
+    public void ADefaultBoundThrowsFromTheCallRatherThanFromTheAwait()
     {
         Result<int, string>.Bound<int> bound = default;
 
         InvalidOperationException thrown =
-            await Should.ThrowAsync<InvalidOperationException>(
-                async () => await bound.MapAsync(
+            Should.Throw<InvalidOperationException>(
+                () => bound.MapAsync(
                     static (v, s) => Task.FromResult(v + s)));
 
         thrown.Message.ShouldContain("Build one by calling With");
+    }
+
+    /// <remarks>
+    /// The result side reads its error through <c>UnwrapErr</c> after the ok
+    /// check, so this pins the eager path on the branch that does that rather
+    /// than only on the ok branch the option side covers.
+    /// </remarks>
+    [Fact]
+    public void ADelegateThrowingBeforeItsTaskThrowsFromTheCall()
+    {
+        InvalidOperationException thrown =
+            Should.Throw<InvalidOperationException>(
+                () => ErrBad.With(2)
+                            .MapErrAsync<string>(
+                                 static (_, _) =>
+                                     throw new InvalidOperationException(
+                                         "thrown before the task")));
+
+        thrown.Message.ShouldBe("thrown before the task");
     }
 }

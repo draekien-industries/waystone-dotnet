@@ -41,6 +41,15 @@ public abstract partial record Result<TOk, TErr>
     /// <c>ImmutableArray&lt;T&gt;</c>. Reach one only by declaring it —
     /// <c>With</c> cannot produce one.
     /// </para>
+    /// <para>
+    /// The asynchronous members throw rather than returning a faulted task, which
+    /// is worth knowing because the opposite is the more common convention. Each
+    /// one evaluates its own body eagerly so that an
+    /// <see cref="Err{TOk,TErr}" /> completes without building a state machine,
+    /// and a delegate that throws before it returns its
+    /// <see cref="System.Threading.Tasks.Task" /> throws through the call for the
+    /// same reason. Awaiting the result is not what surfaces either failure.
+    /// </para>
     /// </remarks>
     /// <typeparam name="TState">The type of the bound value.</typeparam>
 #if !DEBUG
@@ -386,12 +395,11 @@ public abstract partial record Result<TOk, TErr>
         /// True if the result succeeded and <paramref name="predicate" />
         /// accepted its value; false otherwise.
         /// </returns>
-        public async ValueTask<bool> IsOkAndAsync(
-            Func<TOk, TState, Task<bool>> predicate)
-        {
-            return Source is Ok<TOk, TErr> ok
-                && await predicate(ok.Value, _state).ConfigureAwait(false);
-        }
+        public ValueTask<bool> IsOkAndAsync(
+            Func<TOk, TState, Task<bool>> predicate) =>
+            Source is Ok<TOk, TErr> ok
+                ? Awaited(predicate(ok.Value, _state))
+                : new ValueTask<bool>(false);
 
         /// <summary>
         /// Awaits a predicate against the contained error and the bound state,
@@ -409,14 +417,14 @@ public abstract partial record Result<TOk, TErr>
         /// True if the result failed and <paramref name="predicate" /> accepted
         /// its error; false otherwise.
         /// </returns>
-        public async ValueTask<bool> IsErrAndAsync(
+        public ValueTask<bool> IsErrAndAsync(
             Func<TErr, TState, Task<bool>> predicate)
         {
             Result<TOk, TErr> result = Source;
 
-            return result is not Ok<TOk, TErr>
-                && await predicate(result.UnwrapErr(), _state)
-                      .ConfigureAwait(false);
+            return result is Ok<TOk, TErr>
+                ? new ValueTask<bool>(false)
+                : Awaited(predicate(result.UnwrapErr(), _state));
         }
 
         /// <summary>
@@ -504,15 +512,16 @@ public abstract partial record Result<TOk, TErr>
         /// Whatever <paramref name="resultFactory" /> produced, or the original
         /// error.
         /// </returns>
-        public async ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
+        public ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
             Func<TOk, TState, ValueTask<Result<TOut, TErr>>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = Source;
 
             return result is Ok<TOk, TErr> ok
-                ? await resultFactory(ok.Value, _state).ConfigureAwait(false)
-                : Result.Err<TOut, TErr>(result.UnwrapErr());
+                ? resultFactory(ok.Value, _state)
+                : new ValueTask<Result<TOut, TErr>>(
+                      Result.Err<TOut, TErr>(result.UnwrapErr()));
         }
 
         /// <summary>
@@ -535,16 +544,16 @@ public abstract partial record Result<TOk, TErr>
         /// The original ok value, or whatever
         /// <paramref name="resultFactory" /> produced.
         /// </returns>
-        public async ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
+        public ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
             Func<TErr, TState, ValueTask<Result<TOk, TOut>>> resultFactory)
             where TOut : notnull
         {
             Result<TOk, TErr> result = Source;
 
             return result is Ok<TOk, TErr> ok
-                ? Result.Ok<TOk, TOut>(ok.Value)
-                : await resultFactory(result.UnwrapErr(), _state)
-                     .ConfigureAwait(false);
+                ? new ValueTask<Result<TOk, TOut>>(
+                      Result.Ok<TOk, TOut>(ok.Value))
+                : resultFactory(result.UnwrapErr(), _state);
         }
 
         /// <summary>
@@ -562,15 +571,14 @@ public abstract partial record Result<TOk, TErr>
         /// The contained ok value, or what <paramref name="valueFactory" />
         /// produced.
         /// </returns>
-        public async ValueTask<TOk> UnwrapOrElseAsync(
+        public ValueTask<TOk> UnwrapOrElseAsync(
             Func<TErr, TState, Task<TOk>> valueFactory)
         {
             Result<TOk, TErr> result = Source;
 
             return result is Ok<TOk, TErr> ok
-                ? ok.Value
-                : await valueFactory(result.UnwrapErr(), _state)
-                     .ConfigureAwait(false);
+                ? new ValueTask<TOk>(ok.Value)
+                : Awaited(valueFactory(result.UnwrapErr(), _state));
         }
 
         /// <summary>
@@ -586,17 +594,14 @@ public abstract partial record Result<TOk, TErr>
         /// Acts on the contained ok value and the bound state.
         /// </param>
         /// <returns>The same result, whichever case it is in.</returns>
-        public async ValueTask<Result<TOk, TErr>> InspectAsync(
+        public ValueTask<Result<TOk, TErr>> InspectAsync(
             Func<TOk, TState, Task> action)
         {
             Result<TOk, TErr> result = Source;
 
-            if (result is Ok<TOk, TErr> ok)
-            {
-                await action(ok.Value, _state).ConfigureAwait(false);
-            }
-
-            return result;
+            return result is Ok<TOk, TErr> ok
+                ? AwaitedInspect(action(ok.Value, _state), result)
+                : new ValueTask<Result<TOk, TErr>>(result);
         }
 
         /// <summary>
@@ -612,17 +617,16 @@ public abstract partial record Result<TOk, TErr>
         /// Acts on the contained error and the bound state.
         /// </param>
         /// <returns>The same result, whichever case it is in.</returns>
-        public async ValueTask<Result<TOk, TErr>> InspectErrAsync(
+        public ValueTask<Result<TOk, TErr>> InspectErrAsync(
             Func<TErr, TState, Task> action)
         {
             Result<TOk, TErr> result = Source;
 
-            if (result is not Ok<TOk, TErr>)
-            {
-                await action(result.UnwrapErr(), _state).ConfigureAwait(false);
-            }
-
-            return result;
+            return result is Ok<TOk, TErr>
+                ? new ValueTask<Result<TOk, TErr>>(result)
+                : AwaitedInspect(
+                      action(result.UnwrapErr(), _state),
+                      result);
         }
 
         /// <summary>
@@ -641,15 +645,15 @@ public abstract partial record Result<TOk, TErr>
         /// <see cref="Ok{TOk,TErr}" /> of the transformed value, or the original
         /// error.
         /// </returns>
-        public async ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
+        public ValueTask<Result<TOut, TErr>> MapAsync<TOut>(
             Func<TOk, TState, Task<TOut>> map) where TOut : notnull
         {
             Result<TOk, TErr> result = Source;
 
             return result is Ok<TOk, TErr> ok
-                ? Result.Ok<TOut, TErr>(
-                      await map(ok.Value, _state).ConfigureAwait(false))
-                : Result.Err<TOut, TErr>(result.UnwrapErr());
+                ? AwaitedOk<TOut>(map(ok.Value, _state))
+                : new ValueTask<Result<TOut, TErr>>(
+                      Result.Err<TOut, TErr>(result.UnwrapErr()));
         }
 
         /// <summary>
@@ -674,14 +678,12 @@ public abstract partial record Result<TOk, TErr>
         /// <returns>
         /// The transformed value, or <paramref name="defaultValue" />.
         /// </returns>
-        public async ValueTask<TOut> MapOrAsync<TOut>(
+        public ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
-            Func<TOk, TState, Task<TOut>> map) where TOut : notnull
-        {
-            return Source is Ok<TOk, TErr> ok
-                ? await map(ok.Value, _state).ConfigureAwait(false)
-                : defaultValue;
-        }
+            Func<TOk, TState, Task<TOut>> map) where TOut : notnull =>
+            Source is Ok<TOk, TErr> ok
+                ? Awaited(map(ok.Value, _state))
+                : new ValueTask<TOut>(defaultValue);
 
         /// <summary>
         /// Awaits a transform of the contained ok value and the bound state,
@@ -700,13 +702,11 @@ public abstract partial record Result<TOk, TErr>
         /// The transformed value, or the default of
         /// <typeparamref name="TOut" />.
         /// </returns>
-        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
-            Func<TOk, TState, Task<TOut>> map) where TOut : notnull
-        {
-            return Source is Ok<TOk, TErr> ok
-                ? await map(ok.Value, _state).ConfigureAwait(false)
+        public ValueTask<TOut?> MapOrDefaultAsync<TOut>(
+            Func<TOk, TState, Task<TOut>> map) where TOut : notnull =>
+            Source is Ok<TOk, TErr> ok
+                ? AwaitedNullable(map(ok.Value, _state))
                 : default;
-        }
 
         /// <summary>
         /// Awaits a transform of the contained ok value, or awaits a fallback
@@ -754,16 +754,40 @@ public abstract partial record Result<TOk, TErr>
         /// The original ok value, or <see cref="Err{TOk,TErr}" /> of the restated
         /// error.
         /// </returns>
-        public async ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
+        public ValueTask<Result<TOk, TOut>> MapErrAsync<TOut>(
             Func<TErr, TState, Task<TOut>> map) where TOut : notnull
         {
             Result<TOk, TErr> result = Source;
 
             return result is Ok<TOk, TErr> ok
-                ? Result.Ok<TOk, TOut>(ok.Value)
-                : Result.Err<TOk, TOut>(
-                      await map(result.UnwrapErr(), _state)
-                         .ConfigureAwait(false));
+                ? new ValueTask<Result<TOk, TOut>>(
+                      Result.Ok<TOk, TOut>(ok.Value))
+                : AwaitedErr<TOut>(map(result.UnwrapErr(), _state));
         }
+
+        private static async ValueTask<TResult> Awaited<TResult>(
+            Task<TResult> task) =>
+            await task.ConfigureAwait(false);
+
+        private static async ValueTask<TOut?> AwaitedNullable<TOut>(
+            Task<TOut> task) where TOut : notnull =>
+            await task.ConfigureAwait(false);
+
+        private static async ValueTask<Result<TOk, TErr>> AwaitedInspect(
+            Task task,
+            Result<TOk, TErr> result)
+        {
+            await task.ConfigureAwait(false);
+
+            return result;
+        }
+
+        private static async ValueTask<Result<TOut, TErr>> AwaitedOk<TOut>(
+            Task<TOut> task) where TOut : notnull =>
+            Result.Ok<TOut, TErr>(await task.ConfigureAwait(false));
+
+        private static async ValueTask<Result<TOk, TOut>> AwaitedErr<TOut>(
+            Task<TOut> task) where TOut : notnull =>
+            Result.Err<TOk, TOut>(await task.ConfigureAwait(false));
     }
 }

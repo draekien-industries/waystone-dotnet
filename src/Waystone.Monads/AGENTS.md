@@ -163,23 +163,63 @@ three declarations — abstract plus two overrides — so the 27 the binder need
 locks them until the next major. They would also be 27 more of exactly the surface
 `With` exists to replace.
 
-That decision does give something up, and the tradeoff is the argument rather than a
-footnote to it. Per-case overrides can drop `async` altogether on the trivial branch
-— `None<T>.IsSomeAndAsync` is `=> new ValueTask<bool>(false)`, with no state machine
-built at all — because virtual dispatch has already chosen the case. The binder
-cannot: it branches on `Source is Some<T>` inside one method, so the state machine is
-entered either way. What it costs is the machine's construction on a branch that
-never awaits, not an allocation, since a synchronously-completing `async ValueTask`
-does not reach the heap.
+**A binder member with a short-circuit branch carries no `async` keyword, and that
+is deliberate.** Per-case overrides on the monad drop `async` altogether on the
+trivial branch — `None<T>.IsSomeAndAsync` is `=> new ValueTask<bool>(false)` — because
+virtual dispatch has already chosen the case. The binder has no such dispatch: it
+tests `Source is Some<T>` inside one method. Written `async`, that method builds a
+state machine even on the branch that never awaits, and DRA-201 measured the cost at
+**1.76x a closure** on `IsSomeAndAsync` over a `None`, the cheapest member in the set.
 
-`StateBindingAsyncBenchmarks` puts numbers on that, and they are not one-sided.
-Against a `None`, `IsSomeAndAsync` through the binder allocates nothing where the
-closure allocates 88 bytes — and takes 9.2ns against the closure's 5.2ns to do it,
-1.76x, on the cheapest member in the set. The populated branches go the other way:
-`MapAsync` on a `Some` runs at 0.66x the closure's time for half its allocation, and
-`MatchAsync` drops 224 bytes to 72. So the binder trades time for allocation on the
-empty branch and wins on both counts on the full one. Reach for it under GC
-pressure. Do not claim it makes an empty option faster, because it does not.
+DRA-205 removed it without touching the monads. The outer method is not `async` and
+returns a completed `ValueTask` on the short-circuit branch; the await moves into a
+private `async` helper reached only from the branch that awaits:
+
+```csharp
+public ValueTask<bool> IsSomeAndAsync(Func<T, TState, Task<bool>> predicate) =>
+    Source is Some<T> some
+        ? Awaited(predicate(some.Value, _state))
+        : new ValueTask<bool>(false);
+
+private static async ValueTask<bool> Awaited(Task<bool> task) =>
+    await task.ConfigureAwait(false);
+```
+
+**The rule for which members convert is mechanical: count the awaits.** One await
+means a branch returns without awaiting, and it converts. Two awaits means both
+branches build a machine anyway, so converting buys nothing and only adds an
+indirection — `MatchAsync` and `MapOrElseAsync` on both binders stay `async` for that
+reason, and the file reads as inconsistent until you know this. `AndThenAsync` and
+`OrElseAsync` do best of all: their delegates return `ValueTask`, so the awaiting
+branch returns it straight through and neither branch builds a machine.
+
+**It costs no public API.** `async` is not part of a signature, so the conversion
+moved zero baseline rows. Verify with `git diff --stat -- '*PublicAPI*'` rather than
+assuming.
+
+**It does change when exceptions surface, which is the part to be careful with.**
+A non-`async` method reads `Source` and invokes the delegate eagerly, so a `default`
+binder and a delegate that throws before returning its `Task` both throw *at the
+call* rather than yielding a faulted task. `ADefaultBoundThrowsFromTheCallRatherThan
+FromTheAwait` and `ADelegateThrowingBeforeItsTaskThrowsFromTheCall` pin it in both
+async test classes, asserting with the synchronous `Should.Throw` and no `await` —
+which is what makes them fail against the `async` form rather than passing either
+way.
+
+The conversion moved every case it touched, and moved most of them past the closure
+rather than merely level with it. `artifacts/dra-205/` against `artifacts/dra-201/`:
+`MapAsync` on a `None` went 1.11x to **0.73x**, `MapAsync` on an `Err` 1.08x to
+**0.56x**, `AndThenAsync` on a `Some` 0.98x to **0.57x** — that last one being the
+member that now builds no machine on either branch. Six of the eight categories are
+faster than the closure, at zero allocation where the closure pays 88 bytes.
+
+Two figures are deliberately still above 1.0 and neither is a defect.
+`IsSomeAndAsync` over a `None` sits at **1.10x**: the residue of testing the case at
+all, on the cheapest member in the set, and the floor for anything short of adding
+async state overloads to the monads. `MatchAsync` sits at 1.04x because it awaits on
+both branches and was never converted. Read an allocation claim off the predicate
+categories rather than off `MapAsync`, whose non-zero figure is the new result
+instance and not a state machine.
 
 **Match the success case, never the failure case.** The async bodies read
 `Source is Some<T>` and `Source is Ok<TOk, TErr>`, and reach the other side through
