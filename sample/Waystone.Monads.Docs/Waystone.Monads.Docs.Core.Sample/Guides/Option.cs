@@ -56,8 +56,10 @@ internal static class OptionGuide
 
     internal static void UnwrappingOut(Option<string> maybePatron)
     {
+        #region option-guide-unwrapping-out
         string orFallback = maybePatron.UnwrapOr("[No patron]");
-        string orComputed = maybePatron.UnwrapOrElse(() => "[No patron]");
+        string orComputed = maybePatron.UnwrapOrElse(() => LoadHousePatron());
+        #endregion
 
         _ = (orFallback, orComputed);
     }
@@ -227,4 +229,7 @@ internal static class OptionGuide
 
     private static Option<string> TryExtractDomain(string sigil) =>
         Option.Try(() => sigil.Split('@')[1]);
+
+    private static string LoadHousePatron() =>
+        File.ReadAllText("house-patron.txt").Trim();
 }
