@@ -65,7 +65,7 @@ public sealed class StateOverloadAnalyzer : MonadAnalyzer
 
         foreach (var argument in invocation.Arguments)
         {
-            if (LambdaIn(argument.Value) is not { } lambda)
+            if (Semantics.LambdaIn(argument.Value) is not { } lambda)
             {
                 continue;
             }
@@ -82,40 +82,16 @@ public sealed class StateOverloadAnalyzer : MonadAnalyzer
         return captured;
     }
 
-    private static IAnonymousFunctionOperation? LambdaIn(IOperation operation)
-    {
-        var value = Semantics.Unconverted(operation);
-
-        if (value is IDelegateCreationOperation creation)
-        {
-            value = Semantics.Unconverted(creation.Target);
-        }
-
-        return value as IAnonymousFunctionOperation;
-    }
-
     private static IEnumerable<string> CapturedBy(
         IAnonymousFunctionOperation lambda)
     {
         foreach (var descendant in lambda.Descendants())
         {
-            ISymbol? referenced = descendant switch
-            {
-                ILocalReferenceOperation local => local.Local,
-                IParameterReferenceOperation parameter => parameter.Parameter,
-                _ => null,
-            };
-
-            if (referenced is not null
-             && !IsDeclaredWithin(referenced, lambda.Syntax))
+            if (Semantics.CapturableReference(descendant) is { } referenced
+             && !Semantics.IsDeclaredWithin(referenced, lambda.Syntax))
             {
                 yield return referenced.Name;
             }
         }
     }
-
-    private static bool IsDeclaredWithin(ISymbol symbol, SyntaxNode lambda) =>
-        symbol.DeclaringSyntaxReferences.Any(
-            reference => reference.SyntaxTree == lambda.SyntaxTree
-                      && lambda.Span.Contains(reference.Span));
 }
