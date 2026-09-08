@@ -121,7 +121,8 @@ public sealed class AwaitedReceiversGenerator : IIncrementalGenerator
         {
             if (!method.IsExtensionMethod
              || method.DeclaredAccessibility != Accessibility.Public
-             || method.Parameters.Length == 0)
+             || method.Parameters.Length == 0
+             || IsExcluded(method))
             {
                 continue;
             }
@@ -143,6 +144,12 @@ public sealed class AwaitedReceiversGenerator : IIncrementalGenerator
                 method.Parameters.RemoveAt(0));
         }
     }
+
+    private static bool IsExcluded(IMethodSymbol method) =>
+        method.GetAttributes()
+              .Any(
+                   attribute => attribute.AttributeClass?.ToDisplayString()
+                             == GeneratedAttributes.ExcludeAttributeMetadataName);
 
     private static IEnumerable<AwaitedMember> FromReceiverMember(
         INamedTypeSymbol receiver,

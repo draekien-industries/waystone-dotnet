@@ -150,7 +150,7 @@ file. A stripped BOM shows up as `-\xef\xbb\xbfnamespace` in the diff and nothin
 the build notices.
 
 **Write and audit those comments through the
-`engineering-skills:with-doc-comments` skill.** Nothing in the build checks that
+`technical-writing-skills:doc-comments` skill.** Nothing in the build checks that
 a doc comment says anything, so the default outcome is a slot-filled restatement
 of the signature. It applies to new comments and to existing ones alike. The two
 failures it catches most often here are an overload whose summary is copied from

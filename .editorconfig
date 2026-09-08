@@ -60,3 +60,22 @@ dotnet_diagnostic.RS0026.severity = none
 # ambiguity is a compile error at the call site rather than a quiet move to the
 # other overload. Scoped to this file for the same reason as above.
 dotnet_diagnostic.RS0026.severity = none
+
+[src/Waystone.Monads/Results/ResultFactoryBound.cs]
+
+# The same exemption on Try and TryAsync, and here it is not a judgement call:
+# these four forward to the Result.Try and Result.TryAsync overloads of the same
+# names and shapes, which are already shipped and carry the same optional
+# parameters. RS0026 stays quiet on those only because it reports added API, so
+# declining the exemption here would mean the wrapper could not mirror the
+# vocabulary it exists to mirror.
+# The caller-info parameters have to be optional and have to be declared here
+# rather than left to the forwarded call: the compiler fills them at the
+# outermost call site, so declaring them is what makes a handled exception point
+# at the consumer's line instead of at this file.
+# The silent-rebind hazard cannot arise. Each name has exactly two overloads
+# separated by the type of the second parameter - a Func<Exception, TErr>
+# against a string callerMemberName - and no argument is both, so a would-be
+# ambiguity is a compile error at the call site rather than a quiet move to the
+# other overload. Scoped to this file for the same reason as above.
+dotnet_diagnostic.RS0026.severity = none

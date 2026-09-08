@@ -2,7 +2,9 @@ namespace Waystone.Monads.Benchmarks;
 
 using BenchmarkDotNet.Attributes;
 using Options;
+using Options.Extensions;
 using Results;
+using Results.Extensions;
 
 [MemoryDiagnoser]
 public class StateOverloadBenchmarks
@@ -34,6 +36,10 @@ public class StateOverloadBenchmarks
         _some.Map(_addend, static (value, addend) => value + addend);
 
     [Benchmark]
+    public Option<int> MapWithBinding() =>
+        _some.With(_addend).Map(static (value, addend) => value + addend);
+
+    [Benchmark]
     public int MapOrWithClosure()
     {
         int addend = _addend;
@@ -44,6 +50,10 @@ public class StateOverloadBenchmarks
     [Benchmark]
     public int MapOrWithState() =>
         _some.MapOr(_addend, 0, static (value, addend) => value + addend);
+
+    [Benchmark]
+    public int MapOrWithBinding() =>
+        _some.With(_addend).MapOr(0, static (value, addend) => value + addend);
 
     [Benchmark]
     public Option<int> FilterWithClosure()
@@ -60,6 +70,11 @@ public class StateOverloadBenchmarks
             static (value, threshold) => value > threshold);
 
     [Benchmark]
+    public Option<int> FilterWithBinding() =>
+        _some.With(_threshold)
+             .Filter(static (value, threshold) => value > threshold);
+
+    [Benchmark]
     public Result<int, string> ResultMapWithClosure()
     {
         int addend = _addend;
@@ -72,6 +87,10 @@ public class StateOverloadBenchmarks
         _ok.Map(_addend, static (value, addend) => value + addend);
 
     [Benchmark]
+    public Result<int, string> ResultMapWithBinding() =>
+        _ok.With(_addend).Map(static (value, addend) => value + addend);
+
+    [Benchmark]
     public Option<int> TryWithClosure()
     {
         int addend = _addend;
@@ -82,6 +101,10 @@ public class StateOverloadBenchmarks
     [Benchmark]
     public Option<int> TryWithState() =>
         Option.Try(_addend, static addend => 42 + addend);
+
+    [Benchmark]
+    public Option<int> TryWithBinding() =>
+        Option.With(_addend).Try(static addend => 42 + addend);
 
     [Benchmark]
     public Result<int, string> ResultTryWithClosure()
@@ -97,4 +120,9 @@ public class StateOverloadBenchmarks
             _addend,
             static addend => 42 + addend,
             static ex => ex.Message);
+
+    [Benchmark]
+    public Result<int, string> ResultTryWithBinding() =>
+        Result.With(_addend)
+              .Try(static addend => 42 + addend, static ex => ex.Message);
 }

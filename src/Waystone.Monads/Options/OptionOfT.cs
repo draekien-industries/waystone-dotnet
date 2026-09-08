@@ -36,7 +36,7 @@ using System.Diagnostics;
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
-public abstract record Option<T> where T : notnull
+public abstract partial record Option<T> where T : notnull
 {
     internal Option()
     { }

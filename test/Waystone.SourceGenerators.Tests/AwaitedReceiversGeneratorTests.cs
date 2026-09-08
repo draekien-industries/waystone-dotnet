@@ -215,6 +215,87 @@ public sealed class AwaitedReceiversGeneratorTests
         run.Source.ShouldContain("/// reads the value.");
     }
 
+    /// <remarks>
+    /// The unmarked sibling in the same block is what makes this worth pinning.
+    /// The exclusion has to reach one member and leave the other alone, so a
+    /// filter that skipped the whole block would pass an assertion that only
+    /// checked the excluded name.
+    /// </remarks>
+    [Fact]
+    public void DeclinesToLiftAnExcludedExtensionBlockMember()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : notnull
+                {
+                    /// <summary>Binds a value to the box.</summary>
+                    /// <param name="state">The value to bind.</param>
+                    [ExcludeFromAwaitedReceivers]
+                    public T Bind(T state) => box.Get();
+
+                    /// <summary>Reads the value.</summary>
+                    public T Read() => box.Get();
+                }
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldNotContain("BindAsync");
+        run.Source.ShouldContain("ReadAsync");
+    }
+
+    /// <remarks>
+    /// A classic <c>static (this T)</c> method is lifted exactly like a block
+    /// member, because the seed filters on <c>IsExtensionMethod</c> and a classic
+    /// method satisfies it too. Pinned because the opposite is a plausible
+    /// reading of the name <c>FromExtensionBlocks</c>, and acting on it — writing
+    /// a member in classic form to dodge the lift — silently does nothing.
+    /// </remarks>
+    [Fact]
+    public void LiftsAClassicExtensionMethodAndHonoursTheExclusionOnItToo()
+    {
+        GeneratorRun lifted = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                /// <summary>Reads the value.</summary>
+                /// <param name="box">The box to read.</param>
+                public static T Read<T>(this Box<T> box) where T : notnull =>
+                    box.Get();
+            }
+            """);
+
+        GeneratorRun excluded = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                /// <summary>Reads the value.</summary>
+                /// <param name="box">The box to read.</param>
+                [ExcludeFromAwaitedReceivers]
+                public static T Read<T>(this Box<T> box) where T : notnull =>
+                    box.Get();
+            }
+            """);
+
+        lifted.CompilationDiagnostics.ShouldBeEmpty();
+        lifted.GeneratorDiagnostics.ShouldBeEmpty();
+        lifted.Source.ShouldContain("ReadAsync");
+
+        excluded.CompilationDiagnostics.ShouldBeEmpty();
+        excluded.GeneratorDiagnostics.ShouldBeEmpty();
+        excluded.Generated.ShouldBeNull();
+    }
+
     [Fact]
     public void KeepsTwoBlocksApartWhenTheyShareAReceiverButNotItsConstraints()
     {

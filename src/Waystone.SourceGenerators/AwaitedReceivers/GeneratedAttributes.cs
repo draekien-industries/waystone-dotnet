@@ -8,6 +8,9 @@ internal static class GeneratedAttributes
     public const string MemberAttributeMetadataName =
         "Waystone.SourceGenerators.GenerateAwaitedMemberAttribute";
 
+    public const string ExcludeAttributeMetadataName =
+        "Waystone.SourceGenerators.ExcludeFromAwaitedReceiversAttribute";
+
     public const string HintName = "GenerateAwaitedReceiversAttribute.g.cs";
 
     public const string Source = """
@@ -113,6 +116,39 @@ internal static class GeneratedAttributes
                 /// used.
                 /// </remarks>
                 public string? Summary { get; set; }
+            }
+
+            /// <summary>
+            /// Keeps one public extension member off the generated awaited
+            /// receivers.
+            /// </summary>
+            /// <remarks>
+            /// The lift <see cref="GenerateAwaitedReceiversAttribute" /> performs is
+            /// blanket and needs no opt-in, so a member whose awaited shape is
+            /// meaningless still gets one. A member returning a builder or a state
+            /// binder is the usual case: the awaited form hands back a task of a
+            /// thing the caller cannot chain, and the pair costs two public members
+            /// and the baseline rows that lock them. This is the only way to
+            /// decline it.
+            /// <para>
+            /// Weigh it against what it removes. A caller holding a
+            /// <c>Task&lt;TReceiver&gt;</c> must await first and then call the
+            /// member, so the excluded member is one they can no longer reach in a
+            /// single chain.
+            /// </para>
+            /// <para>
+            /// It reads only on a public extension member of a class carrying
+            /// <see cref="GenerateAwaitedReceiversAttribute" />, and is inert
+            /// anywhere else rather than reported. That includes a receiver-type
+            /// method named by <see cref="GenerateAwaitedMemberAttribute" /> —
+            /// those are opt-in already, so leave the name off the list instead.
+            /// </para>
+            /// </remarks>
+            [System.AttributeUsage(System.AttributeTargets.Method)]
+            [System.CodeDom.Compiler.GeneratedCode("Waystone.SourceGenerators", null)]
+            internal sealed class ExcludeFromAwaitedReceiversAttribute
+                : System.Attribute
+            {
             }
         }
 

@@ -19,7 +19,7 @@ using System.Diagnostics;
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
-public static class Result
+public static partial class Result
 {
     /// <summary>
     /// Tries to store the result of a <paramref name="factory" /> into a

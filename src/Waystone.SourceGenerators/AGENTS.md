@@ -14,7 +14,7 @@ readable.** `Analyse` emits the union of:
   `[GenerateAwaitedMember(nameof(Option<>.Unwrap))]` per core member it wants.
 * `FromExtensionBlocks` — every public extension member already in the destination
   class **whose receiver is not itself awaitable**, lifted onto both awaited
-  receivers.
+  receivers, unless it carries `[ExcludeFromAwaitedReceivers]`.
 
 The written half used to be deliberate for a reason that no longer applies: which
 extension class a core member's async shape belonged in was not derivable, since
@@ -46,6 +46,16 @@ synchronous receiver silently gains two awaited overloads, and one on an awaited
 receiver contributes nothing and will be deleted by the conversion. **Which
 receiver a hand-written overload sits on is therefore part of the contract, not a
 detail.**
+
+**`[ExcludeFromAwaitedReceivers]` on the member is the only way to decline the
+lift.** It was added in DRA-200 for `Option.With` and `Result.With`, whose awaited
+form returns a task of a state binder — a shape nobody can chain, for two public
+members and their baseline rows. The seed filters on `IsExtensionMethod`, so a
+classic `static (this T)` method is lifted exactly like an `extension` block
+member and rewriting one in classic form does **not** dodge it; that was measured
+before the attribute existed. The attribute is read only inside
+`FromExtensionBlocks` and is inert elsewhere, including on a member named by
+`GenerateAwaitedMember` — that list is opt-in, so leave the name off it instead.
 
 Write the member with `nameof`, not a bare string. C# 14 takes an unbound generic
 in `nameof`, so `nameof(Option<>.Unwrap)` compiles, matches the `typeof(Option<>)`

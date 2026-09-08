@@ -3,7 +3,9 @@ namespace Waystone.Monads.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using Options;
+using Options.Extensions;
 using Results;
+using Results.Extensions;
 
 [MemoryDiagnoser]
 [CategoriesColumn]
@@ -44,6 +46,12 @@ public class StateOverloadCandidateBenchmarks
             _threshold,
             static (value, threshold) => value > threshold);
 
+    [Benchmark]
+    [BenchmarkCategory("Predicate")]
+    public bool IsSomeAndWithBinding() =>
+        _some.With(_threshold)
+             .IsSomeAnd(static (value, threshold) => value > threshold);
+
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("MatchFunc")]
     public int MatchFuncWithClosure()
@@ -60,6 +68,14 @@ public class StateOverloadCandidateBenchmarks
             _addend,
             static (value, addend) => value + addend,
             static addend => addend);
+
+    [Benchmark]
+    [BenchmarkCategory("MatchFunc")]
+    public int MatchFuncWithBinding() =>
+        _some.With(_addend)
+             .Match(
+                  static (value, addend) => value + addend,
+                  static addend => addend);
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("MatchAction")]
@@ -78,6 +94,14 @@ public class StateOverloadCandidateBenchmarks
             static (value, addend) => Consume(value + addend),
             static addend => Consume(addend));
 
+    [Benchmark]
+    [BenchmarkCategory("MatchAction")]
+    public void MatchActionWithBinding() =>
+        _some.With(_addend)
+             .Match(
+                  static (int value, int addend) => Consume(value + addend),
+                  static (int addend) => Consume(addend));
+
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Inspect")]
     public Option<int> InspectWithClosure()
@@ -93,6 +117,12 @@ public class StateOverloadCandidateBenchmarks
         _some.Inspect(
             _addend,
             static (value, addend) => Consume(value + addend));
+
+    [Benchmark]
+    [BenchmarkCategory("Inspect")]
+    public Option<int> InspectWithBinding() =>
+        _some.With(_addend)
+             .Inspect(static (value, addend) => Consume(value + addend));
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("MapOrDefault")]
@@ -110,6 +140,12 @@ public class StateOverloadCandidateBenchmarks
             _addend,
             static (value, addend) => value + addend);
 
+    [Benchmark]
+    [BenchmarkCategory("MapOrDefault")]
+    public int MapOrDefaultWithBinding() =>
+        _some.With(_addend)
+             .MapOrDefault(static (value, addend) => value + addend);
+
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("UnwrapOrElse")]
     public int UnwrapOrElseWithClosure()
@@ -124,6 +160,11 @@ public class StateOverloadCandidateBenchmarks
     public int UnwrapOrElseWithState() =>
         _some.UnwrapOrElse(_fallback, static fallback => fallback);
 
+    [Benchmark]
+    [BenchmarkCategory("UnwrapOrElse")]
+    public int UnwrapOrElseWithBinding() =>
+        _some.With(_fallback).UnwrapOrElse(static fallback => fallback);
+
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("OrElse")]
     public Option<int> OrElseWithClosure()
@@ -137,6 +178,12 @@ public class StateOverloadCandidateBenchmarks
     [BenchmarkCategory("OrElse")]
     public Option<int> OrElseWithState() =>
         _some.OrElse(_fallback, static fallback => Option.Some(fallback));
+
+    [Benchmark]
+    [BenchmarkCategory("OrElse")]
+    public Option<int> OrElseWithBinding() =>
+        _some.With(_fallback)
+             .OrElse(static fallback => Option.Some(fallback));
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("OkOrElse")]
@@ -154,6 +201,12 @@ public class StateOverloadCandidateBenchmarks
             _fallbackError,
             static fallbackError => fallbackError);
 
+    [Benchmark]
+    [BenchmarkCategory("OkOrElse")]
+    public Result<int, string> OkOrElseWithBinding() =>
+        _some.With(_fallbackError)
+             .OkOrElse(static fallbackError => fallbackError);
+
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("ResultPredicate")]
     public bool IsOkAndWithClosure()
@@ -169,6 +222,12 @@ public class StateOverloadCandidateBenchmarks
         _ok.IsOkAnd(
             _threshold,
             static (value, threshold) => value > threshold);
+
+    [Benchmark]
+    [BenchmarkCategory("ResultPredicate")]
+    public bool IsOkAndWithBinding() =>
+        _ok.With(_threshold)
+           .IsOkAnd(static (value, threshold) => value > threshold);
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("ResultMatchFunc")]
@@ -186,6 +245,14 @@ public class StateOverloadCandidateBenchmarks
             _addend,
             static (value, addend) => value + addend,
             static (string _, int addend) => addend);
+
+    [Benchmark]
+    [BenchmarkCategory("ResultMatchFunc")]
+    public int ResultMatchFuncWithBinding() =>
+        _ok.With(_addend)
+           .Match(
+                static (value, addend) => value + addend,
+                static (string _, int addend) => addend);
 
     private static int Consume(int value) => value;
 }
