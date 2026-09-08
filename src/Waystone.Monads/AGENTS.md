@@ -161,9 +161,27 @@ Do not close the gap by adding async state overloads to the monads. Each one cos
 three declarations — abstract plus two overrides — so the 27 the binder needs is
 81, and the abstract ones land in the baseline where **deprecate; never remove**
 locks them until the next major. They would also be 27 more of exactly the surface
-`With` exists to replace. The binder reaches both cases through the public API it
-already has, which is why the async side is hand-written case analysis rather than
-forwarding.
+`With` exists to replace.
+
+That decision does give something up, and the tradeoff is the argument rather than a
+footnote to it. Per-case overrides can drop `async` altogether on the trivial branch
+— `None<T>.IsSomeAndAsync` is `=> new ValueTask<bool>(false)`, with no state machine
+built at all — because virtual dispatch has already chosen the case. The binder
+cannot: it branches on `Source is Some<T>` inside one method, so the state machine is
+entered either way. What it costs is the machine's construction on a branch that
+never awaits, not an allocation, since a synchronously-completing `async ValueTask`
+does not reach the heap. `StateBindingAsyncBenchmarks` measures both cases so the
+claim is checkable rather than asserted.
+
+**Match the success case, never the failure case.** The async bodies read
+`Source is Some<T>` and `Source is Ok<TOk, TErr>`, and reach the other side through
+`UnwrapErr()`. Matching `Err<TOk, TErr>` directly and reading `err.Value` looks
+tidier on the two members that need only the error, and is wrong to reach for: the
+other seven need *both* values, so one pattern cannot serve them, and nothing in this
+library matches `Err<TOk, TErr>` or `None<T>` anywhere. Two members in the new idiom
+and seven in the old is worse than nine consistent ones. `UnwrapErr()` also avoids
+the alternative — a cast, or a `_ => throw` arm that is a line coverage can never
+reach.
 
 **`MonadOptionsScope.Dispose` restores only when it is the innermost live scope,
 and reports rather than throws.** It compares `ScopedOptions.Value` against the
