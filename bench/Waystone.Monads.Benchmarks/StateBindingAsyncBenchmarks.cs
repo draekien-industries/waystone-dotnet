@@ -21,6 +21,15 @@ using System.Threading.Tasks;
 /// and allocates no state machine. The closure baseline allocates its display
 /// class on that branch anyway, having built it before the case was known.
 /// </para>
+/// <para>
+/// Read that claim off the two predicate categories, not off
+/// <c>MapAsync</c>. A predicate returns a <see cref="bool" />, so nothing but a
+/// state machine could allocate and the binding column falls to zero. Mapping an
+/// <see cref="Err{TOk,TErr}" /> changes <c>TOk</c> and so must build a fresh
+/// result, which shows up as a non-zero figure that is the new instance rather
+/// than a state machine — the right number for what mapping costs, the wrong one
+/// to read the claim from.
+/// </para>
 /// </remarks>
 [MemoryDiagnoser]
 [CategoriesColumn]
@@ -42,6 +51,40 @@ public class StateBindingAsyncBenchmarks
         _err = Result.Err<int, string>("failed");
         _addend = 1;
     }
+
+    [Benchmark(Baseline = true)]
+    [BenchmarkCategory("IsSomeAndAsyncOnNone")]
+    public ValueTask<bool> IsSomeAndAsyncOnNoneWithClosure()
+    {
+        int addend = _addend;
+
+        return _none.IsSomeAndAsync(value => Task.FromResult(value > addend));
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("IsSomeAndAsyncOnNone")]
+    public ValueTask<bool> IsSomeAndAsyncOnNoneWithBinding() =>
+        _none.With(_addend)
+             .IsSomeAndAsync(
+                  static (value, addend) => Task.FromResult(value > addend));
+
+    [Benchmark(Baseline = true)]
+    [BenchmarkCategory("IsErrAndAsyncOnErr")]
+    public ValueTask<bool> IsErrAndAsyncOnErrWithClosure()
+    {
+        int addend = _addend;
+
+        return _err.IsErrAndAsync(
+            error => Task.FromResult(error.Length > addend));
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("IsErrAndAsyncOnErr")]
+    public ValueTask<bool> IsErrAndAsyncOnErrWithBinding() =>
+        _err.With(_addend)
+            .IsErrAndAsync(
+                 static (error, addend) =>
+                     Task.FromResult(error.Length > addend));
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("MapAsyncOnSome")]
