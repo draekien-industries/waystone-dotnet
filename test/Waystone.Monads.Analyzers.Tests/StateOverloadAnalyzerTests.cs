@@ -306,4 +306,105 @@ public class StateOverloadAnalyzerTests
                     mine.Map(value => value + offset);
             }
             """);
+
+    /// <remarks>
+    /// The reach the binder gate adds. No *Async member of Option or Result has
+    /// ever had a state overload, so the previous gate — does an overload of
+    /// this name take a TState — was false for every one of them and a
+    /// capturing asynchronous lambda was never reported. This case and the
+    /// Result one below are the whole point of the regate; the sync cases above
+    /// pass either way.
+    /// </remarks>
+    [Fact]
+    public Task FlagsMapAsyncCapturingAParameter() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
+            """
+            internal ValueTask<Option<int>> Shift(
+                Option<int> option,
+                int offset) =>
+                option.{|#0:MapAsync|}(
+                    async value =>
+                    {
+                        await Task.Yield();
+                        return value + offset;
+                    });
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MapAsync", "offset"));
+
+    [Fact]
+    public Task FlagsResultMapAsyncCapturingAParameter() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
+            """
+            internal ValueTask<Result<int, string>> Shift(
+                Result<int, string> result,
+                int offset) =>
+                result.{|#0:MapAsync|}(
+                    async value =>
+                    {
+                        await Task.Yield();
+                        return value + offset;
+                    });
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MapAsync", "offset"));
+
+    /// <remarks>
+    /// Reduce sits beside ZipWith as the second member the binder declines
+    /// permanently, and the pair is worth pinning separately: ZipWith would
+    /// keep passing if the gate matched on arity, while Reduce takes two
+    /// operands of the same type and would not.
+    /// </remarks>
+    [Fact]
+    public Task IgnoresReduceWhichTheBinderDoesNotDeclare() =>
+        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+            """
+            internal Option<int> Fold(
+                Option<int> option,
+                Option<int> other,
+                int offset) =>
+                option.Reduce(
+                    other,
+                    (value, otherValue) => value + otherValue + offset);
+            """);
+
+    /// <remarks>
+    /// An awaited receiver reaches the library through an extension member, so
+    /// the containing type is the extension grouping type and no binder
+    /// resolves. Silence is the correct answer rather than a gap: With is
+    /// declared on Option&lt;T&gt; and not on Task&lt;Option&lt;T&gt;&gt;, so
+    /// there is no rewrite to name. Pinned because the state overloads on these
+    /// members take a synchronous delegate, which an asynchronous lambda cannot
+    /// be passed to — a gate that reached them would advise the impossible.
+    /// </remarks>
+    [Fact]
+    public Task IgnoresAnAwaitedReceiverWhichHasNoWith() =>
+        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+            """
+            internal ValueTask<Option<int>> Shift(
+                Task<Option<int>> source,
+                int offset) =>
+                source.MapAsync(
+                    async value =>
+                    {
+                        await Task.Yield();
+                        return value + offset;
+                    });
+            """);
+
+    /// <remarks>
+    /// MapOrNull is the one delegate-taking member of Option that has neither a
+    /// state overload nor a binder member, so it was silent before the regate
+    /// and stays silent after it. Pinned so that the silence reads as a known
+    /// gap in the binder's vocabulary rather than as the gate misfiring.
+    /// </remarks>
+    [Fact]
+    public Task IgnoresMapOrNullWhichTheBinderDoesNotDeclare() =>
+        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+            """
+            internal int? Read(Option<int> option, int offset) =>
+                option.MapOrNull(value => value + offset);
+            """);
 }

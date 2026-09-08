@@ -129,6 +129,16 @@ and `WM2020` — which cannot know an entry is stale until every enum has been s
 no fix at all. Both rules read the same two sets; the split is entirely about
 fixability.
 
+**A rule registered on `OperationKind.Invocation` must reject on type identity
+before anything else.** That action runs on every method call in every file a
+consumer compiles, so the first clause of the gate is the one that decides the
+rule's cost, and almost every call it sees belongs to somebody else. `WM2017`
+lost this once: collapsing its "is this ours" check into its "can this be
+rewritten" check left `TakesState` — an `ImmutableArray` scan of the method's
+type parameters — running unconditionally on all of them, because the cheap
+reject had moved behind it. Nothing failed, and no test can catch it; the order
+in `StateOverloadAnalyzer.Analyze` is load-bearing and reads as arbitrary.
+
 **A rule that reports from a compilation end action needs
 `WellKnownDiagnosticTags.CompilationEnd`.** Roslyn reads the tag to decide when to run
 the end action, so without it the rule can go quiet in the IDE while still firing on the

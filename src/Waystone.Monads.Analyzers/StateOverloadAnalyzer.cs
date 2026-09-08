@@ -29,9 +29,7 @@ public sealed class StateOverloadAnalyzer : MonadAnalyzer
         var invocation = (IInvocationOperation)context.Operation;
         var method = invocation.TargetMethod;
 
-        if (!IsDeclaredByTheLibrary(method, symbols)
-         || TakesState(method)
-         || !HasAStateOverload(method))
+        if (!TheBinderDeclares(method, symbols) || TakesState(method))
         {
             return;
         }
@@ -51,26 +49,15 @@ public sealed class StateOverloadAnalyzer : MonadAnalyzer
                 string.Join("', '", captured)));
     }
 
-    private static bool IsDeclaredByTheLibrary(
-        IMethodSymbol method,
-        MonadSymbols symbols) =>
-        symbols.IsMonad(method.ContainingType)
-     || symbols.IsDerivedCase(method.ContainingType)
-     || SymbolEqualityComparer.Default.Equals(
-            method.ContainingType,
-            symbols.OptionFactory)
-     || SymbolEqualityComparer.Default.Equals(
-            method.ContainingType,
-            symbols.ResultFactory);
-
     private static bool TakesState(IMethodSymbol method) =>
         method.OriginalDefinition.TypeParameters.Any(
             parameter => parameter.Name == StateTypeParameterName);
 
-    private static bool HasAStateOverload(IMethodSymbol method) =>
-        method.ContainingType.GetMembers(method.Name)
-              .OfType<IMethodSymbol>()
-              .Any(TakesState);
+    private static bool TheBinderDeclares(
+        IMethodSymbol method,
+        MonadSymbols symbols) =>
+        symbols.BinderFor(method.ContainingType) is { } binder
+     && binder.GetMembers(method.Name).OfType<IMethodSymbol>().Any();
 
     private static List<string> CapturedBy(IInvocationOperation invocation)
     {

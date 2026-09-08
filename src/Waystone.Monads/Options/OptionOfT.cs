@@ -70,8 +70,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -117,8 +117,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -175,8 +175,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegates rather than
     /// capturing it lets them be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload. A capturing <c>Match</c> allocates more than the
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload. A capturing <c>Match</c> allocates more than the
     /// single-delegate members do, because its two branches share one display
     /// class but need a delegate each.
     /// </remarks>
@@ -216,8 +216,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegates rather than
     /// capturing it lets them be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload. A capturing <c>Match</c> allocates more than the
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload. A capturing <c>Match</c> allocates more than the
     /// single-delegate members do, because its two branches share one display
     /// class but need a delegate each.
     /// </remarks>
@@ -343,8 +343,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload. The delegate is not invoked on a
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload. The delegate is not invoked on a
     /// <see cref="Some{T}" />, so a capturing call allocates a closure it then
     /// discards.
     /// </remarks>
@@ -404,8 +404,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">The value passed to the map function.</param>
     /// <param name="map">The map function.</param>
@@ -497,8 +497,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -573,8 +573,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">The value passed to the map function.</param>
     /// <param name="defaultValue">The default value for a <see cref="None{T}" />.</param>
@@ -626,8 +626,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -720,8 +720,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">The value passed to both functions.</param>
     /// <param name="defaultFactory">
@@ -802,8 +802,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">
     /// The value the delegate would otherwise capture. It is passed through
@@ -864,8 +864,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload.
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">The value passed to the predicate.</param>
     /// <param name="predicate">The filter function.</param>
@@ -910,8 +910,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload. The delegate is not invoked on a
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload. The delegate is not invoked on a
     /// <see cref="Some{T}" />, so a capturing call allocates a closure it then
     /// discards.
     /// </remarks>
@@ -1141,8 +1141,8 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
     /// capturing it lets the delegate be <see langword="static" />, so the call
-    /// allocates no closure. <c>WM2017</c> reports a capturing call that could
-    /// use this overload. The delegate is not invoked on a
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload. The delegate is not invoked on a
     /// <see cref="Some{T}" />, so a capturing call allocates a closure it then
     /// discards.
     /// </remarks>
