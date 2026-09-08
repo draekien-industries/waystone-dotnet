@@ -142,6 +142,20 @@ public class FreeDelegateAnalyzerTests
                     });
             """);
 
+    /// <remarks>
+    /// A method group has no body to read, so there is nothing to lift into the
+    /// eager sibling however cheap the method turns out to be.
+    /// </remarks>
+    [Fact]
+    public Task IgnoresAMethodGroup() =>
+        Verify.NoDiagnosticAsync<FreeDelegateAnalyzer>(
+            """
+            internal int Read(Option<int> option) =>
+                option.UnwrapOrElse(Compute);
+
+            private static int Compute() => 1;
+            """);
+
     [Fact]
     public Task IgnoresAnEagerMemberWhichIsWM2016sToReport() =>
         Verify.NoDiagnosticAsync<FreeDelegateAnalyzer>(

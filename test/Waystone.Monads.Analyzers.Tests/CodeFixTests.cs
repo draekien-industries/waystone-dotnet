@@ -356,4 +356,31 @@ public class CodeFixTests
                    .WithLocation(0)
                    .WithArguments("UnwrapOrElse", "UnwrapOr"),
             ]);
+
+    /// <remarks>
+    /// Reported and not fixed. The value sits inside a <c>return</c>, so lifting
+    /// it out rewrites the body rather than the argument, and anything standing
+    /// beside it would go with the braces.
+    /// </remarks>
+    [Fact]
+    public Task DeclinesToFixABlockBodiedDelegate() =>
+        Verify.CodeFixAsync<FreeDelegateAnalyzer, UseEagerVariantCodeFix>(
+            """
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOrElse|}(() => { return 0; });
+            """,
+            """
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOrElse|}(() => { return 0; });
+            """,
+            [
+                Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+                   .WithLocation(0)
+                   .WithArguments("UnwrapOrElse", "UnwrapOr"),
+            ],
+            [
+                Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+                   .WithLocation(0)
+                   .WithArguments("UnwrapOrElse", "UnwrapOr"),
+            ]);
 }
