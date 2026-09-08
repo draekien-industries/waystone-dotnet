@@ -100,3 +100,11 @@ WM2022 | Usage | Info | A Task-returning method group is passed to an async chai
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2010 | Usage | Info | Result with identical type arguments cannot convert implicitly
+
+## Release 7.2.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2023 | Usage | Info | An option is bound as state instead of zipped

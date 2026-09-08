@@ -394,6 +394,42 @@ internal static class Rules
         "'{0}' returns '{1}', so it cannot be passed to '{2}', whose step returns a 'ValueTask'. Change '{0}' to return '{3}', or wrap it as '{4}'.",
         "Every async member of this library returns a ValueTask, so a chaining step takes one too and an async chain composes directly as a step in another chain. A Task-returning method group does not convert to that delegate, and the compiler reports the mismatch as CS0411 — a type inference failure naming neither ValueTask nor the parameter, so nothing in its message says what is actually wrong.");
 
+    /// <remarks>
+    /// Keyed on the return type rather than on the containing type. <c>With</c> is
+    /// declared in a C# 14 <c>extension</c> block, so its containing type is the
+    /// extension class rather than <c>Option&lt;T&gt;</c>, and
+    /// <c>IsExtensionMethod</c> is not dependable across compiler versions. The
+    /// binder it returns is nested in <c>Option&lt;T&gt;</c>, which nothing else a
+    /// consumer calls returns, so reading it identifies the receiver without asking
+    /// how the call was spelled. That excludes the factory-side <c>Option.With</c>
+    /// for free: its binder is nested in the factory, and there is no second option
+    /// there to zip against.
+    /// <para>
+    /// The name is tested before the type because this action sees every invocation
+    /// a consumer compiles, and a string comparison rejects almost all of them more
+    /// cheaply than a symbol lookup does.
+    /// </para>
+    /// <para>
+    /// <c>Result</c> is deliberately out of scope and has to stay that way. It has
+    /// no <c>Zip</c> or <c>ZipWith</c>, and neither does Rust's — the standard
+    /// idiom there, <c>a.and_then(|x| b.map(|y| (x, y)))</c>, closes over <c>b</c>,
+    /// which in C# allocates the display class <c>WM2017</c> exists to report. So
+    /// <c>resultA.With(resultB).AndThen(…)</c> is the correct capture-free spelling
+    /// on that side, and reporting it would put this rule and <c>WM2017</c> in a
+    /// loop, each one naming the other's fix.
+    /// </para>
+    /// <para>
+    /// No code fix. The rewrite lifts the second option out of the delegate's body
+    /// and into the call, so it has to rewrite the body rather than the call alone,
+    /// and how the author handled the absent case is not derivable from the source.
+    /// </para>
+    /// </remarks>
+    public static readonly DiagnosticDescriptor OptionBoundAsState = Idiom(
+        "WM2023",
+        "Prefer Zip or ZipWith over an option bound as state",
+        "'With' binds '{0}' as state, so the delegate has to unwrap it by hand and an absent value slips past. Use 'Zip' or 'ZipWith', which give 'None' when either option is absent.",
+        "With binds any value as state so that the delegate after it can be static and allocate no closure. Its type parameter is unconstrained, so an Option is as acceptable to it as an int, and nothing in the signature says the pairing is a mistake. It is one, because the binder hands the state to the delegate untouched: the delegate runs whenever the receiver is Some, which leaves the second option's absence for the author to handle and to forget. Zip pairs the two values into a tuple and ZipWith combines them with a function, and both give None when either side is absent.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",

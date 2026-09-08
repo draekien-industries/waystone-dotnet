@@ -99,4 +99,35 @@ internal class Idioms
 
         return share;
     }
+
+    // One WM2023, on the first of the pair below. Unlike the WM2017 pair these
+    // deliberately do not agree: the bound version treats an absent bonus as
+    // zero, which is the mistake the rule reports. Keep them different, and
+    // keep the page saying why.
+
+    internal Option<int> BindsAnOptionAsState(
+        Option<int> reward,
+        Option<int> bonus)
+    {
+        #region idioms-wm2023-bound
+        Option<int> haul = reward
+            .With(bonus)
+            .Map(static (gold, extra) => gold + extra.UnwrapOr(0));
+        #endregion
+
+        return haul;
+    }
+
+    internal Option<int> ZipsTheTwoInstead(
+        Option<int> reward,
+        Option<int> bonus)
+    {
+        #region idioms-wm2023-zipped
+        Option<int> haul = reward.ZipWith(
+            bonus,
+            static (gold, extra) => gold + extra);
+        #endregion
+
+        return haul;
+    }
 }
