@@ -255,20 +255,34 @@ option.UnwrapOrElse(BuildExpensiveDefault);   // runs only when None
 
 A constant, a field read or a bare local is free; leave those on the eager form.
 
+The pairing runs both ways. A delegate whose body is a literal, a constant or a
+variable already in scope defers nothing — the value was built before the
+delegate was handed over, so the call allocates a delegate for no gain and tells
+its reader the fallback is costly when it is not (`WM2024`):
+
+```csharp
+option.UnwrapOrElse(() => fallback);  // defers a value already built
+option.UnwrapOr(fallback);            // takes it directly
+```
+
 ### Allocating a closure per call
 
 A lambda that captures a local or a parameter allocates a display class on every
-call. Nearly every delegate-taking member has an overload that takes the value
-as **state** instead, and the lambda then closes over nothing (`WM2017`):
+call. Bind the value as **state** with `With` and call the member on the binder
+it returns; the lambda then closes over nothing (`WM2017`):
 
 ```csharp
-option.Map(multiplier, static (value, m) => value * m);
+option.With(multiplier).Map(static (value, m) => value * m);
 ```
 
 Mark every such lambda `static`, so a later edit cannot silently reintroduce the
-capture. Read [references/state-overloads.md](references/state-overloads.md)
-when rewriting one — where the state argument goes differs by branch, and two
-members deliberately have no state overload.
+capture. Never bind an `Option` as state: the binder hands it over untouched, so
+the second absence is the author's to remember, while `Zip` and `ZipWith` answer
+`None` whenever either side is absent (`WM2023`). Read
+[references/state-overloads.md](references/state-overloads.md) when rewriting one
+— where the state argument goes differs by branch, two members take neither form,
+and an older form passing state as the call's first argument is still supported
+but reaches less of the async surface.
 
 ### An async delegate handed to a synchronous member
 
@@ -380,8 +394,8 @@ compiles against nothing.
 | [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension |
 | [references/rust-to-csharp.md](references/rust-to-csharp.md) | Porting Rust, or a Rust idiom has no obvious C# spelling |
 
-Most of the surface — every `*Async` member and every collection operation — is
-extension methods in `Waystone.Monads.Options.Extensions` and
+Most of the surface — `With`, every `*Async` member and every collection
+operation — is extension methods in `Waystone.Monads.Options.Extensions` and
 `Waystone.Monads.Results.Extensions`. Without that `using`, the methods do not
 appear and the chain looks impossible to write. Add it before concluding a
 member is missing.
@@ -433,8 +447,13 @@ Run over the code just written and rewrite each of these where it appears:
 - [ ] Every awaited intermediate that only feeds the next step — rejoined with
       the `*Async` chain
 - [ ] Every eager argument that is a call — moved to the `*Else` sibling
-- [ ] Every capturing lambda — moved to the state overload, on the `*Async`
-      surface as readily as on the synchronous one
+- [ ] Every `*Else` delegate whose body is a literal, a constant or a variable
+      already in scope — moved back to the eager sibling, which takes the value
+      directly (`WM2024`)
+- [ ] Every capturing lambda — bound with `With` and called on the binder, on the
+      `*Async` surface as readily as on the synchronous one
+- [ ] Every `Option` bound as state — replaced with `Zip` or `ZipWith`, so the
+      second absence cannot slip past the delegate (`WM2023`)
 - [ ] Every discarded `Result` or `Option`
 - [ ] Every step taking two parameters — reshaped to one in, one monad out, so
       the chain takes it as a method group rather than a lambda

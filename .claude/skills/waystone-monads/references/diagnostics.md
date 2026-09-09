@@ -55,6 +55,16 @@ fires on ordinary non-monadic C# and is off until a migration turns it on.
 | `WM2020` | An `ErrorCodes.txt` entry no catalog generates | Delete the line, or restore the member if the code was removed by mistake |
 | `WM2021` | `IsSome`, `IsNone`, `IsOk` or `IsErr` read through a property pattern | The combinator or `Match` — no fix ships, since the rewrite differs per pattern position |
 | `WM2022` | A `Task`-returning step handed to `AndThenAsync` or `OrElseAsync`, whose delegate returns `ValueTask` | Redeclare the step `ValueTask`. The fix wraps the call instead, since it cannot edit someone else's signature |
+| `WM2023` | An `Option` passed to `With` as state | `Zip` or `ZipWith`, which answer `None` when either side is absent. No fix ships: the rewrite lifts the second option out of the delegate's body, and how the absent case was meant to be handled is not in the source. `Option` only — on a `Result`, `With(other).AndThen(…)` is correct |
+| `WM2024` | An `*Else` delegate whose body is a literal, a constant or a variable already in scope | The eager sibling, which takes the value directly — the delegate defers nothing and allocates for no gain |
+
+`WM2016` and `WM2024` are inverses over the same member pairs, and neither can
+fire where the other does: the first reads the non-delegate argument of an eager
+member, the second the delegate argument of a lazy one, and the two name sets are
+disjoint. Their definitions of *free* differ deliberately, and the gap is the
+property read. `WM2016` counts one as free and stays quiet, costing a suggestion
+nobody sees; counting it free in `WM2024` would tell a consumer to run a getter
+that may compute, unconditionally, on every call.
 
 `WM2007` and `WM2015` point in opposite directions on a value type by design:
 the first removes a repeated type from `UnwrapOr`, the second asks whether the

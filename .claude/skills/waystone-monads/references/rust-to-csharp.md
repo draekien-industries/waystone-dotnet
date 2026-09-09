@@ -42,7 +42,7 @@ Do not go looking for the counterpart — there is none.
 | `Try`, `TryAsync` | Run a delegate and turn a throw into a `None` or an `Err` |
 | `Partition` | Splits a sequence into successes and failures |
 | The `*Async` surface | Every operation over a `Task` or `ValueTask` receiver |
-| The state overloads | Pass a captured value as an argument so the delegate allocates nothing |
+| `With` and the state overloads | Hand a captured value to the delegate as an argument, so it allocates nothing |
 
 ## There is a fourth state here: null
 
@@ -86,8 +86,8 @@ check, or with a `Match` per step. Each of those reintroduces the branching
 `AndThen` removes.
 
 Where a step needs a value from an earlier step as well as the current one, keep
-the chain and carry a tuple, or use the state overload rather than capturing:
-`AndThen(order, (reservation, o) => …)`.
+the chain and carry a tuple, or bind the value rather than capturing it:
+`With(order).AndThen(static (reservation, o) => …)`.
 
 ## `?` does not convert error types for you
 
