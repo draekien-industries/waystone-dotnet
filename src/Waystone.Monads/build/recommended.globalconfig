@@ -54,6 +54,7 @@ dotnet_diagnostic.WM2019.severity = suggestion
 dotnet_diagnostic.WM2020.severity = suggestion
 dotnet_diagnostic.WM2021.severity = suggestion
 dotnet_diagnostic.WM2022.severity = suggestion
+dotnet_diagnostic.WM2023.severity = suggestion
 
 # Adoption — left off. These fire on code that has not adopted the library yet, so
 # in most codebases they report everywhere. Use strict, or enable them by hand
