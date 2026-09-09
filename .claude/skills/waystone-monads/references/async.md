@@ -98,8 +98,13 @@ sibling alone would leave the caller with an unawaited task and where the
 `Match` and `MapOr` hand the task straight back to the caller, who can await it,
 so those stay quiet. `Map` and `MapErr` trap it.
 
-## State overloads reach the async surface too
+## State binding reaches the async surface too
 
-Every family with a synchronous state overload has the matching `*Async` one, so
-a capture inside an async chain is rewritten in place rather than by awaiting
-into a local first. `WM2017` fires on the capture either way.
+The binder `With` returns carries an `*Async` form of every member it carries,
+and those take an asynchronous delegate, so a capture inside an async chain is
+rewritten in place rather than by awaiting into a local first. `WM2017` fires on
+the capture either way.
+
+The older form that passes state as the call's first argument does not reach this
+far: its `*Async` members extend a `Task` or `ValueTask` receiver but still take
+a synchronous delegate. An asynchronous delegate needing state has only `With`.
