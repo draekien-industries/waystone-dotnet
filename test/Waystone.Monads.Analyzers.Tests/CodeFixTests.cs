@@ -280,4 +280,107 @@ public class CodeFixTests
                .WithLocation(0)
                .WithArguments("OkOr", "Option<int>", "OkOrElse",
                     "and computing it may be expensive"));
+
+    [Fact]
+    public Task UnwrapsAFreeDelegateIntoUnwrapOr() =>
+        Verify.CodeFixAsync<FreeDelegateAnalyzer, UseEagerVariantCodeFix>(
+            """
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOrElse|}(() => 0);
+            """,
+            """
+            internal int Read(Option<int> option) =>
+                option.UnwrapOr(0);
+            """,
+            Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+               .WithLocation(0)
+               .WithArguments("UnwrapOrElse", "UnwrapOr"));
+
+    /// <remarks>
+    /// <c>AndThen</c> is the one whose delegate takes the receiver's value, so
+    /// unwrapping it drops a parameter the other four never had.
+    /// </remarks>
+    [Fact]
+    public Task DropsTheParameterWhenUnwrappingAndThen() =>
+        Verify.CodeFixAsync<FreeDelegateAnalyzer, UseEagerVariantCodeFix>(
+            """
+            internal Option<int> Chain(Option<int> option, Option<int> next) =>
+                option.{|#0:AndThen|}(value => next);
+            """,
+            """
+            internal Option<int> Chain(Option<int> option, Option<int> next) =>
+                option.And(next);
+            """,
+            Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+               .WithLocation(0)
+               .WithArguments("AndThen", "And"));
+
+    [Fact]
+    public Task KeepsTheMapWhenUnwrappingMapOrElse() =>
+        Verify.CodeFixAsync<FreeDelegateAnalyzer, UseEagerVariantCodeFix>(
+            """
+            internal int Measure(Option<string> option) =>
+                option.{|#0:MapOrElse|}(() => 0, text => text.Length);
+            """,
+            """
+            internal int Measure(Option<string> option) =>
+                option.MapOr(0, text => text.Length);
+            """,
+            Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+               .WithLocation(0)
+               .WithArguments("MapOrElse", "MapOr"));
+
+    /// <remarks>
+    /// Reported and not fixed. The eager sibling has nowhere to put the bound
+    /// state, so the rewrite would not compile; the message still names the
+    /// member to move to.
+    /// </remarks>
+    [Fact]
+    public Task DeclinesToFixAStateOverload() =>
+        Verify.CodeFixAsync<FreeDelegateAnalyzer, UseEagerVariantCodeFix>(
+            """
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOrElse|}(5, state => 0);
+            """,
+            """
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOrElse|}(5, state => 0);
+            """,
+            [
+                Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+                   .WithLocation(0)
+                   .WithArguments("UnwrapOrElse", "UnwrapOr"),
+            ],
+            [
+                Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+                   .WithLocation(0)
+                   .WithArguments("UnwrapOrElse", "UnwrapOr"),
+            ]);
+
+    /// <remarks>
+    /// Reported and not fixed. The value sits inside a <c>return</c>, so lifting
+    /// it out rewrites the body rather than the argument, and anything standing
+    /// beside it would go with the braces.
+    /// </remarks>
+    [Fact]
+    public Task DeclinesToFixABlockBodiedDelegate() =>
+        Verify.CodeFixAsync<FreeDelegateAnalyzer, UseEagerVariantCodeFix>(
+            """
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOrElse|}(() => { return 0; });
+            """,
+            """
+            internal int Read(Option<int> option) =>
+                option.{|#0:UnwrapOrElse|}(() => { return 0; });
+            """,
+            [
+                Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+                   .WithLocation(0)
+                   .WithArguments("UnwrapOrElse", "UnwrapOr"),
+            ],
+            [
+                Verify.Diagnostic(Rules.FreeDelegatePassedToLazyMember)
+                   .WithLocation(0)
+                   .WithArguments("UnwrapOrElse", "UnwrapOr"),
+            ]);
 }

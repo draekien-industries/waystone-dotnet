@@ -108,3 +108,4 @@ WM2010 | Usage | Info | Result with identical type arguments cannot convert impl
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2023 | Usage | Info | An option is bound as state instead of zipped
+WM2024 | Usage | Info | A delegate with nothing to defer is passed to a lazy member
