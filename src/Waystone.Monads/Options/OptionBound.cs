@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Options;
 
 using System;
+using System.Threading.Tasks;
 using Results;
 #if !DEBUG
 using System.Diagnostics;
@@ -369,5 +370,357 @@ public abstract partial record Option<T> where T : notnull
         public Result<T, TErr> OkOrElse<TErr>(Func<TState, TErr> errorFactory)
             where TErr : notnull =>
             Source.OkOrElse(_state, errorFactory);
+
+        /// <summary>
+        /// Awaits a predicate against the contained value and the bound state,
+        /// answering false when there is no value to test.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="None{T}" /> never invokes
+        /// <paramref name="predicate" />, so the returned
+        /// <see cref="ValueTask{TResult}" /> is already complete and allocates
+        /// no state machine on the empty branch.
+        /// </remarks>
+        /// <param name="predicate">
+        /// Tests the contained value against the bound state.
+        /// </param>
+        /// <returns>
+        /// True if the option holds a value and <paramref name="predicate" />
+        /// accepted it; false otherwise.
+        /// </returns>
+        public async ValueTask<bool> IsSomeAndAsync(
+            Func<T, TState, Task<bool>> predicate)
+        {
+            return Source is Some<T> some
+                && await predicate(some.Value, _state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits a predicate against the contained value and the bound state,
+        /// answering true when there is no value to test.
+        /// </summary>
+        /// <remarks>
+        /// The inverse default of <see cref="IsSomeAndAsync" />: absence
+        /// satisfies this rather than failing it, which makes it the one to reach
+        /// for when the predicate expresses a rule a missing value is exempt
+        /// from.
+        /// </remarks>
+        /// <param name="predicate">
+        /// Tests the contained value against the bound state.
+        /// </param>
+        /// <returns>
+        /// True if the option holds no value, or holds one
+        /// <paramref name="predicate" /> accepted.
+        /// </returns>
+        public async ValueTask<bool> IsNoneOrAsync(
+            Func<T, TState, Task<bool>> predicate)
+        {
+            return Source is not Some<T> some
+                || await predicate(some.Value, _state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits whichever of two branches the option selects, handing the bound
+        /// state to both.
+        /// </summary>
+        /// <remarks>
+        /// Only the both-asynchronous form is offered, where
+        /// <see cref="Option{T}" /> itself also carries the two mixed ones. To
+        /// await one branch and not the other, call
+        /// <see cref="Match{TOut}(Func{T,TState,TOut},Func{TState,TOut})" /> and
+        /// await inside the branch that needs it.
+        /// </remarks>
+        /// <param name="onSome">
+        /// Produces the result from the contained value and the bound state.
+        /// </param>
+        /// <param name="onNone">
+        /// Produces the result from the bound state alone, there being no
+        /// contained value to hand it.
+        /// </param>
+        /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+        /// <returns>Whatever the delegate for the option's case returned.</returns>
+        public async ValueTask<TOut> MatchAsync<TOut>(
+            Func<T, TState, Task<TOut>> onSome,
+            Func<TState, Task<TOut>> onNone)
+        {
+            return Source is Some<T> some
+                ? await onSome(some.Value, _state).ConfigureAwait(false)
+                : await onNone(_state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Returns the contained value, awaiting a replacement built from the
+        /// bound state when there is none.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="Some{T}" /> completes synchronously, so the factory is
+        /// not awaited for an option that already holds a value.
+        /// </remarks>
+        /// <param name="valueFactory">
+        /// Produces the fallback from the bound state. It receives no value,
+        /// there being none to hand it.
+        /// </param>
+        /// <returns>
+        /// The contained value, or what <paramref name="valueFactory" />
+        /// produced.
+        /// </returns>
+        public async ValueTask<T> UnwrapOrElseAsync(
+            Func<TState, Task<T>> valueFactory)
+        {
+            return Source is Some<T> some
+                ? some.Value
+                : await valueFactory(_state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained value and the bound state, keeping
+        /// the option's case.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="None{T}" /> completes synchronously as a
+        /// <see cref="None{T}" /> of the new type, so the transform is never
+        /// awaited without a value to hand it.
+        /// </remarks>
+        /// <param name="map">
+        /// Transforms the contained value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The type the transform produces.</typeparam>
+        /// <returns>
+        /// <see cref="Some{T}" /> of the transformed value, or
+        /// <see cref="None{T}" /> of <typeparamref name="TOut" />.
+        /// </returns>
+        public async ValueTask<Option<TOut>> MapAsync<TOut>(
+            Func<T, TState, Task<TOut>> map) where TOut : notnull
+        {
+            return Source is Some<T> some
+                ? Option.Some(
+                      await map(some.Value, _state).ConfigureAwait(false))
+                : Option.None<TOut>();
+        }
+
+        /// <summary>
+        /// Awaits an option-producing step against the contained value and the
+        /// bound state, keeping whichever case the step returns.
+        /// </summary>
+        /// <remarks>
+        /// The step returns a <see cref="ValueTask{TResult}" /> rather than a
+        /// <see cref="Task{TResult}" /> so that a chain of these composes by
+        /// name: a method group returning <see cref="Task{TResult}" /> does not
+        /// convert to it, and <c>WSG0003</c> reports that shape at the
+        /// declaration rather than leaving the caller a <c>CS0411</c>.
+        /// </remarks>
+        /// <param name="optionFactory">
+        /// Produces the next option from the contained value and the bound state.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The value type the produced option holds.
+        /// </typeparam>
+        /// <returns>
+        /// Whatever <paramref name="optionFactory" /> produced, or
+        /// <see cref="None{T}" /> of <typeparamref name="TOut" />.
+        /// </returns>
+        public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
+            Func<T, TState, ValueTask<Option<TOut>>> optionFactory)
+            where TOut : notnull
+        {
+            return Source is Some<T> some
+                ? await optionFactory(some.Value, _state).ConfigureAwait(false)
+                : Option.None<TOut>();
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained value and the bound state, falling
+        /// back to a value already in hand.
+        /// </summary>
+        /// <remarks>
+        /// The fallback is evaluated by the caller either way, so reach for
+        /// <see cref="MapOrElseAsync{TOut}" /> instead once producing it costs
+        /// anything.
+        /// </remarks>
+        /// <param name="defaultValue">
+        /// Returned for a <see cref="None{T}" />, and evaluated whether or not it
+        /// is used.
+        /// </param>
+        /// <param name="map">
+        /// Transforms the contained value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The type the transform and the fallback share.
+        /// </typeparam>
+        /// <returns>
+        /// The transformed value, or <paramref name="defaultValue" />.
+        /// </returns>
+        public async ValueTask<TOut> MapOrAsync<TOut>(
+            TOut defaultValue,
+            Func<T, TState, Task<TOut>> map)
+        {
+            return Source is Some<T> some
+                ? await map(some.Value, _state).ConfigureAwait(false)
+                : defaultValue;
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained value and the bound state, falling
+        /// back to the default of the produced type.
+        /// </summary>
+        /// <remarks>
+        /// The fallback is indistinguishable from a transform that produced the
+        /// same default, so this suits a type whose default already reads as the
+        /// absent case. <c>WM2015</c> reports the reading where it does not.
+        /// </remarks>
+        /// <param name="map">
+        /// Transforms the contained value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The type the transform produces.</typeparam>
+        /// <returns>
+        /// The transformed value, or the default of
+        /// <typeparamref name="TOut" />.
+        /// </returns>
+        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
+            Func<T, TState, Task<TOut>> map) where TOut : notnull
+        {
+            return Source is Some<T> some
+                ? await map(some.Value, _state).ConfigureAwait(false)
+                : default;
+        }
+
+        /// <summary>
+        /// Awaits a transform of the contained value and the bound state, or
+        /// awaits a fallback built from the state alone.
+        /// </summary>
+        /// <remarks>
+        /// Exactly one of the two runs, which is what separates this from
+        /// <see cref="MapOrAsync{TOut}" /> - reach for it when producing the
+        /// fallback is itself work worth skipping.
+        /// </remarks>
+        /// <param name="defaultFactory">
+        /// Produces the result for a <see cref="None{T}" /> from the bound state.
+        /// </param>
+        /// <param name="map">
+        /// Transforms the contained value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+        /// <returns>Whatever the delegate selected produced.</returns>
+        public async ValueTask<TOut> MapOrElseAsync<TOut>(
+            Func<TState, Task<TOut>> defaultFactory,
+            Func<T, TState, Task<TOut>> map)
+        {
+            return Source is Some<T> some
+                ? await map(some.Value, _state).ConfigureAwait(false)
+                : await defaultFactory(_state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Awaits a side effect against the contained value and the bound state,
+        /// handing the option back unchanged.
+        /// </summary>
+        /// <remarks>
+        /// The option is returned as it was, so this drops into a chain without
+        /// altering what flows through it. A <see cref="None{T}" /> completes
+        /// synchronously.
+        /// </remarks>
+        /// <param name="action">
+        /// Acts on the contained value and the bound state.
+        /// </param>
+        /// <returns>The same option, whichever case it is in.</returns>
+        public async ValueTask<Option<T>> InspectAsync(
+            Func<T, TState, Task> action)
+        {
+            Option<T> option = Source;
+
+            if (option is Some<T> some)
+            {
+                await action(some.Value, _state).ConfigureAwait(false);
+            }
+
+            return option;
+        }
+
+        /// <summary>
+        /// Awaits a predicate against the contained value and the bound state,
+        /// discarding a value it rejects.
+        /// </summary>
+        /// <remarks>
+        /// A rejected value becomes a <see cref="None{T}" />, so this narrows the
+        /// option rather than reporting on it - which is the difference from
+        /// <see cref="IsSomeAndAsync" />. A <see cref="None{T}" /> stays one and
+        /// completes synchronously.
+        /// </remarks>
+        /// <param name="predicate">
+        /// Tests the contained value against the bound state.
+        /// </param>
+        /// <returns>
+        /// The option unchanged if <paramref name="predicate" /> accepted its
+        /// value, otherwise <see cref="None{T}" />.
+        /// </returns>
+        public async ValueTask<Option<T>> FilterAsync(
+            Func<T, TState, Task<bool>> predicate)
+        {
+            Option<T> option = Source;
+
+            if (option is not Some<T> some) return option;
+
+            return await predicate(some.Value, _state).ConfigureAwait(false)
+                ? option
+                : Option.None<T>();
+        }
+
+        /// <summary>
+        /// Awaits a substitute option built from the bound state when there is no
+        /// value.
+        /// </summary>
+        /// <remarks>
+        /// The substitute may itself be a <see cref="None{T}" />, so this is one
+        /// attempt at recovering a value rather than a guarantee of one. The step
+        /// returns a <see cref="ValueTask{TResult}" /> so a chain of these
+        /// composes by name.
+        /// </remarks>
+        /// <param name="optionFactory">
+        /// Produces the replacement from the bound state. It receives no value,
+        /// there being none to hand it.
+        /// </param>
+        /// <returns>
+        /// The original option if it holds a value, otherwise whatever
+        /// <paramref name="optionFactory" /> produced.
+        /// </returns>
+        public async ValueTask<Option<T>> OrElseAsync(
+            Func<TState, ValueTask<Option<T>>> optionFactory)
+        {
+            Option<T> option = Source;
+
+            return option is Some<T>
+                ? option
+                : await optionFactory(_state).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Converts the option to a result, awaiting an error built from the
+        /// bound state when there is no value.
+        /// </summary>
+        /// <remarks>
+        /// The crossing point from "absent" to "failed for a stated reason",
+        /// which is why the error is produced rather than passed - an option
+        /// reaching here usually knows why it is empty.
+        /// </remarks>
+        /// <param name="errorFactory">
+        /// Produces the error from the bound state. It receives no value, there
+        /// being none to hand it.
+        /// </param>
+        /// <typeparam name="TErr">
+        /// The error type the factory produces.
+        /// </typeparam>
+        /// <returns>
+        /// <see cref="Ok{TOk,TErr}" /> of the contained value, or
+        /// <see cref="Err{TOk,TErr}" /> of what
+        /// <paramref name="errorFactory" /> produced.
+        /// </returns>
+        public async ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
+            Func<TState, Task<TErr>> errorFactory) where TErr : notnull
+        {
+            return Source is Some<T> some
+                ? Result.Ok<T, TErr>(some.Value)
+                : Result.Err<T, TErr>(
+                      await errorFactory(_state).ConfigureAwait(false));
+        }
     }
 }

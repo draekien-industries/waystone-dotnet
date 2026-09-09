@@ -148,6 +148,49 @@ vocabulary rather than core behaviour, and it is why the LINQ names ship in
 `Waystone.Monads.Linq` instead of here. Weigh it before hand-writing a member:
 the surface you are adding is not the surface you typed.
 
+**The state binder's async members do not forward, and must not be made to.**
+`Option<T>.Bound<TState>` and `Result<TOk, TErr>.Bound<TState>` forward their
+*sync* members to state overloads on the monad — `Source.Map(_state, map)` — and
+their *async* members to nothing, matching on the case themselves. The asymmetry
+reads as an oversight and is not: those state overloads are abstract on
+`Option<T>` and `Result<TOk, TErr>` and overridden in both derived types, 57 and
+59 declarations on the bases with 43 and 45 in each derived type, and **not one of
+them is async**. There is nothing to forward to.
+
+Do not close the gap by adding async state overloads to the monads. Each one costs
+three declarations — abstract plus two overrides — so the 27 the binder needs is
+81, and the abstract ones land in the baseline where **deprecate; never remove**
+locks them until the next major. They would also be 27 more of exactly the surface
+`With` exists to replace.
+
+That decision does give something up, and the tradeoff is the argument rather than a
+footnote to it. Per-case overrides can drop `async` altogether on the trivial branch
+— `None<T>.IsSomeAndAsync` is `=> new ValueTask<bool>(false)`, with no state machine
+built at all — because virtual dispatch has already chosen the case. The binder
+cannot: it branches on `Source is Some<T>` inside one method, so the state machine is
+entered either way. What it costs is the machine's construction on a branch that
+never awaits, not an allocation, since a synchronously-completing `async ValueTask`
+does not reach the heap.
+
+`StateBindingAsyncBenchmarks` puts numbers on that, and they are not one-sided.
+Against a `None`, `IsSomeAndAsync` through the binder allocates nothing where the
+closure allocates 88 bytes — and takes 9.2ns against the closure's 5.2ns to do it,
+1.76x, on the cheapest member in the set. The populated branches go the other way:
+`MapAsync` on a `Some` runs at 0.66x the closure's time for half its allocation, and
+`MatchAsync` drops 224 bytes to 72. So the binder trades time for allocation on the
+empty branch and wins on both counts on the full one. Reach for it under GC
+pressure. Do not claim it makes an empty option faster, because it does not.
+
+**Match the success case, never the failure case.** The async bodies read
+`Source is Some<T>` and `Source is Ok<TOk, TErr>`, and reach the other side through
+`UnwrapErr()`. Matching `Err<TOk, TErr>` directly and reading `err.Value` looks
+tidier on the two members that need only the error, and is wrong to reach for: the
+other seven need *both* values, so one pattern cannot serve them, and nothing in this
+library matches `Err<TOk, TErr>` or `None<T>` anywhere. Two members in the new idiom
+and seven in the old is worse than nine consistent ones. `UnwrapErr()` also avoids
+the alternative — a cast, or a `_ => throw` arm that is a line coverage can never
+reach.
+
 **`MonadOptionsScope.Dispose` restores only when it is the innermost live scope,
 and reports rather than throws.** It compares `ScopedOptions.Value` against the
 instance it installed, which is why the struct holds two fields rather than one —

@@ -220,20 +220,33 @@ Waystone.Monads.Options.Option.Bound<TState>.TryAsync<T>(System.Func<TState, Sys
 Waystone.Monads.Options.Option<T>
 Waystone.Monads.Options.Option<T>.Bound<TState>
 Waystone.Monads.Options.Option<T>.Bound<TState>.AndThen<TOut>(System.Func<T, TState, Waystone.Monads.Options.Option<TOut>!>! optionFactory) -> Waystone.Monads.Options.Option<TOut>!
+Waystone.Monads.Options.Option<T>.Bound<TState>.AndThenAsync<TOut>(System.Func<T, TState, System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>>! optionFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 Waystone.Monads.Options.Option<T>.Bound<TState>.Bound() -> void
 Waystone.Monads.Options.Option<T>.Bound<TState>.Filter(System.Func<T, TState, bool>! predicate) -> Waystone.Monads.Options.Option<T>!
+Waystone.Monads.Options.Option<T>.Bound<TState>.FilterAsync(System.Func<T, TState, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Option<T>.Bound<TState>.Inspect(System.Action<T, TState>! action) -> Waystone.Monads.Options.Option<T>!
+Waystone.Monads.Options.Option<T>.Bound<TState>.InspectAsync(System.Func<T, TState, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Option<T>.Bound<TState>.IsNoneOr(System.Func<T, TState, bool>! predicate) -> bool
+Waystone.Monads.Options.Option<T>.Bound<TState>.IsNoneOrAsync(System.Func<T, TState, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Options.Option<T>.Bound<TState>.IsSomeAnd(System.Func<T, TState, bool>! predicate) -> bool
+Waystone.Monads.Options.Option<T>.Bound<TState>.IsSomeAndAsync(System.Func<T, TState, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Options.Option<T>.Bound<TState>.Map<TOut>(System.Func<T, TState, TOut>! map) -> Waystone.Monads.Options.Option<TOut>!
+Waystone.Monads.Options.Option<T>.Bound<TState>.MapAsync<TOut>(System.Func<T, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<TOut>!>
 Waystone.Monads.Options.Option<T>.Bound<TState>.MapOr<TOut>(TOut defaultValue, System.Func<T, TState, TOut>! map) -> TOut
+Waystone.Monads.Options.Option<T>.Bound<TState>.MapOrAsync<TOut>(TOut defaultValue, System.Func<T, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut>
 Waystone.Monads.Options.Option<T>.Bound<TState>.MapOrDefault<TOut>(System.Func<T, TState, TOut>! map) -> TOut?
+Waystone.Monads.Options.Option<T>.Bound<TState>.MapOrDefaultAsync<TOut>(System.Func<T, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Option<T>.Bound<TState>.MapOrElse<TOut>(System.Func<TState, TOut>! defaultFactory, System.Func<T, TState, TOut>! map) -> TOut
+Waystone.Monads.Options.Option<T>.Bound<TState>.MapOrElseAsync<TOut>(System.Func<TState, System.Threading.Tasks.Task<TOut>!>! defaultFactory, System.Func<T, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut>
 Waystone.Monads.Options.Option<T>.Bound<TState>.Match(System.Action<T, TState>! onSome, System.Action<TState>! onNone) -> void
 Waystone.Monads.Options.Option<T>.Bound<TState>.Match<TOut>(System.Func<T, TState, TOut>! onSome, System.Func<TState, TOut>! onNone) -> TOut
+Waystone.Monads.Options.Option<T>.Bound<TState>.MatchAsync<TOut>(System.Func<T, TState, System.Threading.Tasks.Task<TOut>!>! onSome, System.Func<TState, System.Threading.Tasks.Task<TOut>!>! onNone) -> System.Threading.Tasks.ValueTask<TOut>
 Waystone.Monads.Options.Option<T>.Bound<TState>.OkOrElse<TErr>(System.Func<TState, TErr>! errorFactory) -> Waystone.Monads.Results.Result<T, TErr>!
+Waystone.Monads.Options.Option<T>.Bound<TState>.OkOrElseAsync<TErr>(System.Func<TState, System.Threading.Tasks.Task<TErr>!>! errorFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<T, TErr>!>
 Waystone.Monads.Options.Option<T>.Bound<TState>.OrElse(System.Func<TState, Waystone.Monads.Options.Option<T>!>! optionFactory) -> Waystone.Monads.Options.Option<T>!
+Waystone.Monads.Options.Option<T>.Bound<TState>.OrElseAsync(System.Func<TState, System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>>! optionFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Options.Option<T>!>
 Waystone.Monads.Options.Option<T>.Bound<TState>.UnwrapOrElse(System.Func<TState, T>! valueFactory) -> T
+Waystone.Monads.Options.Option<T>.Bound<TState>.UnwrapOrElseAsync(System.Func<TState, System.Threading.Tasks.Task<T>!>! valueFactory) -> System.Threading.Tasks.ValueTask<T>
 Waystone.Monads.Options.Option<T>.MapOrDefaultAsync<TOut>(System.Func<T, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Options.Option<T>.Option(Waystone.Monads.Options.Option<T>! original) -> void
 Waystone.Monads.Options.Some<T>
@@ -411,20 +424,34 @@ Waystone.Monads.Results.Result.Bound<TState>.TryAsync<TOk>(System.Func<TState, S
 Waystone.Monads.Results.Result<TOk, TErr>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.AndThen<TOut>(System.Func<TOk, TState, Waystone.Monads.Results.Result<TOut, TErr>!>! resultFactory) -> Waystone.Monads.Results.Result<TOut, TErr>!
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.AndThenAsync<TOut>(System.Func<TOk, TState, System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>>! resultFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.Bound() -> void
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.Inspect(System.Action<TOk, TState>! action) -> Waystone.Monads.Results.Result<TOk, TErr>!
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.InspectAsync(System.Func<TOk, TState, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.InspectErr(System.Action<TErr, TState>! action) -> Waystone.Monads.Results.Result<TOk, TErr>!
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.InspectErrAsync(System.Func<TErr, TState, System.Threading.Tasks.Task!>! action) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TErr>!>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.IsErrAnd(System.Func<TErr, TState, bool>! predicate) -> bool
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.IsErrAndAsync(System.Func<TErr, TState, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.IsOkAnd(System.Func<TOk, TState, bool>! predicate) -> bool
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.IsOkAndAsync(System.Func<TOk, TState, System.Threading.Tasks.Task<bool>!>! predicate) -> System.Threading.Tasks.ValueTask<bool>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.Map<TOut>(System.Func<TOk, TState, TOut>! map) -> Waystone.Monads.Results.Result<TOut, TErr>!
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapAsync<TOut>(System.Func<TOk, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, TErr>!>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapErr<TOut>(System.Func<TErr, TState, TOut>! map) -> Waystone.Monads.Results.Result<TOk, TOut>!
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapErrAsync<TOut>(System.Func<TErr, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TOut>!>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapOr<TOut>(TOut defaultValue, System.Func<TOk, TState, TOut>! map) -> TOut
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapOrAsync<TOut>(TOut defaultValue, System.Func<TOk, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapOrDefault<TOut>(System.Func<TOk, TState, TOut>! map) -> TOut?
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapOrDefaultAsync<TOut>(System.Func<TOk, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapOrElse<TOut>(System.Func<TErr, TState, TOut>! defaultFactory, System.Func<TOk, TState, TOut>! map) -> TOut
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MapOrElseAsync<TOut>(System.Func<TErr, TState, System.Threading.Tasks.Task<TOut>!>! defaultFactory, System.Func<TOk, TState, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.Match(System.Action<TOk, TState>! onOk, System.Action<TErr, TState>! onErr) -> void
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.Match<TOut>(System.Func<TOk, TState, TOut>! onOk, System.Func<TErr, TState, TOut>! onErr) -> TOut
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MatchAsync(System.Func<TOk, TState, System.Threading.Tasks.Task!>! onOk, System.Func<TErr, TState, System.Threading.Tasks.Task!>! onErr) -> System.Threading.Tasks.ValueTask
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.MatchAsync<TOut>(System.Func<TOk, TState, System.Threading.Tasks.Task<TOut>!>! onOk, System.Func<TErr, TState, System.Threading.Tasks.Task<TOut>!>! onErr) -> System.Threading.Tasks.ValueTask<TOut>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.OrElse<TOut>(System.Func<TErr, TState, Waystone.Monads.Results.Result<TOk, TOut>!>! resultFactory) -> Waystone.Monads.Results.Result<TOk, TOut>!
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.OrElseAsync<TOut>(System.Func<TErr, TState, System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TOut>!>>! resultFactory) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOk, TOut>!>
 Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.UnwrapOrElse(System.Func<TErr, TState, TOk>! valueFactory) -> TOk
+Waystone.Monads.Results.Result<TOk, TErr>.Bound<TState>.UnwrapOrElseAsync(System.Func<TErr, TState, System.Threading.Tasks.Task<TOk>!>! valueFactory) -> System.Threading.Tasks.ValueTask<TOk>
 Waystone.Monads.Results.Result<TOk, TErr>.MapOrDefaultAsync<TOut>(System.Func<TOk, System.Threading.Tasks.Task<TOut>!>! map) -> System.Threading.Tasks.ValueTask<TOut?>
 Waystone.Monads.Results.Result<TOk, TErr>.Result(Waystone.Monads.Results.Result<TOk, TErr>! original) -> void
 abstract Waystone.Monads.Options.Option<T>.<Clone>$() -> Waystone.Monads.Options.Option<T>!
