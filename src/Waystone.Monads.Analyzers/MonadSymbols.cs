@@ -25,6 +25,13 @@ internal sealed class MonadSymbols
     public const string ErrorCodeFormatAttributeMetadataName =
         "Waystone.Monads.Results.Errors.ErrorCodeFormatAttribute";
 
+    private const string BinderTypeName = "Bound";
+
+    private readonly INamedTypeSymbol? _optionBinder;
+    private readonly INamedTypeSymbol? _optionFactoryBinder;
+    private readonly INamedTypeSymbol? _resultBinder;
+    private readonly INamedTypeSymbol? _resultFactoryBinder;
+
     private MonadSymbols(
         INamedTypeSymbol option,
         INamedTypeSymbol some,
@@ -51,6 +58,10 @@ internal sealed class MonadSymbols
         ErrorCodeCatalogAttribute = errorCodeCatalogAttribute;
         Task = task;
         ValueTask = valueTask;
+        _optionBinder = BinderNestedIn(option);
+        _optionFactoryBinder = BinderNestedIn(optionFactory);
+        _resultBinder = BinderNestedIn(result);
+        _resultFactoryBinder = BinderNestedIn(resultFactory);
     }
 
     public INamedTypeSymbol Option { get; }
@@ -137,6 +148,42 @@ internal sealed class MonadSymbols
      || IsConstructedFrom(type, None)
      || IsConstructedFrom(type, Ok)
      || IsConstructedFrom(type, Err);
+
+    /// <summary>
+    /// Gets the binder type whose members a call on <paramref name="declaring" />
+    /// could be rewritten onto, or <see langword="null" /> where that type declares
+    /// no binder.
+    /// </summary>
+    /// <remarks>
+    /// There are four, not two: the monads carry one for their instance members and
+    /// the static factories carry a second for <c>Try</c>, so a rule that resolved
+    /// only <c>Option&lt;T&gt;.Bound&lt;TState&gt;</c> would go quiet on
+    /// <c>Option.Try</c>. Nullable because a consumer compiling against a version
+    /// from before the binders existed has the monads but not them, and the right
+    /// answer there is silence rather than a suggestion that will not compile.
+    /// </remarks>
+    /// <param name="declaring">The type declaring the member under consideration.</param>
+    public INamedTypeSymbol? BinderFor(ITypeSymbol? declaring)
+    {
+        if (IsOption(declaring))
+        {
+            return _optionBinder;
+        }
+
+        if (IsResult(declaring))
+        {
+            return _resultBinder;
+        }
+
+        if (SymbolEqualityComparer.Default.Equals(declaring, OptionFactory))
+        {
+            return _optionFactoryBinder;
+        }
+
+        return SymbolEqualityComparer.Default.Equals(declaring, ResultFactory)
+            ? _resultFactoryBinder
+            : null;
+    }
 
     public INamedTypeSymbol? BaseCaseOf(ITypeSymbol? type)
     {
@@ -255,6 +302,12 @@ internal sealed class MonadSymbols
             UnwrapAwaitable(
                 invocation.SemanticModel.GetTypeInfo(access.Expression).Type));
     }
+
+    private static INamedTypeSymbol? BinderNestedIn(
+        INamedTypeSymbol declaring) =>
+        declaring.GetTypeMembers(BinderTypeName, 1) is { Length: > 0 } binders
+            ? binders[0]
+            : null;
 
     private static bool IsConstructedFrom(
         ITypeSymbol? type,

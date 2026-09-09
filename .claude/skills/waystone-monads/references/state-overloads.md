@@ -53,10 +53,14 @@ capture. Do not go hunting for one.
 
 ## Let the diagnostic find the call sites
 
-`WM2017` discovers the overload set from the type rather than from a fixed list,
-so it stays correct as the library grows and is the authority on whether a given
-member has a state sibling. Rewrite what it reports rather than auditing call
-sites by hand.
+`WM2017` discovers the member set from the binder that `With` returns rather
+than from a fixed list, so it stays correct as the library grows and is the
+authority on whether a given member can take bound state. Rewrite what it
+reports rather than auditing call sites by hand.
+
+Reading the binder is also why it reaches the `*Async` members. It used to ask
+whether an overload of the same name took a `TState`, and none of them has one,
+so a capturing asynchronous lambda went unreported.
 
 It ships no code fix, because the natural rewrite reuses the captured name as
 the new delegate parameter, which shadows the enclosing local — so the rewrite

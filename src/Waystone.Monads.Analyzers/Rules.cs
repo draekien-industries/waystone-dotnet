@@ -245,27 +245,32 @@ internal static class Rules
     /// <remarks>
     /// Keyed on the capture rather than on the lambda: a lambda that captures
     /// nothing is already cached by the compiler into a static field, so the
-    /// state overload would buy it nothing. Only a captured local or parameter
+    /// bound state would buy it nothing. Only a captured local or parameter
     /// forces a display class per call, and that is what the rule reports.
     /// Capturing <c>this</c> alone is excluded — it allocates a delegate rather
     /// than a display class, a smaller cost that would fire on most ordinary
     /// instance-method code and drown the signal.
-    /// The overload set is discovered from the containing type rather than
-    /// listed here. A hardcoded list would name an overload that does not
-    /// exist: <c>ZipWith</c> and <c>Reduce</c> take a delegate and will never
-    /// gain a state overload, their delegates already receiving every operand
-    /// as an argument of the call. The lookup has paid for itself twice — two
-    /// rounds of adding state overloads have moved the set without touching
-    /// <see cref="StateOverloadAnalyzer" />.
+    /// The member set is discovered from the binder rather than listed here,
+    /// and the binder is the type to ask because <c>With</c> is the only route
+    /// to it: a member the binder does not declare has no rewrite to offer. A
+    /// hardcoded list would name a member that does not exist — <c>ZipWith</c>
+    /// and <c>Reduce</c> take a delegate and are absent from the binder by
+    /// design, their delegates already receiving every operand as an argument
+    /// of the call.
+    /// Reading the binder is also what reaches the asynchronous members. The
+    /// previous gate asked whether any overload of the same name took a
+    /// <c>TState</c>, and no <c>*Async</c> member has one, so every capturing
+    /// asynchronous lambda went unreported until the binder gained the full
+    /// vocabulary.
     /// No code fix ships: the natural rewrite reuses the captured name as the
     /// new delegate parameter, which shadows the enclosing local and is CS0136
     /// before C# 8.
     /// </remarks>
     public static readonly DiagnosticDescriptor DelegateCapturesInsteadOfState = Idiom(
         "WM2017",
-        "Prefer the state overload when the delegate captures",
-        "The delegate passed to '{0}' captures '{1}', so a closure is allocated on every call. Pass the value to the '{0}' overload that takes state instead.",
-        "Nearly every delegate-taking member of Option and Result has an overload that takes a state argument and hands it to the delegate. A lambda that captures a local or a parameter allocates a display class every time the call site runs; passing the value as state lets the delegate close over nothing, so the compiler caches it. Match is the most expensive of them to call with a closure, because its two branches share one display class but need a delegate each. Where more than one value is captured, pass them as a tuple.");
+        "Prefer With over a capturing delegate",
+        "The delegate passed to '{0}' captures '{1}', so a closure is allocated on every call. Bind the state with 'With' and call '{0}' on the binder it returns instead.",
+        "Nearly every delegate-taking member of Option and Result is also declared on the binder that With returns, which hands the bound value to the delegate as an argument. A lambda that captures a local or a parameter allocates a display class every time the call site runs; reading the value from a parameter instead lets the delegate close over nothing, so the compiler caches it. Match is the most expensive of them to call with a closure, because its two branches share one display class but need a delegate each. Where more than one value is captured, bind them as a tuple.");
 
     /// <remarks>
     /// Keyed on the generated code string rather than on the enum name, because

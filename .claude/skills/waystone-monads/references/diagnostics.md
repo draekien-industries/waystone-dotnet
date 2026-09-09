@@ -49,7 +49,7 @@ fires on ordinary non-monadic C# and is off until a migration turns it on.
 | `WM2013` | An `Option` returned and unused | Usually a sign the value was meant to be handled |
 | `WM2015` | `UnwrapOrDefault`/`MapOrDefault` on a value type | `UnwrapOrNull`/`MapOrNull`, so the absent case is distinguishable from a real `0` or `false` |
 | `WM2016` | An eager argument that is not provably free | The `*Else` sibling. Fires on calls, `new` and `await`; stays silent on constants, locals, parameters, fields and property reads |
-| `WM2017` | A delegate capturing a local or parameter | The overload taking state. Capturing only `this` is excluded |
+| `WM2017` | A delegate capturing a local or parameter | `With`, then the same member on the binder it returns. Capturing only `this` is excluded |
 | `WM2018` | Two `[ErrorCodeCatalog]` enums generating the same code | Rename one enum or the colliding member — no two taxonomies should share a wire code |
 | `WM2019` | A generated code missing from `ErrorCodes.txt` | Invoke the fix, then read the added line before committing |
 | `WM2020` | An `ErrorCodes.txt` entry no catalog generates | Delete the line, or restore the member if the code was removed by mistake |
