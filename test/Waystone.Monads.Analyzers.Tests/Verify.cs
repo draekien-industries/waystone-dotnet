@@ -129,7 +129,7 @@ internal static class Verify
     }
 
     /// <summary>
-    /// Registry content with LF endings, whatever the test file was checked out with.
+    /// Test content with LF endings, whatever the test file was checked out with.
     /// </summary>
     /// <remarks>
     /// These strings are raw string literals, so they carry the line ending of the
@@ -325,6 +325,18 @@ internal static class Verify
         return test.RunAsync();
     }
 
+    /// <summary>
+    /// Applies the code fix to <paramref name="source" /> without the usings and
+    /// the <c>Subject</c> wrapper, for a fix whose subject includes the file's own
+    /// using directives.
+    /// </summary>
+    /// <remarks>
+    /// Both states are normalised to LF. A fix that writes a line ending reads it
+    /// off the document rather than from the platform, so a raw string literal
+    /// checked out with CRLF would have the test assert one ending on Windows and
+    /// the other on CI. The wrapped overloads need none of this, because the
+    /// endings they compare came from the same literal on both sides.
+    /// </remarks>
     public static Task RawCodeFixAsync<TAnalyzer, TCodeFix>(
         string source,
         string fixedSource,
@@ -334,8 +346,8 @@ internal static class Verify
     {
         var test = new CodeFixTest<TAnalyzer, TCodeFix>
         {
-            TestCode = source,
-            FixedCode = fixedSource,
+            TestCode = Lf(source),
+            FixedCode = Lf(fixedSource),
         };
 
         test.ExpectedDiagnostics.AddRange(expected);

@@ -62,9 +62,16 @@ Reading the binder is also why it reaches the `*Async` members. It used to ask
 whether an overload of the same name took a `TState`, and none of them has one,
 so a capturing asynchronous lambda went unreported.
 
-It ships no code fix, because the natural rewrite reuses the captured name as
-the new delegate parameter, which shadows the enclosing local — so the rewrite
-is manual, and renaming the parameter is part of it.
+`UseStateBindingCodeFix` does the rewrite, and it names the new delegate
+parameter around whatever is already in scope rather than reusing the captured
+name, which would shadow the enclosing local.
+
+It declines rather than guesses in three cases, so expect a report with no
+lightbulb behind it: a method group cannot grow the parameter the binder's
+delegate needs, a capture whose name one of the lambdas already declares as a
+parameter or a local would be shadowed by the rewrite, and a capture cannot name
+a tuple member if it is called `Rest` or `ItemN` out of position. Rewrite those
+by hand.
 
 The async surface has a state overload wherever the synchronous one does — the
 awaited-receiver generator lifts each one onto both task receivers, so the two

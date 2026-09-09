@@ -179,6 +179,62 @@ internal static class Semantics
         };
     }
 
+    /// <summary>
+    /// Gets the local or parameter a reference reads, or <see langword="null" /> for
+    /// anything else.
+    /// </summary>
+    /// <remarks>
+    /// Narrower than <see cref="ReferencedSymbol" /> on purpose, and the narrowing is
+    /// the point rather than an omission: only a local or a parameter forces a display
+    /// class when a lambda reads it. A field or a property is reached through
+    /// <see langword="this" />, which the delegate holds either way, so widening this
+    /// would have <c>WM2017</c> report captures that cost nothing.
+    /// <para>
+    /// Shared by the rule and its code fix rather than written twice. They have to
+    /// agree exactly on what counts as a capture — the fix rewrites the set the rule
+    /// counted, so a symbol one of them saw and the other did not is either an
+    /// unrewritten reference left behind or a state parameter nothing reads.
+    /// </para>
+    /// </remarks>
+    /// <param name="operation">The operation to read, from inside a lambda body.</param>
+    public static ISymbol? CapturableReference(IOperation operation) =>
+        operation switch
+        {
+            ILocalReferenceOperation local => local.Local,
+            IParameterReferenceOperation parameter => parameter.Parameter,
+            _ => null,
+        };
+
+    /// <summary>
+    /// Gets the lambda an argument passes, seeing through the conversion and the
+    /// delegate creation the compiler wraps it in, or <see langword="null" /> where the
+    /// argument is anything else.
+    /// </summary>
+    /// <param name="operation">The argument's value.</param>
+    public static IAnonymousFunctionOperation? LambdaIn(IOperation operation)
+    {
+        var value = Unconverted(operation);
+
+        if (value is IDelegateCreationOperation creation)
+        {
+            value = Unconverted(creation.Target);
+        }
+
+        return value as IAnonymousFunctionOperation;
+    }
+
+    /// <summary>
+    /// Checks whether <paramref name="symbol" /> is declared inside
+    /// <paramref name="scope" />, which is what separates a lambda's own parameters
+    /// and locals from the ones it captures.
+    /// </summary>
+    /// <param name="symbol">The symbol a reference inside the scope reads.</param>
+    /// <param name="scope">The lambda's syntax.</param>
+    public static bool IsDeclaredWithin(ISymbol symbol, SyntaxNode scope) =>
+        symbol.DeclaringSyntaxReferences.Any(
+            reference => reference.SyntaxTree == scope.SyntaxTree
+                      && scope.Span.Contains(reference.Span));
+
     public static bool ContainsPanickingCallOn(
         IOperation root,
         ISymbol instance,

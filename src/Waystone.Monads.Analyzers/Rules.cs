@@ -262,9 +262,14 @@ internal static class Rules
     /// <c>TState</c>, and no <c>*Async</c> member has one, so every capturing
     /// asynchronous lambda went unreported until the binder gained the full
     /// vocabulary.
-    /// No code fix ships: the natural rewrite reuses the captured name as the
-    /// new delegate parameter, which shadows the enclosing local and is CS0136
-    /// before C# 8.
+    /// <c>UseStateBindingCodeFix</c> does the rewrite, and names the
+    /// new delegate parameter around whatever is already in scope rather than
+    /// reusing the captured name, which would shadow the enclosing local and is
+    /// CS0136 before C# 8. It declines three cases rather than emit source that
+    /// does not compile: a method group cannot grow the parameter the binder's
+    /// delegate needs, a capture whose name one of the lambdas already declares
+    /// would be shadowed by the rewrite, and a capture named <c>Rest</c> cannot
+    /// name a tuple member.
     /// </remarks>
     public static readonly DiagnosticDescriptor DelegateCapturesInsteadOfState = Idiom(
         "WM2017",
