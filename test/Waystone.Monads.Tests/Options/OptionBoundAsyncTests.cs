@@ -23,6 +23,13 @@ using Xunit;
 /// The recorder is the bound state, which keeps every delegate
 /// <see langword="static" />.
 /// </para>
+/// <para>
+/// Every member with a branch that does not await is written without
+/// <see langword="async" />, so the state machine is built only on the branch
+/// that awaits. That is what the last two tests here pin: the outer method
+/// runs eagerly, so a failure reaching it arrives at the call rather than at
+/// the await.
+/// </para>
 /// </remarks>
 public sealed class OptionBoundAsyncTests
 {
@@ -410,21 +417,51 @@ public sealed class OptionBoundAsyncTests
     }
 
     /// <remarks>
-    /// The sync members throw from the call itself; an async one returns a
-    /// faulted task instead, so the same misuse surfaces at the await. Pinned
-    /// because the message is the only thing naming the cause, and it would be
-    /// easy to lose it behind a <see cref="NullReferenceException" />.
+    /// The misuse arrives at the call, not at the await, because the outer
+    /// method carries no <see langword="async" /> and so reads
+    /// <c>Source</c> eagerly. Asserted with the synchronous
+    /// <see cref="Should.Throw{TException}(System.Action)" /> and no
+    /// <see langword="await" /> anywhere, which is what makes it a test of
+    /// eagerness rather than of the message: were the throw still captured in
+    /// a faulted task, nothing would be thrown here at all.
+    /// <para>
+    /// The message matters too, being the only thing naming the cause. It
+    /// would otherwise be easy to lose behind a
+    /// <see cref="NullReferenceException" />.
+    /// </para>
     /// </remarks>
     [Fact]
-    public async Task ADefaultBoundFaultsRatherThanDereferencingNothing()
+    public void ADefaultBoundThrowsFromTheCallRatherThanFromTheAwait()
     {
         Option<int>.Bound<int> bound = default;
 
         InvalidOperationException thrown =
-            await Should.ThrowAsync<InvalidOperationException>(
-                async () => await bound.MapAsync(
+            Should.Throw<InvalidOperationException>(
+                () => bound.MapAsync(
                     static (v, s) => Task.FromResult(v + s)));
 
         thrown.Message.ShouldContain("Build one by calling With");
+    }
+
+    /// <remarks>
+    /// The other half of the same property, and the half a consumer is more
+    /// likely to meet: a delegate that throws before it ever returns a
+    /// <see cref="Task{TResult}" /> throws through the member, because nothing
+    /// wraps the invocation. Pinned on a member that does await, so the
+    /// eagerness cannot be mistaken for the short-circuit branch simply not
+    /// calling the delegate.
+    /// </remarks>
+    [Fact]
+    public void ADelegateThrowingBeforeItsTaskThrowsFromTheCall()
+    {
+        InvalidOperationException thrown =
+            Should.Throw<InvalidOperationException>(
+                () => SomeTwo.With(2)
+                             .MapAsync<int>(
+                                  static (_, _) =>
+                                      throw new InvalidOperationException(
+                                          "thrown before the task")));
+
+        thrown.Message.ShouldBe("thrown before the task");
     }
 }

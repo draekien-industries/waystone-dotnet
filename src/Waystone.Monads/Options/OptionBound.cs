@@ -40,6 +40,15 @@ public abstract partial record Option<T> where T : notnull
     /// <c>ImmutableArray&lt;T&gt;</c>. Reach one only by declaring it —
     /// <c>With</c> cannot produce one.
     /// </para>
+    /// <para>
+    /// The asynchronous members throw rather than returning a faulted task, which
+    /// is worth knowing because the opposite is the more common convention. Each
+    /// one evaluates its own body eagerly so that a
+    /// <see cref="None{T}" /> completes without building a state machine, and a
+    /// delegate that throws before it returns its
+    /// <see cref="System.Threading.Tasks.Task" /> throws through the call for the
+    /// same reason. Awaiting the result is not what surfaces either failure.
+    /// </para>
     /// </remarks>
     /// <typeparam name="TState">The type of the bound value.</typeparam>
 #if !DEBUG
@@ -388,12 +397,11 @@ public abstract partial record Option<T> where T : notnull
         /// True if the option holds a value and <paramref name="predicate" />
         /// accepted it; false otherwise.
         /// </returns>
-        public async ValueTask<bool> IsSomeAndAsync(
-            Func<T, TState, Task<bool>> predicate)
-        {
-            return Source is Some<T> some
-                && await predicate(some.Value, _state).ConfigureAwait(false);
-        }
+        public ValueTask<bool> IsSomeAndAsync(
+            Func<T, TState, Task<bool>> predicate) =>
+            Source is Some<T> some
+                ? Awaited(predicate(some.Value, _state))
+                : new ValueTask<bool>(false);
 
         /// <summary>
         /// Awaits a predicate against the contained value and the bound state,
@@ -412,12 +420,11 @@ public abstract partial record Option<T> where T : notnull
         /// True if the option holds no value, or holds one
         /// <paramref name="predicate" /> accepted.
         /// </returns>
-        public async ValueTask<bool> IsNoneOrAsync(
-            Func<T, TState, Task<bool>> predicate)
-        {
-            return Source is not Some<T> some
-                || await predicate(some.Value, _state).ConfigureAwait(false);
-        }
+        public ValueTask<bool> IsNoneOrAsync(
+            Func<T, TState, Task<bool>> predicate) =>
+            Source is Some<T> some
+                ? Awaited(predicate(some.Value, _state))
+                : new ValueTask<bool>(true);
 
         /// <summary>
         /// Awaits whichever of two branches the option selects, handing the bound
@@ -464,13 +471,11 @@ public abstract partial record Option<T> where T : notnull
         /// The contained value, or what <paramref name="valueFactory" />
         /// produced.
         /// </returns>
-        public async ValueTask<T> UnwrapOrElseAsync(
-            Func<TState, Task<T>> valueFactory)
-        {
-            return Source is Some<T> some
-                ? some.Value
-                : await valueFactory(_state).ConfigureAwait(false);
-        }
+        public ValueTask<T> UnwrapOrElseAsync(
+            Func<TState, Task<T>> valueFactory) =>
+            Source is Some<T> some
+                ? new ValueTask<T>(some.Value)
+                : Awaited(valueFactory(_state));
 
         /// <summary>
         /// Awaits a transform of the contained value and the bound state, keeping
@@ -489,14 +494,11 @@ public abstract partial record Option<T> where T : notnull
         /// <see cref="Some{T}" /> of the transformed value, or
         /// <see cref="None{T}" /> of <typeparamref name="TOut" />.
         /// </returns>
-        public async ValueTask<Option<TOut>> MapAsync<TOut>(
-            Func<T, TState, Task<TOut>> map) where TOut : notnull
-        {
-            return Source is Some<T> some
-                ? Option.Some(
-                      await map(some.Value, _state).ConfigureAwait(false))
-                : Option.None<TOut>();
-        }
+        public ValueTask<Option<TOut>> MapAsync<TOut>(
+            Func<T, TState, Task<TOut>> map) where TOut : notnull =>
+            Source is Some<T> some
+                ? AwaitedSome(map(some.Value, _state))
+                : new ValueTask<Option<TOut>>(Option.None<TOut>());
 
         /// <summary>
         /// Awaits an option-producing step against the contained value and the
@@ -519,14 +521,12 @@ public abstract partial record Option<T> where T : notnull
         /// Whatever <paramref name="optionFactory" /> produced, or
         /// <see cref="None{T}" /> of <typeparamref name="TOut" />.
         /// </returns>
-        public async ValueTask<Option<TOut>> AndThenAsync<TOut>(
+        public ValueTask<Option<TOut>> AndThenAsync<TOut>(
             Func<T, TState, ValueTask<Option<TOut>>> optionFactory)
-            where TOut : notnull
-        {
-            return Source is Some<T> some
-                ? await optionFactory(some.Value, _state).ConfigureAwait(false)
-                : Option.None<TOut>();
-        }
+            where TOut : notnull =>
+            Source is Some<T> some
+                ? optionFactory(some.Value, _state)
+                : new ValueTask<Option<TOut>>(Option.None<TOut>());
 
         /// <summary>
         /// Awaits a transform of the contained value and the bound state, falling
@@ -550,14 +550,12 @@ public abstract partial record Option<T> where T : notnull
         /// <returns>
         /// The transformed value, or <paramref name="defaultValue" />.
         /// </returns>
-        public async ValueTask<TOut> MapOrAsync<TOut>(
+        public ValueTask<TOut> MapOrAsync<TOut>(
             TOut defaultValue,
-            Func<T, TState, Task<TOut>> map)
-        {
-            return Source is Some<T> some
-                ? await map(some.Value, _state).ConfigureAwait(false)
-                : defaultValue;
-        }
+            Func<T, TState, Task<TOut>> map) =>
+            Source is Some<T> some
+                ? Awaited(map(some.Value, _state))
+                : new ValueTask<TOut>(defaultValue);
 
         /// <summary>
         /// Awaits a transform of the contained value and the bound state, falling
@@ -576,13 +574,11 @@ public abstract partial record Option<T> where T : notnull
         /// The transformed value, or the default of
         /// <typeparamref name="TOut" />.
         /// </returns>
-        public async ValueTask<TOut?> MapOrDefaultAsync<TOut>(
-            Func<T, TState, Task<TOut>> map) where TOut : notnull
-        {
-            return Source is Some<T> some
-                ? await map(some.Value, _state).ConfigureAwait(false)
+        public ValueTask<TOut?> MapOrDefaultAsync<TOut>(
+            Func<T, TState, Task<TOut>> map) where TOut : notnull =>
+            Source is Some<T> some
+                ? AwaitedNullable(map(some.Value, _state))
                 : default;
-        }
 
         /// <summary>
         /// Awaits a transform of the contained value and the bound state, or
@@ -623,17 +619,14 @@ public abstract partial record Option<T> where T : notnull
         /// Acts on the contained value and the bound state.
         /// </param>
         /// <returns>The same option, whichever case it is in.</returns>
-        public async ValueTask<Option<T>> InspectAsync(
+        public ValueTask<Option<T>> InspectAsync(
             Func<T, TState, Task> action)
         {
             Option<T> option = Source;
 
-            if (option is Some<T> some)
-            {
-                await action(some.Value, _state).ConfigureAwait(false);
-            }
-
-            return option;
+            return option is Some<T> some
+                ? AwaitedInspect(action(some.Value, _state), option)
+                : new ValueTask<Option<T>>(option);
         }
 
         /// <summary>
@@ -653,16 +646,14 @@ public abstract partial record Option<T> where T : notnull
         /// The option unchanged if <paramref name="predicate" /> accepted its
         /// value, otherwise <see cref="None{T}" />.
         /// </returns>
-        public async ValueTask<Option<T>> FilterAsync(
+        public ValueTask<Option<T>> FilterAsync(
             Func<T, TState, Task<bool>> predicate)
         {
             Option<T> option = Source;
 
-            if (option is not Some<T> some) return option;
-
-            return await predicate(some.Value, _state).ConfigureAwait(false)
-                ? option
-                : Option.None<T>();
+            return option is Some<T> some
+                ? AwaitedFilter(predicate(some.Value, _state), option)
+                : new ValueTask<Option<T>>(option);
         }
 
         /// <summary>
@@ -683,14 +674,14 @@ public abstract partial record Option<T> where T : notnull
         /// The original option if it holds a value, otherwise whatever
         /// <paramref name="optionFactory" /> produced.
         /// </returns>
-        public async ValueTask<Option<T>> OrElseAsync(
+        public ValueTask<Option<T>> OrElseAsync(
             Func<TState, ValueTask<Option<T>>> optionFactory)
         {
             Option<T> option = Source;
 
             return option is Some<T>
-                ? option
-                : await optionFactory(_state).ConfigureAwait(false);
+                ? new ValueTask<Option<T>>(option)
+                : optionFactory(_state);
         }
 
         /// <summary>
@@ -714,13 +705,41 @@ public abstract partial record Option<T> where T : notnull
         /// <see cref="Err{TOk,TErr}" /> of what
         /// <paramref name="errorFactory" /> produced.
         /// </returns>
-        public async ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
-            Func<TState, Task<TErr>> errorFactory) where TErr : notnull
+        public ValueTask<Result<T, TErr>> OkOrElseAsync<TErr>(
+            Func<TState, Task<TErr>> errorFactory) where TErr : notnull =>
+            Source is Some<T> some
+                ? new ValueTask<Result<T, TErr>>(
+                      Result.Ok<T, TErr>(some.Value))
+                : AwaitedErr<TErr>(errorFactory(_state));
+
+        private static async ValueTask<TResult> Awaited<TResult>(
+            Task<TResult> task) =>
+            await task.ConfigureAwait(false);
+
+        private static async ValueTask<Option<TOut>> AwaitedSome<TOut>(
+            Task<TOut> task) where TOut : notnull =>
+            Option.Some(await task.ConfigureAwait(false));
+
+        private static async ValueTask<TOut?> AwaitedNullable<TOut>(
+            Task<TOut> task) where TOut : notnull =>
+            await task.ConfigureAwait(false);
+
+        private static async ValueTask<Option<T>> AwaitedInspect(
+            Task task,
+            Option<T> option)
         {
-            return Source is Some<T> some
-                ? Result.Ok<T, TErr>(some.Value)
-                : Result.Err<T, TErr>(
-                      await errorFactory(_state).ConfigureAwait(false));
+            await task.ConfigureAwait(false);
+
+            return option;
         }
+
+        private static async ValueTask<Option<T>> AwaitedFilter(
+            Task<bool> task,
+            Option<T> option) =>
+            await task.ConfigureAwait(false) ? option : Option.None<T>();
+
+        private static async ValueTask<Result<T, TErr>> AwaitedErr<TErr>(
+            Task<TErr> task) where TErr : notnull =>
+            Result.Err<T, TErr>(await task.ConfigureAwait(false));
     }
 }
