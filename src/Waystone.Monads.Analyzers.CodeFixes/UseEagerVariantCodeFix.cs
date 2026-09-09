@@ -22,14 +22,10 @@ public sealed class UseEagerVariantCodeFix : MonadCodeFix
         SemanticModel model,
         MonadSymbols symbols)
     {
-        if (MemberInvocationAt(node) is not var (invocation, access))
-        {
-            return;
-        }
-
-        string name = access.Name.Identifier.ValueText;
-
-        if (!FreeDelegateAnalyzer.EagerSiblings.TryGetValue(name, out string? eager)
+        if (MemberInvocationAt(node) is not var (invocation, access)
+         || !FreeDelegateAnalyzer.EagerSiblings.TryGetValue(
+                access.Name.Identifier.ValueText,
+                out string? eager)
          || Unwrappable(invocation) is not { } body)
         {
             return;
