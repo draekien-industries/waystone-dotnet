@@ -18,7 +18,7 @@ using System.Diagnostics;
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
-public abstract record Result<TOk, TErr>
+public abstract partial record Result<TOk, TErr>
     where TOk : notnull where TErr : notnull
 {
     internal Result()

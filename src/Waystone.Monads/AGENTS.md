@@ -127,12 +127,21 @@ cannot reach.
 
 **A hand-written member in those classes costs roughly three baseline rows and
 gains an `…Async` pair you did not ask for.** The generator lifts hand-written
-extension members onto both awaited receivers automatically — no attribute, and
-`Waystone.SourceGenerators` has no exclude, ignore or skip concept, so there is
-no opting out short of changing the generator. Measured on DRA-121: seven
-members in `extension` blocks produced 42 rows, 26 of them the automatic async
-shapes. The same seven as classic `static (this T)` extension methods in a
-separate package produced 9.
+extension members onto both awaited receivers automatically, with no opt-in.
+Measured on DRA-121: seven members in `extension` blocks produced 42 rows, 26 of
+them the automatic async shapes. The same seven as classic `static (this T)`
+extension methods in a separate package produced 9 — but the saving came from the
+*package*, not the syntax. `FromExtensionBlocks` filters on `IsExtensionMethod`,
+which a classic method satisfies too, so rewriting a member in classic form to
+dodge the lift does not work. Measured again in DRA-200: it drops the
+`extension<…>` container row and keeps both `…Async` pairs.
+
+**Decline the pair with `[ExcludeFromAwaitedReceivers]` when the awaited shape is
+meaningless.** A member returning a builder or a state binder is the case it
+exists for — awaited, it hands back a task of something the caller cannot chain,
+and the pair costs two public members that **deprecate; never remove** then locks
+until the next major. `Option.With` and `Result.With` carry it. Do not reach for
+it to save rows on a member whose awaited form a caller would actually use.
 
 That is the argument for a satellite package whenever a family is additive
 vocabulary rather than core behaviour, and it is why the LINQ names ship in

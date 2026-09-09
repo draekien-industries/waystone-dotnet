@@ -18,7 +18,7 @@ using System.Diagnostics;
 #if !DEBUG
 [DebuggerStepThrough]
 #endif
-public static class Option
+public static partial class Option
 {
     /// <summary>
     /// Runs a <paramref name="factory" /> and stores its result in an

@@ -109,7 +109,7 @@ have **no XML doc comments at all**. They are public API; `CS1591` is suppressed
 nothing in the build ever said so. Moving them is the right moment to write those
 docs, and it makes this layer materially larger than the Option one.
 
-Write them through the `engineering-skills:with-doc-comments` skill. The failure to
+Write them through the `technical-writing-skills:doc-comments` skill. The failure to
 watch for here is the four `MatchAsync` overloads and the three `MapOrElseAsync`
 overloads: doc generators index the first sentence alone, so summaries copied
 between siblings make the set indistinguishable. Distinguish them by which delegate

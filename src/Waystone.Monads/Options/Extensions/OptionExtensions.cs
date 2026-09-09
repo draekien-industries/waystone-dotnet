@@ -80,6 +80,51 @@ using System.Diagnostics;
 [GenerateAwaitedMember(nameof(Option<>.ZipWithAsync))]
 public static partial class OptionExtensions
 {
+    extension<T>(Option<T> option) where T : notnull
+    {
+        /// <summary>
+        /// Binds a value to the option so that the next call can hand it to a
+        /// delegate rather than have the delegate capture it.
+        /// </summary>
+        /// <remarks>
+        /// The members on the returned <see cref="Option{T}.Bound{TState}" />
+        /// mirror the ones here, minus the state argument, and each returns the plain
+        /// <see cref="Option{T}" /> again. So the state is spent by the call that
+        /// uses it and a chain binds as many times as it needs to:
+        /// <code>
+        /// option.With(limit)
+        ///       .Filter(static (v, s) => v &lt;= s)
+        ///       .With(format)
+        ///       .Map(static (v, s) => v.ToString(s));
+        /// </code>
+        /// <para>
+        /// Pass a tuple to bind more than one value. Mark every lambda
+        /// <see langword="static" />, which is what makes the compiler reject a
+        /// capture that creeps back in — binding the state achieves nothing on
+        /// its own if the delegate still reaches for an outer variable.
+        /// </para>
+        /// <para>
+        /// There is deliberately no awaited-receiver form: a task of a binder
+        /// is not something a caller can chain. On a
+        /// <see cref="Task{TResult}" /> option, await it and then call this on
+        /// the result.
+        /// </para>
+        /// </remarks>
+        /// <param name="state">
+        /// The value handed to the delegate of whichever member is called next.
+        /// Nothing reads it in the meantime, so it may be anything, including
+        /// <see langword="null" />.
+        /// </param>
+        /// <typeparam name="TState">The type of the bound value.</typeparam>
+        /// <returns>
+        /// The option and <paramref name="state" /> together, carrying the
+        /// vocabulary that consumes both.
+        /// </returns>
+        [ExcludeFromAwaitedReceivers]
+        public Option<T>.Bound<TState> With<TState>(TState state) =>
+            new(option, state);
+    }
+
     extension<T1, T2>(Option<(T1, T2)> option)
         where T1 : notnull where T2 : notnull
     {

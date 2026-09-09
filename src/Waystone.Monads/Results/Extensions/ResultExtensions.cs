@@ -79,6 +79,53 @@ using System.Diagnostics;
 [GenerateAwaitedMember(nameof(Result<,>.UnwrapOrElseAsync))]
 public static partial class ResultExtensions
 {
+    extension<TOk, TErr>(Result<TOk, TErr> result)
+        where TOk : notnull where TErr : notnull
+    {
+        /// <summary>
+        /// Binds a value to the result so that the next call can hand it to a
+        /// delegate rather than have the delegate capture it.
+        /// </summary>
+        /// <remarks>
+        /// The members on the returned
+        /// <see cref="Result{TOk,TErr}.Bound{TState}" /> mirror the ones here,
+        /// minus the state argument, and each returns the plain
+        /// <see cref="Result{TOk,TErr}" /> again. So the state is spent by the
+        /// call that uses it and a chain binds as many times as it needs to:
+        /// <code>
+        /// result.With(logger)
+        ///       .InspectErr(static (e, s) => s.LogError(e.Message))
+        ///       .With(format)
+        ///       .Map(static (v, s) => v.ToString(s));
+        /// </code>
+        /// <para>
+        /// Pass a tuple to bind more than one value. Mark every lambda
+        /// <see langword="static" />, which is what makes the compiler reject a
+        /// capture that creeps back in — binding the state achieves nothing on
+        /// its own if the delegate still reaches for an outer variable.
+        /// </para>
+        /// <para>
+        /// There is deliberately no awaited-receiver form: a task of a binder
+        /// is not something a caller can chain. On a
+        /// <see cref="System.Threading.Tasks.Task{TResult}" /> result, await it
+        /// and then call this on the result.
+        /// </para>
+        /// </remarks>
+        /// <param name="state">
+        /// The value handed to the delegate of whichever member is called next.
+        /// Nothing reads it in the meantime, so it may be anything, including
+        /// <see langword="null" />.
+        /// </param>
+        /// <typeparam name="TState">The type of the bound value.</typeparam>
+        /// <returns>
+        /// The result and <paramref name="state" /> together, carrying the
+        /// vocabulary that consumes both.
+        /// </returns>
+        [ExcludeFromAwaitedReceivers]
+        public Result<TOk, TErr>.Bound<TState> With<TState>(TState state) =>
+            new(result, state);
+    }
+
     extension<TOk, TErr>(Result<Result<TOk, TErr>, TErr> result)
         where TOk : notnull where TErr : notnull
     {
