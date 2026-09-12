@@ -130,6 +130,30 @@ public class ErrTests
     }
 
     [Fact]
+    public void WhenOrElseProducesANullResult_ThenThrow()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        Func<Result<int, bool>> orElseNull =
+            () => err.OrElse(_ => default(Result<int, bool>)!);
+
+        orElseNull.ShouldThrow<ArgumentNullException>()
+                  .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
+    public void GivenState_WhenOrElseProducesANullResult_ThenThrow()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        Func<Result<int, bool>> orElseNull = () =>
+            err.OrElse(10, static (_, _) => default(Result<int, bool>)!);
+
+        orElseNull.ShouldThrow<ArgumentNullException>()
+                  .ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
     public void WhenExpect_ThenThrowException()
     {
         Result<int, string> result = Result.Err<int, string>("error");
@@ -324,6 +348,50 @@ public class ErrTests
         (await err.OrElseAsync(_ => new ValueTask<Result<int, bool>>(
                 Result.Err<int, bool>(false))))
            .ShouldBe(Result.Err<int, bool>(false));
+    }
+
+    [Fact]
+    public void
+        GivenACompletedFactory_WhenOrElseAsyncProducesANullResult_ThenThrowFromTheCall()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        Action orElseNull = () => _ = err.OrElseAsync(
+            _ => new ValueTask<Result<int, bool>>(
+                default(Result<int, bool>)!));
+
+        orElseNull.ShouldThrow<ArgumentNullException>()
+                  .ParamName.ShouldBe("resultFactory");
+    }
+
+    /// <summary>
+    /// The gate holds the factory's task incomplete until after the call returns,
+    /// which is what puts the guard on its awaiting path. <c>await Task.Yield()</c>
+    /// does not: on an idle thread pool it can resume before the guard reads
+    /// <c>IsCompletedSuccessfully</c>, and the throw then lands at the call
+    /// instead.
+    /// </summary>
+    [Fact]
+    public async Task
+        GivenAPendingFactory_WhenOrElseAsyncProducesANullResult_ThenFaultTheReturnedTask()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Result<int, bool>> pending = err.OrElseAsync(
+            async ValueTask<Result<int, bool>> (_) =>
+            {
+                await gate.Task;
+
+                return default(Result<int, bool>)!;
+            });
+
+        gate.SetResult(true);
+
+        Func<Task> consume = async () => await pending;
+
+        (await consume.ShouldThrowAsync<ArgumentNullException>())
+           .ParamName.ShouldBe("resultFactory");
     }
 
     [Fact]

@@ -287,17 +287,18 @@ public sealed record None<T> : Option<T>
 
     /// <inheritdoc />
     public override Option<T> OrElse(Func<Option<T>> optionFactory) =>
-        optionFactory();
+        Option.NotNull(optionFactory(), nameof(optionFactory));
 
     /// <inheritdoc />
     public override Option<T> OrElse<TState>(
         TState state,
-        Func<TState, Option<T>> optionFactory) => optionFactory(state);
+        Func<TState, Option<T>> optionFactory) =>
+        Option.NotNull(optionFactory(state), nameof(optionFactory));
 
     /// <inheritdoc />
     public override ValueTask<Option<T>> OrElseAsync(
         Func<ValueTask<Option<T>>> optionFactory) =>
-        optionFactory();
+        Option.NotNullAsync(optionFactory(), nameof(optionFactory));
 
     /// <inheritdoc />
     public override Option<T> Xor(Option<T> other) =>

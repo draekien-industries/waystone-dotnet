@@ -445,6 +445,45 @@ public sealed class ResultBoundAsyncTests
     }
 
     [Fact]
+    public void OrElseAsyncThrowsFromTheCallWhenACompletedFactoryIsNull()
+    {
+        ArgumentNullException thrown =
+            Should.Throw<ArgumentNullException>(
+                () => ErrBad.With(10)
+                            .OrElseAsync(
+                                 static (_, _) =>
+                                     new ValueTask<Result<int, int>>(
+                                         default(Result<int, int>)!)));
+
+        thrown.ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
+    public async Task OrElseAsyncFaultsTheReturnedTaskWhenAPendingFactoryIsNull()
+    {
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Result<int, int>> pending =
+            ErrBad.With(gate)
+                  .OrElseAsync(
+                       static async ValueTask<Result<int, int>> (_, s) =>
+                       {
+                           await s.Task;
+
+                           return default(Result<int, int>)!;
+                       });
+
+        pending.IsCompleted.ShouldBeFalse();
+        gate.SetResult(true);
+
+        ArgumentNullException thrown =
+            await Should.ThrowAsync<ArgumentNullException>(
+                async () => await pending);
+
+        thrown.ParamName.ShouldBe("resultFactory");
+    }
+
+    [Fact]
     public async Task UnwrapOrElseAsyncBuildsTheFallbackFromTheError()
     {
         var invoked = new List<string>();

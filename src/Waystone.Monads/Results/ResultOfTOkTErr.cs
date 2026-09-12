@@ -466,6 +466,11 @@ public abstract partial record Result<TOk, TErr>
     /// </remarks>
     /// <param name="resultFactory">A function which creates the other result.</param>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// Throws if <paramref name="resultFactory" /> returns a null result. A
+    /// recovery that fails again is an <see cref="Err{TOk,TErr}" /> of
+    /// <typeparamref name="TOut" />, so null says nothing the type cannot.
+    /// </exception>
     public abstract Result<TOk, TOut> OrElse<TOut>(
         Func<TErr, Result<TOk, TOut>> resultFactory) where TOut : notnull;
 
@@ -492,6 +497,11 @@ public abstract partial record Result<TOk, TErr>
     /// null state is permitted.
     /// </typeparam>
     /// <typeparam name="TOut">The other result's error value type.</typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// Throws if <paramref name="resultFactory" /> returns a null result. A
+    /// recovery that fails again is an <see cref="Err{TOk,TErr}" /> of
+    /// <typeparamref name="TOut" />, so null says nothing the type cannot.
+    /// </exception>
     public abstract Result<TOk, TOut> OrElse<TState, TOut>(
         TState state,
         Func<TErr, TState, Result<TOk, TOut>> resultFactory)
@@ -519,6 +529,11 @@ public abstract partial record Result<TOk, TErr>
     /// The result <paramref name="resultFactory" /> produced, or the original ok
     /// value as an <see cref="Ok{TOk,TErr}" /> of <typeparamref name="TOut" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Throws if <paramref name="resultFactory" /> returns a null result: from
+    /// the call when its task had already completed, or from the returned
+    /// task otherwise, so await the result to see it either way.
+    /// </exception>
     public abstract ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
         Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory)
         where TOut : notnull;
