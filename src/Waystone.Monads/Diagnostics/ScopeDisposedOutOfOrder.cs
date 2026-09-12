@@ -14,8 +14,9 @@ using Configs;
 /// The event reports a bug in the disposing code rather than anything the library
 /// did: a <see cref="MonadOptionsScope" /> was disposed while a scope begun after
 /// it was still live. The library leaves the live scope alone in that case, so
-/// nothing is silently reconfigured — but disposing the live scope later restores
-/// <em>its</em> predecessor, which is the options the early-disposed scope
+/// the live scope's options do not change at that moment — but disposing the
+/// live scope later restores <em>its</em> predecessor, which is the options
+/// the early-disposed scope
 /// installed, so those options outlive the scope that installed them until the
 /// flow unwinds.
 /// <para>

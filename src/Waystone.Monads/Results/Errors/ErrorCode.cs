@@ -23,7 +23,10 @@ public sealed record ErrorCode
     /// <see cref="Value" /> is never null or blank. Default fallback:
     /// <c>Unspecified</c>.
     /// </remarks>
-    /// <param name="value">The error code string value</param>
+    /// <param name="value">
+    /// The value <see cref="Value" /> takes after trimming, or falls back from
+    /// when null, empty or whitespace.
+    /// </param>
     public ErrorCode(string value)
     {
         Value = string.IsNullOrWhiteSpace(value)
@@ -39,10 +42,11 @@ public sealed record ErrorCode
     /// Prefer an <c>[ErrorCodeCatalog]</c> enum. The code here is the exception's
     /// type name with a trailing <c>Exception</c> removed —
     /// <see cref="InvalidOperationException" /> gives <c>InvalidOperation</c> — so
-    /// renaming or swapping the exception type silently changes the code a consumer
-    /// observes. <see cref="Exception" /> itself is left as <c>Exception</c>. Uses
-    /// the <see cref="ErrorCodeFactory" /> configured in
-    /// <see cref="MonadOptions" />, so a custom factory changes all of this.
+    /// renaming or swapping the exception type changes the code a consumer
+    /// observes, with nothing in the build to catch it. <see cref="Exception" />
+    /// itself is left as <c>Exception</c>. Uses the <see cref="ErrorCodeFactory" />
+    /// configured in <see cref="MonadOptions" />, so a custom factory changes all
+    /// of this.
     /// </remarks>
     /// <param name="exception">The exception to take the code from.</param>
     /// <returns>The created instance of <see cref="ErrorCode" />.</returns>
