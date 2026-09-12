@@ -124,6 +124,15 @@ inherit whatever the core member does and must not guard a second time.
 completed one.** See the conversion rules below before reading that as a
 regression.
 
+**`WA0001` fails the build on a guard left off, so none of the above is on you to
+remember.** The rule lives in
+[Waystone.Analyzers](../Waystone.Analyzers/AGENTS.md), never ships, and finds the
+guards by shape rather than by name-checking `Option` — a static `NotNull` or
+`NotNullAsync` taking a value and a `string`, returning that value's own type. Add
+a guarded type by writing its guard in that shape, and add its row to
+`GuardConventionTests`, which is the only thing that fails when a rename turns the
+rule off instead of breaking the build.
+
 ## Gotchas
 
 **An internal constructor does not close a `record` hierarchy.** Records get a
