@@ -31,8 +31,8 @@ edited to produce it.
 | Option binders | `Options/OptionBound.cs`, `Options/OptionFactoryBound.cs` | 45 | 13 |
 | Result binders | `Results/ResultBound.cs`, `Results/ResultFactoryBound.cs` | 43 | 8 |
 | Option factory, cases, extensions | `Options/Option.cs`, `Some.cs`, `None.cs`, `Extensions/*` | 170 | 26 |
-| Result factory, cases, extensions | `Results/Result.cs`, `Ok.cs`, `Err.cs`, `Extensions/*` | 89 | 26 |
-| Configuration, diagnostics, errors | `Configs/*`, `Diagnostics/*`, `Results/Errors/*`, `Exceptions/*` | 66 | 20 |
+| Result factory, cases, extensions | `Results/Result.cs`, `Ok.cs`, `Err.cs`, `Extensions/*` | 89 | 22 |
+| Configuration, diagnostics, errors | `Configs/*`, `Diagnostics/*`, `Results/Errors/*`, `Exceptions/*` | 66 | 21 |
 
 Corpus measurements taken before the audit, excluding `obj/` and `bin/`:
 
@@ -53,7 +53,7 @@ in this audit, because editing them means editing the generator's emission in
 `src/Waystone.SourceGenerators`, not the files listed above. They are not clean;
 they are unexamined.
 
-## Priority 1 — three comments state something the code does not do
+## Priority 1 — four comments state something the code does not do
 
 These are separated from the other findings because they are wrong facts rather
 than wording. Each was verified against the implementation.
@@ -122,12 +122,17 @@ asynchronous member throws rather than returning a faulted task, but
 `ResultBound.cs:474`, `:566` and `:910` are declared `async` and so return a
 faulted task like any other `async` method.
 
-## Priority 2 — two open questions that are not documentation defects
+## Priority 2 — one behaviour gap, now tracked separately
 
-Neither should be written up as a comment until it is decided. Documenting the
-current behaviour would turn it into a contract.
+This is not a documentation defect and no comment should describe the current
+behaviour, because documenting it would turn it into a contract.
 
 ### The state-bound `AndThenAsync` does not guard a null factory result
+
+Tracked as [DRA-216](https://linear.app/draekien-industries/issue/DRA-216/fix-guard-every-factory-returning-delegate-against-a-null-return),
+which widens the scope from these two members to every factory-returning delegate
+in the library. The two below are what this audit found; they are the starting
+inventory, not the whole answer.
 
 Every sibling guards it:
 
@@ -152,21 +157,37 @@ public ValueTask<Option<TOut>> AndThenAsync<TOut>(
 ```
 
 A factory returning a null `Option<TOut>` throws `ArgumentNullException` through
-all three siblings and propagates the null through this one. This member is added
-by PR #248, so the decision can still be made before the code ships.
+all three siblings and propagates the null through this one, where it becomes a
+`NullReferenceException` at some later call with nothing pointing back to the
+factory that caused it.
 
-### `MapOrAsync`'s remarks cite `WM2016`, which may not cover the async pair
+`Results/ResultBound.cs:666` has the identical shape against `Ok.cs:177`, which
+does guard with `Result.NotNullAsync`. Both members are added by PR #248.
 
-`WM2016` is titled "Prefer the lazy variant when the argument is not free" and
-its description names `And`, `Or`, `UnwrapOr`, `MapOr` and `OkOr` against their
-`*Else` siblings — the synchronous names only. Whether it also reports
-`MapOrAsync` against `MapOrElseAsync`, as the remarks on `MapOrAsync` claim,
-cannot be settled from the descriptor text. It needs the rule's member-matching
-implementation or a test case.
+`OrElse` and `OrElseAsync` were checked and guard nowhere — not in `None.cs`, not
+in either binder. That is uniform, so it reads as a design choice rather than a
+second gap, and DRA-216 carries the question of whether it stays.
 
-Two neighbouring claims were checked and are accurate: `WM2017` does name `With`
-in its message, and `WSG0003` does describe the `ValueTask`-to-`Task` conversion
-failure and the `CS0411` it surfaces as.
+## Analyzer claims: all three confirmed
+
+The comments cite three diagnostics by id. Each was checked against the analyzer
+source rather than assumed, because a comment naming a rule that does not fire is
+worse than one naming none.
+
+| Claim | Checked against | Verdict |
+| --- | --- | --- |
+| `WM2017` reports a capturing call and names `With` | `Waystone.Monads.Analyzers/Rules.cs:281` | Accurate |
+| `WSG0003` explains the `ValueTask`-to-`Task` non-conversion and the `CS0411` it surfaces as | `Waystone.SourceGenerators/AsyncSurface/Rules.cs:14` | Accurate |
+| `MapOrAsync`'s remarks say `WM2016` reports it against `MapOrElseAsync` | `Waystone.Monads.Analyzers/LazyVariantAnalyzer.cs:22` | Accurate |
+
+The third was initially recorded as unresolved, because `WM2016`'s descriptor
+text names only the synchronous members. The rule does not match on that text — it
+matches on a dictionary, and that dictionary carries the async pair explicitly:
+
+```csharp
+// LazyVariantAnalyzer.cs:22
+["MapOrAsync"] = "MapOrElseAsync",
+```
 
 ## Priority 3 — the systemic patterns
 
@@ -176,7 +197,7 @@ volume, and they are not equally worth fixing.
 | Mode | Count | Worth |
 | --- | ---: | --- |
 | `missing-punctuation` | 78 | Mechanical. Concentrated in the `MapOr*`/`MapOrNull*`/`MapOrElse*` family and the collection extensions' `<typeparam>` tags, which suggests those were written in a separate pass. |
-| `figurative` | 67 | The bulk of the rewrite. |
+| `figurative` | 75 | The bulk of the rewrite. |
 | `inconsistent-sibling` | 27 | Adjacent members using different conventions. |
 | `copy-paste-drift` | 18 | **The one with real consumer cost.** See below. |
 | `restated-signature` | 17 | Comments that repeat the name and type. |
@@ -248,8 +269,9 @@ Two were confirmed, one is open and recorded above.
 ## Steps
 
 1. Apply Priority 1. Four wrong facts, four files, no dependency between them.
-2. Decide the two Priority 2 questions. The `AndThenAsync` one should be settled
-   before PR #248 merges, since it is that PR's code.
+2. DRA-216 carries the Priority 2 gap. Nothing here waits on it, but the two
+   members it names are added by PR #248, so settling it before that merges costs
+   less than changing shipped behaviour afterwards.
 3. Apply the mechanical sweep — `missing-punctuation`, `prose-instead-of-tag` —
    as one change. It touches many files and reads trivially.
 4. Apply `copy-paste-drift` and `inconsistent-sibling` per family, so that each
@@ -263,9 +285,9 @@ publish. Version them as `docs:` so no bump is read from the subject.
 
 ## Done when
 
-Every section below has been applied or explicitly declined with a reason, the
-two Priority 2 questions have a decision recorded, and a fresh grep for the
-figurative phrases listed above returns nothing in `src/Waystone.Monads`.
+Every section below has been applied or explicitly declined with a reason, and a
+fresh grep for the figurative phrases listed above returns nothing in
+`src/Waystone.Monads`. DRA-216 closes on its own terms and does not gate this.
 
 ---
 
@@ -959,7 +981,7 @@ None remain.
 ## Result<TOk, TErr> core
 
 Scope: `src/Waystone.Monads/Results/ResultOfTOkTErr.cs`.
-65 public members examined (the type declaration plus 64 members), cross-checked against `Ok<TOk,TErr>` and `Err<TOk,TErr>` in `Ok.cs`/`Err.cs`, `Exceptions/UnwrapException.cs`, `Exceptions/UnmetExpectationException.cs`, and the `WM2017` descriptor in `Waystone.Monads.Analyzers/Rules.cs`. Revised in place under a refined figurative-language rule: flag authored metaphor/simile/personification/hyperbole/wordplay, but leave the field's own dead metaphors (wrap, fault, drain, listen) alone. No instance of "swallow" or "leak" occurs in this file, so there was nothing to restore under that exemption.
+65 public members examined (the type declaration plus 64 members), cross-checked against `Ok<TOk,TErr>` and `Err<TOk,TErr>` in `Ok.cs`/`Err.cs`, `Exceptions/UnwrapException.cs`, `Exceptions/UnmetExpectationException.cs`, and the `WM2017` descriptor in `Waystone.Monads.Analyzers/Rules.cs`. Revised in place under a refined figurative-language rule: flag authored metaphor/simile/personification/hyperbole/wordplay, but leave the field's own dead metaphors (wrap, fault, drain, listen) alone. No instance of "swallow" or "leak" occurs in this file, so there was nothing to restore under that exemption. A second sweep checked specifically for cost/price/payment language, "consuming", "hands back", "falls through", personification verbs (speaks/knows/decides/wants/forgets), hyperbole ("never"/"always"/"every" against a documented exception), and bare cost judgements ("cheap"/"expensive") with no measure behind them.
 
 ### `Result<TOk, TErr>.IsOk`
 `src/Waystone.Monads/Results/ResultOfTOkTErr.cs:33` — inconsistent-sibling
@@ -1201,9 +1223,14 @@ Kept the completed-vs-faulted distinction (consumer-relevant, verified against `
 Its own siblings `OrElse<TOut>` (line 484) and `OrElse<TState,TOut>` (line 510) already carry the period on the identical tag text.
 
 ### `Result<TOk, TErr>.Expect(string)`
-`src/Waystone.Monads/Results/ResultOfTOkTErr.cs:562` — stale, missing-punctuation
+`src/Waystone.Monads/Results/ResultOfTOkTErr.cs:562` — stale, missing-punctuation, figurative (metaphor)
 
 ```diff
+     /// <summary>
+-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value, consuming the
+-    /// result instance.
++    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value.
+     /// </summary>
      /// <remarks>
 -    /// Throws on an <see cref="Err{TOk,TErr}" />, differing from
 -    /// <see cref="Unwrap" /> only in that the thrown message leads with
@@ -1225,6 +1252,8 @@ Its own siblings `OrElse<TOut>` (line 484) and `OrElse<TState,TOut>` (line 510) 
 ```
 Checked against `Exceptions/UnwrapException.cs` and `Exceptions/UnmetExpectationException.cs`: `Expect` throws `UnmetExpectationException` (message, then `: `, then the error, baked into the message string), while `Unwrap` throws the unrelated `UnwrapException<TErr>` (a fixed message, plus a `.Value` property carrying the error). They are not the same exception differing only in message content — the claim is inaccurate and should be cut rather than fixed in place.
 
+"Consuming the result instance" borrows Rust's ownership-move semantics for `Result::unwrap(self)`. `Result<TOk,TErr>` is a C# record read by reference; calling `Expect` a second time on the same instance returns the same value, so nothing is actually consumed.
+
 ### `Result<TOk, TErr>.ExpectErr(string)`
 `src/Waystone.Monads/Results/ResultOfTOkTErr.cs:574` — missing-punctuation
 
@@ -1236,6 +1265,18 @@ Checked against `Exceptions/UnwrapException.cs` and `Exceptions/UnmetExpectation
 +    /// <paramref name="message" />, and the content of the <see cref="Ok{TOk,TErr}" />.
      /// </exception>
 ```
+
+### `Result<TOk, TErr>.Unwrap()`
+`src/Waystone.Monads/Results/ResultOfTOkTErr.cs:592` — figurative (metaphor)
+
+```diff
+     /// <summary>
+-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value, consuming the
+-    /// result instance.
++    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value.
+     /// </summary>
+```
+Same borrowed Rust ownership language as `Expect`. `Unwrap` does not invalidate or move the receiver — it is a plain read of the `Ok<TOk,TErr>` case's value, callable again on the same instance with the same result.
 
 ### `Result<TOk, TErr>.UnwrapOr(TOk)`
 `src/Waystone.Monads/Results/ResultOfTOkTErr.cs:602` — missing-punctuation
@@ -1352,20 +1393,23 @@ Checked against `Exceptions/UnwrapException.cs` and `Exceptions/UnmetExpectation
 ```
 
 ### `Result<TOk, TErr>.MapOrAsync<TOut>(TOut, Func<TOk, Task<TOut>>)`
-`src/Waystone.Monads/Results/ResultOfTOkTErr.cs:898` — missing-punctuation, figurative (metaphor)
+`src/Waystone.Monads/Results/ResultOfTOkTErr.cs:898` — missing-punctuation, figurative (metaphor, hyperbole)
 
 ```diff
      /// <remarks>
      /// <paramref name="defaultValue" /> is evaluated by the caller before the call,
 -    /// so reach for <c>MapOrElseAsync</c> where computing it is expensive or
-+    /// so use <c>MapOrElseAsync</c> where computing it is expensive or
-     /// depends on the error. <paramref name="map" /> is not invoked on an
+-    /// depends on the error. <paramref name="map" /> is not invoked on an
++    /// so use <c>MapOrElseAsync</c> where computing it should happen only when
++    /// the result is <see cref="Err{TOk,TErr}" />, or where it depends on the
++    /// error. <paramref name="map" /> is not invoked on an
      /// <see cref="Err{TOk,TErr}" />.
      /// </remarks>
      /// ...
 -    /// <typeparam name="TOut">The mapped result value type</typeparam>
 +    /// <typeparam name="TOut">The mapped result value type.</typeparam>
 ```
+"Reach for" (metaphor, fixed above) and "is expensive" (hyperbole — a bare cost judgement with no measure behind it, unlike the benchmarked figures this repository's own `AGENTS.md` requires for a cost claim) are both replaced. The literal fact `defaultValue` being eager already supports: it is computed unconditionally, so this overload wastes that computation whenever the result turns out to be `Ok`.
 
 ### `Result<TOk, TErr>.MapOrDefault<TOut>(Func<TOk, TOut>)`
 `src/Waystone.Monads/Results/ResultOfTOkTErr.cs:909` — missing-punctuation
@@ -1540,7 +1584,6 @@ Checked against `Exceptions/UnwrapException.cs` and `Exceptions/UnmetExpectation
 - `OrElse<TOut>(Func<TErr, Result<TOk, TOut>>)`
 - `OrElse<TState, TOut>(TState, Func<TErr, TState, Result<TOk, TOut>>)`
 - `OrElseAsync<TOut>(Func<TErr, ValueTask<Result<TOk, TOut>>>)`
-- `Unwrap()`
 - `UnwrapOrElse(Func<TErr, TOk>)`
 - `UnwrapOrElse<TState>(TState, Func<TErr, TState, TOk>)`
 - `Inspect<TState>(TState, Action<TOk, TState>)`
@@ -1553,7 +1596,7 @@ Checked against `Exceptions/UnwrapException.cs` and `Exceptions/UnmetExpectation
 - `MapOrElseAsync<TOut>(Func<TErr, Task<TOut>>, Func<TOk, TOut>)`
 - `AsEnumerable()`
 
-`IsOkAndAsync`, `IsErrAndAsync`, `MatchAsync<TOut>(Func<TOk,Task<TOut>>,Func<TErr,Task<TOut>>)`, `MatchAsync(Func<TOk,Task>,Func<TErr,Task>)`, `UnwrapErr()`, `UnwrapOrElseAsync`, `InspectErrAsync` and `MapOrElseAsync<TOut>(Func<TErr,Task<TOut>>,Func<TOk,Task<TOut>>)` were marked clean in the first pass of this report under the original figurative-language rule; the refined rule catches wording in each of them (see their sections above) and they moved out of this list.
+`IsOkAndAsync`, `IsErrAndAsync`, `MatchAsync<TOut>(Func<TOk,Task<TOut>>,Func<TErr,Task<TOut>>)`, `MatchAsync(Func<TOk,Task>,Func<TErr,Task>)`, `Unwrap()`, `UnwrapErr()`, `UnwrapOrElseAsync`, `InspectErrAsync` and `MapOrElseAsync<TOut>(Func<TErr,Task<TOut>>,Func<TOk,Task<TOut>>)` were marked clean in an earlier pass of this report, before the figurative-language rule was refined and before the second sweep for cost language and "consuming"; each now has its own section above.
 
 ### Unverified
 None. Every factual claim in this file (which branch invokes a delegate, which case completes synchronously, which exception type is thrown) was checked directly against `Ok<TOk,TErr>`/`Err<TOk,TErr>`, the two exception types, and the `WM2017` diagnostic descriptor.
@@ -1985,6 +2028,7 @@ been mis-flagged under the earlier broad instruction — it wasn't, and it stays
 authored imagery, so no change. Nothing else previously flagged in this file was
 dropped, so there is nothing else to restore.
 
+
 ## Result binders
 
 Files: `src/Waystone.Monads/Results/ResultBound.cs`, `src/Waystone.Monads/Results/ResultFactoryBound.cs`.
@@ -2256,6 +2300,7 @@ Their own async counterparts, `IsOkAndAsync` and `IsErrAndAsync` two members dow
 - `MapOrElseAsync(Func<TErr,TState,Task<TOut>>, Func<TOk,TState,TOut>)`
 - `Result.Bound<TState>` (`ResultFactoryBound.cs`) — struct itself, `<typeparam name="TState">`
 - `Result.With<TState>` — clean apart from the "creeps back in" fix above
+
 
 ## Option factory, cases and extensions
 
@@ -2804,6 +2849,7 @@ claim in `OptionExtensions.cs` and `OptionsCollectionExtensions.cs`) was traced
 against the implementation it describes, including `MonadOptions.cs`,
 `MonadOptionsBuilder.cs` and `MonadDiagnostics.cs` for the `Try`/`TryAsync` remarks.
 
+
 ## Result factory, cases and extensions
 
 Scope: `Results/Result.cs` (13 public static members incl. the class), `Results/Ok.cs` and `Results/Err.cs` (63 `<inheritdoc />` overrides each plus one hand-written `Deconstruct` and the record itself), `Results/Extensions/ResultExtensions.cs` (4 members) and `Results/Extensions/ResultsCollectionExtensions.cs` (5 members).
@@ -3316,10 +3362,11 @@ Three problems in the same paragraph. First, hyperbole: "always succeeds" assert
 - `Err<TOk,TErr>.Deconstruct(out TErr error)` — hand-written, not `<inheritdoc />`; checked against the base members it cross-references (`GetErr`, `UnwrapErr`) and against the internal `Value` property it says is unreachable directly, including the contrast drawn with `None{T}` — all correct, and no figurative language in it.
 - `IsOk`, `IsErr` on both `Ok<TOk,TErr>` and `Err<TOk,TErr>`
 - Every `<inheritdoc />` override on `Ok<TOk,TErr>` and `Err<TOk,TErr>` (`IsOkAnd*`, `IsErrAnd*`, `Match*`, `MatchAsync*`, `And`, `AndThen*`, `Or`, `OrElse*`, `Expect`, `ExpectErr`, `Unwrap*`, `UnwrapOr*`, `UnwrapErr`, `Inspect*`, `InspectErr*`, `Map*`, `MapOr*`, `MapOrDefault*`, `MapOrNull*`, `MapOrElse*`, `MapErr*`, `AsEnumerable`, `GetOk`, `GetErr`) — the inherited text describes the base member, and each override's behavior (traced through every branch) matches what that text promises for its case.
+- The `never`/`always`/`every` claims checked across `Result.cs` (e.g. "unchanged and is never inspected" on every `state` param, "that was never thrown" on the synthetic `ArgumentNullException`, "always an `Ok{TOk,TErr}`"/"always an `Err{TOk,TErr}`" on the two-type-parameter factories), `Ok.cs` and `Err.cs` (the value/error "is never null"), and `ResultsCollectionExtensions.cs` (`Flatten`'s "every `Ok{TOk,TErr}`", `Collect`'s "later elements are never visited, later errors are never seen") — every one of these verified true against the code with no documented exception, so they are accurate absolutes, not hyperbole. The one exception, `Collect`'s "always succeeds" describing `Partition`, is written up above.
 
 ### Unverified
 
-- Whether `<see cref="Ok{TOk,Error}" />` — a generic cref mixing a real type parameter placeholder (`TOk`) with a closed type argument (`Error`) — resolves the way `<see cref="Ok{TOk,TErr}" />` does today. Checked for precedent instead of building the docs: `grep -rnE 'cref="[A-Za-z_]+\{[^},"]+,[A-Za-z_.]+\}"' src/Waystone.Monads` (after excluding the ordinary `{TOk,TErr}`-shaped hits) returns nothing, and a narrower search for `cref="*{*Error}"` also returns nothing, out of 810 generic crefs in the package — every one of them uses type-parameter placeholders on both sides, never a closed type argument. So the mixed form has no precedent here either way; it is not proven to work, and nothing in the existing code proves it fails. Verify it by building `Waystone.Monads` after applying the fix — `src/**` has `TreatWarningsAsErrors`, so if the cref does not resolve the build fails on `CS1574` rather than silently shipping a dead link.
+None remain. The one open item from the previous revision — whether `<see cref="Ok{TOk,Error}" />`, a generic cref mixing a real type-parameter placeholder (`TOk`) with a closed type argument (`Error`), resolves the way `<see cref="Ok{TOk,TErr}" />` does today — is resolved above under `Result.Try<TOk>` rather than left open: `grep -rnE 'cref="[A-Za-z_]+\{[^},"]+,[A-Za-z_.]+\}"' src/Waystone.Monads`, after excluding the ordinary `{TOk,TErr}`-shaped hits, and a narrower search for `cref="*{*Error}"`, both return nothing out of 810 generic crefs in the package — every one of them uses type-parameter placeholders on both sides, never a closed type argument. So the mixed form has no precedent here either way; nothing proves it works, and nothing proves it fails. Verify it by building `Waystone.Monads` after applying the fix — `src/**` has `TreatWarningsAsErrors`, so an unresolved cref fails the build on `CS1574` rather than shipping a dead link silently.
 
 ## Configuration, diagnostics, errors and exceptions
 
@@ -3693,7 +3740,23 @@ src/Waystone.Monads/Diagnostics/ExceptionHandled.cs:23 — figurative (metaphor)
      /// </para>
 ```
 
-"Hand off" borrows a relay-race image for moving work between threads; the replacement says which thread and what to do.
+"Hand off" borrows a relay-race image for moving work between threads; the replacement names the thread and the action instead of the image.
+
+### Kept as field vocabulary, not authored imagery
+
+Checked against the same figurative-language rule and left alone, with why:
+
+- **"outlive"/"outlives its scope"** (`MonadOptionsScope.cs`, `MonadOptionsBuilder.cs`, `ScopeDisposedOutOfOrder.cs`) — standard object-lifetime terminology; no plainer equivalent exists for "exists past the end of its owning scope."
+- **"racing a Configure call"** (`MonadOptions.cs`) — "race"/"racing" is the field's own name for the concurrency hazard being described, not an image the author reached for.
+- **"neither loses its changes"** (`MonadOptions.cs`, `Configure` remarks) — invokes the standard "lost update" concurrency term; there is no more literal phrase for that guarantee.
+- **"declined"/"decline"** (`MonadOptionsScope.Dispose` remarks) — the codebase's own established term of art for "returns without restoring," used pervasively including in this area's `AGENTS.md`; replacing it here would fight the project's own vocabulary rather than an author's one-off image.
+- **"reaches"/"reaches past"** (`ErrorCodeFactory.cs`, `MonadDiagnostics.cs`, `ErrorCodeCatalogAttribute.cs`, `Error.cs`) — ordinary technical description of data/config flow ("the value reaches the caller"), as dead as "value flows through"; no figurative work is being done.
+- **"sole hook"** (`ExceptionHandled.cs`) — "hook" is the standard term for an extension/callback point (event hook), not an image.
+- **"held"** as in "the value the result actually held" (`UnwrapException.cs`, `UnmetExpectationException.cs`) — the container-holds-a-value idiom, explicitly exempted by the rule alongside "a lock is held."
+- **"swallow"/"swallowed"** (`ExceptionHandled.cs`, `MonadDiagnostics.cs`, `UnwrapException.cs` doc): "the exception the library swallowed" — the field's standard term for an exception caught and not rethrown.
+- **"leaks"** (`MonadDiagnosticEvent.cs`, `Subscribe` remarks): "abandoning the subscription without disposing it leaks one observer" — the field's standard term for an unreleased resource.
+- **"fires"/"written"** and **"a listener subscribes"** (`MonadDiagnostics.cs`, `MonadDiagnosticEvent.cs`) — standard event-system vocabulary.
+- **"faulted"** is not used in this partition's files, but would be kept as the field's term for `Task` status if it were.
 
 ### Clean
 
