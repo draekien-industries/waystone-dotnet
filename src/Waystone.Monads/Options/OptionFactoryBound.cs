@@ -10,8 +10,7 @@ using System.Diagnostics;
 public static partial class Option
 {
     /// <summary>
-    /// Binds a value so that the next <c>Try</c> can hand it to its factory
-    /// rather than have the factory capture it.
+    /// A value bound for whichever <c>Try</c> is called on it next.
     /// </summary>
     /// <remarks>
     /// The counterpart of <see cref="Option{T}.Bound{TState}" /> for the two
@@ -37,8 +36,8 @@ public static partial class Option
         internal Bound(TState state) => _state = state;
 
         /// <summary>
-        /// Runs <paramref name="factory" /> and turns anything it throws into a
-        /// <see cref="None{T}" />.
+        /// Runs <paramref name="factory" />, turning a thrown exception or a
+        /// null result into a <see cref="None{T}" />.
         /// </summary>
         /// <remarks>
         /// Which exceptions are swallowed is decided by
@@ -65,9 +64,8 @@ public static partial class Option
         /// The type <paramref name="factory" /> produces.
         /// </typeparam>
         /// <returns>
-        /// A <see cref="Some{T}" /> if <paramref name="factory" /> produced a
-        /// value a <see cref="Some{T}" /> can hold, otherwise a
-        /// <see cref="None{T}" />.
+        /// A <see cref="Some{T}" /> of what <paramref name="factory" />
+        /// produced, or a <see cref="None{T}" /> if it returned null or threw.
         /// </returns>
         public Option<T> Try<T>(
             Func<TState, T> factory,
@@ -84,8 +82,8 @@ public static partial class Option
                 callerArgumentExpression);
 
         /// <summary>
-        /// Awaits <paramref name="asyncFactory" /> and turns anything it throws
-        /// into a <see cref="None{T}" />.
+        /// Awaits <paramref name="asyncFactory" />, turning a thrown exception
+        /// or a null result into a <see cref="None{T}" />.
         /// </summary>
         /// <remarks>
         /// The task is awaited here, so a fault raised after the delegate
@@ -111,9 +109,8 @@ public static partial class Option
         /// The type <paramref name="asyncFactory" /> produces.
         /// </typeparam>
         /// <returns>
-        /// A <see cref="Some{T}" /> if <paramref name="asyncFactory" /> produced
-        /// a value a <see cref="Some{T}" /> can hold, otherwise a
-        /// <see cref="None{T}" />.
+        /// A <see cref="Some{T}" /> of what <paramref name="asyncFactory" />
+        /// produced, or a <see cref="None{T}" /> if it returned null or threw.
         /// </returns>
         public ValueTask<Option<T>> TryAsync<T>(
             Func<TState, Task<T>> asyncFactory,
@@ -144,9 +141,9 @@ public static partial class Option
     ///       .Try(static s =&gt; int.Parse(s));
     /// </code>
     /// <para>
-    /// Pass a tuple to bind more than one value, and mark the factory
-    /// <see langword="static" /> so the compiler rejects a capture that creeps
-    /// back in.
+    /// Pass a tuple to bind more than one value. Mark the factory
+    /// <see langword="static" /> so the compiler reports an error if it
+    /// captures a variable.
     /// </para>
     /// </remarks>
     /// <param name="state">
@@ -155,7 +152,8 @@ public static partial class Option
     /// </param>
     /// <typeparam name="TState">The type of the bound value.</typeparam>
     /// <returns>
-    /// <paramref name="state" /> carrying the two factories that consume it.
+    /// A <see cref="Bound{TState}" /> ready to hand <paramref name="state" />
+    /// to whichever <c>Try</c> is called on it.
     /// </returns>
     public static Bound<TState> With<TState>(TState state) => new(state);
 }

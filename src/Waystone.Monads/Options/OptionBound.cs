@@ -16,29 +16,20 @@ public abstract partial record Option<T> where T : notnull
     /// <remarks>
     /// Created by <c>With</c> on an <see cref="Option{T}" />. Each member below
     /// takes the same delegate as the <see cref="Option{T}" /> member it shares
-    /// a name with, invokes it with the bound state, and returns the plain
-    /// <see cref="Option{T}" /> — the state is spent by the call rather than
-    /// carried onward, so a chain that needs it twice binds it twice.
+    /// a name with, invokes it with the bound state, and returns a plain
+    /// <see cref="Option{T}" />. The bound state applies to that one call
+    /// only; bind it again for a second call.
     /// <para>
-    /// Nested inside <see cref="Option{T}" /> rather than named beside it
-    /// because a second type parameter on a monad in this library already means
-    /// something else: <see cref="Result{TOk,TErr}" /> uses it for the error
-    /// type. Nesting keeps <see cref="Option{T}" /> a one-parameter type, so a
-    /// genuine <c>Option&lt;string, int&gt;</c> still fails to compile.
+    /// Mark the delegate <see langword="static" /> if it does not otherwise
+    /// need to capture anything. A delegate that reads only its parameters
+    /// allocates nothing when marked <see langword="static" />; one that also
+    /// reads an outer variable allocates a new closure on every call.
     /// </para>
     /// <para>
-    /// The point is the delegate, not this type. A lambda that reads the state
-    /// from its parameter captures nothing, so marking it
-    /// <see langword="static" /> costs nothing and the compiler caches it; a
-    /// lambda that reaches for an outer variable allocates a display class
-    /// every time the call site runs. Writing <see langword="static" /> is what
-    /// stops a later edit from quietly putting the allocation back.
-    /// </para>
-    /// <para>
-    /// A <see langword="default" /> instance has no option to act on and every
-    /// member throws <see cref="InvalidOperationException" />, in the manner of
-    /// <c>ImmutableArray&lt;T&gt;</c>. Reach one only by declaring it —
-    /// <c>With</c> cannot produce one.
+    /// A <see langword="default" /> instance of this type has no option to
+    /// call into, and every member throws
+    /// <see cref="InvalidOperationException" />. Only <c>With</c> produces a
+    /// usable instance.
     /// </para>
     /// <para>
     /// Where an asynchronous member surfaces a failure depends on the member.
@@ -81,8 +72,8 @@ public abstract partial record Option<T> where T : notnull
         /// <see cref="None{T}" />.
         /// </param>
         /// <returns>
-        /// <see langword="true" /> only when the option holds a value and
-        /// <paramref name="predicate" /> accepts it.
+        /// True if the option holds a value and <paramref name="predicate" />
+        /// accepts it; false otherwise.
         /// </returns>
         public bool IsSomeAnd(Func<T, TState, bool> predicate) =>
             Source.IsSomeAnd(_state, predicate);
@@ -102,8 +93,8 @@ public abstract partial record Option<T> where T : notnull
         /// <see cref="None{T}" />.
         /// </param>
         /// <returns>
-        /// <see langword="true" /> when the option is a <see cref="None{T}" />,
-        /// or when it holds a value <paramref name="predicate" /> accepts.
+        /// True if the option holds no value, or holds one
+        /// <paramref name="predicate" /> accepts; false otherwise.
         /// </returns>
         public bool IsNoneOr(Func<T, TState, bool> predicate) =>
             Source.IsNoneOr(_state, predicate);
@@ -113,11 +104,9 @@ public abstract partial record Option<T> where T : notnull
         /// are answered in one expression.
         /// </summary>
         /// <remarks>
-        /// The bound state reaches both delegates, which is what makes this the
-        /// most worthwhile member to bind for. Two capturing lambdas share one
-        /// display class but need a delegate each, so a capturing <c>Match</c>
-        /// allocates one delegate more than a capturing <c>Map</c> does.
-        /// <c>StateOverloadBenchmarks</c> measures both.
+        /// The bound state reaches both <paramref name="onSome" /> and
+        /// <paramref name="onNone" />, so a single bound value can serve both
+        /// branches.
         /// </remarks>
         /// <param name="onSome">
         /// Produces the result from the contained value and the bound state.
@@ -162,7 +151,8 @@ public abstract partial record Option<T> where T : notnull
         /// <remarks>
         /// The fallback is computed only for a <see cref="None{T}" />, which is
         /// the difference from <see cref="Option{T}.UnwrapOr" /> — pass a
-        /// delegate here when producing the replacement costs something.
+        /// delegate here when producing the replacement allocates or
+        /// otherwise does real work.
         /// </remarks>
         /// <param name="valueFactory">
         /// Produces the replacement from the bound state. It receives no value,
@@ -217,6 +207,11 @@ public abstract partial record Option<T> where T : notnull
         /// The value type of the option <paramref name="optionFactory" />
         /// produces.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="optionFactory" /> returns a null option. See the
+        /// remarks on <see cref="Option{T}" /> for why that throws rather than
+        /// producing a <see cref="None{T}" />.
+        /// </exception>
         /// <returns>
         /// Whatever <paramref name="optionFactory" /> produced, or
         /// <see cref="None{T}" /> if it was never invoked.
@@ -231,8 +226,8 @@ public abstract partial record Option<T> where T : notnull
         /// </summary>
         /// <remarks>
         /// <paramref name="defaultValue" /> is evaluated at the call site
-        /// whether it is needed or not. Where producing it costs something, use
-        /// <see cref="MapOrElse{TOut}" /> instead.
+        /// whether it is needed or not. Where producing it allocates or
+        /// otherwise does real work, use <see cref="MapOrElse{TOut}" /> instead.
         /// </remarks>
         /// <param name="defaultValue">Stands in for an absent value.</param>
         /// <param name="map">
@@ -279,11 +274,10 @@ public abstract partial record Option<T> where T : notnull
         /// for a <see cref="None{T}" />.
         /// </summary>
         /// <remarks>
-        /// The bridge out of <see cref="Option{T}" /> into
-        /// <see cref="Nullable{T}" />. Prefer it to
-        /// <see cref="MapOrDefault{TOut}" /> wherever the produced type is a value
-        /// type, since a mapped zero and an absent value are the same
-        /// <see langword="default" /> and different nulls.
+        /// Converts the option's case into a <see cref="Nullable{T}" />.
+        /// Prefer it to <see cref="MapOrDefault{TOut}" /> wherever the produced
+        /// type is a value type, since a mapped zero and an absent value are
+        /// the same <see langword="default" /> and different nulls.
         /// </remarks>
         /// <param name="map">
         /// Produces the result from the contained value and the bound state. It
@@ -385,10 +379,9 @@ public abstract partial record Option<T> where T : notnull
         /// computing an error to explain an absent value.
         /// </summary>
         /// <remarks>
-        /// This is the seam where an absence stops being acceptable and has to
-        /// be accounted for. <paramref name="errorFactory" /> runs only for a
-        /// <see cref="None{T}" />, so building an error that carries context is
-        /// affordable here.
+        /// <paramref name="errorFactory" /> runs only for a
+        /// <see cref="None{T}" />; it is never invoked for a
+        /// <see cref="Some{T}" />.
         /// </remarks>
         /// <param name="errorFactory">
         /// Produces the error from the bound state. It receives no value, there
@@ -398,6 +391,10 @@ public abstract partial record Option<T> where T : notnull
         /// <typeparam name="TErr">
         /// The error type <paramref name="errorFactory" /> produces.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="errorFactory" /> returns null. An
+        /// <see cref="Err{TOk,TErr}" /> cannot hold a null error.
+        /// </exception>
         /// <returns>
         /// <see cref="Ok{TOk,TErr}" /> of the contained value, or
         /// <see cref="Err{TOk,TErr}" /> of what
@@ -424,6 +421,9 @@ public abstract partial record Option<T> where T : notnull
         /// </param>
         /// <typeparam name="TOther">The value type of the other option.</typeparam>
         /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="zip" /> returns null.
+        /// </exception>
         /// <returns>
         /// <see cref="Some{T}" /> of what <paramref name="zip" /> produced when
         /// both options hold a value, otherwise <see cref="None{T}" />.
@@ -449,6 +449,9 @@ public abstract partial record Option<T> where T : notnull
         /// <param name="reduce">
         /// Combines the two present values with the bound state.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="reduce" /> returns null.
+        /// </exception>
         /// <returns>
         /// The combined value when both options hold one, otherwise whichever
         /// single <see cref="Some{T}" /> there was, otherwise
@@ -698,6 +701,9 @@ public abstract partial record Option<T> where T : notnull
         /// Transforms the contained value using the bound state.
         /// </param>
         /// <typeparam name="TOut">The type the transform produces.</typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="map" /> returns null.
+        /// </exception>
         /// <returns>
         /// <see cref="Some{T}" /> of the transformed value, or
         /// <see cref="None{T}" /> of <typeparamref name="TOut" />.
@@ -743,8 +749,7 @@ public abstract partial record Option<T> where T : notnull
         /// <remarks>
         /// The fallback is evaluated by the caller either way, so reach for
         /// <see cref="MapOrElseAsync{TOut}(Func{TState,Task{TOut}},Func{T,TState,Task{TOut}})" />
-        /// instead once producing it costs
-        /// anything.
+        /// instead once producing it allocates or otherwise does real work.
         /// </remarks>
         /// <param name="defaultValue">
         /// Returned for a <see cref="None{T}" />, and evaluated whether or not it
@@ -794,7 +799,7 @@ public abstract partial record Option<T> where T : notnull
         /// nullable value type, using null for a <see cref="None{T}" />.
         /// </summary>
         /// <remarks>
-        /// The asynchronous half of the bridge into <see cref="Nullable{T}" />.
+        /// The asynchronous counterpart of <see cref="MapOrNull{TOut}" />.
         /// Unlike <see cref="MapOrDefaultAsync{TOut}" />, the absent case is a
         /// null rather than a <see langword="default" />, so it stays
         /// distinguishable from a transform that produced a zero.
@@ -978,9 +983,9 @@ public abstract partial record Option<T> where T : notnull
         /// bound state when there is no value.
         /// </summary>
         /// <remarks>
-        /// The crossing point from "absent" to "failed for a stated reason",
-        /// which is why the error is produced rather than passed - an option
-        /// reaching here usually knows why it is empty.
+        /// <paramref name="errorFactory" /> runs only for a
+        /// <see cref="None{T}" />, so it can build an error using whatever
+        /// context caused the absence.
         /// </remarks>
         /// <param name="errorFactory">
         /// Produces the error from the bound state. It receives no value, there
@@ -989,6 +994,10 @@ public abstract partial record Option<T> where T : notnull
         /// <typeparam name="TErr">
         /// The error type the factory produces.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="errorFactory" /> returns null. An
+        /// <see cref="Err{TOk,TErr}" /> cannot hold a null error.
+        /// </exception>
         /// <returns>
         /// <see cref="Ok{TOk,TErr}" /> of the contained value, or
         /// <see cref="Err{TOk,TErr}" /> of what
@@ -1018,6 +1027,9 @@ public abstract partial record Option<T> where T : notnull
         /// </param>
         /// <typeparam name="TOther">The value type of the other option.</typeparam>
         /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="zip" /> returns null.
+        /// </exception>
         /// <returns>
         /// <see cref="Some{T}" /> of what <paramref name="zip" /> produced when
         /// both options hold a value, otherwise <see cref="None{T}" />.
@@ -1045,6 +1057,9 @@ public abstract partial record Option<T> where T : notnull
         /// <param name="reduce">
         /// Combines the two present values with the bound state.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="reduce" /> returns null.
+        /// </exception>
         /// <returns>
         /// The combined value when both options hold one, otherwise whichever
         /// single <see cref="Some{T}" /> there was, otherwise
