@@ -10,7 +10,7 @@ using Errors;
 using System.Diagnostics;
 #endif
 
-/// <summary>Creates <see cref="Result{TOk,TErr}" /> values</summary>
+/// <summary>Creates <see cref="Result{TOk,TErr}" /> values.</summary>
 /// <remarks>
 /// The <see cref="Ok{TOk,TErr}" /> and <see cref="Err{TOk,TErr}" />
 /// constructors are both internal, so this class is the only way to build a
@@ -24,15 +24,15 @@ public static partial class Result
     /// <summary>
     /// Tries to store the result of a <paramref name="factory" /> into a
     /// <see cref="Result{TOk,TErr}" />, invoking <paramref name="onError" /> if the
-    /// factory throws an exception.
+    /// factory throws an exception or returns null.
     /// </summary>
     /// <param name="factory">
     /// A method which when executed will return the value
-    /// contained in the <see cref="Result{TOk,TErr}" />
+    /// contained in the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="onError">
     /// A callback method that will be invoked for any exceptions
-    /// thrown by the <paramref name="factory" />
+    /// thrown by the <paramref name="factory" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -43,8 +43,8 @@ public static partial class Result
     /// <param name="callerArgumentExpression">
     /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
-    /// <typeparam name="TErr">The error handler return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
+    /// <typeparam name="TErr">The error handler return value's type.</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
@@ -102,15 +102,15 @@ public static partial class Result
     /// <summary>
     /// Tries to store the result of an <paramref name="asyncFactory" /> into
     /// a <see cref="Result{TOk, TErr}" />, invoking <paramref name="onError" /> if the
-    /// factory throws an exception.
+    /// factory throws an exception or returns null.
     /// </summary>
     /// <param name="asyncFactory">
     /// An asynchronous method which when executed will
-    /// produce the value of the <see cref="Result{TOk,TErr}" />
+    /// produce the value of the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="onError">
     /// A callback method that will be invoked for any exceptions
-    /// thrown by the <paramref name="asyncFactory" />
+    /// thrown by the <paramref name="asyncFactory" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -121,8 +121,8 @@ public static partial class Result
     /// <param name="callerArgumentExpression">
     /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
-    /// <typeparam name="TErr">The error handler return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
+    /// <typeparam name="TErr">The error handler return value's type.</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
@@ -182,7 +182,7 @@ public static partial class Result
     /// Tries to store the result of a <paramref name="factory" /> into a
     /// <see cref="Result{TOk,TErr}" />, handing it the provided
     /// <paramref name="state" /> and invoking <paramref name="onError" /> if the
-    /// factory throws an exception.
+    /// factory throws an exception or returns null.
     /// </summary>
     /// <param name="state">
     /// The value the factory would otherwise capture. It is passed through
@@ -190,11 +190,11 @@ public static partial class Result
     /// </param>
     /// <param name="factory">
     /// A method which when executed will return the value
-    /// contained in the <see cref="Result{TOk,TErr}" />
+    /// contained in the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="onError">
     /// A callback method that will be invoked for any exceptions
-    /// thrown by the <paramref name="factory" />
+    /// thrown by the <paramref name="factory" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -208,8 +208,8 @@ public static partial class Result
     /// <typeparam name="TState">
     /// The state's type. It is unconstrained, so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
-    /// <typeparam name="TErr">The error handler return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
+    /// <typeparam name="TErr">The error handler return value's type.</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
@@ -217,7 +217,7 @@ public static partial class Result
     /// <remarks>
     /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
-    /// captured by it, so the factory can be <c>static</c> and the call
+    /// captured by it, so the factory can be <see langword="static" /> and the call
     /// allocates no closure. A
     /// <see cref="System.Threading.CancellationToken" /> is the state this
     /// exists for. The <paramref name="onError" /> callback is not handed the
@@ -277,7 +277,7 @@ public static partial class Result
     /// Tries to store the result of an <paramref name="asyncFactory" /> into
     /// a <see cref="Result{TOk, TErr}" />, handing it the provided
     /// <paramref name="state" /> and invoking <paramref name="onError" /> if the
-    /// factory throws an exception.
+    /// factory throws an exception or returns null.
     /// </summary>
     /// <param name="state">
     /// The value the factory would otherwise capture. It is passed through
@@ -285,11 +285,11 @@ public static partial class Result
     /// </param>
     /// <param name="asyncFactory">
     /// An asynchronous method which when executed will
-    /// produce the value of the <see cref="Result{TOk,TErr}" />
+    /// produce the value of the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="onError">
     /// A callback method that will be invoked for any exceptions
-    /// thrown by the <paramref name="asyncFactory" />
+    /// thrown by the <paramref name="asyncFactory" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -303,8 +303,8 @@ public static partial class Result
     /// <typeparam name="TState">
     /// The state's type. It is unconstrained, so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
-    /// <typeparam name="TErr">The error handler return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
+    /// <typeparam name="TErr">The error handler return value's type.</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
     /// value, otherwise an <see cref="Err{TOk,TErr}" />.
@@ -312,7 +312,7 @@ public static partial class Result
     /// <remarks>
     /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
-    /// captured by it, so the factory can be <c>static</c> and the call
+    /// captured by it, so the factory can be <see langword="static" /> and the call
     /// allocates no closure. A
     /// <see cref="System.Threading.CancellationToken" /> is the state this
     /// exists for. The <paramref name="onError" /> callback is not handed the
@@ -378,8 +378,8 @@ public static partial class Result
     /// value.
     /// </summary>
     /// <param name="value">The success value the result will hold.</param>
-    /// <typeparam name="TOk">The ok result value's type</typeparam>
-    /// <typeparam name="TErr">The error result value's type</typeparam>
+    /// <typeparam name="TOk">The ok result value's type.</typeparam>
+    /// <typeparam name="TErr">The error result value's type.</typeparam>
     /// <returns>
     /// A <see cref="Result{TOk,TErr}" /> that is always an
     /// <see cref="Ok{TOk,TErr}" />. The static type is
@@ -400,8 +400,8 @@ public static partial class Result
     /// value.
     /// </summary>
     /// <param name="value">The error value the result will hold.</param>
-    /// <typeparam name="TOk">The ok result value's type</typeparam>
-    /// <typeparam name="TErr">The error result value's type</typeparam>
+    /// <typeparam name="TOk">The ok result value's type.</typeparam>
+    /// <typeparam name="TErr">The error result value's type.</typeparam>
     /// <returns>
     /// A <see cref="Result{TOk,TErr}" /> that is always an
     /// <see cref="Err{TOk,TErr}" />. The static type is
@@ -420,12 +420,12 @@ public static partial class Result
     /// <summary>
     /// Tries to store the result of a <paramref name="factory" /> into a
     /// <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
-    /// type, converting any thrown exception using
+    /// type, converting any thrown exception or a null return using
     /// <see cref="Error.FromException" />.
     /// </summary>
     /// <param name="factory">
     /// A method which when executed will return the value
-    /// contained in the <see cref="Result{TOk,TErr}" />
+    /// contained in the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -436,15 +436,15 @@ public static partial class Result
     /// <param name="callerArgumentExpression">
     /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
-    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// An <see cref="Ok{TOk,Error}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,Error}" />.
     /// </returns>
     /// <remarks>
     /// <para>
     /// A factory that returns null also produces an
-    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// <see cref="Err{TOk,Error}" />, carrying an <see cref="Error" /> converted
     /// from an <see cref="ArgumentNullException" /> that was never thrown and so
     /// has no stack trace. Only the thrown case reaches the exception logger
     /// configured on <see cref="MonadOptions" />, which also writes to the
@@ -474,12 +474,12 @@ public static partial class Result
     /// <summary>
     /// Tries to store the result of an <paramref name="asyncFactory" /> into
     /// a <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
-    /// type, converting any thrown exception using
+    /// type, converting any thrown exception or a null return using
     /// <see cref="Error.FromException" />.
     /// </summary>
     /// <param name="asyncFactory">
     /// An asynchronous method which when executed will
-    /// produce the value of the <see cref="Result{TOk,TErr}" />
+    /// produce the value of the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -490,15 +490,15 @@ public static partial class Result
     /// <param name="callerArgumentExpression">
     /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
-    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// An <see cref="Ok{TOk,Error}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,Error}" />.
     /// </returns>
     /// <remarks>
     /// <para>
     /// A factory that returns null also produces an
-    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// <see cref="Err{TOk,Error}" />, carrying an <see cref="Error" /> converted
     /// from an <see cref="ArgumentNullException" /> that was never thrown and so
     /// has no stack trace. Only the thrown case reaches the exception logger
     /// configured on <see cref="MonadOptions" />, which also writes to the
@@ -529,7 +529,8 @@ public static partial class Result
     /// Tries to store the result of a <paramref name="factory" /> into a
     /// <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
     /// type, handing the factory the provided <paramref name="state" /> and
-    /// converting any thrown exception using <see cref="Error.FromException" />.
+    /// converting any thrown exception or a null return using
+    /// <see cref="Error.FromException" />.
     /// </summary>
     /// <param name="state">
     /// The value the factory would otherwise capture. It is passed through
@@ -537,7 +538,7 @@ public static partial class Result
     /// </param>
     /// <param name="factory">
     /// A method which when executed will return the value
-    /// contained in the <see cref="Result{TOk,TErr}" />
+    /// contained in the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -551,22 +552,22 @@ public static partial class Result
     /// <typeparam name="TState">
     /// The state's type. It is unconstrained, so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
-    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// An <see cref="Ok{TOk,Error}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,Error}" />.
     /// </returns>
     /// <remarks>
     /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
-    /// captured by it, so the factory can be <c>static</c> and the call
+    /// captured by it, so the factory can be <see langword="static" /> and the call
     /// allocates no closure. A
     /// <see cref="System.Threading.CancellationToken" /> is the state this
     /// exists for.
     /// </para>
     /// <para>
     /// A factory that returns null also produces an
-    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// <see cref="Err{TOk,Error}" />, carrying an <see cref="Error" /> converted
     /// from an <see cref="ArgumentNullException" /> that was never thrown and so
     /// has no stack trace. Only the thrown case reaches the exception logger
     /// configured on <see cref="MonadOptions" />, which also writes to the
@@ -599,7 +600,8 @@ public static partial class Result
     /// Tries to store the result of an <paramref name="asyncFactory" /> into
     /// a <see cref="Result{TOk,TErr}" /> which uses <see cref="Error" /> as its error
     /// type, handing the factory the provided <paramref name="state" /> and
-    /// converting any thrown exception using <see cref="Error.FromException" />.
+    /// converting any thrown exception or a null return using
+    /// <see cref="Error.FromException" />.
     /// </summary>
     /// <param name="state">
     /// The value the factory would otherwise capture. It is passed through
@@ -607,7 +609,7 @@ public static partial class Result
     /// </param>
     /// <param name="asyncFactory">
     /// An asynchronous method which when executed will
-    /// produce the value of the <see cref="Result{TOk,TErr}" />
+    /// produce the value of the <see cref="Result{TOk,TErr}" />.
     /// </param>
     /// <param name="callerMemberName">
     /// Compiler-supplied for the exception logger. Do not pass it.
@@ -621,22 +623,22 @@ public static partial class Result
     /// <typeparam name="TState">
     /// The state's type. It is unconstrained, so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOk">The factory method return value's type</typeparam>
+    /// <typeparam name="TOk">The factory method return value's type.</typeparam>
     /// <returns>
-    /// An <see cref="Ok{TOk,TErr}" /> if the factory produces a non-null
-    /// value, otherwise an <see cref="Err{TOk,TErr}" />.
+    /// An <see cref="Ok{TOk,Error}" /> if the factory produces a non-null
+    /// value, otherwise an <see cref="Err{TOk,Error}" />.
     /// </returns>
     /// <remarks>
     /// <para>
     /// The <paramref name="state" /> is handed to the factory rather than
-    /// captured by it, so the factory can be <c>static</c> and the call
+    /// captured by it, so the factory can be <see langword="static" /> and the call
     /// allocates no closure. A
     /// <see cref="System.Threading.CancellationToken" /> is the state this
     /// exists for.
     /// </para>
     /// <para>
     /// A factory that returns null also produces an
-    /// <see cref="Err{TOk,TErr}" />, carrying an <see cref="Error" /> converted
+    /// <see cref="Err{TOk,Error}" />, carrying an <see cref="Error" /> converted
     /// from an <see cref="ArgumentNullException" /> that was never thrown and so
     /// has no stack trace. Only the thrown case reaches the exception logger
     /// configured on <see cref="MonadOptions" />, which also writes to the
@@ -666,11 +668,15 @@ public static partial class Result
             callerArgumentExpression);
 
     /// <summary>
-    /// Creates an <see cref="Ok{TOk,TErr}" /> result containing the provided
+    /// Creates an <see cref="Ok{TOk,Error}" /> result containing the provided
     /// value, using <see cref="Error" /> as the error type.
     /// </summary>
     /// <param name="value">The success value the result will hold.</param>
-    /// <typeparam name="TOk">The ok result value's type</typeparam>
+    /// <typeparam name="TOk">The ok result value's type.</typeparam>
+    /// <returns>
+    /// A <see cref="Result{TOk,TErr}" /> that is always an
+    /// <see cref="Ok{TOk,Error}" />.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="value" /> is null.
     /// </exception>
@@ -679,11 +685,15 @@ public static partial class Result
         new Ok<TOk, Error>(value);
 
     /// <summary>
-    /// Creates an <see cref="Err{TOk,TErr}" /> result containing the provided
+    /// Creates an <see cref="Err{TOk,Error}" /> result containing the provided
     /// <see cref="Error" />.
     /// </summary>
     /// <param name="error">The error contained in the result.</param>
-    /// <typeparam name="TOk">The ok result value's type</typeparam>
+    /// <typeparam name="TOk">The ok result value's type.</typeparam>
+    /// <returns>
+    /// A <see cref="Result{TOk,TErr}" /> that is always an
+    /// <see cref="Err{TOk,Error}" />.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="error" /> is null.
     /// </exception>
