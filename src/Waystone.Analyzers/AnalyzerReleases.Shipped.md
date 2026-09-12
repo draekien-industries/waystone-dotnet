@@ -1,0 +1,10 @@
+; Shipped analyzer releases
+; https://github.com/dotnet/roslyn-analyzers/blob/main/src/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
+
+## Release 7.3.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WA0001 | Reliability | Error | A delegate returning a guarded type is invoked without the guard
