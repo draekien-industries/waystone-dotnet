@@ -18,18 +18,15 @@ using System.Diagnostics;
 /// <para>
 /// A projection that returns null throws <see cref="ArgumentNullException" />
 /// rather than producing a <see cref="None{T}" />. Every projection here is
-/// constrained to a non-nullable output, so a null is a broken contract and not
-/// an absent value, and collapsing it to <see cref="None{T}" /> would make the
-/// two indistinguishable — the caller would read "no value" and never learn the
-/// projection was wrong. <see cref="Result{TOk,TErr}" /> has always behaved this
-/// way; this type was the outlier until 7.0.0.
+/// constrained to a non-nullable output, so a null is treated as a broken
+/// contract rather than an absent value.
 /// </para>
 /// <para>
-/// When a projection genuinely may yield nothing, say so: project into an option
-/// with <c>AndThen</c> and <see cref="Option.FromNullable{T}(T)" />. That is the
-/// difference between mapping and binding, and it is deliberately explicit. The
-/// two lenient entry points are <see cref="Option.Try{T}" />, whose whole purpose
-/// is to absorb a failure, and <see cref="Option.FromNullable{T}(T)" /> itself.
+/// When a projection genuinely may yield nothing, project into an option with
+/// <c>AndThen</c> and <see cref="Option.FromNullable{T}(T)" /> instead of
+/// returning null. <see cref="Option.Try{T}" /> and
+/// <see cref="Option.FromNullable{T}(T)" /> are the two entry points that
+/// accept an absent value without throwing.
 /// </para>
 /// </remarks>
 /// <typeparam name="T">The option value's type.</typeparam>
@@ -54,16 +51,19 @@ public abstract partial record Option<T> where T : notnull
     public abstract bool IsNone { get; }
 
     /// <summary>
-    /// Returns <see langword="true" /> if the option is a
-    /// <see cref="Some{T}" /> and the value inside of it matches a predicate.
+    /// Checks whether the option is a <see cref="Some{T}" /> whose value
+    /// satisfies <paramref name="predicate" />.
     /// </summary>
-    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <param name="predicate">
+    /// The condition the contained value must satisfy. It is not invoked on a
+    /// <see cref="None{T}" />.
+    /// </param>
     public abstract bool IsSomeAnd(Func<T, bool> predicate);
 
     /// <summary>
-    /// Returns <see langword="true" /> if the option is a
-    /// <see cref="Some{T}" /> and the value inside of it matches a predicate
-    /// that takes state instead of capturing it.
+    /// Checks whether the option is a <see cref="Some{T}" /> whose value
+    /// satisfies <paramref name="predicate" />, with state passed to the
+    /// delegate rather than captured by it.
     /// </summary>
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
@@ -75,7 +75,10 @@ public abstract partial record Option<T> where T : notnull
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <param name="predicate">
+    /// The condition the contained value must satisfy. It is not invoked on a
+    /// <see cref="None{T}" />.
+    /// </param>
     /// <typeparam name="TState">
     /// The type of the state passed to the predicate. It is unconstrained, so a
     /// null state is permitted.
@@ -90,7 +93,7 @@ public abstract partial record Option<T> where T : notnull
     /// </summary>
     /// <param name="predicate">
     /// The condition to evaluate the contained value against. It is not invoked on
-    /// a <see cref="None{T}" />, so a <see cref="None{T}" /> costs no await.
+    /// a <see cref="None{T}" />.
     /// </param>
     /// <returns>
     /// True if the option is a <see cref="Some{T}" /> and the awaited predicate
@@ -101,16 +104,19 @@ public abstract partial record Option<T> where T : notnull
         Func<T, Task<bool>> predicate);
 
     /// <summary>
-    /// Returns <see langword="true" /> if the option is a
-    /// <see cref="None{T}" /> or the value inside of it matches a predicate.
+    /// Checks whether the option is a <see cref="None{T}" />, or its contained
+    /// value satisfies <paramref name="predicate" />.
     /// </summary>
-    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <param name="predicate">
+    /// The condition the contained value must satisfy. It is not invoked on a
+    /// <see cref="None{T}" />.
+    /// </param>
     public abstract bool IsNoneOr(Func<T, bool> predicate);
 
     /// <summary>
-    /// Returns <see langword="true" /> if the option is a
-    /// <see cref="None{T}" /> or the value inside of it matches a predicate
-    /// that takes state instead of capturing it.
+    /// Checks whether the option is a <see cref="None{T}" />, or its contained
+    /// value satisfies <paramref name="predicate" />, with state passed to the
+    /// delegate rather than captured by it.
     /// </summary>
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
@@ -122,7 +128,10 @@ public abstract partial record Option<T> where T : notnull
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="predicate">The condition to evaluate the option against</param>
+    /// <param name="predicate">
+    /// The condition the contained value must satisfy. It is not invoked on a
+    /// <see cref="None{T}" />.
+    /// </param>
     /// <typeparam name="TState">
     /// The type of the state passed to the predicate. It is unconstrained, so a
     /// null state is permitted.
@@ -136,9 +145,8 @@ public abstract partial record Option<T> where T : notnull
     /// value satisfies an asynchronous condition.
     /// </summary>
     /// <remarks>
-    /// The inverse of <see cref="IsSomeAndAsync" /> in the case it lets through
-    /// free: this one treats an absent value as passing, which is what makes it the
-    /// right shape for a validation that only rejects a value it actually has.
+    /// The inverse of <see cref="IsSomeAndAsync" />: an absent value passes here
+    /// rather than failing.
     /// </remarks>
     /// <param name="predicate">
     /// The condition to evaluate the contained value against. It is not invoked on
@@ -199,9 +207,10 @@ public abstract partial record Option<T> where T : notnull
         Func<TState, TOut> onNone);
 
     /// <summary>
-    /// Performs a <see langword="switch" /> on the option, invoking the
-    /// <paramref name="onSome" /> callback when it is a <see cref="Some{T}" /> and the
-    /// <paramref name="onNone" /> callback when it is a  <see cref="None{T}" />.
+    /// Performs a <see langword="switch" /> on the option for its side effect,
+    /// invoking the <paramref name="onSome" /> callback when it is a
+    /// <see cref="Some{T}" /> and the <paramref name="onNone" /> callback when it
+    /// is a <see cref="None{T}" />.
     /// </summary>
     /// <param name="onSome">A callback for handling the <see cref="Some{T}" /> case.</param>
     /// <param name="onNone">A callback for handling the <see cref="None{T}" /> case.</param>
@@ -327,21 +336,16 @@ public abstract partial record Option<T> where T : notnull
         Func<Task> onNone);
 
     /// <summary>
-    /// Returns the contained <see cref="Some{T}" /> value, consuming the
-    /// <see cref="Option{T}" />.
+    /// Returns the contained <see cref="Some{T}" /> value.
     /// </summary>
-    /// <param name="message">A custom exception message</param>
+    /// <param name="message">The exception message to use on a <see cref="None{T}" />.</param>
     /// <exception cref="UnmetExpectationException">
-    /// Thrown if the value is a
-    /// <see cref="None{T}" /> with a custom message provided by
-    /// <paramref name="message" />
+    /// Thrown when the option is a <see cref="None{T}" />, with
+    /// <paramref name="message" /> as the exception's message.
     /// </exception>
     public abstract T Expect(string message);
 
-    /// <summary>
-    /// Returns the contained <see cref="Some{T}" /> value, consuming the
-    /// <see cref="Option{T}" />.
-    /// </summary>
+    /// <summary>Returns the contained <see cref="Some{T}" /> value.</summary>
     /// <remarks>
     /// Throws on a <see cref="None{T}" />, so prefer a member that cannot:
     /// <see cref="Match{TOut}(Func{T,TOut},Func{TOut})" /> to handle both cases
@@ -350,8 +354,7 @@ public abstract partial record Option<T> where T : notnull
     /// <see cref="UnwrapOrDefault" /> to supply a fallback.
     /// </remarks>
     /// <exception cref="UnwrapException">
-    /// Throws if the option equals
-    /// <see cref="None{T}" />
+    /// Thrown when the option is a <see cref="None{T}" />.
     /// </exception>
     public abstract T Unwrap();
 
@@ -360,7 +363,7 @@ public abstract partial record Option<T> where T : notnull
     /// default.
     /// </summary>
     /// <param name="value">
-    /// The default value to return on a <see cref="None{T}" />
+    /// The default value to return on a <see cref="None{T}" />.
     /// </param>
     public abstract T UnwrapOr(T value);
 
@@ -441,9 +444,8 @@ public abstract partial record Option<T> where T : notnull
     public abstract Option<TOut> Map<TOut>(Func<T, TOut> map) where TOut : notnull;
 
     /// <summary>
-    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c> by
-    /// applying a function to a contained value (if <see cref="Some{T}" />) or returns
-    /// <see cref="None{T}" /> (if <see cref="None{T}" />).
+    /// Maps an <c>Option&lt;T&gt;</c> to an <c>Option&lt;TOut&gt;</c>, with state
+    /// passed to the map function rather than captured by it.
     /// </summary>
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
@@ -451,9 +453,9 @@ public abstract partial record Option<T> where T : notnull
     /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
     /// <c>With</c> rather than this overload.
     /// </remarks>
-    /// <param name="state">The value passed to the map function.</param>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <param name="state">The value passed to <paramref name="map" />.</param>
+    /// <param name="map">Transforms the contained value with the state.</param>
+    /// <typeparam name="TState">The type of the state passed to <paramref name="map" />.</typeparam>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="map" /> returns null. See the remarks on
@@ -612,7 +614,8 @@ public abstract partial record Option<T> where T : notnull
 
     /// <summary>
     /// Returns the provided default result (if <see cref="None{T}" />), or
-    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// applies a function to the contained value (if <see cref="Some{T}" />),
+    /// with state passed to the map function rather than captured by it.
     /// </summary>
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
@@ -620,10 +623,10 @@ public abstract partial record Option<T> where T : notnull
     /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
     /// <c>With</c> rather than this overload.
     /// </remarks>
-    /// <param name="state">The value passed to the map function.</param>
+    /// <param name="state">The value passed to <paramref name="map" />.</param>
     /// <param name="defaultValue">The default value for a <see cref="None{T}" />.</param>
-    /// <param name="map">The map function.</param>
-    /// <typeparam name="TState">The type of the state passed to the map function.</typeparam>
+    /// <param name="map">Transforms the contained value with the state.</param>
+    /// <typeparam name="TState">The type of the state passed to <paramref name="map" />.</typeparam>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
     public abstract TOut MapOr<TState, TOut>(
         TState state,
@@ -716,11 +719,9 @@ public abstract partial record Option<T> where T : notnull
     /// <see cref="None{T}" />.
     /// </summary>
     /// <remarks>
-    /// The bridge out of <see cref="Option{T}" /> into <see cref="Nullable{T}" />,
-    /// for handing a value to an API that speaks the latter.
-    /// <typeparamref name="TOut" /> is constrained to a value type precisely so
-    /// that null cannot also be a mapped result, which is what keeps the return
-    /// unambiguous.
+    /// For passing the result to an API that expects <see cref="Nullable{T}" />.
+    /// <typeparamref name="TOut" /> is constrained to a value type so that null
+    /// cannot also be a mapped result, which keeps the return unambiguous.
     /// </remarks>
     /// <param name="map">
     /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
@@ -792,20 +793,20 @@ public abstract partial record Option<T> where T : notnull
 
     /// <summary>
     /// Computes a default from a function (if <see cref="None{T}" />), or
-    /// applies a function to the contained value (if <see cref="Some{T}" />).
+    /// applies a function to the contained value (if <see cref="Some{T}" />),
+    /// with state passed to both delegates rather than captured by them.
     /// </summary>
     /// <remarks>
-    /// Handing the <paramref name="state" /> to the delegate rather than
-    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// Handing the <paramref name="state" /> to the delegates rather than
+    /// capturing it lets them be <see langword="static" />, so the call
     /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
     /// <c>With</c> rather than this overload.
     /// </remarks>
     /// <param name="state">The value passed to both functions.</param>
     /// <param name="defaultFactory">
-    /// The function that will create a default value for a
-    /// <see cref="None{T}" />.
+    /// Produces the default value for a <see cref="None{T}" /> from the state.
     /// </param>
-    /// <param name="map">The map function.</param>
+    /// <param name="map">Transforms the contained value with the state.</param>
     /// <typeparam name="TState">The type of the state passed to both functions.</typeparam>
     /// <typeparam name="TOut">The return type of the map function.</typeparam>
     public abstract TOut MapOrElse<TState, TOut>(
@@ -865,11 +866,10 @@ public abstract partial record Option<T> where T : notnull
         Func<T, TOut> map);
 
     /// <summary>
-    /// Calls a function with a reference to the contained value if
-    /// <see cref="Some{T}" />
+    /// Calls a function with the contained value if <see cref="Some{T}" />.
     /// </summary>
     /// <param name="action">The function to execute against the value.</param>
-    /// <returns>The original <see cref="Option{T}" /></returns>
+    /// <returns>The original <see cref="Option{T}" />, unchanged.</returns>
     public abstract Option<T> Inspect(Action<T> action);
 
     /// <summary>
@@ -914,19 +914,9 @@ public abstract partial record Option<T> where T : notnull
 
     /// <summary>
     /// Returns <see cref="None{T}" /> if the option is <see cref="None{T}" />,
-    /// otherwise calls the <paramref name="predicate" /> with the wrapped value and
-    /// returns:
-    /// <list type="bullet">
-    /// <item>
-    /// <see cref="Some{T}" /> if the <paramref name="predicate" /> returns
-    /// <see langword="true" /> (where <typeparamref name="T" /> is the wrapped value),
-    /// and
-    /// </item>
-    /// <item>
-    /// <see cref="None{T}" /> if the <paramref name="predicate" /> returns
-    /// <see langword="false" />.
-    /// </item>
-    /// </list>
+    /// otherwise calls <paramref name="predicate" /> with the wrapped value,
+    /// returning <see cref="Some{T}" /> when it returns <see langword="true" />
+    /// and <see cref="None{T}" /> when it returns <see langword="false" />.
     /// </summary>
     /// <param name="predicate">The filter function.</param>
     public abstract Option<T> Filter(Func<T, bool> predicate);
@@ -968,7 +958,7 @@ public abstract partial record Option<T> where T : notnull
 
     /// <summary>
     /// Returns the option if it contains a value, otherwise returns
-    /// <paramref name="other" />
+    /// <paramref name="other" />.
     /// </summary>
     /// <param name="other">The other option.</param>
     public abstract Option<T> Or(Option<T> other);
@@ -1019,7 +1009,7 @@ public abstract partial record Option<T> where T : notnull
     /// </remarks>
     /// <param name="optionFactory">
     /// Produces the fallback option. It is not invoked on a
-    /// <see cref="Some{T}" />, so a present value costs no await.
+    /// <see cref="Some{T}" />.
     /// </param>
     /// <returns>
     /// This option if it is a <see cref="Some{T}" />, otherwise whatever
@@ -1057,7 +1047,10 @@ public abstract partial record Option<T> where T : notnull
     /// <typeparam name="TOther">The type of the value contained in the other option.</typeparam>
     /// <typeparam name="TOut">The output value's type.</typeparam>
     /// <param name="other">The option to zip.</param>
-    /// <param name="zip">The function that will perform the zip operation.</param>
+    /// <param name="zip">
+    /// Combines the two contained values. It is invoked only when both options
+    /// are a <see cref="Some{T}" />.
+    /// </param>
     /// <returns>
     /// If the current option is <see cref="Some{T}" /> and
     /// <paramref name="other" /> is <see cref="Some{T}" />, this method returns
@@ -1123,14 +1116,14 @@ public abstract partial record Option<T> where T : notnull
     /// <paramref name="zip" /> against both contained values.
     /// </summary>
     /// <remarks>
-    /// Both options must hold a value. Where a single <see cref="Some{T}" /> should
-    /// survive the other side being absent, use <see cref="ReduceAsync" /> instead.
+    /// Both options must hold a value. Use <see cref="ReduceAsync" /> instead when a
+    /// single <see cref="Some{T}" /> should be returned unchanged rather than
+    /// discarded when the other side is absent.
     /// </remarks>
     /// <param name="other">The option to combine with.</param>
     /// <param name="zip">
     /// Combines the two contained values. It is invoked only when both options are a
-    /// <see cref="Some{T}" />, so a <see cref="None{T}" /> on either side costs no
-    /// await.
+    /// <see cref="Some{T}" />.
     /// </param>
     /// <typeparam name="TOther">The value type of the other option.</typeparam>
     /// <typeparam name="TOut">The type the delegate produces.</typeparam>
@@ -1153,7 +1146,8 @@ public abstract partial record Option<T> where T : notnull
     /// <summary>Merges the current option with another option.</summary>
     /// <remarks>
     /// Unlike <see cref="ZipWith{TOther,TOut}" />, an option that is a
-    /// <see cref="Some{T}" /> survives a <see cref="None{T}" /> on the other side.
+    /// <see cref="Some{T}" /> is returned unchanged when the other side is a
+    /// <see cref="None{T}" />.
     /// </remarks>
     /// <param name="other">The option to merge with.</param>
     /// <param name="reduce">The function that combines two present values.</param>
@@ -1217,8 +1211,8 @@ public abstract partial record Option<T> where T : notnull
     /// <paramref name="reduce" /> only when both hold a value.
     /// </summary>
     /// <remarks>
-    /// Unlike <c>ZipWithAsync</c>, a <see cref="Some{T}" /> survives a
-    /// <see cref="None{T}" /> on the other side and is returned unchanged, so the
+    /// Unlike <c>ZipWithAsync</c>, a <see cref="Some{T}" /> on either side is
+    /// returned unchanged when the other is a <see cref="None{T}" />, so the
     /// delegate runs only when there are genuinely two values to combine.
     /// </remarks>
     /// <param name="other">The option to merge with.</param>
@@ -1241,7 +1235,7 @@ public abstract partial record Option<T> where T : notnull
         Option<T> other,
         Func<T, T, Task<T>> reduce);
 
-    /// <summary>Returns a sequence over the possibly contained value.</summary>
+    /// <summary>Returns a sequence over the contained value, if any.</summary>
     /// <returns>
     /// A sequence yielding the contained value once if the option is a
     /// <see cref="Some{T}" />, otherwise an empty sequence.
@@ -1278,14 +1272,11 @@ public abstract partial record Option<T> where T : notnull
     /// <see cref="Err{TOk, TErr}" />.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="errorFactory" /> is lazily evaluated, meaning it
-    /// will only be invoked if the current option is a <see cref="None{T}" />.
+    /// <paramref name="errorFactory" /> is invoked only when the option is a
+    /// <see cref="None{T}" />.
     /// </remarks>
     /// <typeparam name="TErr">The type of the error value returned by the factory.</typeparam>
-    /// <param name="errorFactory">
-    /// The function, which when invoked, will return the
-    /// error value.
-    /// </param>
+    /// <param name="errorFactory">Produces the error for a <see cref="None{T}" />.</param>
     /// <returns>
     /// An <see cref="Ok{TOk, TErr}" /> if the current option is a
     /// <see cref="Some{T}" />, otherwise an <see cref="Err{TOk, TErr}" />.
@@ -1313,8 +1304,7 @@ public abstract partial record Option<T> where T : notnull
     /// unchanged and is never inspected.
     /// </param>
     /// <param name="errorFactory">
-    /// The function, which when invoked with the state, will return the error
-    /// value.
+    /// Produces the error for a <see cref="None{T}" /> from the state.
     /// </param>
     /// <typeparam name="TState">
     /// The type of the state passed to the factory. It is unconstrained, so a
@@ -1335,7 +1325,7 @@ public abstract partial record Option<T> where T : notnull
     /// </summary>
     /// <param name="errorFactory">
     /// Produces the error for a <see cref="None{T}" />. It is not invoked on a
-    /// <see cref="Some{T}" />, so a present value costs no await.
+    /// <see cref="Some{T}" />.
     /// </param>
     /// <typeparam name="TErr">The error type of the result produced.</typeparam>
     /// <returns>
