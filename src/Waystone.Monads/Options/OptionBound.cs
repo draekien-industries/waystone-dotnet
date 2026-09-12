@@ -582,6 +582,87 @@ public abstract partial record Option<T> where T : notnull
                 : new ValueTask<TOut>(onNone(_state));
 
         /// <summary>
+        /// Awaits whichever branch the option selects for its side effect alone,
+        /// handing the bound state to both.
+        /// </summary>
+        /// <remarks>
+        /// The counterpart of
+        /// <see cref="Match(Action{T,TState},Action{TState})" /> for work that has
+        /// no result to return. Prefer the value-producing overload wherever one
+        /// can be produced, since a side effect is harder to test than a return.
+        /// </remarks>
+        /// <param name="onSome">
+        /// Handles the contained value and the bound state.
+        /// </param>
+        /// <param name="onNone">
+        /// Handles the bound state alone, there being no contained value to hand
+        /// it.
+        /// </param>
+        public ValueTask MatchAsync(
+            Func<T, TState, Task> onSome,
+            Func<TState, Task> onNone) =>
+            Source is Some<T> some
+                ? new ValueTask(onSome(some.Value, _state))
+                : new ValueTask(onNone(_state));
+
+        /// <summary>
+        /// Awaits the side effect for a contained value, running the one for an
+        /// absent value without awaiting.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="None{T}" /> completes synchronously, and neither branch
+        /// builds a state machine.
+        /// </remarks>
+        /// <param name="onSome">
+        /// Handles the contained value and the bound state, as work worth
+        /// awaiting.
+        /// </param>
+        /// <param name="onNone">
+        /// Handles the bound state alone, without awaiting.
+        /// </param>
+        public ValueTask MatchAsync(
+            Func<T, TState, Task> onSome,
+            Action<TState> onNone)
+        {
+            if (Source is Some<T> some)
+            {
+                return new ValueTask(onSome(some.Value, _state));
+            }
+
+            onNone(_state);
+
+            return default;
+        }
+
+        /// <summary>
+        /// Awaits the side effect for an absent value, running the one for a
+        /// contained value without awaiting.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="Some{T}" /> completes synchronously, and neither branch
+        /// builds a state machine.
+        /// </remarks>
+        /// <param name="onSome">
+        /// Handles the contained value and the bound state, without awaiting.
+        /// </param>
+        /// <param name="onNone">
+        /// Handles the bound state alone, as work worth awaiting.
+        /// </param>
+        public ValueTask MatchAsync(
+            Action<T, TState> onSome,
+            Func<TState, Task> onNone)
+        {
+            if (Source is Some<T> some)
+            {
+                onSome(some.Value, _state);
+
+                return default;
+            }
+
+            return new ValueTask(onNone(_state));
+        }
+
+        /// <summary>
         /// Returns the contained value, awaiting a replacement built from the
         /// bound state when there is none.
         /// </summary>

@@ -35,6 +35,9 @@ public class ClosedHierarchyTests
                 public override ValueTask<TOut> MatchAsync<TOut>(Func<T, Task<TOut>> onSome, Func<Task<TOut>> onNone) => throw new Exception();
                 public override ValueTask<TOut> MatchAsync<TOut>(Func<T, TOut> onSome, Func<Task<TOut>> onNone) => throw new Exception();
                 public override ValueTask<TOut> MatchAsync<TOut>(Func<T, Task<TOut>> onSome, Func<TOut> onNone) => throw new Exception();
+                public override ValueTask MatchAsync(Func<T, Task> onSome, Func<Task> onNone) => throw new Exception();
+                public override ValueTask MatchAsync(Func<T, Task> onSome, Action onNone) => throw new Exception();
+                public override ValueTask MatchAsync(Action<T> onSome, Func<Task> onNone) => throw new Exception();
                 public override T Expect(string message) => throw new Exception();
                 public override T Unwrap() => throw new Exception();
                 public override T UnwrapOr(T value) => value;
@@ -117,6 +120,8 @@ public class ClosedHierarchyTests
                 public override void Match(Action<TOk> onOk, Action<TErr> onErr) => throw new Exception();
                 public override void Match<TState>(TState state, Action<TOk, TState> onOk, Action<TErr, TState> onErr) => throw new Exception();
                 public override ValueTask<TOut> MatchAsync<TOut>(Func<TOk, Task<TOut>> onOk, Func<TErr, Task<TOut>> onErr) => throw new Exception();
+                public override ValueTask<TOut> MatchAsync<TOut>(Func<TOk, Task<TOut>> onOk, Func<TErr, TOut> onErr) => throw new Exception();
+                public override ValueTask<TOut> MatchAsync<TOut>(Func<TOk, TOut> onOk, Func<TErr, Task<TOut>> onErr) => throw new Exception();
                 public override ValueTask MatchAsync(Func<TOk, Task> onOk, Func<TErr, Task> onErr) => throw new Exception();
                 public override ValueTask MatchAsync(Func<TOk, Task> onOk, Action<TErr> onErr) => throw new Exception();
                 public override ValueTask MatchAsync(Action<TOk> onOk, Func<TErr, Task> onErr) => throw new Exception();

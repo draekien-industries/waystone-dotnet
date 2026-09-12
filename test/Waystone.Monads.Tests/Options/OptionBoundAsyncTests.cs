@@ -240,6 +240,122 @@ public sealed class OptionBoundAsyncTests
         fromNone.ShouldBe(["none"]);
     }
 
+    /// <remarks>
+    /// The void-returning binder shapes arrived with the core ones in DRA-211,
+    /// in the same layer rather than after it — <c>BinderShapeCompletenessTests</c>
+    /// fails on a core shape whose twin is missing, so the two cannot be split
+    /// across changes.
+    /// </remarks>
+    [Fact]
+    public async Task TheSideEffectMatchAsyncRunsOnlyTheBranchSelected()
+    {
+        var fromSome = new List<string>();
+
+        await SomeTwo.With(fromSome)
+                     .MatchAsync(
+                          static (v, s) =>
+                          {
+                              s.Add($"some:{v}");
+
+                              return Task.CompletedTask;
+                          },
+                          static s =>
+                          {
+                              s.Add("none");
+
+                              return Task.CompletedTask;
+                          });
+
+        fromSome.ShouldBe(["some:2"]);
+
+        var fromNone = new List<string>();
+
+        await NoneInt.With(fromNone)
+                     .MatchAsync(
+                          static (v, s) =>
+                          {
+                              s.Add($"some:{v}");
+
+                              return Task.CompletedTask;
+                          },
+                          static s =>
+                          {
+                              s.Add("none");
+
+                              return Task.CompletedTask;
+                          });
+
+        fromNone.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task TheSideEffectMatchAsyncAwaitsSomeAndCompletesNoneSynchronously()
+    {
+        var fromSome = new List<string>();
+
+        await SomeTwo.With(fromSome)
+                     .MatchAsync(
+                          static (v, s) =>
+                          {
+                              s.Add($"some:{v}");
+
+                              return Task.CompletedTask;
+                          },
+                          static s => s.Add("none"));
+
+        fromSome.ShouldBe(["some:2"]);
+
+        var fromNone = new List<string>();
+
+        ValueTask none = NoneInt.With(fromNone)
+                                .MatchAsync(
+                                     static (v, s) =>
+                                     {
+                                         s.Add($"some:{v}");
+
+                                         return Task.CompletedTask;
+                                     },
+                                     static s => s.Add("none"));
+
+        none.IsCompleted.ShouldBeTrue();
+        await none;
+        fromNone.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task TheSideEffectMatchAsyncAwaitsNoneAndCompletesSomeSynchronously()
+    {
+        var fromSome = new List<string>();
+
+        ValueTask some = SomeTwo.With(fromSome)
+                                .MatchAsync(
+                                     static (v, s) => s.Add($"some:{v}"),
+                                     static s =>
+                                     {
+                                         s.Add("none");
+
+                                         return Task.CompletedTask;
+                                     });
+
+        some.IsCompleted.ShouldBeTrue();
+        await some;
+        fromSome.ShouldBe(["some:2"]);
+
+        var fromNone = new List<string>();
+
+        await NoneInt.With(fromNone)
+                     .MatchAsync(
+                          static (v, s) => s.Add($"some:{v}"),
+                          static s =>
+                          {
+                              s.Add("none");
+
+                              return Task.CompletedTask;
+                          });
+
+        fromNone.ShouldBe(["none"]);
+    }
+
     [Fact]
     public async Task UnwrapOrElseAsyncAwaitsTheFactoryOnlyForNone()
     {

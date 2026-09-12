@@ -141,6 +141,28 @@ public sealed record Some<T> : Option<T>
         await onSome(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
+    public override async ValueTask MatchAsync(
+        Func<T, Task> onSome,
+        Func<Task> onNone) =>
+        await onSome(Value).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public override async ValueTask MatchAsync(
+        Func<T, Task> onSome,
+        Action onNone) =>
+        await onSome(Value).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public override ValueTask MatchAsync(
+        Action<T> onSome,
+        Func<Task> onNone)
+    {
+        onSome(Value);
+
+        return default;
+    }
+
+    /// <inheritdoc />
     public override T Expect(string message) =>
         Value;
 

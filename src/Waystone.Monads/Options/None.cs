@@ -104,6 +104,28 @@ public sealed record None<T> : Option<T>
         new ValueTask<TOut>(onNone());
 
     /// <inheritdoc />
+    public override async ValueTask MatchAsync(
+        Func<T, Task> onSome,
+        Func<Task> onNone) =>
+        await onNone().ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public override ValueTask MatchAsync(
+        Func<T, Task> onSome,
+        Action onNone)
+    {
+        onNone();
+
+        return default;
+    }
+
+    /// <inheritdoc />
+    public override async ValueTask MatchAsync(
+        Action<T> onSome,
+        Func<Task> onNone) =>
+        await onNone().ConfigureAwait(false);
+
+    /// <inheritdoc />
     public override T Expect(string message) =>
         throw new UnmetExpectationException(message);
 
