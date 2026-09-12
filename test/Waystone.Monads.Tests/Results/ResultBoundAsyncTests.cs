@@ -165,6 +165,88 @@ public sealed class ResultBoundAsyncTests
         fromErr.ShouldBe(["err:bad"]);
     }
 
+    /// <remarks>
+    /// The mixed overloads exist because WM2017 rewrites a capturing call to the
+    /// binder without changing the member name, so every shape
+    /// <see cref="Result{TOk,TErr}" /> declares needs one here or the fix it
+    /// offers does not compile. Before DRA-211 only the both-asynchronous forms
+    /// existed.
+    /// <para>
+    /// The branch that does not await is asserted through
+    /// <see cref="ValueTask.IsCompleted" /> before the call is awaited, which
+    /// pins what the summary promises — that case completes synchronously.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public async Task TheSideEffectMatchAsyncAwaitsOkAndCompletesErrSynchronously()
+    {
+        var fromOk = new List<string>();
+
+        ValueTask ok = OkTwo.With(fromOk)
+                            .MatchAsync(
+                                 static (v, s) =>
+                                 {
+                                     s.Add($"ok:{v}");
+
+                                     return Task.CompletedTask;
+                                 },
+                                 static (e, s) => s.Add($"err:{e}"));
+
+        await ok;
+        fromOk.ShouldBe(["ok:2"]);
+
+        var fromErr = new List<string>();
+
+        ValueTask err = ErrBad.With(fromErr)
+                              .MatchAsync(
+                                   static (v, s) =>
+                                   {
+                                       s.Add($"ok:{v}");
+
+                                       return Task.CompletedTask;
+                                   },
+                                   static (e, s) => s.Add($"err:{e}"));
+
+        err.IsCompleted.ShouldBeTrue();
+        await err;
+        fromErr.ShouldBe(["err:bad"]);
+    }
+
+    [Fact]
+    public async Task TheSideEffectMatchAsyncAwaitsErrAndCompletesOkSynchronously()
+    {
+        var fromOk = new List<string>();
+
+        ValueTask ok = OkTwo.With(fromOk)
+                            .MatchAsync(
+                                 static (v, s) => s.Add($"ok:{v}"),
+                                 static (e, s) =>
+                                 {
+                                     s.Add($"err:{e}");
+
+                                     return Task.CompletedTask;
+                                 });
+
+        ok.IsCompleted.ShouldBeTrue();
+        await ok;
+        fromOk.ShouldBe(["ok:2"]);
+
+        var fromErr = new List<string>();
+
+        ValueTask err = ErrBad.With(fromErr)
+                              .MatchAsync(
+                                   static (v, s) => s.Add($"ok:{v}"),
+                                   static (e, s) =>
+                                   {
+                                       s.Add($"err:{e}");
+
+                                       return Task.CompletedTask;
+                                   });
+
+        await err;
+        fromErr.ShouldBe(["err:bad"]);
+    }
+
     [Fact]
     public async Task AndThenAsyncAppliesTheStateAndLeavesAnErrorAlone()
     {
@@ -466,6 +548,96 @@ public sealed class ResultBoundAsyncTests
                                    });
 
         err.ShouldBe(3);
+        fromErr.ShouldBe(["default:bad"]);
+    }
+
+    [Fact]
+    public async Task MapOrElseAsyncAwaitsTheMapAndCompletesTheFallbackSynchronously()
+    {
+        var fromOk = new List<string>();
+
+        ValueTask<int> ok = OkTwo.With(fromOk)
+                                 .MapOrElseAsync(
+                                      static (e, s) =>
+                                      {
+                                          s.Add($"default:{e}");
+
+                                          return -1;
+                                      },
+                                      static (v, s) =>
+                                      {
+                                          s.Add($"map:{v}");
+
+                                          return Task.FromResult(v);
+                                      });
+
+        (await ok).ShouldBe(2);
+        fromOk.ShouldBe(["map:2"]);
+
+        var fromErr = new List<string>();
+
+        ValueTask<int> err = ErrBad.With(fromErr)
+                                   .MapOrElseAsync(
+                                        static (e, s) =>
+                                        {
+                                            s.Add($"default:{e}");
+
+                                            return e.Length;
+                                        },
+                                        static (v, s) =>
+                                        {
+                                            s.Add($"map:{v}");
+
+                                            return Task.FromResult(v);
+                                        });
+
+        err.IsCompleted.ShouldBeTrue();
+        (await err).ShouldBe(3);
+        fromErr.ShouldBe(["default:bad"]);
+    }
+
+    [Fact]
+    public async Task MapOrElseAsyncAwaitsTheFallbackAndCompletesTheMapSynchronously()
+    {
+        var fromOk = new List<string>();
+
+        ValueTask<int> ok = OkTwo.With(fromOk)
+                                 .MapOrElseAsync(
+                                      static (e, s) =>
+                                      {
+                                          s.Add($"default:{e}");
+
+                                          return Task.FromResult(-1);
+                                      },
+                                      static (v, s) =>
+                                      {
+                                          s.Add($"map:{v}");
+
+                                          return v;
+                                      });
+
+        ok.IsCompleted.ShouldBeTrue();
+        (await ok).ShouldBe(2);
+        fromOk.ShouldBe(["map:2"]);
+
+        var fromErr = new List<string>();
+
+        ValueTask<int> err = ErrBad.With(fromErr)
+                                   .MapOrElseAsync(
+                                        static (e, s) =>
+                                        {
+                                            s.Add($"default:{e}");
+
+                                            return Task.FromResult(e.Length);
+                                        },
+                                        static (v, s) =>
+                                        {
+                                            s.Add($"map:{v}");
+
+                                            return v;
+                                        });
+
+        (await err).ShouldBe(3);
         fromErr.ShouldBe(["default:bad"]);
     }
 

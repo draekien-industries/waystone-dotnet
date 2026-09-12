@@ -137,6 +137,109 @@ public sealed class OptionBoundAsyncTests
         fromNone.ShouldBe(["none"]);
     }
 
+    /// <remarks>
+    /// The mixed overloads exist because WM2017 rewrites a capturing call to the
+    /// binder without changing the member name, so every shape
+    /// <see cref="Option{T}" /> declares needs one here or the fix it offers does
+    /// not compile. Before DRA-211 only the both-asynchronous form existed.
+    /// <para>
+    /// The branch that does not await is asserted through
+    /// <see cref="ValueTask{TResult}.IsCompleted" /> before the result is read,
+    /// which pins what the summary promises — that case completes synchronously.
+    /// Reading the value first would await the completion into existence and
+    /// assert nothing.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public async Task MatchAsyncAwaitsTheSomeBranchAndCompletesNoneSynchronously()
+    {
+        var fromSome = new List<string>();
+
+        ValueTask<int> some = SomeTwo.With(fromSome)
+                                     .MatchAsync(
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"some:{v}");
+
+                                              return Task.FromResult(v);
+                                          },
+                                          static s =>
+                                          {
+                                              s.Add("none");
+
+                                              return -1;
+                                          });
+
+        (await some).ShouldBe(2);
+        fromSome.ShouldBe(["some:2"]);
+
+        var fromNone = new List<string>();
+
+        ValueTask<int> none = NoneInt.With(fromNone)
+                                     .MatchAsync(
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"some:{v}");
+
+                                              return Task.FromResult(v);
+                                          },
+                                          static s =>
+                                          {
+                                              s.Add("none");
+
+                                              return -1;
+                                          });
+
+        none.IsCompleted.ShouldBeTrue();
+        (await none).ShouldBe(-1);
+        fromNone.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task MatchAsyncAwaitsTheNoneBranchAndCompletesSomeSynchronously()
+    {
+        var fromSome = new List<string>();
+
+        ValueTask<int> some = SomeTwo.With(fromSome)
+                                     .MatchAsync(
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"some:{v}");
+
+                                              return v;
+                                          },
+                                          static s =>
+                                          {
+                                              s.Add("none");
+
+                                              return Task.FromResult(-1);
+                                          });
+
+        some.IsCompleted.ShouldBeTrue();
+        (await some).ShouldBe(2);
+        fromSome.ShouldBe(["some:2"]);
+
+        var fromNone = new List<string>();
+
+        ValueTask<int> none = NoneInt.With(fromNone)
+                                     .MatchAsync(
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"some:{v}");
+
+                                              return v;
+                                          },
+                                          static s =>
+                                          {
+                                              s.Add("none");
+
+                                              return Task.FromResult(-1);
+                                          });
+
+        (await none).ShouldBe(-1);
+        fromNone.ShouldBe(["none"]);
+    }
+
     [Fact]
     public async Task UnwrapOrElseAsyncAwaitsTheFactoryOnlyForNone()
     {
@@ -436,6 +539,96 @@ public sealed class OptionBoundAsyncTests
                                      });
 
         none.ShouldBe(-1);
+        fromNone.ShouldBe(["default"]);
+    }
+
+    [Fact]
+    public async Task MapOrElseAsyncAwaitsTheMapAndCompletesTheFallbackSynchronously()
+    {
+        var fromSome = new List<string>();
+
+        ValueTask<int> some = SomeTwo.With(fromSome)
+                                     .MapOrElseAsync(
+                                          static s =>
+                                          {
+                                              s.Add("default");
+
+                                              return -1;
+                                          },
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"map:{v}");
+
+                                              return Task.FromResult(v);
+                                          });
+
+        (await some).ShouldBe(2);
+        fromSome.ShouldBe(["map:2"]);
+
+        var fromNone = new List<string>();
+
+        ValueTask<int> none = NoneInt.With(fromNone)
+                                     .MapOrElseAsync(
+                                          static s =>
+                                          {
+                                              s.Add("default");
+
+                                              return -1;
+                                          },
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"map:{v}");
+
+                                              return Task.FromResult(v);
+                                          });
+
+        none.IsCompleted.ShouldBeTrue();
+        (await none).ShouldBe(-1);
+        fromNone.ShouldBe(["default"]);
+    }
+
+    [Fact]
+    public async Task MapOrElseAsyncAwaitsTheFallbackAndCompletesTheMapSynchronously()
+    {
+        var fromSome = new List<string>();
+
+        ValueTask<int> some = SomeTwo.With(fromSome)
+                                     .MapOrElseAsync(
+                                          static s =>
+                                          {
+                                              s.Add("default");
+
+                                              return Task.FromResult(-1);
+                                          },
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"map:{v}");
+
+                                              return v;
+                                          });
+
+        some.IsCompleted.ShouldBeTrue();
+        (await some).ShouldBe(2);
+        fromSome.ShouldBe(["map:2"]);
+
+        var fromNone = new List<string>();
+
+        ValueTask<int> none = NoneInt.With(fromNone)
+                                     .MapOrElseAsync(
+                                          static s =>
+                                          {
+                                              s.Add("default");
+
+                                              return Task.FromResult(-1);
+                                          },
+                                          static (v, s) =>
+                                          {
+                                              s.Add($"map:{v}");
+
+                                              return v;
+                                          });
+
+        (await none).ShouldBe(-1);
         fromNone.ShouldBe(["default"]);
     }
 

@@ -200,10 +200,49 @@ private static async ValueTask<bool> Awaited(Task<bool> task) =>
 **The rule for which members convert is mechanical: count the awaits.** One await
 means a branch returns without awaiting, and it converts. Two awaits means both
 branches build a machine anyway, so converting buys nothing and only adds an
-indirection — `MatchAsync` and `MapOrElseAsync` on both binders stay `async` for that
-reason, and the file reads as inconsistent until you know this. `AndThenAsync` and
-`OrElseAsync` do best of all: their delegates return `ValueTask`, so the awaiting
-branch returns it straight through and neither branch builds a machine.
+indirection. `AndThenAsync` and `OrElseAsync` do best of all: their delegates return
+`ValueTask`, so the awaiting branch returns it straight through and neither branch
+builds a machine.
+
+**Count per overload, not per member.** `MatchAsync` and `MapOrElseAsync` are where
+this bites: their both-asynchronous overloads await twice and keep `async`, while the
+mixed ones DRA-211 added await once and drop it. So the two forms sit adjacent in the
+file, spelled differently, and the difference is the rule applying — not drift. Read
+the delegate types before concluding one of them is wrong.
+
+**A one-await branch does not need the helper either — wrap the task.** `Awaited`
+exists to move the `await` off the outer method, but `new ValueTask<T>(task)` removes
+it altogether, which is the same trick `AndThenAsync` gets for free from a delegate
+that already returns `ValueTask`. Measured on an incomplete task, 100k calls:
+
+```
+Awaited(task)             136.0 bytes per call
+new ValueTask<int>(task)   16.0 bytes per call
+```
+
+The 120 bytes are the async state machine box. The two are otherwise
+indistinguishable — same `IsCompleted`, same result, and the same exception timing
+in both of the cases that get confused for each other:
+
+| What fails | `Awaited` | wrapped |
+| --- | --- | --- |
+| Delegate throws *before* returning its task | at the call | at the call |
+| Delegate returns an already-faulted task | at the await | at the await |
+
+The eagerness the two `…ThrowsFromTheCall` tests pin is the first row, and neither
+form changes it — the delegate is invoked before either wrapper sees anything. Do not
+read those tests as a claim about the second row; a faulted task surfaces at the await
+under both, and always did.
+
+`ConfigureAwait(false)` inside `Awaited` is not a reason to keep it either. It governs
+that method's own continuation, and the wrap has none; where the *caller* resumes is
+decided by the caller's own await either way.
+
+The mixed overloads DRA-211 added are written this way. **The roughly twenty older
+binder members still call `Awaited` and were not converted here** — that is a uniform
+change wanting its own benchmark run against `artifacts/dra-205/`, not a line in a
+PR about binder shapes. Do not read the mixture as a decision that `Awaited` is
+preferred anywhere; prefer the wrap in anything new.
 
 **It costs no public API.** `async` is not part of a signature, so the conversion
 moved zero baseline rows. Verify with `git diff --stat -- '*PublicAPI*'` rather than
