@@ -99,6 +99,23 @@ public sealed class ResultBoundTests
              .ShouldBe(Result.Ok<int, int>(2));
     }
 
+    /// <remarks>
+    /// The guard is not written here — this overload forwards to
+    /// <c>Result{TOk,TErr}.OrElse{TState,TOut}</c> and inherits it. What the
+    /// test pins is that it still forwards, since an inlined branch would
+    /// compile and lose the guard without failing anything else in this class.
+    /// </remarks>
+    [Fact]
+    public void OrElseThrowsWhenTheStateFactoryProducesANullResult()
+    {
+        ArgumentNullException thrown =
+            Should.Throw<ArgumentNullException>(
+                () => ErrBad.With(10)
+                            .OrElse(static (_, _) => default(Result<int, int>)!));
+
+        thrown.ParamName.ShouldBe("resultFactory");
+    }
+
     [Fact]
     public void UnwrapOrElseBuildsTheFallbackFromTheErrorAndTheState()
     {

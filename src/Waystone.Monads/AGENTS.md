@@ -200,17 +200,20 @@ private static async ValueTask<bool> Awaited(Task<bool> task) =>
 **The rule for which members convert is mechanical: count the awaits.** One await
 means a branch returns without awaiting, and it converts. Two awaits means both
 branches build a machine anyway, so converting buys nothing and only adds an
-indirection. `OrElseAsync` does best of all: its delegate returns `ValueTask`, so the
-awaiting branch returns it straight through and neither branch builds a machine.
+indirection. `AndThenAsync` and `OrElseAsync` did best of all: their delegates return
+`ValueTask`, so the awaiting branch returned it straight through and neither branch
+built a machine.
 
-`AndThenAsync` had that property too until DRA-216 put `Option.NotNullAsync` on its
-result. It keeps it for a step whose task has already completed, which the guard
-unwraps and rewraps synchronously, and pays one machine for a step that has not —
-the cost the non-bound `Some.AndThenAsync` and `Ok.AndThenAsync` already paid, on a
-branch that is awaiting a pending task anyway. **Do not read the loss as a
-regression to undo.** The guard is what turns a factory returning a null monad into
-an `ArgumentNullException` naming the factory, instead of a `NullReferenceException`
-at whatever read the monad next.
+**DRA-216 took half of that back on purpose, and it is not a regression to undo.**
+Both now wrap the delegate's task in `NotNullAsync`, which keeps the property for a
+step whose task has already completed — the guard unwraps and rewraps it
+synchronously — and pays one machine for a step that has not. That is the cost the
+non-bound `Some.AndThenAsync` and `Ok.AndThenAsync` had always paid, on a branch
+already awaiting a pending task, and it buys an `ArgumentNullException` naming the
+factory in place of a `NullReferenceException` at whatever read the monad next.
+
+The short-circuit branch is untouched in all four, so the property the rule above is
+about — no machine on the branch that does not await — still holds everywhere.
 
 **Count per overload, not per member.** `MatchAsync` and `MapOrElseAsync` are where
 this bites: their both-asynchronous overloads await twice and keep `async`, while the

@@ -193,6 +193,11 @@ public abstract partial record Result<TOk, TErr>
         /// The error type of the result <paramref name="resultFactory" />
         /// produces.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="resultFactory" /> returns a null result. A
+        /// recovery that fails again is an <see cref="Err{TOk,TErr}" /> of
+        /// <typeparamref name="TOut" />, so null says nothing the type cannot.
+        /// </exception>
         /// <returns>
         /// The original ok value unchanged, or whatever
         /// <paramref name="resultFactory" /> produced.
@@ -692,6 +697,14 @@ public abstract partial record Result<TOk, TErr>
         /// <typeparam name="TOut">
         /// The error type the produced result carries.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="resultFactory" /> returns a null result. A
+        /// recovery that fails again is an <see cref="Err{TOk,TErr}" /> of the
+        /// new error type, so null is no more meaningful here than anywhere
+        /// else. It is thrown from the call when the factory's task had already
+        /// completed and faults the returned task otherwise, so await the call
+        /// to see it either way.
+        /// </exception>
         /// <returns>
         /// The original ok value, or whatever
         /// <paramref name="resultFactory" /> produced.
@@ -705,7 +718,9 @@ public abstract partial record Result<TOk, TErr>
             return result is Ok<TOk, TErr> ok
                 ? new ValueTask<Result<TOk, TOut>>(
                       Result.Ok<TOk, TOut>(ok.Value))
-                : resultFactory(result.UnwrapErr(), _state);
+                : Result.NotNullAsync(
+                      resultFactory(result.UnwrapErr(), _state),
+                      nameof(resultFactory));
         }
 
         /// <summary>

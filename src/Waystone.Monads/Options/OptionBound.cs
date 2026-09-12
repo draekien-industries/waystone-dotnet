@@ -367,6 +367,11 @@ public abstract partial record Option<T> where T : notnull
         /// there being none to hand it, and is not invoked for a
         /// <see cref="Some{T}" />.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="optionFactory" /> returns a null option. A
+        /// recovery that finds nothing is a <see cref="None{T}" />, so null is
+        /// no more meaningful here than anywhere else.
+        /// </exception>
         /// <returns>
         /// The original option if it held a value, otherwise whatever
         /// <paramref name="optionFactory" /> produced.
@@ -973,6 +978,13 @@ public abstract partial record Option<T> where T : notnull
         /// Produces the replacement from the bound state. It receives no value,
         /// there being none to hand it.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="optionFactory" /> returns a null option. A
+        /// recovery that finds nothing is a <see cref="None{T}" />, so null is
+        /// no more meaningful here than anywhere else. It is thrown from the
+        /// call when the factory's task had already completed and faults the
+        /// returned task otherwise, so await the call to see it either way.
+        /// </exception>
         /// <returns>
         /// The original option if it holds a value, otherwise whatever
         /// <paramref name="optionFactory" /> produced.
@@ -984,7 +996,9 @@ public abstract partial record Option<T> where T : notnull
 
             return option is Some<T>
                 ? new ValueTask<Option<T>>(option)
-                : optionFactory(_state);
+                : Option.NotNullAsync(
+                      optionFactory(_state),
+                      nameof(optionFactory));
         }
 
         /// <summary>

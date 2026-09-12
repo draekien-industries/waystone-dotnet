@@ -968,6 +968,11 @@ public abstract partial record Option<T> where T : notnull
     /// <paramref name="optionFactory" /> function and returns the result.
     /// </summary>
     /// <param name="optionFactory">The function that will create the other option.</param>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="optionFactory" /> returns a null option. A recovery
+    /// that finds nothing is a <see cref="None{T}" />; see the remarks on
+    /// <see cref="Option{T}" /> for why null is never the way to say that.
+    /// </exception>
     public abstract Option<T> OrElse(Func<Option<T>> optionFactory);
 
     /// <summary>
@@ -993,6 +998,11 @@ public abstract partial record Option<T> where T : notnull
     /// The type of the state passed to the function. It is unconstrained, so a
     /// null state is permitted.
     /// </typeparam>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="optionFactory" /> returns a null option. A recovery
+    /// that finds nothing is a <see cref="None{T}" />; see the remarks on
+    /// <see cref="Option{T}" /> for why null is never the way to say that.
+    /// </exception>
     public abstract Option<T> OrElse<TState>(
         TState state,
         Func<TState, Option<T>> optionFactory);
@@ -1015,6 +1025,14 @@ public abstract partial record Option<T> where T : notnull
     /// This option if it is a <see cref="Some{T}" />, otherwise whatever
     /// <paramref name="optionFactory" /> produced.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="optionFactory" /> returns a null option. A recovery
+    /// that finds nothing is a <see cref="None{T}" />; see the remarks on
+    /// <see cref="Option{T}" /> for why null is never the way to say that. It
+    /// is thrown from the call when the factory's task had already completed
+    /// and faults the returned task otherwise, so await the call to see it
+    /// either way.
+    /// </exception>
     public abstract ValueTask<Option<T>> OrElseAsync(
         Func<ValueTask<Option<T>>> optionFactory);
 

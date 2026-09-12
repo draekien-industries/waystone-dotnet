@@ -241,6 +241,23 @@ public sealed class OptionBoundTests
             .ShouldBe(Option.None<int>());
     }
 
+    /// <remarks>
+    /// The guard is not written here — this overload forwards to
+    /// <c>Option{T}.OrElse{TState}</c> and inherits it. What the test pins is
+    /// that it still forwards, since an inlined branch would compile and lose
+    /// the guard without failing anything else in this class.
+    /// </remarks>
+    [Fact]
+    public void OrElseThrowsWhenTheStateFactoryProducesANullOption()
+    {
+        ArgumentNullException thrown =
+            Should.Throw<ArgumentNullException>(
+                () => NoneInt.With(10)
+                             .OrElse(static _ => default(Option<int>)!));
+
+        thrown.ParamName.ShouldBe("optionFactory");
+    }
+
     [Fact]
     public void OkOrElseBuildsTheErrorFromTheStateOnlyForNone()
     {

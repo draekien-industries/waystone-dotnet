@@ -902,6 +902,45 @@ public sealed class OptionBoundAsyncTests
     }
 
     [Fact]
+    public void OrElseAsyncThrowsFromTheCallWhenACompletedFactoryIsNull()
+    {
+        ArgumentNullException thrown =
+            Should.Throw<ArgumentNullException>(
+                () => NoneInt.With(10)
+                             .OrElseAsync(
+                                  static _ =>
+                                      new ValueTask<Option<int>>(
+                                          default(Option<int>)!)));
+
+        thrown.ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public async Task OrElseAsyncFaultsTheReturnedTaskWhenAPendingFactoryIsNull()
+    {
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Option<int>> pending =
+            NoneInt.With(gate)
+                   .OrElseAsync(
+                        static async ValueTask<Option<int>> (s) =>
+                        {
+                            await s.Task;
+
+                            return default(Option<int>)!;
+                        });
+
+        pending.IsCompleted.ShouldBeFalse();
+        gate.SetResult(true);
+
+        ArgumentNullException thrown =
+            await Should.ThrowAsync<ArgumentNullException>(
+                async () => await pending);
+
+        thrown.ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
     public async Task OkOrElseAsyncAwaitsTheErrorFactoryOnlyForNone()
     {
         Result<int, string> fromSome =
