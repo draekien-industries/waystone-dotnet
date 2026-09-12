@@ -88,6 +88,42 @@ not. Do not estimate which families are convertible: build the family with the
 attributes applied and read the RS0016/RS0017 pair, which names the exact drift.
 See [Waystone.SourceGenerators](../Waystone.SourceGenerators/AGENTS.md).
 
+## A delegate that returns null
+
+**Every delegate here whose return type is a monad guards it.** DRA-216 swept the
+library and found the set is smaller than it looks: exactly two families,
+`AndThen` and `OrElse`, in three shapes each — plain, state, async — across
+`Some`/`None`, `Ok`/`Err` and both binders. All twenty guard. Wrap a synchronous
+return in `Option.NotNull` or `Result.NotNull`, and a `ValueTask` in the `…Async`
+twin, passing `nameof` the parameter so the exception names the delegate the
+caller wrote.
+
+**A new monad-returning delegate joins that set; there is no member exempt from
+it.** The guard turns a factory returning null into an `ArgumentNullException`
+naming the factory, instead of a `NullReferenceException` raised at whatever read
+the monad next, with nothing pointing back at the cause. That distance is the
+whole value, and it is why `OrElse` was brought in line rather than written down
+as a deliberate exception — nothing separated it from `AndThen` except which one
+got the guard first.
+
+**A member that forwards inherits the guard and must keep forwarding.** The sync
+binder overloads are one line — `Source.OrElse(_state, optionFactory)` — and
+inlining the branch instead would compile, pass every behavioural test, and
+silently drop the guard. `OptionBoundTests` and `ResultBoundTests` each carry one
+test that exists only to pin the forward.
+
+**Three categories are out of the sweep, each for its own reason.** `Try` and
+`TryAsync` take a delegate returning a *value*, and already handle a null one
+differently on each side by design: `Option.Try` yields `None`, `Result.Try`
+yields an `Err` built by `FactoryReturnedNull`. The collection extensions take no
+monad-returning delegate at all — their delegates are predicates, mappers and
+value factories. The generated awaited receivers await and forward, so they
+inherit whatever the core member does and must not guard a second time.
+
+**Guarding costs a state machine on a pending async step and nothing on a
+completed one.** See the conversion rules below before reading that as a
+regression.
+
 ## Gotchas
 
 **An internal constructor does not close a `record` hierarchy.** Records get a
@@ -292,6 +328,15 @@ library matches `Err<TOk, TErr>` or `None<T>` anywhere. Two members in the new i
 and seven in the old is worse than nine consistent ones. `UnwrapErr()` also avoids
 the alternative — a cast, or a `_ => throw` arm that is a line coverage can never
 reach.
+
+**Those counts are stale and the section is under review.** `ResultBound.cs` reaches
+the error through `UnwrapErr()` at sixteen sites now, not nine — DRA-211 added the
+rest. DRA-216 also found the argument above answers consistency and coverage but
+never safety: `UnwrapErr()` is a partial member used where the type test above it has
+already proved totality, and nothing reports it if that stops being true. DRA-218
+converts all sixteen to `Match`, which is total, and rewrites this section. Do not
+carry the numbers forward, and do not reach for a `switch` expression — the compiler
+cannot see the closed hierarchy and `CS8509` demands the uncoverable arm.
 
 **`MonadOptionsScope.Dispose` restores only when it is the innermost live scope,
 and reports rather than throws.** It compares `ScopedOptions.Value` against the
