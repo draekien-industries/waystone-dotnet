@@ -115,8 +115,9 @@ public sealed class MonadOptions
     /// </para>
     /// </remarks>
     /// <param name="configure">
-    /// The action that will configure the
-    /// <see cref="MonadOptionsBuilder" />
+    /// Applied to a builder seeded from the options already in effect. Only the
+    /// properties it sets change; anything it leaves untouched is carried
+    /// forward.
     /// </param>
     public static void Configure(Action<MonadOptionsBuilder> configure)
     {
@@ -148,8 +149,9 @@ public sealed class MonadOptions
     /// </para>
     /// </remarks>
     /// <param name="configure">
-    /// The action that will configure the scoped
-    /// <see cref="MonadOptionsBuilder" />
+    /// Applied to a builder seeded from the options in effect when the scope
+    /// opens. Only the properties it sets change for the scope; anything it
+    /// leaves untouched is inherited.
     /// </param>
     /// <returns>
     /// A <see cref="MonadOptionsScope" /> which restores the previous options

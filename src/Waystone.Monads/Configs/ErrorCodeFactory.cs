@@ -25,8 +25,8 @@ public class ErrorCodeFactory
     private const string NameOfException = nameof(Exception);
 
     /// <summary>
-    /// Creates a new instance of <see cref="ErrorCode" /> from an Exception
-    /// value.
+    /// Creates a new instance of <see cref="ErrorCode" /> from an
+    /// <see cref="Exception" /> value.
     /// </summary>
     /// <remarks>
     /// Produces the exception's type name with a trailing <c>Exception</c>
@@ -36,7 +36,7 @@ public class ErrorCodeFactory
     /// empty code. The exception's message is never read, so nothing from its text
     /// reaches the code.
     /// </remarks>
-    /// <param name="exception">The exception value to convert into an Error Code.</param>
+    /// <param name="exception">The exception value to convert into an <see cref="ErrorCode" />.</param>
     /// <returns>The created <see cref="ErrorCode" />.</returns>
     /// <exception cref="ArgumentNullException">
     /// If <paramref name="exception" /> is null.

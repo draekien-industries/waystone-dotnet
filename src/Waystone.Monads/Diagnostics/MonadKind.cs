@@ -4,9 +4,9 @@ namespace Waystone.Monads.Diagnostics;
 /// <remarks>
 /// Reported alongside every handled exception because the two cases lose
 /// different amounts of information. An exception caught by
-/// <c>Option.Try</c> is discarded and survives only in this signal, whereas one
-/// caught by <c>Result.Try</c> is also converted into the resulting
-/// <c>Err</c> and is still available to the caller.
+/// <c>Option.Try</c> is discarded, and this event is the only remaining
+/// record of it, whereas one caught by <c>Result.Try</c> is also converted
+/// into the resulting <c>Err</c> and is still available to the caller.
 /// </remarks>
 public enum MonadKind
 {

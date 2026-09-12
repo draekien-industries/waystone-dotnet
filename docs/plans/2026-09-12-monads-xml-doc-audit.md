@@ -1,7 +1,7 @@
 ---
 title: XML doc comment audit for Waystone.Monads
 date: 2026-09-12
-status: active
+status: done
 ---
 
 # XML doc comment audit for Waystone.Monads
@@ -17,8 +17,45 @@ consumer of the package, and `CS1591` is suppressed here, so nothing in the buil
 reports a comment that is thin, stale or wrong. The only thing standing between a
 defective comment and a caller acting on it is a review like this one.
 
-This document proposes the changes. It does not make them. No `.cs` file was
-edited to produce it.
+This document proposed the changes; it made none. They were applied under
+[DRA-217](https://linear.app/draekien-industries/issue/DRA-217/docs-apply-the-waystonemonads-xml-doc-comment-audit)
+as a five-layer stack onto `release/v7.3.0`. Every section was applied. Where
+applying a proposal verbatim would have been wrong, the correction and its
+reason are in the commit message for that layer; the eight of them are
+collected under "Corrections made while applying" below.
+
+## Corrections made while applying
+
+Recorded because a later reader comparing this document to the source will
+otherwise read each of these as an oversight.
+
+| What the audit said | What was applied instead | Why |
+| --- | --- | --- |
+| Four comments state something the code does not do | Five | The binder faulted-task sentence is in `OptionBound.cs` as well as `ResultBound.cs`; only the Result copy was flagged |
+| `ResultBound`'s async paragraph should name the three `async` members by source line | The rule that distinguishes them, and what a caller can rely on either way | Line numbers in a doc comment rot at the next edit above them, and nothing reports it when they do |
+| `OptionBound`'s async paragraph, as proposed | Same text as the Result side | The proposal repeated the blanket claim it was meant to fix |
+| `Error.FromException` trims the message | Trims it, or substitutes the configured fallback when blank | The proposal omitted the fallback, which is the other thing the constructor does |
+| `Option.Some` should cite `Option.FromNullable{T}(T?)` | `Option.FromNullable{T}(T)` | `(T?)` denotes `Nullable<T>` and binds the struct overload; the throwing member is `where T : notnull` and covers both |
+| `ConfigurationNotAppliedEventName`'s replacement clause | Same, with the comma restored | Applied verbatim it reads "with no listener attached the no event is written" |
+| `MonadOptionsScope.Dispose` says "writes nothing" and "returns without writing anything" | Says it once | Redundant in one sentence |
+| `Ok.Deconstruct` says "even though only one is bound" twice | Once | Same |
+
+Four defects were found while applying that the audit did not list, all of them
+the same asymmetry — a phrase caught in one partition and missed in its twin,
+because the partitions were audited separately:
+
+- `ExpectErr` and `UnwrapErr` keep "consuming the result instance" after
+  `Expect` and `Unwrap` had it removed.
+- `ResultsCollectionExtensions.CollectAsync` keeps "short-circuits for real"
+  after the `Options` twin had it rewritten.
+- `ResultBound.IsOkAnd` reads "treating a failure as a failure", its sibling
+  `IsErrAnd` reading "a failure to match".
+- Four doc comments use markdown `*emphasis*`, which is not XML and renders as
+  literal asterisks in IntelliSense.
+
+"Reach for", meaning "choose", survives in nine places. The audit rewrote two
+instances of it and left the rest, and the distinction it drew between them is
+not one this document records. It is listed here rather than settled.
 
 ## Scope
 

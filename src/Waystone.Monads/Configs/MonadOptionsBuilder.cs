@@ -84,10 +84,7 @@ public sealed class MonadOptionsBuilder
     /// so it leaves <c>Try</c> and <c>TryAsync</c> untouched and is neither
     /// logged nor converted. Call this and a cancellation instead produces a
     /// <see cref="Options.None{T}" /> or an <see cref="Results.Err{TOk,TErr}" />
-    /// like any other exception, which is what versions before 6.0.0 did.
-    /// Prefer the default: a cancelled operation produced no answer, and
-    /// reporting that as an absent or failed value hides the cancellation from
-    /// the caller that requested it.
+    /// like any other exception.
     /// <see cref="System.Threading.Tasks.TaskCanceledException" /> derives from
     /// <see cref="OperationCanceledException" /> and is covered by this option
     /// too.
@@ -101,9 +98,8 @@ public sealed class MonadOptionsBuilder
     /// <param name="catchesCancellation">
     /// If true, a cancellation is caught and becomes a
     /// <see cref="Options.None{T}" /> or an <see cref="Results.Err{TOk,TErr}" />.
-    /// If false, it propagates to the caller that requested it. Default: true,
-    /// since turning the behaviour on is why you would call this. Absent any
-    /// call at all the setting is false.
+    /// If false, it propagates to the caller that requested it. Default: true.
+    /// The setting is false if this method is never called.
     /// </param>
     /// <returns>This builder, for chaining more configurations.</returns>
     public MonadOptionsBuilder UseCancellationAsFailure(
@@ -118,8 +114,8 @@ public sealed class MonadOptionsBuilder
     /// <see cref="ErrorCode" /> instances from exceptions.
     /// </summary>
     /// <param name="factory">
-    /// The implementation of <see cref="ErrorCodeFactory" /> you
-    /// want the library to use.
+    /// Every <see cref="ErrorCode" /> built from an exception after this call is
+    /// produced by this factory instead of the default one.
     /// </param>
     /// <returns>This builder, for chaining more configurations.</returns>
     public MonadOptionsBuilder UseErrorCodeFactory(ErrorCodeFactory factory)
@@ -136,7 +132,10 @@ public sealed class MonadOptionsBuilder
     /// Default: <c>Unspecified</c>. Surrounding whitespace is trimmed off
     /// before the value is stored.
     /// </remarks>
-    /// <param name="errorCode">The fallback error code to use</param>
+    /// <param name="errorCode">
+    /// The value <see cref="ErrorCode" /> falls back to when a null, empty or
+    /// whitespace code is supplied.
+    /// </param>
     /// <returns>This builder, for chaining more configurations.</returns>
     /// <exception cref="ArgumentException">
     /// <paramref name="errorCode" /> is null, empty or whitespace. A fallback
@@ -163,7 +162,10 @@ public sealed class MonadOptionsBuilder
     /// Default: <c>An unexpected error occurred.</c> Surrounding whitespace is
     /// trimmed off before the value is stored.
     /// </remarks>
-    /// <param name="errorMessage">The fallback error message to use</param>
+    /// <param name="errorMessage">
+    /// The value <see cref="Error" /> falls back to when a null, empty or
+    /// whitespace message is supplied.
+    /// </param>
     /// <returns>This builder, for chaining more configurations.</returns>
     /// <exception cref="ArgumentException">
     /// <paramref name="errorMessage" /> is null, empty or whitespace. A

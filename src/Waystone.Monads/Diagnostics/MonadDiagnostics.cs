@@ -17,7 +17,7 @@ using Configs;
 /// notice would catch a rename.
 /// <para>
 /// Emission is gated on whether anything is listening, so an unobserved process
-/// pays for a pair of boolean checks and allocates nothing.
+/// performs a pair of boolean checks and allocates nothing.
 /// </para>
 /// </remarks>
 #if !DEBUG
@@ -58,7 +58,7 @@ public static class MonadDiagnostics
     /// <summary>The name of the event written when options are read before container-registered configuration reaches the library.</summary>
     /// <remarks>
     /// Its payload is a <see cref="ConfigurationNotApplied" />. Only a package that
-    /// configures the library through a container arms this event, so a process
+    /// configures the library through a container can write this event, so a process
     /// that configures itself through <see cref="MonadOptions.Configure" /> alone
     /// never sees it.
     /// <para>
@@ -66,21 +66,22 @@ public static class MonadDiagnostics
     /// settings are described when the container is built and installed later. A
     /// read in between is answered from the bootstrap options, which are valid
     /// settings rather than a broken state — so this reports a wiring omission, not
-    /// a failure, and nothing throws. Left unfixed it is silent, which is what the
-    /// event is for.
+    /// a failure, and nothing throws. Left unfixed, nothing else reports it, which
+    /// is what this event is for.
     /// </para>
     /// <para>
-    /// Written only while something is subscribed: with no listener attached the
-    /// signal is held rather than spent, so a subscriber attached at any point
-    /// before the configuration lands still receives it. Configuration arriving by
-    /// any route disarms the event, whether or not it was ever written.
+    /// Written only while something is subscribed: with no listener attached,
+    /// no event is written and the pending state is left unchanged, so a
+    /// subscriber attached at any point before the configuration lands still
+    /// receives it on a later read. Configuration arriving by any route clears
+    /// the pending state, whether or not the event was ever written.
     /// </para>
     /// <para>
     /// It reports reads that go through the options the monads themselves consult,
     /// which is what an early read in a container-configured application does. A
     /// satellite package that reaches past that for the global snapshot is not
     /// instrumented and will not raise this. Two threads reading at the same moment
-    /// can each write the event before either disarms it, so deduplicate in the
+    /// can each write the event before either clears the pending state, so deduplicate in the
     /// subscriber if that matters — the payloads are identical.
     /// </para>
     /// </remarks>
@@ -113,10 +114,11 @@ public static class MonadDiagnostics
     /// <summary>Gets the event written when options are read before container-registered configuration reaches the library, ready to subscribe to.</summary>
     /// <remarks>
     /// Pairs <see cref="ConfigurationNotAppliedEventName" /> with the payload it
-    /// carries. The signal is held while nothing is subscribed rather than spent,
-    /// so a subscription made at any point before the configuration lands still
-    /// receives it — subscribing late costs nothing here, unlike the other two
-    /// events.
+    /// carries. No event is written while nothing is subscribed, and the pending
+    /// state is left unchanged, so a subscription made at any point before the
+    /// configuration lands still receives it on a later read — unlike the other
+    /// two events, where a subscription made after the write already happened
+    /// misses it.
     /// </remarks>
     public static MonadDiagnosticEvent<ConfigurationNotApplied>
         ConfigurationNotAppliedEvent { get; } =
