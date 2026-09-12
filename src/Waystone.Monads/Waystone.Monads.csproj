@@ -32,6 +32,7 @@
         <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackMonadAnalyzers</TargetsForTfmSpecificContentInPackage>
     </PropertyGroup>
 
+    <Import Project="..\Waystone.Analyzers\Waystone.Analyzers.props"/>
     <Import Project="..\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
     <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
     <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>

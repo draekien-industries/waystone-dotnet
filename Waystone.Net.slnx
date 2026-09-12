@@ -41,6 +41,7 @@
     <File Path="src/Directory.Build.props" />
     <Project Path="src/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.csproj" />
     <Project Path="src/Serilog.Enrichers.Waystone.WideLogEvents/Serilog.Enrichers.Waystone.WideLogEvents.csproj" />
+    <Project Path="src/Waystone.Analyzers/Waystone.Analyzers.csproj" />
     <Project Path="src/Waystone.Monads.Analyzers.CodeFixes/Waystone.Monads.Analyzers.CodeFixes.csproj" />
     <Project Path="src/Waystone.Monads.Analyzers/Waystone.Monads.Analyzers.csproj" />
     <Project Path="src/Waystone.Monads.Extensions.DependencyInjection/Waystone.Monads.Extensions.DependencyInjection.csproj" />
@@ -63,6 +64,7 @@
   <Folder Name="/test/">
     <Project Path="test/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests/Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.Tests.csproj" />
     <Project Path="test/Serilog.Enrichers.Waystone.WideLogEvents.Tests/Serilog.Enrichers.Waystone.WideLogEvents.Tests.csproj" />
+    <Project Path="test/Waystone.Analyzers.Tests/Waystone.Analyzers.Tests.csproj" />
     <Project Path="test/Waystone.DocSnippets.Tests/Waystone.DocSnippets.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Analyzers.Tests/Waystone.Monads.Analyzers.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Schemas.SourceGenerators.Tests/Waystone.Monads.Schemas.SourceGenerators.Tests.csproj" />
