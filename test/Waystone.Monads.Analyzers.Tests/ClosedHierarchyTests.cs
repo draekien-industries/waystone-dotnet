@@ -56,6 +56,8 @@ public class ClosedHierarchyTests
                 public override T2 MapOrDefault<TState, T2>(TState state, Func<T, TState, T2> map) => default!;
                 public override T2? MapOrNull<T2>(Func<T, T2> map) => null;
                 public override T2? MapOrNull<TState, T2>(TState state, Func<T, TState, T2> map) => null;
+                public override Option<T2> ZipWith<TState, TOther, T2>(TState state, Option<TOther> other, Func<T, TOther, TState, T2> zip) => Option.None<T2>();
+                public override Option<T> Reduce<TState>(TState state, Option<T> other, Func<T, T, TState, T> reduce) => other;
                 public override ValueTask<T2?> MapOrNullAsync<T2>(Func<T, Task<T2>> map) => throw new Exception();
                 public override T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map) => createDefault();
                 public override T2 MapOrElse<TState, T2>(TState state, Func<TState, T2> createDefault, Func<T, TState, T2> map) => createDefault(state);

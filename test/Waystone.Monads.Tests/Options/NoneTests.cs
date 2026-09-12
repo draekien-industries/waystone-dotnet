@@ -504,6 +504,33 @@ public class NoneTest
     }
 
     [Fact]
+    public void GivenState_WhenZipWith_ThenReturnNoneWithoutCombining()
+    {
+        Option<int> self = Option.None<int>();
+
+        var zip = Substitute.For<Func<int, int, int, int>>();
+
+        self.ZipWith(10, Option.Some(2), zip).ShouldBeNone();
+
+        zip.DidNotReceive()
+           .Invoke(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenState_WhenReduce_ThenReturnTheOtherOption()
+    {
+        Option<int> self = Option.None<int>();
+
+        var reduce = Substitute.For<Func<int, int, int, int>>();
+
+        self.Reduce(10, Option.Some(2), reduce).ShouldBeSomeValue(2);
+        self.Reduce(10, Option.None<int>(), reduce).ShouldBeNone();
+
+        reduce.DidNotReceive()
+              .Invoke(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
     public async Task GivenOtherIsSome_WhenZipWithAsync_ThenReturnNone()
     {
         Option<int> self = Option.None<int>();

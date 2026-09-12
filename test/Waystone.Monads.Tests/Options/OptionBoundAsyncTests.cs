@@ -258,6 +258,110 @@ public sealed class OptionBoundAsyncTests
     }
 
     [Fact]
+    public async Task ZipWithAsyncAwaitsOnlyWhenBothSidesHoldAValue()
+    {
+        var saw = new List<int>();
+
+        Option<int> both =
+            await SomeTwo.With(saw)
+                         .ZipWithAsync(
+                              Option.Some(3),
+                              static (v, o, s) =>
+                              {
+                                  s.Add(v + o);
+
+                                  return Task.FromResult(v + o);
+                              });
+
+        both.ShouldBeSomeValue(5);
+        saw.ShouldBe(new[] { 5 });
+
+        var otherAbsent = new List<int>();
+
+        Option<int> noOther =
+            await SomeTwo.With(otherAbsent)
+                         .ZipWithAsync(
+                              Option.None<int>(),
+                              static (v, o, s) =>
+                              {
+                                  s.Add(v + o);
+
+                                  return Task.FromResult(v + o);
+                              });
+
+        noOther.ShouldBeNone();
+        otherAbsent.ShouldBeEmpty();
+
+        var selfAbsent = new List<int>();
+
+        Option<int> noSelf =
+            await NoneInt.With(selfAbsent)
+                         .ZipWithAsync(
+                              Option.Some(3),
+                              static (v, o, s) =>
+                              {
+                                  s.Add(v + o);
+
+                                  return Task.FromResult(v + o);
+                              });
+
+        noSelf.ShouldBeNone();
+        selfAbsent.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task ReduceAsyncAwaitsOnlyWhenThereAreTwoValuesToCombine()
+    {
+        var saw = new List<int>();
+
+        Option<int> both =
+            await SomeTwo.With(saw)
+                         .ReduceAsync(
+                              Option.Some(3),
+                              static (a, b, s) =>
+                              {
+                                  s.Add(a + b);
+
+                                  return Task.FromResult(a + b);
+                              });
+
+        both.ShouldBeSomeValue(5);
+        saw.ShouldBe(new[] { 5 });
+
+        var otherAbsent = new List<int>();
+
+        Option<int> noOther =
+            await SomeTwo.With(otherAbsent)
+                         .ReduceAsync(
+                              Option.None<int>(),
+                              static (a, b, s) =>
+                              {
+                                  s.Add(a + b);
+
+                                  return Task.FromResult(a + b);
+                              });
+
+        noOther.ShouldBeSomeValue(2);
+        otherAbsent.ShouldBeEmpty();
+
+        var selfAbsent = new List<int>();
+
+        Option<int> noSelf =
+            await NoneInt.With(selfAbsent)
+                         .ReduceAsync(
+                              Option.Some(3),
+                              static (a, b, s) =>
+                              {
+                                  s.Add(a + b);
+
+                                  return Task.FromResult(a + b);
+                              });
+
+        noSelf.ShouldBeSomeValue(3);
+        selfAbsent.ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task MapOrNullAsyncAwaitsTheMapOnlyForTheContainedValue()
     {
         var someSaw = new List<int>();

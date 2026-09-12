@@ -353,6 +353,18 @@ public sealed record Some<T> : Option<T>
         other.Map(otherValue => zip(Value, otherValue));
 
     /// <inheritdoc />
+    public override Option<TOut> ZipWith<TState, TOther, TOut>(
+        TState state,
+        Option<TOther> other,
+        Func<T, TOther, TState, TOut> zip) =>
+        other.Map(
+            (Value, state, zip),
+            static (otherValue, bound) => bound.zip(
+                bound.Value,
+                otherValue,
+                bound.state));
+
+    /// <inheritdoc />
     public override ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
         Option<TOther> other,
         Func<T, TOther, Task<TOut>> zip) =>
@@ -365,6 +377,17 @@ public sealed record Some<T> : Option<T>
                 reduce(Value, otherValue),
                 nameof(reduce)),
             () => this);
+
+    /// <inheritdoc />
+    public override Option<T> Reduce<TState>(
+        TState state,
+        Option<T> other,
+        Func<T, T, TState, T> reduce) =>
+        other is Some<T> otherSome
+            ? Option.SomeOrThrow(
+                reduce(Value, otherSome.Value, state),
+                nameof(reduce))
+            : this;
 
     /// <inheritdoc />
     public override async ValueTask<Option<T>> ReduceAsync(

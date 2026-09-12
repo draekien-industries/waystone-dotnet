@@ -252,11 +252,17 @@ internal static class Rules
     /// instance-method code and drown the signal.
     /// The member set is discovered from the binder rather than listed here,
     /// and the binder is the type to ask because <c>With</c> is the only route
-    /// to it: a member the binder does not declare has no rewrite to offer. A
-    /// hardcoded list would name a member that does not exist — <c>ZipWith</c>
-    /// and <c>Reduce</c> take a delegate and are absent from the binder by
-    /// design, their delegates already receiving every operand as an argument
-    /// of the call.
+    /// to it: a member the binder does not declare has no rewrite to offer.
+    /// Reading the binder is also what keeps this rule current for free: DRA-211
+    /// gave <c>MapOrNull</c>, <c>ZipWith</c> and <c>Reduce</c> binder members,
+    /// and all three began reporting without a line changing here. A hardcoded
+    /// list would have silently omitted them.
+    /// <c>ZipWith</c> and <c>Reduce</c> were excluded by design until then, on
+    /// the grounds that their delegates already receive every operand as an
+    /// argument of the call. That holds for operands and for nothing else: a
+    /// combiner still closes over a format, a comparer or a merge policy, which
+    /// is the same display class per call the rule exists to remove. The
+    /// exclusion is gone rather than narrowed.
     /// Reading the binder is also what reaches the asynchronous members. The
     /// previous gate asked whether any overload of the same name took a
     /// <c>TState</c>, and no <c>*Async</c> member has one, so every capturing
