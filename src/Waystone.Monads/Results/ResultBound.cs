@@ -160,6 +160,13 @@ public abstract partial record Result<TOk, TErr>
         /// <typeparam name="TOut">
         /// The ok type of the result <paramref name="resultFactory" /> produces.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="resultFactory" /> returns a null result. Returning
+        /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful,
+        /// and left alone it would surface as a
+        /// <see cref="NullReferenceException" /> at whatever read the result
+        /// next.
+        /// </exception>
         /// <returns>
         /// Whatever <paramref name="resultFactory" /> produced, or the original
         /// error unchanged.
@@ -642,6 +649,15 @@ public abstract partial record Result<TOk, TErr>
         /// <typeparam name="TOut">
         /// The ok type the produced result holds.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="resultFactory" /> returns a null result. Returning
+        /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful,
+        /// and left alone it would surface as a
+        /// <see cref="NullReferenceException" /> at whatever read the result
+        /// next. It is thrown from the call when the factory's task had already
+        /// completed and faults the returned task otherwise, so await the call
+        /// to see it either way.
+        /// </exception>
         /// <returns>
         /// Whatever <paramref name="resultFactory" /> produced, or the original
         /// error.
@@ -653,7 +669,9 @@ public abstract partial record Result<TOk, TErr>
             Result<TOk, TErr> result = Source;
 
             return result is Ok<TOk, TErr> ok
-                ? resultFactory(ok.Value, _state)
+                ? Result.NotNullAsync(
+                      resultFactory(ok.Value, _state),
+                      nameof(resultFactory))
                 : new ValueTask<Result<TOut, TErr>>(
                       Result.Err<TOut, TErr>(result.UnwrapErr()));
         }
