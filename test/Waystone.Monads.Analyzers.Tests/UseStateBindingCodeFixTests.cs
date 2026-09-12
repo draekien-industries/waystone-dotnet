@@ -187,6 +187,62 @@ public class UseStateBindingCodeFixTests
                .WithArguments("MapAsync", "offset"));
 
     /// <remarks>
+    /// The gate is the member <em>name</em> — <c>TheBinderDeclares</c> asks only
+    /// whether the binder has a member so called — so the fix was offered for
+    /// every <c>MatchAsync</c> overload while the binder carried the
+    /// both-asynchronous one alone. Accepting it on a mixed shape produced
+    /// <c>CS0029</c>, which is the failure this class exists to catch: source a
+    /// consumer takes from a lightbulb without reading it.
+    /// <para>
+    /// Pinned on the shape that awaits only the value branch. It fails against a
+    /// binder missing the overload rather than reading oddly, because
+    /// <c>Verify.CodeFixAsync</c> compiles the fixed state.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public Task BindsAMatchThatAwaitsOneBranchOnly() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal ValueTask<int> Read(Option<int> option, int fallback) =>
+                option.{|#0:MatchAsync|}(
+                    value => Task.FromResult(value + fallback),
+                    () => fallback);
+            """,
+            """
+            internal ValueTask<int> Read(Option<int> option, int fallback) =>
+                option.With(fallback).MatchAsync(
+                    static (value, state) => Task.FromResult(value + state),
+                    static (state) => state);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MatchAsync", "fallback"));
+
+    /// <remarks>
+    /// The same defect on the result side, where the mixed shapes are the
+    /// void-returning ones — so this also covers a rewrite whose delegates
+    /// return nothing, which no other case here does.
+    /// </remarks>
+    [Fact]
+    public Task BindsASideEffectMatchThatAwaitsOneBranchOnly() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal ValueTask Report(Result<int, string> result, int offset) =>
+                result.{|#0:MatchAsync|}(
+                    value => Task.FromResult(value + offset),
+                    error => { });
+            """,
+            """
+            internal ValueTask Report(Result<int, string> result, int offset) =>
+                result.With(offset).MatchAsync(
+                    static (value, state) => Task.FromResult(value + state),
+                    static (error, state) => { });
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MatchAsync", "offset"));
+
+    /// <remarks>
     /// The static factories bind through a factory of their own rather than
     /// through the extension, so this rewrite needs no import — <c>Option</c> is
     /// already named at the call site.

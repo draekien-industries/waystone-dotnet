@@ -20,3 +20,4 @@ artifacts/**
 # Claude
 CLAUDE.local.md
 settings.local.json
+.draekien/.skillsrc
