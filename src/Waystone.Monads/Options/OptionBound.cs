@@ -274,6 +274,32 @@ public abstract partial record Option<T> where T : notnull
             Source.MapOrDefault(_state, map);
 
         /// <summary>
+        /// Transforms the contained value into a nullable value type, using null
+        /// for a <see cref="None{T}" />.
+        /// </summary>
+        /// <remarks>
+        /// The bridge out of <see cref="Option{T}" /> into
+        /// <see cref="Nullable{T}" />. Prefer it to
+        /// <see cref="MapOrDefault{TOut}" /> wherever the produced type is a value
+        /// type, since a mapped zero and an absent value are the same
+        /// <see langword="default" /> and different nulls.
+        /// </remarks>
+        /// <param name="map">
+        /// Produces the result from the contained value and the bound state. It
+        /// is not invoked for a <see cref="None{T}" />.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The value type <paramref name="map" /> produces.
+        /// </typeparam>
+        /// <returns>
+        /// What <paramref name="map" /> produced, or null for a
+        /// <see cref="None{T}" />.
+        /// </returns>
+        public TOut? MapOrNull<TOut>(Func<T, TState, TOut> map)
+            where TOut : struct =>
+            Source.MapOrNull(_state, map);
+
+        /// <summary>
         /// Transforms the contained value, or computes a replacement for a
         /// <see cref="None{T}" />.
         /// </summary>
@@ -581,6 +607,36 @@ public abstract partial record Option<T> where T : notnull
                 : default;
 
         /// <summary>
+        /// Awaits a transform of the contained value and the bound state into a
+        /// nullable value type, using null for a <see cref="None{T}" />.
+        /// </summary>
+        /// <remarks>
+        /// The asynchronous half of the bridge into <see cref="Nullable{T}" />.
+        /// Unlike <see cref="MapOrDefaultAsync{TOut}" />, the absent case is a
+        /// null rather than a <see langword="default" />, so it stays
+        /// distinguishable from a transform that produced a zero.
+        /// <para>
+        /// A <see cref="None{T}" /> returns an already-completed
+        /// <see cref="ValueTask{TResult}" /> and never invokes
+        /// <paramref name="map" />, so that branch builds no state machine.
+        /// </para>
+        /// </remarks>
+        /// <param name="map">
+        /// Transforms the contained value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The value type the transform produces.
+        /// </typeparam>
+        /// <returns>
+        /// The transformed value, or null for a <see cref="None{T}" />.
+        /// </returns>
+        public ValueTask<TOut?> MapOrNullAsync<TOut>(
+            Func<T, TState, Task<TOut>> map) where TOut : struct =>
+            Source is Some<T> some
+                ? AwaitedOrNull(map(some.Value, _state))
+                : default;
+
+        /// <summary>
         /// Awaits a transform of the contained value and the bound state, or
         /// awaits a fallback built from the state alone.
         /// </summary>
@@ -722,6 +778,10 @@ public abstract partial record Option<T> where T : notnull
 
         private static async ValueTask<TOut?> AwaitedNullable<TOut>(
             Task<TOut> task) where TOut : notnull =>
+            await task.ConfigureAwait(false);
+
+        private static async ValueTask<TOut?> AwaitedOrNull<TOut>(
+            Task<TOut> task) where TOut : struct =>
             await task.ConfigureAwait(false);
 
         private static async ValueTask<Option<T>> AwaitedInspect(

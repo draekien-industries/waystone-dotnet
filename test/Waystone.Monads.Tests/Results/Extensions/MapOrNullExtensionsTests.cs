@@ -126,4 +126,57 @@ public sealed class MapOrNullExtensionsTests
 
         value.ShouldBeNull();
     }
+
+    [Fact]
+    public async Task
+        GivenOkTask_WhenMapOrNullAsyncWithState_ThenReturnTheMappedValue()
+    {
+        int? value = await Task.FromResult(Result.Ok<int, string>(1))
+           .MapOrNullAsync(10, static (ok, state) => ok + state);
+
+        value.ShouldBe(11);
+    }
+
+    [Fact]
+    public async Task GivenErrTask_WhenMapOrNullAsyncWithState_ThenReturnNull()
+    {
+        int? value = await Task.FromResult(Result.Err<int, string>("failed"))
+           .MapOrNullAsync(10, static (ok, state) => ok + state);
+
+        value.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task
+        GivenOkValueTask_WhenMapOrNullAsyncWithState_ThenReturnTheMappedValue()
+    {
+        int? value =
+            await new ValueTask<Result<int, string>>(
+                    Result.Ok<int, string>(1))
+               .MapOrNullAsync(10, static (ok, state) => ok + state);
+
+        value.ShouldBe(11);
+    }
+
+    [Fact]
+    public async Task
+        GivenErrValueTask_WhenMapOrNullAsyncWithState_ThenReturnNull()
+    {
+        int? value =
+            await new ValueTask<Result<int, string>>(
+                    Result.Err<int, string>("failed"))
+               .MapOrNullAsync(10, static (ok, state) => ok + state);
+
+        value.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task
+        GivenOkTask_WhenMapOrNullAsyncWithStateToTheDefault_ThenReturnTheDefault()
+    {
+        int? value = await Task.FromResult(Result.Ok<int, string>(1))
+           .MapOrNullAsync(-1, static (ok, state) => ok + state);
+
+        value.ShouldBe(0);
+    }
 }

@@ -258,6 +258,40 @@ public sealed class OptionBoundAsyncTests
     }
 
     [Fact]
+    public async Task MapOrNullAsyncAwaitsTheMapOnlyForTheContainedValue()
+    {
+        var someSaw = new List<int>();
+
+        int? fromSome =
+            await SomeTwo.With(someSaw)
+                         .MapOrNullAsync(
+                              static (v, s) =>
+                              {
+                                  s.Add(v);
+
+                                  return Task.FromResult(v - 2);
+                              });
+
+        fromSome.ShouldBe(0);
+        someSaw.ShouldBe(new[] { 2 });
+
+        var noneSaw = new List<int>();
+
+        int? fromNone =
+            await NoneInt.With(noneSaw)
+                         .MapOrNullAsync(
+                              static (v, s) =>
+                              {
+                                  s.Add(v);
+
+                                  return Task.FromResult(v - 2);
+                              });
+
+        fromNone.ShouldBeNull();
+        noneSaw.ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task MapOrElseAsyncAwaitsExactlyOneOfItsTwoDelegates()
     {
         var fromSome = new List<string>();

@@ -599,4 +599,20 @@ public class OkTests
 
         ok.MapOrDefault(10, static (x, state) => x + state).ShouldBe(11);
     }
+
+    [Fact]
+    public void GivenState_WhenMapOrNull_ThenReturnTheMappedValue()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.MapOrNull(10, static (x, state) => x + state).ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOrNullToTheDefault_ThenReturnTheDefault()
+    {
+        Result<int, string> ok = Result.Ok<int, string>(1);
+
+        ok.MapOrNull(-1, static (x, state) => x + state).ShouldBe(0);
+    }
 }

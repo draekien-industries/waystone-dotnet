@@ -395,16 +395,32 @@ public class StateOverloadAnalyzerTests
             """);
 
     /// <remarks>
-    /// MapOrNull is the one delegate-taking member of Option that has neither a
-    /// state overload nor a binder member, so it was silent before the regate
-    /// and stays silent after it. Pinned so that the silence reads as a known
-    /// gap in the binder's vocabulary rather than as the gate misfiring.
+    /// MapOrNull was the one delegate-taking member of Option with neither a
+    /// state overload nor a binder member, and was pinned as silent for that
+    /// reason. DRA-211 gave it both, so the silence would now be the gate
+    /// misfiring rather than a known gap. The rule reads its member set from the
+    /// binder, so this began reporting without the analyzer being touched —
+    /// which is the property worth pinning on the way back.
     /// </remarks>
     [Fact]
-    public Task IgnoresMapOrNullWhichTheBinderDoesNotDeclare() =>
-        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+    public Task FlagsMapOrNullCapturingAParameter() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
             """
             internal int? Read(Option<int> option, int offset) =>
-                option.MapOrNull(value => value + offset);
-            """);
+                option.{|#0:MapOrNull|}(value => value + offset);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MapOrNull", "offset"));
+
+    [Fact]
+    public Task FlagsMapOrNullOnAResultCapturingAParameter() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
+            """
+            internal int? Read(Result<int, string> result, int offset) =>
+                result.{|#0:MapOrNull|}(value => value + offset);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MapOrNull", "offset"));
 }

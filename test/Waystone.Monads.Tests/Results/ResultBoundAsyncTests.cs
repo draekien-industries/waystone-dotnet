@@ -392,6 +392,40 @@ public sealed class ResultBoundAsyncTests
     }
 
     [Fact]
+    public async Task MapOrNullAsyncAwaitsTheMapOnlyForTheOkValue()
+    {
+        var okSaw = new List<int>();
+
+        int? fromOk =
+            await OkTwo.With(okSaw)
+                       .MapOrNullAsync(
+                            static (v, s) =>
+                            {
+                                s.Add(v);
+
+                                return Task.FromResult(v - 2);
+                            });
+
+        fromOk.ShouldBe(0);
+        okSaw.ShouldBe(new[] { 2 });
+
+        var errSaw = new List<int>();
+
+        int? fromErr =
+            await ErrBad.With(errSaw)
+                        .MapOrNullAsync(
+                             static (v, s) =>
+                             {
+                                 s.Add(v);
+
+                                 return Task.FromResult(v - 2);
+                             });
+
+        fromErr.ShouldBeNull();
+        errSaw.ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task MapOrElseAsyncAwaitsExactlyOneOfItsTwoDelegates()
     {
         var fromOk = new List<string>();
