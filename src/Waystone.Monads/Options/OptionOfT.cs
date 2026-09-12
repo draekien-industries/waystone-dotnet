@@ -283,6 +283,52 @@ public abstract partial record Option<T> where T : notnull
         Func<TOut> onNone);
 
     /// <summary>
+    /// Runs whichever of two asynchronous branches the option selects, for its
+    /// side effect alone.
+    /// </summary>
+    /// <remarks>
+    /// The overload to reach for when both branches do real asynchronous work.
+    /// Neither branch returns a value, so this is the asynchronous counterpart of
+    /// the <see cref="Match(Action{T},Action)" /> switch rather than of the
+    /// mapping one.
+    /// </remarks>
+    /// <param name="onSome">Handles the contained value.</param>
+    /// <param name="onNone">Handles the absence of a value.</param>
+    public abstract ValueTask MatchAsync(
+        Func<T, Task> onSome,
+        Func<Task> onNone);
+
+    /// <summary>
+    /// Runs the option's two branches for their side effect, where only the
+    /// present branch is asynchronous.
+    /// </summary>
+    /// <param name="onSome">Handles the contained value.</param>
+    /// <param name="onNone">
+    /// Handles the absence of a value, synchronously.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ValueTask" /> that has already completed when the option is a
+    /// <see cref="None{T}" />.
+    /// </returns>
+    public abstract ValueTask MatchAsync(
+        Func<T, Task> onSome,
+        Action onNone);
+
+    /// <summary>
+    /// Runs the option's two branches for their side effect, where only the
+    /// absent branch is asynchronous.
+    /// </summary>
+    /// <param name="onSome">Handles the contained value, synchronously.</param>
+    /// <param name="onNone">Handles the absence of a value.</param>
+    /// <returns>
+    /// A <see cref="ValueTask" /> that has already completed when the option is a
+    /// <see cref="Some{T}" />.
+    /// </returns>
+    public abstract ValueTask MatchAsync(
+        Action<T> onSome,
+        Func<Task> onNone);
+
+    /// <summary>
     /// Returns the contained <see cref="Some{T}" /> value, consuming the
     /// <see cref="Option{T}" />.
     /// </summary>

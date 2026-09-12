@@ -247,6 +247,73 @@ public sealed class ResultBoundAsyncTests
         fromErr.ShouldBe(["err:bad"]);
     }
 
+    /// <remarks>
+    /// The mixed value-returning binder shapes arrived with the core ones in
+    /// DRA-211, in the same layer rather than after it —
+    /// <c>BinderShapeCompletenessTests</c> fails on a core shape whose twin is
+    /// missing, so the two cannot be split across changes.
+    /// </remarks>
+    /// <remarks>
+    /// The bound state is a <see cref="TaskCompletionSource{TResult}" /> rather
+    /// than a number, because <c>Task.FromResult</c> would defeat the assertion
+    /// that matters here: it completes synchronously, so
+    /// <see cref="ValueTask{TResult}.IsCompleted" /> reads true whichever branch
+    /// ran. A source left uncompleted makes the two distinguishable — the
+    /// awaiting branch reports false, and the branch that does not await reports
+    /// true while a task that will never complete sits unawaited beside it.
+    /// <para>
+    /// That matters more here than anywhere else in this file: these two
+    /// overloads have character-for-character identical bodies, and only the
+    /// delegate types tell the two <c>ValueTask&lt;TOut&gt;</c> constructors
+    /// apart. Nothing in the source of either one would look wrong if it were.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public async Task MatchAsyncAwaitsOkAndCompletesErrSynchronously()
+    {
+        var pending = new TaskCompletionSource<int>();
+
+        ValueTask<int> ok = OkTwo.With(pending)
+                                 .MatchAsync(
+                                      static (v, s) => s.Task,
+                                      static (e, s) => -1);
+
+        ok.IsCompleted.ShouldBeFalse();
+        pending.SetResult(12);
+        (await ok).ShouldBe(12);
+
+        ValueTask<int> err = ErrBad.With(new TaskCompletionSource<int>())
+                                   .MatchAsync(
+                                        static (v, s) => s.Task,
+                                        static (e, s) => e.Length);
+
+        err.IsCompleted.ShouldBeTrue();
+        (await err).ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task MatchAsyncAwaitsErrAndCompletesOkSynchronously()
+    {
+        ValueTask<int> ok = OkTwo.With(new TaskCompletionSource<int>())
+                                 .MatchAsync(
+                                      static (v, s) => v,
+                                      static (e, s) => s.Task);
+
+        ok.IsCompleted.ShouldBeTrue();
+        (await ok).ShouldBe(2);
+
+        var pending = new TaskCompletionSource<int>();
+
+        ValueTask<int> err = ErrBad.With(pending)
+                                   .MatchAsync(
+                                        static (v, s) => v,
+                                        static (e, s) => s.Task);
+
+        err.IsCompleted.ShouldBeFalse();
+        pending.SetResult(4);
+        (await err).ShouldBe(4);
+    }
+
     [Fact]
     public async Task AndThenAsyncAppliesTheStateAndLeavesAnErrorAlone()
     {

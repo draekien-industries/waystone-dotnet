@@ -348,4 +348,95 @@ public sealed class MatchExtensionsTests
         onErr.Received(1).Invoke("Error");
         onOk.DidNotReceive().Invoke(Arg.Any<int>());
     }
+
+    /// <remarks>
+    /// The mixed value-returning shapes arrived in DRA-211, where
+    /// <see cref="Options.Option{T}" /> had carried both since 7.0.0 and
+    /// <see cref="Result{TOk,TErr}" /> only the both-asynchronous one — the
+    /// asymmetry that made the grid worth squaring. The branch written
+    /// synchronously is asserted through
+    /// <see cref="ValueTask{TResult}.IsCompleted" /> before the result is read,
+    /// which is what distinguishes it from the both-asynchronous overload rather
+    /// than merely agreeing with it.
+    /// </remarks>
+    [Fact]
+    public async Task GivenOk_WhenMatchAsyncWithAsyncOnOk_ThenAwaitOnOk()
+    {
+        int matched = await Result.Ok<int, string>(2)
+           .MatchAsync(value => Task.FromResult(value + 1), error => error.Length);
+
+        matched.ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task GivenErr_WhenMatchAsyncWithAsyncOnOk_ThenRunOnErr()
+    {
+        ValueTask<int> matched = Result.Err<int, string>("boom")
+           .MatchAsync(value => Task.FromResult(value + 1), error => error.Length);
+
+        matched.IsCompleted.ShouldBeTrue();
+        (await matched).ShouldBe(4);
+    }
+
+    [Fact]
+    public async Task GivenOk_WhenMatchAsyncWithAsyncOnErr_ThenRunOnOk()
+    {
+        ValueTask<int> matched = Result.Ok<int, string>(2)
+           .MatchAsync(value => value + 1, error => Task.FromResult(error.Length));
+
+        matched.IsCompleted.ShouldBeTrue();
+        (await matched).ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task GivenErr_WhenMatchAsyncWithAsyncOnErr_ThenAwaitOnErr()
+    {
+        int matched = await Result.Err<int, string>("boom")
+           .MatchAsync(value => value + 1, error => Task.FromResult(error.Length));
+
+        matched.ShouldBe(4);
+    }
+
+    [Fact]
+    public async Task GivenOkTask_WhenMatchAsyncWithAsyncOnOk_ThenAwaitOnOk()
+    {
+        int matched = await Task.FromResult(Result.Ok<int, string>(2))
+           .MatchAsync(value => Task.FromResult(value + 1), error => error.Length);
+
+        matched.ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task GivenErrValueTask_WhenMatchAsyncWithAsyncOnOk_ThenRunOnErr()
+    {
+        int matched =
+            await new ValueTask<Result<int, string>>(
+                    Result.Err<int, string>("boom"))
+               .MatchAsync(
+                    value => Task.FromResult(value + 1),
+                    error => error.Length);
+
+        matched.ShouldBe(4);
+    }
+
+    [Fact]
+    public async Task GivenOkValueTask_WhenMatchAsyncWithAsyncOnErr_ThenRunOnOk()
+    {
+        int matched =
+            await new ValueTask<Result<int, string>>(Result.Ok<int, string>(2))
+               .MatchAsync(
+                    value => value + 1,
+                    error => Task.FromResult(error.Length));
+
+        matched.ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task GivenErrTask_WhenMatchAsyncWithAsyncOnErr_ThenAwaitOnErr()
+    {
+        int matched = await Task.FromResult(Result.Err<int, string>("boom"))
+           .MatchAsync(value => value + 1, error => Task.FromResult(error.Length));
+
+        matched.ShouldBe(4);
+    }
 }
