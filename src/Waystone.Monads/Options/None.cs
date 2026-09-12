@@ -13,7 +13,7 @@ using System.Diagnostics;
 /// <remarks>
 /// One of the two cases of <see cref="Option{T}" />, so matching both is
 /// exhaustive and no third case can be added from outside the library. Build
-/// one with <see cref="Option.None{T}" />, which hands back a cached instance
+/// one with <see cref="Option.None{T}" />, which returns a cached instance
 /// rather than constructing one.
 /// </remarks>
 /// <typeparam name="T">The option value's type.</typeparam>

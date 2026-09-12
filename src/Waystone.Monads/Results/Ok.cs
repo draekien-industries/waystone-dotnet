@@ -43,8 +43,8 @@ public sealed record Ok<TOk, TErr> : Result<TOk, TErr>
     /// What makes <c>result is Ok&lt;TOk, TErr&gt;(var value)</c> and an arm of
     /// <c>result switch { Ok&lt;TOk, TErr&gt;(var value) => …,
     /// Err&lt;TOk, TErr&gt;(var error) => … }</c> compile. A pattern over a
-    /// result names both type arguments even though only one is bound, which is
-    /// the cost of the case types being generic in both.
+    /// result names both type arguments even though only one is bound, which
+    /// follows from the case types being generic in both.
     /// <para>
     /// This is the only way to read the value off an
     /// <see cref="Ok{TOk,TErr}" /> directly; the property behind it is internal,
