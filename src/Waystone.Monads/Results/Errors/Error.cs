@@ -62,11 +62,13 @@ public record Error
 
     /// <summary>Creates a new instance of <see cref="Error" /> from an exception.</summary>
     /// <remarks>
-    /// The code is the exception's type name with a trailing <c>Exception</c>
-    /// removed, from the <see cref="ErrorCodeFactory" /> configured in
-    /// <see cref="MonadOptions" />. The message is
-    /// <see cref="Exception.Message" /> verbatim, so anything the exception's text
-    /// exposes reaches whoever reads the error.
+    /// The code comes from the <see cref="ErrorCodeFactory" /> configured in
+    /// <see cref="MonadOptions" />; by default that is the exception's type name
+    /// with a trailing <c>Exception</c> removed, but a custom factory can produce
+    /// anything. The message is <see cref="Exception.Message" /> with surrounding
+    /// whitespace trimmed, or the configured fallback when the exception's text is
+    /// empty, so anything the exception's text exposes reaches whoever reads the
+    /// error.
     /// </remarks>
     /// <param name="exception">The exception to take the code and message from.</param>
     /// <returns>The created <see cref="Error" />.</returns>

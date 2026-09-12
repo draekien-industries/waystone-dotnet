@@ -540,13 +540,11 @@ public abstract partial record Result<TOk, TErr>
         where TOut : notnull;
 
     /// <summary>
-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value, consuming the
-    /// result instance.
+    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value.
     /// </summary>
     /// <remarks>
-    /// Throws on an <see cref="Err{TOk,TErr}" />, differing from
-    /// <see cref="Unwrap" /> only in that the thrown message leads with
-    /// <paramref name="message" />. Prefer a member that cannot throw:
+    /// Throws on an <see cref="Err{TOk,TErr}" />. Prefer a member that cannot
+    /// throw:
     /// <see cref="Match{TOut}(Func{TOk,TOut},Func{TErr,TOut})" /> to handle both
     /// cases explicitly, or <see cref="UnwrapOr" />,
     /// <see cref="UnwrapOrElse(Func{TErr,TOk})" /> or
@@ -556,7 +554,7 @@ public abstract partial record Result<TOk, TErr>
     /// Throws if the value is an
     /// <see cref="Err{TOk,TErr}" />, with an exception message including the passed
     /// <paramref name="message" />, and the content of the
-    /// <see cref="Err{TOk,TErr}" />
+    /// <see cref="Err{TOk,TErr}" />.
     /// </exception>
     /// <param name="message">The custom exception message.</param>
     public abstract TOk Expect(string message);
