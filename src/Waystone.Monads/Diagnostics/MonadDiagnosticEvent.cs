@@ -10,8 +10,8 @@ using System.Diagnostics.CodeAnalysis;
 /// <remarks>
 /// Subscribing through the raw <see cref="DiagnosticListener" /> API means naming
 /// the listener and the event as strings and casting the payload out of an
-/// <see cref="object" />. Getting any of the three wrong fails silently — no
-/// exception, no warning, an empty dashboard. This type carries all three
+/// <see cref="object" />. Getting any of the three wrong produces no exception,
+/// no warning, and an empty dashboard. This type carries all three
 /// together, so <see cref="Subscribe" /> cannot be pointed at the wrong event or
 /// handed the wrong payload type.
 /// <para>

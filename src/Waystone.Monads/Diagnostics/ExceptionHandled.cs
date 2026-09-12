@@ -19,8 +19,8 @@ using Configs;
 /// A subscriber runs synchronously on the thread that threw, still inside the
 /// <c>catch</c>, and before the caller receives its <c>None</c> or <c>Err</c>.
 /// Slow work in a subscriber delays that caller, and an exception thrown from one
-/// propagates out of the <c>Try</c> that was meant to swallow the original. Hand
-/// off anything expensive.
+/// propagates out of the <c>Try</c> that was meant to swallow the original. Move
+/// expensive work to another thread instead of running it in the callback.
 /// </para>
 /// </remarks>
 /// <param name="Exception">
