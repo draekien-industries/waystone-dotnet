@@ -398,6 +398,73 @@ public class NoneTest
     }
 
     [Fact]
+    public void WhenOrElseProducesANullOption_ThenThrow()
+    {
+        Option<int> none = Option.None<int>();
+
+        Func<Option<int>> orElseNull =
+            () => none.OrElse(() => default(Option<int>)!);
+
+        orElseNull.ShouldThrow<ArgumentNullException>()
+                  .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public void GivenState_WhenOrElseProducesANullOption_ThenThrow()
+    {
+        Option<int> none = Option.None<int>();
+
+        Func<Option<int>> orElseNull = () =>
+            none.OrElse(10, static _ => default(Option<int>)!);
+
+        orElseNull.ShouldThrow<ArgumentNullException>()
+                  .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
+    public void
+        GivenACompletedFactory_WhenOrElseAsyncProducesANullOption_ThenThrowFromTheCall()
+    {
+        Option<int> none = Option.None<int>();
+
+        Action orElseNull = () => _ = none.OrElseAsync(
+            () => new ValueTask<Option<int>>(default(Option<int>)!));
+
+        orElseNull.ShouldThrow<ArgumentNullException>()
+                  .ParamName.ShouldBe("optionFactory");
+    }
+
+    /// <summary>
+    /// The gate holds the factory's task incomplete until after the call returns,
+    /// which is what puts the guard on its awaiting path. <c>await Task.Yield()</c>
+    /// does not: on an idle thread pool it can resume before the guard reads
+    /// <c>IsCompletedSuccessfully</c>, and the throw then lands at the call
+    /// instead.
+    /// </summary>
+    [Fact]
+    public async Task
+        GivenAPendingFactory_WhenOrElseAsyncProducesANullOption_ThenFaultTheReturnedTask()
+    {
+        Option<int> none = Option.None<int>();
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Option<int>> pending = none.OrElseAsync(
+            async ValueTask<Option<int>> () =>
+            {
+                await gate.Task;
+
+                return default(Option<int>)!;
+            });
+
+        gate.SetResult(true);
+
+        Func<Task> consume = async () => await pending;
+
+        (await consume.ShouldThrowAsync<ArgumentNullException>())
+           .ParamName.ShouldBe("optionFactory");
+    }
+
+    [Fact]
     public void GivenNone_WhenAndThen_ThenReturnNone()
     {
         Option<int> none = Option.None<int>();

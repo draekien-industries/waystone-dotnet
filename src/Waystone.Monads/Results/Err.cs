@@ -188,18 +188,18 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     /// <inheritdoc />
     public override Result<TOk, TOut>
         OrElse<TOut>(Func<TErr, Result<TOk, TOut>> resultFactory) =>
-        resultFactory(Value);
+        Result.NotNull(resultFactory(Value), nameof(resultFactory));
 
     /// <inheritdoc />
     public override Result<TOk, TOut> OrElse<TState, TOut>(
         TState state,
         Func<TErr, TState, Result<TOk, TOut>> resultFactory) =>
-        resultFactory(Value, state);
+        Result.NotNull(resultFactory(Value, state), nameof(resultFactory));
 
     /// <inheritdoc />
     public override ValueTask<Result<TOk, TOut>> OrElseAsync<TOut>(
         Func<TErr, ValueTask<Result<TOk, TOut>>> resultFactory) =>
-        resultFactory(Value);
+        Result.NotNullAsync(resultFactory(Value), nameof(resultFactory));
 
     /// <inheritdoc />
     public override TOk Expect(string message) =>
