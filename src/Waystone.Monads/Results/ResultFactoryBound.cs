@@ -16,8 +16,8 @@ public static partial class Result
     /// </summary>
     /// <remarks>
     /// The counterpart of <see cref="Result{TOk,TErr}.Bound{TState}" /> for the
-    /// factories here, which have no result to be called on and so cannot be
-    /// reached the same way.
+    /// factories here, which have no result yet to call members on, so this
+    /// type exists instead.
     /// <para>
     /// Each <c>Try</c> comes in two forms, as it does on
     /// <see cref="Result" /> itself: one that is handed an
@@ -49,10 +49,20 @@ public static partial class Result
         /// Which exceptions are swallowed is decided by
         /// <see cref="Configs.MonadOptions" />, not by this call, and anything
         /// outside that set propagates.
+        /// <para>
+        /// A <paramref name="factory" /> that returns <see langword="null" />
+        /// is treated as a failure too: <paramref name="onError" /> is invoked
+        /// with an <see cref="ArgumentNullException" /> that was never thrown,
+        /// so it carries no stack trace and is not logged. An
+        /// <see cref="OperationCanceledException" /> is not caught at all and
+        /// propagates to the caller unless
+        /// <see cref="Configs.MonadOptionsBuilder.UseCancellationAsFailure" />
+        /// is configured.
+        /// </para>
         /// </remarks>
         /// <param name="factory">
         /// Produces the ok value from the bound state. Its exceptions are what
-        /// this method exists to absorb.
+        /// this method exists to catch.
         /// </param>
         /// <param name="onError">
         /// Describes a caught exception as <typeparamref name="TErr" />. It is
@@ -104,10 +114,20 @@ public static partial class Result
         /// described by the library's own <see cref="Error" />. Reach for the
         /// overload that takes <c>onError</c> once the caller needs to
         /// distinguish failures by type rather than by message.
+        /// <para>
+        /// A <paramref name="factory" /> that returns <see langword="null" />
+        /// is treated as a failure too, carrying an <see cref="Error" />
+        /// converted from an <see cref="ArgumentNullException" /> that was
+        /// never thrown, so it carries no stack trace and is not logged. An
+        /// <see cref="OperationCanceledException" /> is not caught at all and
+        /// propagates to the caller unless
+        /// <see cref="Configs.MonadOptionsBuilder.UseCancellationAsFailure" />
+        /// is configured.
+        /// </para>
         /// </remarks>
         /// <param name="factory">
         /// Produces the ok value from the bound state. Its exceptions are what
-        /// this method exists to absorb.
+        /// this method exists to catch.
         /// </param>
         /// <param name="callerMemberName">
         /// Compiler-supplied for the exception logger. Do not pass it.
@@ -151,10 +171,21 @@ public static partial class Result
         /// <see cref="Try{TOk,TErr}" />, where the task would be
         /// stored unawaited and nothing would be caught at all. <c>WM1011</c>
         /// reports that mistake.
+        /// <para>
+        /// A <paramref name="asyncFactory" /> that returns
+        /// <see langword="null" /> is treated as a failure too:
+        /// <paramref name="onError" /> is invoked with an
+        /// <see cref="ArgumentNullException" /> that was never thrown, so it
+        /// carries no stack trace and is not logged. An
+        /// <see cref="OperationCanceledException" /> is not caught at all and
+        /// propagates to the caller unless
+        /// <see cref="Configs.MonadOptionsBuilder.UseCancellationAsFailure" />
+        /// is configured.
+        /// </para>
         /// </remarks>
         /// <param name="asyncFactory">
         /// Produces the ok value from the bound state. Its exceptions, and its
-        /// task's, are what this method exists to absorb.
+        /// task's, are what this method exists to catch.
         /// </param>
         /// <param name="onError">
         /// Describes a caught exception as <typeparamref name="TErr" />. It is
@@ -205,10 +236,21 @@ public static partial class Result
         /// <remarks>
         /// The shorter of the two async forms: no <c>onError</c>, and the
         /// failure is described by the library's own <see cref="Error" />.
+        /// <para>
+        /// An <paramref name="asyncFactory" /> that returns
+        /// <see langword="null" /> is treated as a failure too, carrying an
+        /// <see cref="Error" /> converted from an
+        /// <see cref="ArgumentNullException" /> that was never thrown, so it
+        /// carries no stack trace and is not logged. An
+        /// <see cref="OperationCanceledException" /> is not caught at all and
+        /// propagates to the caller unless
+        /// <see cref="Configs.MonadOptionsBuilder.UseCancellationAsFailure" />
+        /// is configured.
+        /// </para>
         /// </remarks>
         /// <param name="asyncFactory">
         /// Produces the ok value from the bound state. Its exceptions, and its
-        /// task's, are what this method exists to absorb.
+        /// task's, are what this method exists to catch.
         /// </param>
         /// <param name="callerMemberName">
         /// Compiler-supplied for the exception logger. Do not pass it.
@@ -258,8 +300,8 @@ public static partial class Result
     /// </code>
     /// <para>
     /// Pass a tuple to bind more than one value, and mark the factory
-    /// <see langword="static" /> so the compiler rejects a capture that creeps
-    /// back in.
+    /// <see langword="static" /> so the compiler rejects a factory that
+    /// captures a variable.
     /// </para>
     /// </remarks>
     /// <param name="state">
