@@ -952,6 +952,42 @@ public abstract partial record Result<TOk, TErr>
         where TOut : struct;
 
     /// <summary>
+    /// Applies a transformation to the contained ok value with state handed to the
+    /// delegate rather than captured by it.
+    /// </summary>
+    /// <remarks>
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
+    /// <para>
+    /// <typeparamref name="TOut" /> is constrained to a value type so that
+    /// <see langword="null" /> cannot also be a mapped result, exactly as on the
+    /// overload that captures.
+    /// </para>
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="map">
+    /// Produces the mapped value from the contained ok value. Not invoked on an
+    /// <see cref="Err{TOk,TErr}" />.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the delegate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <returns>
+    /// The transformed value, or <see langword="null" /> on an
+    /// <see cref="Err{TOk,TErr}" />.
+    /// </returns>
+    public abstract TOut? MapOrNull<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> map) where TOut : struct;
+
+    /// <summary>
     /// Awaits a transformation of the contained ok value, using
     /// <see langword="null" /> rather than <see langword="default" /> for the error
     /// case.

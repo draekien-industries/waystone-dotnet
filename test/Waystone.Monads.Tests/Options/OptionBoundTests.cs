@@ -142,6 +142,16 @@ public sealed class OptionBoundTests
     }
 
     [Fact]
+    public void MapOrNullUsesNullForTheAbsentCaseRatherThanTheDefault()
+    {
+        SomeTwo.With(10).MapOrNull(static (v, s) => v + s).ShouldBe(12);
+
+        SomeTwo.With(-2).MapOrNull(static (v, s) => v + s).ShouldBe(0);
+
+        NoneInt.With(10).MapOrNull(static (v, s) => v + s).ShouldBeNull();
+    }
+
+    [Fact]
     public void MapOrElseHandsTheStateToBothDelegates()
     {
         SomeTwo.With(10)

@@ -159,6 +159,16 @@ public sealed class ResultBoundTests
     }
 
     [Fact]
+    public void MapOrNullUsesNullForTheErrorCaseRatherThanTheDefault()
+    {
+        OkTwo.With(10).MapOrNull(static (v, s) => v + s).ShouldBe(12);
+
+        OkTwo.With(-2).MapOrNull(static (v, s) => v + s).ShouldBe(0);
+
+        ErrBad.With(10).MapOrNull(static (v, s) => v + s).ShouldBeNull();
+    }
+
+    [Fact]
     public void MapOrElseHandsTheStateToBothDelegates()
     {
         OkTwo.With(10)

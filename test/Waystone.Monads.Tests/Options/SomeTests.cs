@@ -352,6 +352,26 @@ public sealed class SomeTests
     }
 
     [Fact]
+    public void GivenState_WhenMapOrNull_ThenReturnMappedValue()
+    {
+        Option<int> some = Option.Some(1);
+
+        int? result = some.MapOrNull(10, static (x, state) => x + state);
+
+        result.ShouldBe(11);
+    }
+
+    [Fact]
+    public void GivenState_WhenMapOrNullToTheDefault_ThenReturnTheDefault()
+    {
+        Option<int> some = Option.Some(1);
+
+        int? result = some.MapOrNull(-1, static (x, state) => x + state);
+
+        result.ShouldBe(0);
+    }
+
+    [Fact]
     public void GivenState_WhenUnwrapOrElse_ThenReturnTheContainedValue()
     {
         Option<int> some = Option.Some(1);

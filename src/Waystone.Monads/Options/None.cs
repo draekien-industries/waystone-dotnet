@@ -194,6 +194,11 @@ public sealed record None<T> : Option<T>
     public override TOut? MapOrNull<TOut>(Func<T, TOut> map) => null;
 
     /// <inheritdoc />
+    public override TOut? MapOrNull<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> map) => null;
+
+    /// <inheritdoc />
     public override ValueTask<TOut?> MapOrNullAsync<TOut>(
         Func<T, Task<TOut>> map) =>
         new ValueTask<TOut?>(default(TOut?));
