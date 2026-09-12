@@ -17,9 +17,8 @@ public abstract partial record Result<TOk, TErr>
     /// Created by <c>With</c> on a <see cref="Result{TOk,TErr}" />. Each member
     /// below takes the same delegate as the <see cref="Result{TOk,TErr}" />
     /// member it shares a name with, invokes it with the bound state, and
-    /// returns the plain <see cref="Result{TOk,TErr}" /> — the state is spent by
-    /// the call rather than carried onward, so a chain that needs it twice binds
-    /// it twice.
+    /// returns a plain <see cref="Result{TOk,TErr}" />. The bound state applies
+    /// to that one call only, so a chain that needs it twice binds it twice.
     /// <para>
     /// Every delegate here receives a value as well as the state, which is
     /// where this differs from <see cref="Options.Option{T}.Bound{TState}" />:
@@ -28,18 +27,16 @@ public abstract partial record Result<TOk, TErr>
     /// or the error.
     /// </para>
     /// <para>
-    /// The point is the delegate, not this type. A lambda that reads the state
-    /// from its parameter captures nothing, so marking it
-    /// <see langword="static" /> costs nothing and the compiler caches it; a
-    /// lambda that reaches for an outer variable allocates a display class every
-    /// time the call site runs. Writing <see langword="static" /> is what stops
-    /// a later edit from quietly putting the allocation back.
+    /// Mark the delegate <see langword="static" />. A lambda that only reads
+    /// its parameters allocates nothing; one that captures an outer variable
+    /// allocates a display class on every call, and <see langword="static" />
+    /// is what makes the compiler reject a delegate that captures one.
     /// </para>
     /// <para>
-    /// A <see langword="default" /> instance has no result to act on and every
-    /// member throws <see cref="InvalidOperationException" />, in the manner of
-    /// <c>ImmutableArray&lt;T&gt;</c>. Reach one only by declaring it —
-    /// <c>With</c> cannot produce one.
+    /// A <see langword="default" /> instance has no result to act on, and every
+    /// member throws <see cref="InvalidOperationException" />. Declare a
+    /// default instance explicitly to get one — <c>With</c> never produces
+    /// one.
     /// </para>
     /// <para>
     /// Where an asynchronous member surfaces a failure depends on the member.
@@ -74,7 +71,7 @@ public abstract partial record Result<TOk, TErr>
 
         /// <summary>
         /// Tests the contained ok value against <paramref name="predicate" />,
-        /// treating a failure as a failure.
+        /// treating a failure as a failure to match.
         /// </summary>
         /// <param name="predicate">
         /// Decides whether the ok value qualifies. It receives that value and
@@ -82,8 +79,8 @@ public abstract partial record Result<TOk, TErr>
         /// <see cref="Err{TOk,TErr}" />.
         /// </param>
         /// <returns>
-        /// <see langword="true" /> only when the result succeeded and
-        /// <paramref name="predicate" /> accepts its value.
+        /// True if the result succeeded and <paramref name="predicate" />
+        /// accepts its value; false otherwise.
         /// </returns>
         public bool IsOkAnd(Func<TOk, TState, bool> predicate) =>
             Source.IsOkAnd(_state, predicate);
@@ -93,7 +90,7 @@ public abstract partial record Result<TOk, TErr>
         /// treating a success as a failure to match.
         /// </summary>
         /// <remarks>
-        /// Reaches the *error*, not the ok value, so this is how a caller asks
+        /// Reaches the error, not the ok value, so this is how a caller asks
         /// which kind of failure it got without unwrapping and without a
         /// <see cref="Match{TOut}" /> whose success branch has nothing to do.
         /// </remarks>
@@ -103,8 +100,8 @@ public abstract partial record Result<TOk, TErr>
         /// <see cref="Ok{TOk,TErr}" />.
         /// </param>
         /// <returns>
-        /// <see langword="true" /> only when the result failed and
-        /// <paramref name="predicate" /> accepts its error.
+        /// True if the result failed and <paramref name="predicate" />
+        /// accepts its error; false otherwise.
         /// </returns>
         public bool IsErrAnd(Func<TErr, TState, bool> predicate) =>
             Source.IsErrAnd(_state, predicate);
@@ -113,13 +110,6 @@ public abstract partial record Result<TOk, TErr>
         /// Produces a value from whichever case the result is in, so both cases
         /// are answered in one expression.
         /// </summary>
-        /// <remarks>
-        /// The bound state reaches both delegates, which is what makes this the
-        /// most worthwhile member to bind for. Two capturing lambdas share one
-        /// display class but need a delegate each, so a capturing <c>Match</c>
-        /// allocates one delegate more than a capturing <c>Map</c> does.
-        /// <c>StateOverloadBenchmarks</c> measures both.
-        /// </remarks>
         /// <param name="onOk">
         /// Produces the result from the contained ok value and the bound state.
         /// </param>
@@ -183,10 +173,10 @@ public abstract partial record Result<TOk, TErr>
         /// Recovers from a failure with another result, leaving a success alone.
         /// </summary>
         /// <remarks>
-        /// The mirror of <see cref="AndThen{TOut}" /> across the two cases: the
-        /// ok type is fixed and the error type is what the step may change, so
-        /// this is where a failure is retried, translated, or turned into a
-        /// success.
+        /// The counterpart of <see cref="AndThen{TOut}" /> across the two
+        /// cases: the ok type is fixed and the error type is what the step
+        /// may change, so this is where a failure is retried, converted to a
+        /// different error type, or turned into a success.
         /// </remarks>
         /// <param name="resultFactory">
         /// Produces the replacement from the contained error and the bound
@@ -387,9 +377,9 @@ public abstract partial record Result<TOk, TErr>
         /// Transforms the contained error, leaving a success alone.
         /// </summary>
         /// <remarks>
-        /// How a failure crosses a boundary: an error from one layer is restated
-        /// in the vocabulary of the next without the success path being touched
-        /// or the chain being broken open.
+        /// Use this to change an error's type between layers: an error from
+        /// one layer is restated as the type the next layer expects, without
+        /// changing the success path or interrupting the chain.
         /// </remarks>
         /// <param name="map">
         /// Produces the new error from the contained one and the bound state. It
@@ -517,14 +507,6 @@ public abstract partial record Result<TOk, TErr>
         /// <remarks>
         /// An <see cref="Ok{TOk,TErr}" /> completes synchronously, and neither
         /// branch builds a state machine.
-        /// <para>
-        /// The body is character-for-character the same as the overload above,
-        /// which is correct and reads like a copy-paste slip. The delegates are
-        /// the other way round, so each <c>new ValueTask&lt;TOut&gt;(…)</c> binds
-        /// to the other constructor — the one taking a <c>Task&lt;TOut&gt;</c>
-        /// here where it took a <c>TOut</c> there. Making the two bodies *look*
-        /// different is what would actually break one of them.
-        /// </para>
         /// </remarks>
         /// <param name="onOk">
         /// Produces the result from the contained ok value and the bound state,
@@ -682,7 +664,7 @@ public abstract partial record Result<TOk, TErr>
         /// </summary>
         /// <remarks>
         /// The recovery chooses a new error type, so this is how a chain
-        /// translates one failure vocabulary into another. It may also fail
+        /// converts one error type into another. It may also fail
         /// again, so this is an attempt at recovery rather than a guarantee of
         /// one.
         /// </remarks>
@@ -761,8 +743,8 @@ public abstract partial record Result<TOk, TErr>
         /// handing the result back unchanged.
         /// </summary>
         /// <remarks>
-        /// The mirror of <see cref="InspectAsync" /> on the failed branch, and the
-        /// usual place to log a failure without handling it. An
+        /// The counterpart of <see cref="InspectAsync" /> on the failed branch,
+        /// and the usual place to log a failure without handling it. An
         /// <see cref="Ok{TOk,TErr}" /> completes synchronously.
         /// </remarks>
         /// <param name="action">
@@ -988,9 +970,9 @@ public abstract partial record Result<TOk, TErr>
         /// leaving a success untouched.
         /// </summary>
         /// <remarks>
-        /// The ok type is carried across unchanged, so this is the mirror of
-        /// <see cref="MapAsync{TOut}" /> and the usual way to translate a failure
-        /// into the vocabulary of the caller above.
+        /// The ok type is carried across unchanged, so this is the counterpart
+        /// of <see cref="MapAsync{TOut}" /> and the usual way to convert a
+        /// failure into the error type the caller above expects.
         /// </remarks>
         /// <param name="map">
         /// Restates the contained error using the bound state.
