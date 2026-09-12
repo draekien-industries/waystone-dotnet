@@ -264,27 +264,37 @@ public class StateOverloadAnalyzerTests
                .WithArguments("Match", "offset', 'fallback"));
 
     /// <remarks>
-    /// ZipWith takes a delegate on a type that carries state overloads on other
-    /// methods, and has none of its own. This pins the containing-type lookup:
-    /// a rule that fired because the receiver has state overloads somewhere
-    /// would name an overload that does not exist.
-    /// ZipWith and Reduce are the pin because DRA-108 declined them
-    /// permanently — both delegates get every operand from the call, so there
-    /// is nothing to capture and a state parameter would be one callers pass
-    /// null to. Inspect held this test until DRA-108 gave it a state overload.
+    /// DRA-108 declined ZipWith and Reduce permanently, on the grounds that both
+    /// delegates get every operand from the call so there is nothing left to
+    /// capture. DRA-211 reversed it: the argument holds for operands and for
+    /// nothing else, and the body below is the counter-example it missed — a
+    /// combiner closing over an offset allocates the same display class per call
+    /// that the rule removes from Map.
+    /// <para>
+    /// This test also used to pin the containing-type lookup, by being a
+    /// delegate-taking member on a receiver whose *other* members had state
+    /// overloads. No such member is left: every delegate-taking member of Option
+    /// and Result now has a binder twin, so that failure mode has no real call
+    /// site to fire on. What has to hold instead is that the twin set stays
+    /// complete, which nothing here can assert — it is a property of the library,
+    /// not of any one diagnostic.
+    /// </para>
     /// </remarks>
     [Fact]
-    public Task IgnoresZipWithWhichHasNoStateOverload() =>
-        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+    public Task FlagsZipWithCapturingAParameter() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
             """
             internal Option<int> Combine(
                 Option<int> option,
                 Option<int> other,
                 int offset) =>
-                option.ZipWith(
+                option.{|#0:ZipWith|}(
                     other,
                     (value, otherValue) => value + otherValue + offset);
-            """);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("ZipWith", "offset"));
 
     [Fact]
     public Task IgnoresAStateOverloadOnATypeOutsideTheLibrary() =>
@@ -352,23 +362,27 @@ public class StateOverloadAnalyzerTests
                .WithArguments("MapAsync", "offset"));
 
     /// <remarks>
-    /// Reduce sits beside ZipWith as the second member the binder declines
-    /// permanently, and the pair is worth pinning separately: ZipWith would
-    /// keep passing if the gate matched on arity, while Reduce takes two
-    /// operands of the same type and would not.
+    /// Reduce sits beside ZipWith and was reversed with it in DRA-211. The pair
+    /// is still worth two tests rather than one, for the reason the original
+    /// pair gave: ZipWith takes two operands of *different* types and Reduce two
+    /// of the same, so a gate that matched on arity or on operand types would
+    /// pass one and fail the other.
     /// </remarks>
     [Fact]
-    public Task IgnoresReduceWhichTheBinderDoesNotDeclare() =>
-        Verify.NoDiagnosticAsync<StateOverloadAnalyzer>(
+    public Task FlagsReduceCapturingAParameter() =>
+        Verify.AnalyzerAsync<StateOverloadAnalyzer>(
             """
             internal Option<int> Fold(
                 Option<int> option,
                 Option<int> other,
                 int offset) =>
-                option.Reduce(
+                option.{|#0:Reduce|}(
                     other,
                     (value, otherValue) => value + otherValue + offset);
-            """);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("Reduce", "offset"));
 
     /// <remarks>
     /// An awaited receiver reaches the library through an extension member, so

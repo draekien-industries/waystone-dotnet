@@ -407,6 +407,56 @@ public abstract partial record Option<T> where T : notnull
             Source.OkOrElse(_state, errorFactory);
 
         /// <summary>
+        /// Combines the contained value with a second option's, using the bound
+        /// state.
+        /// </summary>
+        /// <remarks>
+        /// Both values reach <paramref name="zip" /> as arguments already, so the
+        /// bound state is for whatever else the delegate would have closed over.
+        /// Where a lone <see cref="Some{T}" /> should survive the other side being
+        /// absent, use <see cref="Reduce" /> instead.
+        /// </remarks>
+        /// <param name="other">The option to combine with.</param>
+        /// <param name="zip">
+        /// Combines the two contained values with the bound state. It is invoked
+        /// only when both options hold a value.
+        /// </param>
+        /// <typeparam name="TOther">The value type of the other option.</typeparam>
+        /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+        /// <returns>
+        /// <see cref="Some{T}" /> of what <paramref name="zip" /> produced when
+        /// both options hold a value, otherwise <see cref="None{T}" />.
+        /// </returns>
+        public Option<TOut> ZipWith<TOther, TOut>(
+            Option<TOther> other,
+            Func<T, TOther, TState, TOut> zip)
+            where TOther : notnull
+            where TOut : notnull =>
+            Source.ZipWith(_state, other, zip);
+
+        /// <summary>
+        /// Merges the contained value with a second option's, using the bound
+        /// state, and keeps a lone value when only one side has one.
+        /// </summary>
+        /// <remarks>
+        /// Unlike <see cref="ZipWith{TOther,TOut}" />, a <see cref="Some{T}" />
+        /// survives a <see cref="None{T}" /> on the other side and is returned
+        /// unchanged, so the delegate and the bound state are both consulted only
+        /// when there are genuinely two values to combine.
+        /// </remarks>
+        /// <param name="other">The option to merge with.</param>
+        /// <param name="reduce">
+        /// Combines the two present values with the bound state.
+        /// </param>
+        /// <returns>
+        /// The combined value when both options hold one, otherwise whichever
+        /// single <see cref="Some{T}" /> there was, otherwise
+        /// <see cref="None{T}" />.
+        /// </returns>
+        public Option<T> Reduce(Option<T> other, Func<T, T, TState, T> reduce) =>
+            Source.Reduce(_state, other, reduce);
+
+        /// <summary>
         /// Awaits a predicate against the contained value and the bound state,
         /// answering false when there is no value to test.
         /// </summary>
@@ -767,6 +817,64 @@ public abstract partial record Option<T> where T : notnull
                 ? new ValueTask<Result<T, TErr>>(
                       Result.Ok<T, TErr>(some.Value))
                 : AwaitedErr<TErr>(errorFactory(_state));
+
+        /// <summary>
+        /// Awaits a combination of the contained value and a second option's,
+        /// using the bound state.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="None{T}" /> on either side returns an already-completed
+        /// <see cref="ValueTask{TResult}" /> and never invokes
+        /// <paramref name="zip" />, so neither absent case builds a state machine
+        /// or costs an await.
+        /// </remarks>
+        /// <param name="other">The option to combine with.</param>
+        /// <param name="zip">
+        /// Combines the two contained values with the bound state. It is invoked
+        /// only when both options hold a value.
+        /// </param>
+        /// <typeparam name="TOther">The value type of the other option.</typeparam>
+        /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+        /// <returns>
+        /// <see cref="Some{T}" /> of what <paramref name="zip" /> produced when
+        /// both options hold a value, otherwise <see cref="None{T}" />.
+        /// </returns>
+        public ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
+            Option<TOther> other,
+            Func<T, TOther, TState, Task<TOut>> zip)
+            where TOther : notnull
+            where TOut : notnull =>
+            Source is Some<T> some && other is Some<TOther> otherSome
+                ? AwaitedSome(zip(some.Value, otherSome.Value, _state))
+                : new ValueTask<Option<TOut>>(Option.None<TOut>());
+
+        /// <summary>
+        /// Awaits a merge of the contained value with a second option's, using the
+        /// bound state, and keeps a lone value when only one side has one.
+        /// </summary>
+        /// <remarks>
+        /// Unlike <see cref="ZipWithAsync{TOther,TOut}" />, a lone
+        /// <see cref="Some{T}" /> is returned unchanged rather than discarded. Only
+        /// the branch with two values to combine awaits, so the other three return
+        /// an already-completed <see cref="ValueTask{TResult}" />.
+        /// </remarks>
+        /// <param name="other">The option to merge with.</param>
+        /// <param name="reduce">
+        /// Combines the two present values with the bound state.
+        /// </param>
+        /// <returns>
+        /// The combined value when both options hold one, otherwise whichever
+        /// single <see cref="Some{T}" /> there was, otherwise
+        /// <see cref="None{T}" />.
+        /// </returns>
+        public ValueTask<Option<T>> ReduceAsync(
+            Option<T> other,
+            Func<T, T, TState, Task<T>> reduce) =>
+            Source is Some<T> some
+                ? other is Some<T> otherSome
+                    ? AwaitedSome(reduce(some.Value, otherSome.Value, _state))
+                    : new ValueTask<Option<T>>(some)
+                : new ValueTask<Option<T>>(other);
 
         private static async ValueTask<TResult> Awaited<TResult>(
             Task<TResult> task) =>

@@ -49,6 +49,39 @@ public class UseStateBindingCodeFixTests
                .WithLocation(0)
                .WithArguments("MapOrNull", "offset"));
 
+    /// <remarks>
+    /// Every other member this fix rewrites hands its delegate one value. ZipWith
+    /// and Reduce hand it two, and reached the fix in DRA-211 by gaining binder
+    /// members rather than by anything changing here — so this is the first
+    /// exercise of the two-value shape, and the case where a fix that appended the
+    /// state parameter positionally rather than last would emit source that does
+    /// not compile.
+    /// </remarks>
+    [Fact]
+    public Task BindsADelegateTakingTwoValues() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal Option<int> Combine(
+                Option<int> option,
+                Option<int> other,
+                int offset) =>
+                option.{|#0:ZipWith|}(
+                    other,
+                    (value, otherValue) => value + otherValue + offset);
+            """,
+            """
+            internal Option<int> Combine(
+                Option<int> option,
+                Option<int> other,
+                int offset) =>
+                option.With(offset).ZipWith(
+                    other,
+                    static (value, otherValue, state) => value + otherValue + state);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("ZipWith", "offset"));
+
     [Fact]
     public Task BindsOnTheResultSide() =>
         Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(

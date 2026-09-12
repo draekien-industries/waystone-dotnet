@@ -81,4 +81,56 @@ public sealed class ZipWithExtensionsTests
 
         result.ShouldBeNone();
     }
+
+    [Fact]
+    public async Task
+        GivenASomeTask_AndState_WhenZipWithAsync_ThenCombineWithTheState()
+    {
+        Option<int> result = await Task.FromResult(Option.Some(2))
+           .ZipWithAsync(
+                10,
+                Option.Some(3),
+                static (left, right, state) => left + right + state);
+
+        result.ShouldBeSomeValue(15);
+    }
+
+    [Fact]
+    public async Task
+        GivenANoneTask_AndState_WhenZipWithAsync_ThenReturnNone()
+    {
+        Option<int> result = await Task.FromResult(Option.None<int>())
+           .ZipWithAsync(
+                10,
+                Option.Some(3),
+                static (left, right, state) => left + right + state);
+
+        result.ShouldBeNone();
+    }
+
+    [Fact]
+    public async Task
+        GivenASomeValueTask_AndState_WhenZipWithAsync_ThenCombineWithTheState()
+    {
+        Option<int> result = await new ValueTask<Option<int>>(Option.Some(2))
+           .ZipWithAsync(
+                10,
+                Option.Some(3),
+                static (left, right, state) => left + right + state);
+
+        result.ShouldBeSomeValue(15);
+    }
+
+    [Fact]
+    public async Task
+        GivenTheOtherIsNone_AndState_WhenZipWithAsync_ThenReturnNone()
+    {
+        Option<int> result = await new ValueTask<Option<int>>(Option.Some(2))
+           .ZipWithAsync(
+                10,
+                Option.None<int>(),
+                static (left, right, state) => left + right + state);
+
+        result.ShouldBeNone();
+    }
 }

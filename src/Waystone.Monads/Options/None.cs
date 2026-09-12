@@ -292,6 +292,13 @@ public sealed record None<T> : Option<T>
         Option.None<TOut>();
 
     /// <inheritdoc />
+    public override Option<TOut> ZipWith<TState, TOther, TOut>(
+        TState state,
+        Option<TOther> other,
+        Func<T, TOther, TState, TOut> zip) =>
+        Option.None<TOut>();
+
+    /// <inheritdoc />
     public override ValueTask<Option<TOut>> ZipWithAsync<TOther, TOut>(
         Option<TOther> other,
         Func<T, TOther, Task<TOut>> zip) =>
@@ -300,6 +307,12 @@ public sealed record None<T> : Option<T>
     /// <inheritdoc />
     public override Option<T> Reduce(Option<T> other, Func<T, T, T> reduce) =>
         other;
+
+    /// <inheritdoc />
+    public override Option<T> Reduce<TState>(
+        TState state,
+        Option<T> other,
+        Func<T, T, TState, T> reduce) => other;
 
     /// <inheritdoc />
     public override ValueTask<Option<T>> ReduceAsync(
