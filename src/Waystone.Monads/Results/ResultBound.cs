@@ -42,13 +42,14 @@ public abstract partial record Result<TOk, TErr>
     /// <c>With</c> cannot produce one.
     /// </para>
     /// <para>
-    /// The asynchronous members throw rather than returning a faulted task, which
-    /// is worth knowing because the opposite is the more common convention. Each
-    /// one evaluates its own body eagerly so that an
-    /// <see cref="Err{TOk,TErr}" /> completes without building a state machine,
+    /// Where an asynchronous member surfaces a failure depends on the member.
+    /// Most evaluate their body eagerly, so a <see langword="default" /> instance
     /// and a delegate that throws before it returns its
-    /// <see cref="System.Threading.Tasks.Task" /> throws through the call for the
-    /// same reason. Awaiting the result is not what surfaces either failure.
+    /// <see cref="System.Threading.Tasks.Task" /> both throw at the call rather
+    /// than from the returned task. The members that await on both branches are
+    /// declared <see langword="async" /> and surface the same two failures from
+    /// the returned task instead. Await the call inside the
+    /// <see langword="try" /> block and both are caught either way.
     /// </para>
     /// </remarks>
     /// <typeparam name="TState">The type of the bound value.</typeparam>

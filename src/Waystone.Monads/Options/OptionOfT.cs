@@ -44,14 +44,12 @@ public abstract partial record Option<T> where T : notnull
     internal abstract void OnlyThisAssemblyMayDerive();
 
     /// <summary>
-    /// Returns <see langword="true" /> if the option is a
-    /// <see cref="Some{T}" /> value.
+    /// Checks whether the option is a <see cref="Some{T}" /> value.
     /// </summary>
     public abstract bool IsSome { get; }
 
     /// <summary>
-    /// Returns <see langword="false" /> if the option is a
-    /// <see cref="None{T}" /> value.
+    /// Checks whether the option is a <see cref="None{T}" /> value.
     /// </summary>
     public abstract bool IsNone { get; }
 
