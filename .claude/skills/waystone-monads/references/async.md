@@ -35,9 +35,15 @@ in `Task.FromResult` to match its sibling.
 
 ```csharp
 string text = await result.MatchAsync(
-    RenderAsync,             // awaits
-    error => error.Message); // does not
+    async order => await RenderAsync(order), // awaits
+    error => error.Message);                 // does not
 ```
+
+The asynchronous branch is typed `Func<…, Task<TOut>>` here, not `ValueTask` —
+`AndThenAsync` and `OrElseAsync` are the only members taking a `ValueTask`
+delegate, because they are the only ones a chain composes into. So a step
+declared `ValueTask` to stay chainable does not bind as a method group to these,
+and the lambda above is what to write.
 
 ## Async members return ValueTask
 
