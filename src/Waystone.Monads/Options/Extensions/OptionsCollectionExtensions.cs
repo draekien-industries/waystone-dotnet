@@ -6,7 +6,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-/// <summary>Extensions for <see cref="Option{T}" /> collections.</summary>
+/// <summary>Extensions over a sequence of <see cref="Option{T}" /> values.</summary>
+/// <remarks>
+/// Operations on a single <see cref="Option{T}" /> are declared on the type
+/// itself or in <see cref="OptionExtensions" />; these instead treat an
+/// <see cref="System.Collections.Generic.IEnumerable{T}" /> of options as the
+/// receiver.
+/// </remarks>
 public static class OptionsCollectionExtensions
 {
     /// <summary>
@@ -27,7 +33,7 @@ public static class OptionsCollectionExtensions
     /// The condition a <see cref="Some{T}" /> value must satisfy to survive as a
     /// <see cref="Some{T}" />.
     /// </param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// A sequence the same length as <paramref name="options" />, holding each
     /// matching <see cref="Some{T}" /> unchanged and a <see cref="None{T}" /> in
@@ -52,8 +58,8 @@ public static class OptionsCollectionExtensions
     /// <param name="mapper">
     /// The transform applied to each <see cref="Some{T}" /> value.
     /// </param>
-    /// <typeparam name="TIn">The input option value's type</typeparam>
-    /// <typeparam name="TOut">The output option value's type</typeparam>
+    /// <typeparam name="TIn">The input option value's type.</typeparam>
+    /// <typeparam name="TOut">The output option value's type.</typeparam>
     /// <returns>
     /// A sequence the same length as <paramref name="options" />, holding the
     /// mapped value in each <see cref="Some{T}" /> position and a
@@ -76,7 +82,7 @@ public static class OptionsCollectionExtensions
     /// cannot be lined up against the source by position.
     /// </remarks>
     /// <param name="options">The sequence to flatten.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// The value of every <see cref="Some{T}" /> in the source, in order. Empty
     /// when <paramref name="options" /> is empty or holds no
@@ -92,16 +98,15 @@ public static class OptionsCollectionExtensions
     /// </summary>
     /// <remarks>
     /// This is the all-or-nothing counterpart to <see cref="Flatten{T}" />, which
-    /// drops the absent elements instead of failing on them. It is the port of
-    /// Rust's <c>collect::&lt;Option&lt;Vec&lt;T&gt;&gt;&gt;()</c> and short-circuits
-    /// the same way: enumeration stops at the first <see cref="None{T}" />, so the
+    /// drops the absent elements instead of failing on them. It short-circuits:
+    /// enumeration stops at the first <see cref="None{T}" />, so the
     /// tail of <paramref name="options" /> is never visited and a side-effecting
     /// source is left partly consumed. Enumerates when it is called rather than
     /// when its result is read, and builds a list as it goes, so do not call it on
     /// an unbounded sequence.
     /// </remarks>
     /// <param name="options">The sequence to gather. Enumerated immediately.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> holding one value per element, in source order,
     /// when every element is a <see cref="Some{T}" /> — including when
@@ -140,10 +145,10 @@ public static class OptionsCollectionExtensions
     /// value, or <see cref="None{T}" /> if any element is absent.
     /// </summary>
     /// <remarks>
-    /// The asynchronous counterpart of <see cref="Collect{T}" />, and it
-    /// short-circuits for real: the stream stops being pulled at the first
+    /// The asynchronous counterpart of <see cref="Collect{T}" />: pulling from
+    /// the stream stops at the first
     /// <see cref="None{T}" />, so whatever would have produced the later elements
-    /// never runs. That is the reason to reach for this over materialising the
+    /// never runs. Prefer this over materialising the
     /// stream and calling <see cref="Collect{T}" /> on the result.
     /// </remarks>
     /// <param name="options">
@@ -153,7 +158,7 @@ public static class OptionsCollectionExtensions
     /// Passed to the stream's enumerator, so a source that honours it stops
     /// producing when cancellation is requested.
     /// </param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> holding one value per element, in stream order,
     /// when every element is a <see cref="Some{T}" /> — including for an empty
@@ -200,7 +205,7 @@ public static class OptionsCollectionExtensions
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// The first matching <see cref="Some{T}" />, or a <see cref="None{T}" /> when
     /// nothing matches or <paramref name="options" /> is empty. Never
@@ -218,13 +223,14 @@ public static class OptionsCollectionExtensions
     /// </summary>
     /// <remarks>
     /// <paramref name="defaultValue" /> is evaluated at the call site whether or not a
-    /// match is found; use <see cref="FirstOrElse{T}" /> when producing it is
-    /// expensive. Enumeration stops at the first match.
+    /// match is found; use <see cref="FirstOrElse{T}" /> instead so the
+    /// fallback is computed only when nothing matches. Enumeration stops at
+    /// the first match.
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
     /// <param name="defaultValue">The value to return when nothing matches.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// The first matching value, or <paramref name="defaultValue" /> when nothing
     /// matches or <paramref name="options" /> is empty.
@@ -247,7 +253,7 @@ public static class OptionsCollectionExtensions
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
     /// <param name="valueFactory">The delegate that produces the value when nothing matches.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// The first matching value, or the value produced by
     /// <paramref name="valueFactory" /> when nothing matches or
@@ -272,7 +278,7 @@ public static class OptionsCollectionExtensions
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// The last matching <see cref="Some{T}" />, or a <see cref="None{T}" /> when
     /// nothing matches or <paramref name="options" /> is empty. Never
@@ -290,14 +296,15 @@ public static class OptionsCollectionExtensions
     /// </summary>
     /// <remarks>
     /// <paramref name="defaultValue" /> is evaluated at the call site whether or not a
-    /// match is found; use <see cref="LastOrElse{T}" /> when producing it is
-    /// expensive. The whole of <paramref name="options" /> is enumerated, so do
+    /// match is found; use <see cref="LastOrElse{T}" /> instead so the
+    /// fallback is computed only when nothing matches. The whole of
+    /// <paramref name="options" /> is enumerated, so do
     /// not call this on an unbounded sequence.
     /// </remarks>
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
     /// <param name="defaultValue">The value to return when nothing matches.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// The last matching value, or <paramref name="defaultValue" /> when nothing
     /// matches or <paramref name="options" /> is empty.
@@ -321,7 +328,7 @@ public static class OptionsCollectionExtensions
     /// <param name="options">The sequence to search.</param>
     /// <param name="predicate">The condition the matching value must satisfy.</param>
     /// <param name="valueFactory">The delegate that produces the value when nothing matches.</param>
-    /// <typeparam name="T">The option value's type</typeparam>
+    /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
     /// The last matching value, or the value produced by
     /// <paramref name="valueFactory" /> when nothing matches or

@@ -14,19 +14,13 @@ using System.Diagnostics;
 /// the type itself.
 /// </summary>
 /// <remarks>
-/// Two kinds of member live here. Most are generated: the awaited-receiver
-/// overloads that let a call chain stay in one expression when the option is
-/// still inside a <see cref="Task{TResult}" /> or a
-/// <see cref="ValueTask{TResult}" />, listed in the attributes below and
-/// forwarding into the member of the same name on <see cref="Option{T}" />.
-/// The rest are hand-written, and each is here because its receiver is a
-/// *particular* option rather than any option — <c>Unzip</c> reads one holding
-/// a tuple, <c>Flatten</c> a nested option, <c>Transpose</c> a
-/// <see cref="Result{TOk,TErr}" />, <c>UnwrapOrNull</c> a value type — or
-/// because the shape awaits an argument as well as the receiver, which the
-/// generator has no way to reach.
+/// Every member here is callable on an <see cref="Option{T}" />: most also
+/// have an awaited-receiver overload that runs the same operation on a
+/// <see cref="Task{TResult}" /> or <see cref="ValueTask{TResult}" /> of one,
+/// so a call chain stays in one expression before the option has been
+/// awaited.
 /// <para>
-/// Operations over a *sequence* of options are the one thing that is not here.
+/// Operations over a sequence of options are the one thing that is not here.
 /// They take an <see cref="System.Collections.Generic.IEnumerable{T}" />
 /// receiver rather than an <see cref="Option{T}" />, so they share nothing with
 /// the members below and live in <see cref="OptionsCollectionExtensions" />.
@@ -83,14 +77,14 @@ public static partial class OptionExtensions
     extension<T>(Option<T> option) where T : notnull
     {
         /// <summary>
-        /// Binds a value to the option so that the next call can hand it to a
+        /// Binds a value to the option so that the next call can pass it to a
         /// delegate rather than have the delegate capture it.
         /// </summary>
         /// <remarks>
         /// The members on the returned <see cref="Option{T}.Bound{TState}" />
-        /// mirror the ones here, minus the state argument, and each returns the plain
-        /// <see cref="Option{T}" /> again. So the state is spent by the call that
-        /// uses it and a chain binds as many times as it needs to:
+        /// correspond to the ones here, minus the state argument, and each returns
+        /// the plain <see cref="Option{T}" /> again. The state is consumed by the
+        /// call that uses it, and a chain binds as many times as it needs to:
         /// <code>
         /// option.With(limit)
         ///       .Filter(static (v, s) => v &lt;= s)
@@ -99,9 +93,9 @@ public static partial class OptionExtensions
         /// </code>
         /// <para>
         /// Pass a tuple to bind more than one value. Mark every lambda
-        /// <see langword="static" />, which is what makes the compiler reject a
-        /// capture that creeps back in — binding the state achieves nothing on
-        /// its own if the delegate still reaches for an outer variable.
+        /// <see langword="static" />, which makes the compiler reject any outer
+        /// variable the lambda still captures directly — binding the state
+        /// achieves nothing if the delegate captures one anyway.
         /// </para>
         /// <para>
         /// There is deliberately no awaited-receiver form: a task of a binder
@@ -111,14 +105,15 @@ public static partial class OptionExtensions
         /// </para>
         /// </remarks>
         /// <param name="state">
-        /// The value handed to the delegate of whichever member is called next.
+        /// The value passed to the delegate of whichever member is called next.
         /// Nothing reads it in the meantime, so it may be anything, including
         /// <see langword="null" />.
         /// </param>
         /// <typeparam name="TState">The type of the bound value.</typeparam>
         /// <returns>
-        /// The option and <paramref name="state" /> together, carrying the
-        /// vocabulary that consumes both.
+        /// An <see cref="Option{T}.Bound{TState}" /> holding the option and
+        /// <paramref name="state" /> together, whose members forward to the
+        /// state-accepting overload of the same name on <see cref="Option{T}" />.
         /// </returns>
         [ExcludeFromAwaitedReceivers]
         public Option<T>.Bound<TState> With<TState>(TState state) =>

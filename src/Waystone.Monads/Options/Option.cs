@@ -9,7 +9,7 @@ using Diagnostics;
 using System.Diagnostics;
 #endif
 
-/// <summary>Creates <see cref="Option{T}" /> values</summary>
+/// <summary>Creates <see cref="Option{T}" /> values.</summary>
 /// <remarks>
 /// The <see cref="Some{T}" /> constructor and the <see cref="None{T}" />
 /// instance are both internal, so this class is the only way to build an
@@ -34,7 +34,7 @@ public static partial class Option
     /// <param name="callerArgumentExpression">
     /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="T">The factory return value's type</typeparam>
+    /// <typeparam name="T">The factory return value's type.</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory produces a value that a
     /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
@@ -45,7 +45,7 @@ public static partial class Option
     /// configured on <see cref="MonadOptions" />, which also writes to the
     /// console while a debugger is attached, whether or not a logger is
     /// configured. An <see cref="OperationCanceledException" /> is not caught
-    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// at all, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
     /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
@@ -90,7 +90,7 @@ public static partial class Option
     /// <param name="callerArgumentExpression">
     /// Compiler-supplied for the exception logger. Do not pass it.
     /// </param>
-    /// <typeparam name="T">The async factory return type</typeparam>
+    /// <typeparam name="T">The async factory return type.</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory produces a value that a
     /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
@@ -101,7 +101,7 @@ public static partial class Option
     /// configured on <see cref="MonadOptions" />, which also writes to the
     /// console while a debugger is attached, whether or not a logger is
     /// configured. An <see cref="OperationCanceledException" /> is not caught
-    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// at all, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
     /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
@@ -151,7 +151,7 @@ public static partial class Option
     /// <typeparam name="TState">
     /// The state's type. It is unconstrained, so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="T">The factory return value's type</typeparam>
+    /// <typeparam name="T">The factory return value's type.</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory produces a value that a
     /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
@@ -170,7 +170,7 @@ public static partial class Option
     /// configured on <see cref="MonadOptions" />, which also writes to the
     /// console while a debugger is attached, whether or not a logger is
     /// configured. An <see cref="OperationCanceledException" /> is not caught
-    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// at all, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
     /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
@@ -225,7 +225,7 @@ public static partial class Option
     /// <typeparam name="TState">
     /// The state's type. It is unconstrained, so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="T">The async factory return type</typeparam>
+    /// <typeparam name="T">The async factory return type.</typeparam>
     /// <returns>
     /// A <see cref="Some{T}" /> if the factory produces a value that a
     /// <see cref="Some{T}" /> can hold, otherwise a <see cref="None{T}" />.
@@ -244,7 +244,7 @@ public static partial class Option
     /// configured on <see cref="MonadOptions" />, which also writes to the
     /// console while a debugger is attached, whether or not a logger is
     /// configured. An <see cref="OperationCanceledException" /> is not caught
-    /// at all: it leaves this method untouched, so it is neither logged nor
+    /// at all, so it is neither logged nor
     /// turned into a <see cref="None{T}" />, and the caller observes the
     /// cancellation it asked for. Call
     /// <see cref="MonadOptionsBuilder.UseCancellationAsFailure" /> to catch it like
@@ -274,7 +274,7 @@ public static partial class Option
         }
     }
 
-    /// <summary>Creates a <see cref="Some{T}" /></summary>
+    /// <summary>Creates a <see cref="Some{T}" />.</summary>
     /// <param name="value">The value the option will hold.</param>
     /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>
@@ -285,15 +285,15 @@ public static partial class Option
     /// <exception cref="ArgumentNullException">
     /// <paramref name="value" /> is null. A <see cref="Some{T}" /> may hold the
     /// default of its type, but never null. The <c>notnull</c> constraint makes
-    /// this hard to reach rather than impossible, since <c>default!</c> and an
-    /// unconstrained caller both get through. Call
-    /// <c>Option.FromNullable</c> instead to turn null into a
+    /// this unlikely rather than impossible: <c>default!</c> and an
+    /// unconstrained caller can both still produce a null value. Call
+    /// <see cref="Option.FromNullable{T}(T)" /> instead to turn null into a
     /// <see cref="None{T}" /> rather than a throw.
     /// </exception>
     public static Option<T> Some<T>(T value) where T : notnull =>
         new Some<T>(value);
 
-    /// <summary>Gets the <see cref="None{T}" /> for <typeparamref name="T" /></summary>
+    /// <summary>Returns the <see cref="None{T}" /> for <typeparamref name="T" />.</summary>
     /// <typeparam name="T">The option value's type.</typeparam>
     /// <returns>An <see cref="Option{T}" /> that holds no value.</returns>
     /// <remarks>

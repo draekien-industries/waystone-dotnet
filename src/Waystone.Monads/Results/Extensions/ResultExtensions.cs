@@ -17,13 +17,13 @@ using System.Diagnostics;
 /// <see cref="System.Threading.Tasks.ValueTask{TResult}" />, listed in the
 /// attributes below and forwarding into the member of the same name on
 /// <see cref="Result{TOk,TErr}" />. The rest are hand-written, and each is here
-/// because its receiver is a *particular* result rather than any result:
+/// because its receiver is a particular kind of result rather than any result:
 /// <c>Flatten</c> reads a nested result, <c>Transpose</c> a result of an
 /// <see cref="Option{T}" />, and <c>UnwrapOrNull</c> one whose ok value is a
 /// value type. All three are lifted onto the two awaited receivers as well, so
 /// none needs an attribute.
 /// <para>
-/// Operations over a *sequence* of results are the one thing that is not here.
+/// Operations over a sequence of results are the one thing that is not here.
 /// They take an <see cref="System.Collections.Generic.IEnumerable{T}" />
 /// receiver rather than a <see cref="Result{TOk,TErr}" />, so they share
 /// nothing with the members below and live in
@@ -88,10 +88,12 @@ public static partial class ResultExtensions
         /// </summary>
         /// <remarks>
         /// The members on the returned
-        /// <see cref="Result{TOk,TErr}.Bound{TState}" /> mirror the ones here,
+        /// <see cref="Result{TOk,TErr}.Bound{TState}" /> expose the same members as
+        /// the ones here,
         /// minus the state argument, and each returns the plain
-        /// <see cref="Result{TOk,TErr}" /> again. So the state is spent by the
-        /// call that uses it and a chain binds as many times as it needs to:
+        /// <see cref="Result{TOk,TErr}" /> again. Only the next call in the chain
+        /// receives the state; a chain calls <c>With</c> again each time it needs
+        /// to bind a new one:
         /// <code>
         /// result.With(logger)
         ///       .InspectErr(static (e, s) => s.LogError(e.Message))
@@ -101,7 +103,7 @@ public static partial class ResultExtensions
         /// <para>
         /// Pass a tuple to bind more than one value. Mark every lambda
         /// <see langword="static" />, which is what makes the compiler reject a
-        /// capture that creeps back in — binding the state achieves nothing on
+        /// capture that is reintroduced later — binding the state achieves nothing on
         /// its own if the delegate still reaches for an outer variable.
         /// </para>
         /// <para>
@@ -119,7 +121,8 @@ public static partial class ResultExtensions
         /// <typeparam name="TState">The type of the bound value.</typeparam>
         /// <returns>
         /// The result and <paramref name="state" /> together, carrying the
-        /// vocabulary that consumes both.
+        /// same members as <see cref="Result{TOk,TErr}" />, each now supplied with
+        /// <paramref name="state" />.
         /// </returns>
         [ExcludeFromAwaitedReceivers]
         public Result<TOk, TErr>.Bound<TState> With<TState>(TState state) =>

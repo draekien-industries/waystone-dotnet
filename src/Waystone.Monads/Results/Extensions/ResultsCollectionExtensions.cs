@@ -23,8 +23,8 @@ public static class ResultsCollectionExtensions
     /// The sequence to read ok values from. Not enumerated until the returned
     /// sequence is.
     /// </param>
-    /// <typeparam name="TOk">The result's ok value type</typeparam>
-    /// <typeparam name="TErr">The result's error value type</typeparam>
+    /// <typeparam name="TOk">The result's ok value type.</typeparam>
+    /// <typeparam name="TErr">The result's error value type.</typeparam>
     /// <returns>
     /// The value of every <see cref="Ok{TOk,TErr}" /> in the source, in source
     /// order.
@@ -46,8 +46,8 @@ public static class ResultsCollectionExtensions
     /// The sequence to read errors from. Not enumerated until the returned sequence
     /// is.
     /// </param>
-    /// <typeparam name="TOk">The result's ok value type</typeparam>
-    /// <typeparam name="TErr">The result's error value type</typeparam>
+    /// <typeparam name="TOk">The result's ok value type.</typeparam>
+    /// <typeparam name="TErr">The result's error value type.</typeparam>
     /// <returns>
     /// The error of every <see cref="Err{TOk,TErr}" /> in the source, in source
     /// order.
@@ -66,9 +66,8 @@ public static class ResultsCollectionExtensions
     /// </summary>
     /// <remarks>
     /// The all-or-nothing counterpart to <see cref="Partition{TOk,TErr}" />, which
-    /// reports every failure and always succeeds. This is the port of Rust's
-    /// <c>collect::&lt;Result&lt;Vec&lt;T&gt;, E&gt;&gt;()</c> and short-circuits the
-    /// same way: enumeration stops at the first <see cref="Err{TOk,TErr}" />, so
+    /// reports every failure instead of stopping at the first one. Enumeration
+    /// stops at the first <see cref="Err{TOk,TErr}" />, so
     /// later elements are never visited, later errors are never seen, and a
     /// side-effecting source is left partly consumed. Reach for
     /// <see cref="Partition{TOk,TErr}" /> when the caller needs to report all of the
@@ -76,8 +75,8 @@ public static class ResultsCollectionExtensions
     /// when its result is read, so do not call it on an unbounded sequence.
     /// </remarks>
     /// <param name="results">The sequence to gather. Enumerated immediately.</param>
-    /// <typeparam name="TOk">The result's ok value type</typeparam>
-    /// <typeparam name="TErr">The result's error value type</typeparam>
+    /// <typeparam name="TOk">The result's ok value type.</typeparam>
+    /// <typeparam name="TErr">The result's error value type.</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> holding one value per element, in source
     /// order, when every element is an <see cref="Ok{TOk,TErr}" /> — including when
@@ -120,11 +119,12 @@ public static class ResultsCollectionExtensions
     /// value, or the first error encountered.
     /// </summary>
     /// <remarks>
-    /// The asynchronous counterpart of <see cref="Collect{TOk,TErr}" />, and it
-    /// short-circuits for real: the stream stops being pulled at the first
+    /// The asynchronous counterpart of <see cref="Collect{TOk,TErr}" />. It
+    /// short-circuits: the stream stops being pulled at the first
     /// <see cref="Err{TOk,TErr}" />, so whatever would have produced the later
-    /// elements never runs. That is the reason to reach for this over materialising
-    /// the stream and calling <see cref="Collect{TOk,TErr}" /> on the result.
+    /// elements never runs. Prefer this over materialising the stream and calling
+    /// <see cref="Collect{TOk,TErr}" /> on the result, which runs every element
+    /// before it can fail.
     /// </remarks>
     /// <param name="results">
     /// The stream to gather. Pulled from until it ends or an element fails.
@@ -133,8 +133,8 @@ public static class ResultsCollectionExtensions
     /// Passed to the stream's enumerator, so a source that honours it stops
     /// producing when cancellation is requested.
     /// </param>
-    /// <typeparam name="TOk">The result's ok value type</typeparam>
-    /// <typeparam name="TErr">The result's error value type</typeparam>
+    /// <typeparam name="TOk">The result's ok value type.</typeparam>
+    /// <typeparam name="TErr">The result's error value type.</typeparam>
     /// <returns>
     /// An <see cref="Ok{TOk,TErr}" /> holding one value per element, in stream
     /// order, when every element is an <see cref="Ok{TOk,TErr}" /> — including for
@@ -187,8 +187,8 @@ public static class ResultsCollectionExtensions
     /// <see langword="null" />.
     /// </remarks>
     /// <param name="results">The sequence to split. Enumerated once, immediately.</param>
-    /// <typeparam name="TOk">The result's ok value type</typeparam>
-    /// <typeparam name="TErr">The result's error value type</typeparam>
+    /// <typeparam name="TOk">The result's ok value type.</typeparam>
+    /// <typeparam name="TErr">The result's error value type.</typeparam>
     /// <returns>
     /// The ok values and the errors as two lists, each in source order.
     /// </returns>
