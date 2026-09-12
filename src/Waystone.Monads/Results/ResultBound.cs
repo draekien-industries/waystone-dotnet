@@ -483,6 +483,70 @@ public abstract partial record Result<TOk, TErr>
         }
 
         /// <summary>
+        /// Awaits the branch for a success, answering a failure without awaiting.
+        /// </summary>
+        /// <remarks>
+        /// An <see cref="Err{TOk,TErr}" /> completes synchronously, and neither
+        /// branch builds a state machine.
+        /// </remarks>
+        /// <param name="onOk">
+        /// Produces the result from the contained ok value and the bound state,
+        /// as work worth awaiting.
+        /// </param>
+        /// <param name="onErr">
+        /// Produces the result from the contained error and the bound state,
+        /// without awaiting.
+        /// </param>
+        /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+        /// <returns>Whatever the delegate for the result's case returned.</returns>
+        public ValueTask<TOut> MatchAsync<TOut>(
+            Func<TOk, TState, Task<TOut>> onOk,
+            Func<TErr, TState, TOut> onErr)
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? new ValueTask<TOut>(onOk(ok.Value, _state))
+                : new ValueTask<TOut>(onErr(result.UnwrapErr(), _state));
+        }
+
+        /// <summary>
+        /// Awaits the branch for a failure, answering a success without awaiting.
+        /// </summary>
+        /// <remarks>
+        /// An <see cref="Ok{TOk,TErr}" /> completes synchronously, and neither
+        /// branch builds a state machine.
+        /// <para>
+        /// The body is character-for-character the same as the overload above,
+        /// which is correct and reads like a copy-paste slip. The delegates are
+        /// the other way round, so each <c>new ValueTask&lt;TOut&gt;(…)</c> binds
+        /// to the other constructor — the one taking a <c>Task&lt;TOut&gt;</c>
+        /// here where it took a <c>TOut</c> there. Making the two bodies *look*
+        /// different is what would actually break one of them.
+        /// </para>
+        /// </remarks>
+        /// <param name="onOk">
+        /// Produces the result from the contained ok value and the bound state,
+        /// without awaiting.
+        /// </param>
+        /// <param name="onErr">
+        /// Produces the result from the contained error and the bound state, as
+        /// work worth awaiting.
+        /// </param>
+        /// <typeparam name="TOut">The type both delegates produce.</typeparam>
+        /// <returns>Whatever the delegate for the result's case returned.</returns>
+        public ValueTask<TOut> MatchAsync<TOut>(
+            Func<TOk, TState, TOut> onOk,
+            Func<TErr, TState, Task<TOut>> onErr)
+        {
+            Result<TOk, TErr> result = Source;
+
+            return result is Ok<TOk, TErr> ok
+                ? new ValueTask<TOut>(onOk(ok.Value, _state))
+                : new ValueTask<TOut>(onErr(result.UnwrapErr(), _state));
+        }
+
+        /// <summary>
         /// Awaits whichever of two branches the result selects, for their side
         /// effect alone.
         /// </summary>

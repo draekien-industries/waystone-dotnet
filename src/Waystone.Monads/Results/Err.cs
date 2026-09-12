@@ -128,6 +128,18 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
         await onErr(Value).ConfigureAwait(false);
 
     /// <inheritdoc />
+    public override ValueTask<TOut> MatchAsync<TOut>(
+        Func<TOk, Task<TOut>> onOk,
+        Func<TErr, TOut> onErr) =>
+        new ValueTask<TOut>(onErr(Value));
+
+    /// <inheritdoc />
+    public override async ValueTask<TOut> MatchAsync<TOut>(
+        Func<TOk, TOut> onOk,
+        Func<TErr, Task<TOut>> onErr) =>
+        await onErr(Value).ConfigureAwait(false);
+
+    /// <inheritdoc />
     public override async ValueTask MatchAsync(
         Func<TOk, Task> onOk,
         Func<TErr, Task> onErr) =>

@@ -77,10 +77,26 @@ internal static class AsyncGuide
         _ = (text, fromSome, fromNone);
     }
 
-    // The page also shows a MatchAsync on a Result whose Err branch is
-    // synchronous, to say it does not compile. There is nothing to pin here:
-    // a sample that fails to build is the claim itself, and this project would
-    // stop building if it were added.
+    internal static async Task MixingSyncAndAsyncBranchesOnAResult(
+        Result<Character, Error> result)
+    {
+        // both branches async
+        string text = await result.MatchAsync(
+            async x => await RenderAsync(x),
+            async e => await DescribeAsync(e));
+
+        // only the Ok branch is async
+        string fromOk = await result.MatchAsync(
+            async x => await RenderAsync(x),
+            e => e.ToString());
+
+        // only the Err branch is async
+        string fromErr = await result.MatchAsync(
+            x => x.Name,
+            async e => await DescribeAsync(e));
+
+        _ = (text, fromOk, fromErr);
+    }
 
     internal static async Task ConsumingAnOptionAsync(string id)
     {

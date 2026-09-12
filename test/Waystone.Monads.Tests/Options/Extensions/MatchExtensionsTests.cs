@@ -1,6 +1,7 @@
 namespace Waystone.Monads.Options.Extensions;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NSubstitute;
@@ -312,5 +313,252 @@ public sealed class MatchExtensionsTests
                 () => Task.FromResult("No Value"));
 
         result.ShouldBe("No Value");
+    }
+
+    /// <remarks>
+    /// The void-returning shapes arrived in DRA-211, where
+    /// <see cref="Result{TOk,TErr}" /> had carried all three since 7.0.0 and
+    /// <see cref="Option{T}" /> none of them. Nothing is returned, so which branch
+    /// ran can only be read off a recorder — a test asserting on a return value
+    /// cannot tell these apart at all.
+    /// </remarks>
+    [Fact]
+    public async Task GivenSome_WhenVoidMatchAsyncWithAsyncBranches_ThenAwaitOnSome()
+    {
+        var ran = new List<string>();
+
+        await Option.Some(1)
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        ran.ShouldBe(["some:1"]);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenVoidMatchAsyncWithAsyncBranches_ThenAwaitOnNone()
+    {
+        var ran = new List<string>();
+
+        await Option.None<int>()
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        ran.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task GivenSome_WhenVoidMatchAsyncWithSyncOnNone_ThenAwaitOnSome()
+    {
+        var ran = new List<string>();
+
+        await Option.Some(1)
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () => ran.Add("none"));
+
+        ran.ShouldBe(["some:1"]);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenVoidMatchAsyncWithSyncOnNone_ThenRunOnNone()
+    {
+        var ran = new List<string>();
+
+        ValueTask matched = Option.None<int>()
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () => ran.Add("none"));
+
+        matched.IsCompleted.ShouldBeTrue();
+        await matched;
+        ran.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task GivenSome_WhenVoidMatchAsyncWithSyncOnSome_ThenRunOnSome()
+    {
+        var ran = new List<string>();
+
+        ValueTask matched = Option.Some(1)
+           .MatchAsync(
+                value => ran.Add($"some:{value}"),
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        matched.IsCompleted.ShouldBeTrue();
+        await matched;
+        ran.ShouldBe(["some:1"]);
+    }
+
+    [Fact]
+    public async Task GivenNone_WhenVoidMatchAsyncWithSyncOnSome_ThenAwaitOnNone()
+    {
+        var ran = new List<string>();
+
+        await Option.None<int>()
+           .MatchAsync(
+                value => ran.Add($"some:{value}"),
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        ran.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task GivenSomeTask_WhenVoidMatchAsyncWithAsyncBranches_ThenAwaitOnSome()
+    {
+        var ran = new List<string>();
+
+        await Task.FromResult(Option.Some(1))
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        ran.ShouldBe(["some:1"]);
+    }
+
+    [Fact]
+    public async Task GivenNoneValueTask_WhenVoidMatchAsyncWithAsyncBranches_ThenAwaitOnNone()
+    {
+        var ran = new List<string>();
+
+        await new ValueTask<Option<int>>(Option.None<int>())
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        ran.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task GivenSomeTask_WhenVoidMatchAsyncWithSyncOnNone_ThenAwaitOnSome()
+    {
+        var ran = new List<string>();
+
+        await Task.FromResult(Option.Some(1))
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () => ran.Add("none"));
+
+        ran.ShouldBe(["some:1"]);
+    }
+
+    [Fact]
+    public async Task GivenNoneValueTask_WhenVoidMatchAsyncWithSyncOnNone_ThenRunOnNone()
+    {
+        var ran = new List<string>();
+
+        await new ValueTask<Option<int>>(Option.None<int>())
+           .MatchAsync(
+                value =>
+                {
+                    ran.Add($"some:{value}");
+
+                    return Task.CompletedTask;
+                },
+                () => ran.Add("none"));
+
+        ran.ShouldBe(["none"]);
+    }
+
+    [Fact]
+    public async Task GivenSomeValueTask_WhenVoidMatchAsyncWithSyncOnSome_ThenRunOnSome()
+    {
+        var ran = new List<string>();
+
+        await new ValueTask<Option<int>>(Option.Some(1))
+           .MatchAsync(
+                value => ran.Add($"some:{value}"),
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        ran.ShouldBe(["some:1"]);
+    }
+
+    [Fact]
+    public async Task GivenNoneTask_WhenVoidMatchAsyncWithSyncOnSome_ThenAwaitOnNone()
+    {
+        var ran = new List<string>();
+
+        await Task.FromResult(Option.None<int>())
+           .MatchAsync(
+                value => ran.Add($"some:{value}"),
+                () =>
+                {
+                    ran.Add("none");
+
+                    return Task.CompletedTask;
+                });
+
+        ran.ShouldBe(["none"]);
     }
 }

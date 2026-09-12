@@ -258,6 +258,38 @@ public abstract partial record Result<TOk, TErr>
         Func<TErr, Task<TOut>> onErr);
 
     /// <summary>
+    /// Matches the result where only the ok branch is asynchronous.
+    /// </summary>
+    /// <param name="onOk">Produces the result from the contained ok value.</param>
+    /// <param name="onErr">
+    /// Produces the result from the contained error, synchronously.
+    /// </param>
+    /// <typeparam name="TOut">The type both branches produce.</typeparam>
+    /// <returns>
+    /// Whatever the branch taken produced. An <see cref="Err{TOk,TErr}" />
+    /// completes synchronously.
+    /// </returns>
+    public abstract ValueTask<TOut> MatchAsync<TOut>(
+        Func<TOk, Task<TOut>> onOk,
+        Func<TErr, TOut> onErr);
+
+    /// <summary>
+    /// Matches the result where only the error branch is asynchronous.
+    /// </summary>
+    /// <param name="onOk">
+    /// Produces the result from the contained ok value, synchronously.
+    /// </param>
+    /// <param name="onErr">Produces the result from the contained error.</param>
+    /// <typeparam name="TOut">The type both branches produce.</typeparam>
+    /// <returns>
+    /// Whatever the branch taken produced. An <see cref="Ok{TOk,TErr}" />
+    /// completes synchronously.
+    /// </returns>
+    public abstract ValueTask<TOut> MatchAsync<TOut>(
+        Func<TOk, TOut> onOk,
+        Func<TErr, Task<TOut>> onErr);
+
+    /// <summary>
     /// Runs whichever of two asynchronous branches the result selects, for its
     /// side effect alone.
     /// </summary>
