@@ -27,28 +27,26 @@ public abstract partial record Result<TOk, TErr>
     internal abstract void OnlyThisAssemblyMayDerive();
 
     /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" />.
+    /// Checks whether the result is <see cref="Ok{TOk,TErr}" />.
     /// </summary>
     public abstract bool IsOk { get; }
 
     /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" />.
+    /// Checks whether the result is <see cref="Err{TOk,TErr}" />.
     /// </summary>
     public abstract bool IsErr { get; }
 
     /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate.
+    /// Checks whether the result is <see cref="Ok{TOk,TErr}" /> and the
+    /// contained value matches a predicate.
     /// </summary>
-    /// <param name="predicate">The condition that the ok value must satisfy</param>
+    /// <param name="predicate">The condition that the ok value must satisfy.</param>
     public abstract bool IsOkAnd(Func<TOk, bool> predicate);
 
     /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Ok{TOk,TErr}" /> and the value inside of it matches a predicate
-    /// that takes state instead of capturing it.
+    /// Checks whether the result is <see cref="Ok{TOk,TErr}" /> and the
+    /// contained value matches a predicate that takes state instead of
+    /// capturing it.
     /// </summary>
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
@@ -60,7 +58,7 @@ public abstract partial record Result<TOk, TErr>
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="predicate">The condition that the ok value must satisfy</param>
+    /// <param name="predicate">The condition that the ok value must satisfy.</param>
     /// <typeparam name="TState">
     /// The type of the state passed to the predicate. It is unconstrained, so a
     /// null state is permitted.
@@ -75,8 +73,8 @@ public abstract partial record Result<TOk, TErr>
     /// </summary>
     /// <remarks>
     /// <paramref name="predicate" /> is not invoked on an
-    /// <see cref="Err{TOk,TErr}" />, so any side effect it carries does not run in
-    /// that case and the call completes synchronously.
+    /// <see cref="Err{TOk,TErr}" />, so any side effect it performs does not run
+    /// in that case and the call completes synchronously.
     /// </remarks>
     /// <param name="predicate">
     /// The asynchronous condition to evaluate against the contained ok value.
@@ -88,16 +86,16 @@ public abstract partial record Result<TOk, TErr>
     public abstract ValueTask<bool> IsOkAndAsync(Func<TOk, Task<bool>> predicate);
 
     /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a predicate.
+    /// Checks whether the result is <see cref="Err{TOk,TErr}" /> and the
+    /// contained value matches a predicate.
     /// </summary>
-    /// <param name="predicate">The condition that the error value must satisfy</param>
+    /// <param name="predicate">The condition that the error value must satisfy.</param>
     public abstract bool IsErrAnd(Func<TErr, bool> predicate);
 
     /// <summary>
-    /// Returns <see langword="true" /> if the result is
-    /// <see cref="Err{TOk,TErr}" /> and the value inside of it matches a
-    /// predicate that takes state instead of capturing it.
+    /// Checks whether the result is <see cref="Err{TOk,TErr}" /> and the
+    /// contained value matches a predicate that takes state instead of
+    /// capturing it.
     /// </summary>
     /// <remarks>
     /// Handing the <paramref name="state" /> to the delegate rather than
@@ -109,7 +107,7 @@ public abstract partial record Result<TOk, TErr>
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="predicate">The condition that the error value must satisfy</param>
+    /// <param name="predicate">The condition that the error value must satisfy.</param>
     /// <typeparam name="TState">
     /// The type of the state passed to the predicate. It is unconstrained, so a
     /// null state is permitted.
@@ -124,8 +122,8 @@ public abstract partial record Result<TOk, TErr>
     /// </summary>
     /// <remarks>
     /// <paramref name="predicate" /> is not invoked on an
-    /// <see cref="Ok{TOk,TErr}" />, so any side effect it carries does not run in
-    /// that case and the call completes synchronously.
+    /// <see cref="Ok{TOk,TErr}" />, so any side effect it performs does not run
+    /// in that case and the call completes synchronously.
     /// </remarks>
     /// <param name="predicate">
     /// The asynchronous condition to evaluate against the contained error.
@@ -138,10 +136,7 @@ public abstract partial record Result<TOk, TErr>
         Func<TErr, Task<bool>> predicate);
 
     /// <summary>
-    /// Performs a <see langword="switch" /> on the result, invoking the
-    /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
-    /// the <paramref name="onErr" /> callback when it is a
-    /// <see cref="Err{TOk,TErr}" />.
+    /// Switches on the result and returns what the invoked callback produced.
     /// </summary>
     /// <param name="onOk">
     /// A callback for handling the <see cref="Ok{TOk,TErr}" />
@@ -192,10 +187,8 @@ public abstract partial record Result<TOk, TErr>
         Func<TErr, TState, TOut> onErr);
 
     /// <summary>
-    /// Performs a <see langword="switch" /> on the result, invoking the
-    /// <paramref name="onOk" /> callback when it is a <see cref="Ok{TOk,TErr}" /> and
-    /// the <paramref name="onErr" /> callback when it is a
-    /// <see cref="Err{TOk,TErr}" />.
+    /// Switches on the result and invokes the callback for its case, for
+    /// its side effect alone.
     /// </summary>
     /// <param name="onOk">
     /// A callback for handling the <see cref="Ok{TOk,TErr}" />
@@ -245,8 +238,8 @@ public abstract partial record Result<TOk, TErr>
     /// returns what it produced.
     /// </summary>
     /// <remarks>
-    /// The overload to reach for when both branches do real asynchronous work.
-    /// Where only one does, prefer the overload taking the other branch
+    /// Use this overload when both branches do real asynchronous work. Where
+    /// only one does, prefer the overload taking the other branch
     /// synchronously — it avoids wrapping a value in an already-completed task.
     /// </remarks>
     /// <param name="onOk">Produces the result from the contained ok value.</param>
@@ -294,8 +287,8 @@ public abstract partial record Result<TOk, TErr>
     /// side effect alone.
     /// </summary>
     /// <remarks>
-    /// The overload to reach for when both branches do real asynchronous work.
-    /// Neither branch returns a value, so this is the asynchronous counterpart of
+    /// Use this overload when both branches do real asynchronous work. Neither
+    /// branch returns a value, so this is the asynchronous counterpart of
     /// the <see cref="Match(Action{TOk},Action{TErr})" /> switch rather than of the
     /// mapping one.
     /// </remarks>
@@ -385,17 +378,14 @@ public abstract partial record Result<TOk, TErr>
     /// other result.
     /// </typeparam>
     /// <exception cref="ArgumentNullException">
-    /// If <paramref name="resultFactory" /> returns a null result. Returning
-    /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful, and
-    /// left alone it would surface as a <see cref="NullReferenceException" />
-    /// at whatever called into the result next.
+    /// Throws if <paramref name="resultFactory" /> returns a null result.
     /// </exception>
     public abstract Result<TOut, TErr> AndThen<TOut>(
         Func<TOk, Result<TOut, TErr>> resultFactory) where TOut : notnull;
 
     /// <summary>
-    /// Chains an asynchronous operation onto an <see cref="Ok{TOk,TErr}" />,
-    /// carrying an <see cref="Err{TOk,TErr}" /> straight through.
+    /// Runs an asynchronous operation against the contained ok value, leaving
+    /// an <see cref="Err{TOk,TErr}" /> untouched.
     /// </summary>
     /// <remarks>
     /// <paramref name="resultFactory" /> is not invoked on an
@@ -414,12 +404,9 @@ public abstract partial record Result<TOk, TErr>
     /// as an <see cref="Err{TOk,TErr}" /> of <typeparamref name="TOut" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    /// If <paramref name="resultFactory" /> returns a null result. Returning
-    /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful, and
-    /// left alone it would surface as a <see cref="NullReferenceException" />
-    /// at whatever called into the result next. It is thrown from the call when
-    /// the factory's task had already completed and faults the returned task
-    /// otherwise, so await the result to see it either way.
+    /// Throws if <paramref name="resultFactory" /> returns a null result: from
+    /// the call when its task had already completed, or from the returned
+    /// task otherwise, so await the result to see it either way.
     /// </exception>
     public abstract ValueTask<Result<TOut, TErr>> AndThenAsync<TOut>(
         Func<TOk, ValueTask<Result<TOut, TErr>>> resultFactory)
@@ -450,10 +437,7 @@ public abstract partial record Result<TOk, TErr>
     /// other result.
     /// </typeparam>
     /// <exception cref="ArgumentNullException">
-    /// If <paramref name="resultFactory" /> returns a null result. Returning
-    /// null rather than an <see cref="Err{TOk,TErr}" /> is never meaningful, and
-    /// left alone it would surface as a <see cref="NullReferenceException" />
-    /// at whatever called into the result next.
+    /// Throws if <paramref name="resultFactory" /> returns a null result.
     /// </exception>
     public abstract Result<TOut, TErr> AndThen<TState, TOut>(
         TState state,
@@ -466,7 +450,7 @@ public abstract partial record Result<TOk, TErr>
     /// value of this result instance.
     /// </summary>
     /// <param name="other">The other result.</param>
-    /// <typeparam name="TOut">The other result's error value type</typeparam>
+    /// <typeparam name="TOut">The other result's error value type.</typeparam>
     public abstract Result<TOk, TOut> Or<TOut>(Result<TOk, TOut> other)
         where TOut : notnull;
 
@@ -560,20 +544,18 @@ public abstract partial record Result<TOk, TErr>
     public abstract TOk Expect(string message);
 
     /// <summary>
-    /// Returns the contained <see cref="Err{TOk,TErr}" /> value, consuming
-    /// the result instance.
+    /// Returns the contained <see cref="Err{TOk,TErr}" /> value.
     /// </summary>
     /// <param name="message">The custom exception message.</param>
     /// <exception cref="UnmetExpectationException">
     /// Throws if the value is an
     /// <see cref="Ok{TOk,TErr}" />, with a message including the passed
-    /// <paramref name="message" />, and the content of the <see cref="Ok{TOk,TErr}" />
+    /// <paramref name="message" />, and the content of the <see cref="Ok{TOk,TErr}" />.
     /// </exception>
     public abstract TErr ExpectErr(string message);
 
     /// <summary>
-    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value, consuming the
-    /// result instance.
+    /// Returns the contained <see cref="Ok{TOk,TErr}" /> value.
     /// </summary>
     /// <remarks>
     /// Throws on an <see cref="Err{TOk,TErr}" />, so prefer a member that
@@ -595,13 +577,13 @@ public abstract partial record Result<TOk, TErr>
     /// </summary>
     /// <param name="defaultValue">
     /// The default value to return on an
-    /// <see cref="Err{TOk,TErr}" />
+    /// <see cref="Err{TOk,TErr}" />.
     /// </param>
     public abstract TOk UnwrapOr(TOk defaultValue);
 
     /// <summary>
     /// Returns the contained <see cref="Ok{TOk,TErr}" /> value or the default
-    /// value for <typeparamref name="TOk" />
+    /// value for <typeparamref name="TOk" />.
     /// </summary>
     public abstract TOk? UnwrapOrDefault();
 
@@ -649,7 +631,8 @@ public abstract partial record Result<TOk, TErr>
     /// </summary>
     /// <remarks>
     /// The fallback that cannot throw, unlike <see cref="Unwrap" />:
-    /// <paramref name="valueFactory" /> sees the error and supplies a value for it.
+    /// <paramref name="valueFactory" /> receives the error and produces a value
+    /// from it.
     /// It is not invoked on an <see cref="Ok{TOk,TErr}" />, so that case completes
     /// synchronously.
     /// </remarks>
@@ -664,11 +647,10 @@ public abstract partial record Result<TOk, TErr>
         Func<TErr, Task<TOk>> valueFactory);
 
     /// <summary>
-    /// Returns the contained <see cref="Err{TOk,TErr}" /> value, consuming
-    /// the result instance.
+    /// Returns the contained <see cref="Err{TOk,TErr}" /> value.
     /// </summary>
     /// <remarks>
-    /// Throws on an <see cref="Ok{TOk,TErr}" />, so reach for it only where the
+    /// Throws on an <see cref="Ok{TOk,TErr}" />, so use it only where the
     /// result is already known to be an <see cref="Err{TOk,TErr}" />. Prefer
     /// <see cref="GetErr" />, which returns a <see cref="None{T}" /> instead of
     /// throwing.
@@ -681,7 +663,7 @@ public abstract partial record Result<TOk, TErr>
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
-    /// <see cref="Ok{TOk,TErr}" />
+    /// <see cref="Ok{TOk,TErr}" />.
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
     /// <returns>The original <see cref="Result{TOk,TErr}" />, unchanged.</returns>
@@ -730,7 +712,7 @@ public abstract partial record Result<TOk, TErr>
 
     /// <summary>
     /// Calls a function with a reference to the contained value if
-    /// <see cref="Err{TOk,TErr}" />
+    /// <see cref="Err{TOk,TErr}" />.
     /// </summary>
     /// <param name="action">The function to be invoked.</param>
     /// <returns>The original <see cref="Result{TOk,TErr}" />, unchanged.</returns>
@@ -767,7 +749,7 @@ public abstract partial record Result<TOk, TErr>
     /// <remarks>
     /// <paramref name="action" /> is not invoked on an
     /// <see cref="Ok{TOk,TErr}" />. Use this to observe a failure — logging or
-    /// metrics — without handling it; the error is still carried forward.
+    /// metrics — without handling it; the error is still returned unchanged.
     /// </remarks>
     /// <param name="action">
     /// The asynchronous side effect to run against the contained error.
@@ -838,10 +820,10 @@ public abstract partial record Result<TOk, TErr>
     /// applies a function to the contained value (if <see cref="Ok{TOk,TErr}" />).
     /// </summary>
     /// <param name="defaultValue">
-    /// The default value for an <see cref="Err{TOk,TErr}" />
+    /// The default value for an <see cref="Err{TOk,TErr}" />.
     /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" />.</param>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     public abstract TOut MapOr<TOut>(TOut defaultValue, Func<TOk, TOut> map);
 
     /// <summary>
@@ -859,14 +841,14 @@ public abstract partial record Result<TOk, TErr>
     /// unchanged and is never inspected.
     /// </param>
     /// <param name="defaultValue">
-    /// The default value for an <see cref="Err{TOk,TErr}" />
+    /// The default value for an <see cref="Err{TOk,TErr}" />.
     /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" />.</param>
     /// <typeparam name="TState">
     /// The type of the state passed to the map function. It is unconstrained,
     /// so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     public abstract TOut MapOr<TState, TOut>(
         TState state,
         TOut defaultValue,
@@ -878,8 +860,9 @@ public abstract partial record Result<TOk, TErr>
     /// </summary>
     /// <remarks>
     /// <paramref name="defaultValue" /> is evaluated by the caller before the call,
-    /// so reach for <c>MapOrElseAsync</c> where computing it is expensive or
-    /// depends on the error. <paramref name="map" /> is not invoked on an
+    /// so use <c>MapOrElseAsync</c> where computing it should happen only when
+    /// the result is <see cref="Err{TOk,TErr}" />, or where it depends on the
+    /// error. <paramref name="map" /> is not invoked on an
     /// <see cref="Err{TOk,TErr}" />.
     /// </remarks>
     /// <param name="defaultValue">
@@ -888,7 +871,7 @@ public abstract partial record Result<TOk, TErr>
     /// <param name="map">
     /// Asynchronously produces the mapped value from the contained ok value.
     /// </param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     /// <returns>
     /// What <paramref name="map" /> produced, or <paramref name="defaultValue" />
     /// on an <see cref="Err{TOk,TErr}" />.
@@ -902,8 +885,8 @@ public abstract partial record Result<TOk, TErr>
     /// <see cref="Err{TOk,TErr}" />), or applies a function to the contained value
     /// (if <see cref="Ok{TOk,TErr}" />).
     /// </summary>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" />.</param>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     public abstract TOut? MapOrDefault<TOut>(Func<TOk, TOut> map)
         where TOut : notnull;
 
@@ -923,12 +906,12 @@ public abstract partial record Result<TOk, TErr>
     /// The value the delegate would otherwise capture. It is passed through
     /// unchanged and is never inspected.
     /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" />.</param>
     /// <typeparam name="TState">
     /// The type of the state passed to the map function. It is unconstrained, so a
     /// null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     public abstract TOut? MapOrDefault<TState, TOut>(
         TState state,
         Func<TOk, TState, TOut> map) where TOut : notnull;
@@ -946,7 +929,7 @@ public abstract partial record Result<TOk, TErr>
     /// <param name="map">
     /// Asynchronously produces the mapped value from the contained ok value.
     /// </param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     /// <returns>
     /// What <paramref name="map" /> produced, or the
     /// <see langword="default" /> of <typeparamref name="TOut" /> on an
@@ -973,7 +956,7 @@ public abstract partial record Result<TOk, TErr>
     /// Produces the mapped value from the contained ok value. Not invoked on an
     /// <see cref="Err{TOk,TErr}" />.
     /// </param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     /// <returns>
     /// The transformed value, or <see langword="null" /> on an
     /// <see cref="Err{TOk,TErr}" />.
@@ -1008,7 +991,7 @@ public abstract partial record Result<TOk, TErr>
     /// The type of the state passed to the delegate. It is unconstrained, so a
     /// null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     /// <returns>
     /// The transformed value, or <see langword="null" /> on an
     /// <see cref="Err{TOk,TErr}" />.
@@ -1031,7 +1014,7 @@ public abstract partial record Result<TOk, TErr>
     /// Asynchronously produces the mapped value from the contained ok value. Not
     /// invoked on an <see cref="Err{TOk,TErr}" />.
     /// </param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     /// <returns>
     /// The transformed value, or <see langword="null" /> on an
     /// <see cref="Err{TOk,TErr}" />.
@@ -1047,10 +1030,10 @@ public abstract partial record Result<TOk, TErr>
     /// </summary>
     /// <param name="defaultFactory">
     /// A function to create the default value for an
-    /// <see cref="Err{TOk,TErr}" />
+    /// <see cref="Err{TOk,TErr}" />.
     /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" />.</param>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     /// <returns>
     /// What <paramref name="map" /> produces from the contained value on an
     /// <see cref="Ok{TOk,TErr}" />, otherwise what
@@ -1078,14 +1061,14 @@ public abstract partial record Result<TOk, TErr>
     /// </param>
     /// <param name="defaultFactory">
     /// A function to create the default value for an
-    /// <see cref="Err{TOk,TErr}" />
+    /// <see cref="Err{TOk,TErr}" />.
     /// </param>
-    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" /></param>
+    /// <param name="map">The map function for an <see cref="Ok{TOk,TErr}" />.</param>
     /// <typeparam name="TState">
     /// The type of the state passed to both functions. It is unconstrained, so
     /// a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOut">The mapped result value type</typeparam>
+    /// <typeparam name="TOut">The mapped result value type.</typeparam>
     public abstract TOut MapOrElse<TState, TOut>(
         TState state,
         Func<TErr, TState, TOut> defaultFactory,
@@ -1095,7 +1078,7 @@ public abstract partial record Result<TOk, TErr>
     /// Awaits whichever of two asynchronous delegates the result selects.
     /// </summary>
     /// <remarks>
-    /// The overload to reach for when both delegates do real asynchronous work.
+    /// Use this overload when both delegates do real asynchronous work.
     /// Where only one does, prefer the overload taking the other synchronously — it
     /// avoids wrapping a value in an already-completed task.
     /// </remarks>
@@ -1157,9 +1140,9 @@ public abstract partial record Result<TOk, TErr>
     /// value untouched.
     /// </summary>
     /// <param name="map">
-    /// The map function to apply to the <see cref="Err{TOk,TErr}" />
+    /// The map function to apply to the <see cref="Err{TOk,TErr}" />.
     /// </param>
-    /// <typeparam name="TOut">The output error value type</typeparam>
+    /// <typeparam name="TOut">The output error value type.</typeparam>
     public abstract Result<TOk, TOut> MapErr<TOut>(Func<TErr, TOut> map)
         where TOut : notnull;
 
@@ -1180,13 +1163,13 @@ public abstract partial record Result<TOk, TErr>
     /// unchanged and is never inspected.
     /// </param>
     /// <param name="map">
-    /// The map function to apply to the <see cref="Err{TOk,TErr}" />
+    /// The map function to apply to the <see cref="Err{TOk,TErr}" />.
     /// </param>
     /// <typeparam name="TState">
     /// The type of the state passed to the map function. It is unconstrained,
     /// so a null state is permitted.
     /// </typeparam>
-    /// <typeparam name="TOut">The output error value type</typeparam>
+    /// <typeparam name="TOut">The output error value type.</typeparam>
     public abstract Result<TOk, TOut> MapErr<TState, TOut>(
         TState state,
         Func<TErr, TState, TOut> map) where TOut : notnull;
@@ -1198,13 +1181,13 @@ public abstract partial record Result<TOk, TErr>
     /// <remarks>
     /// <paramref name="map" /> is not invoked on an <see cref="Ok{TOk,TErr}" />,
     /// whose value is re-wrapped for the new error type instead. Use this to
-    /// translate an error into the vocabulary of the calling layer without deciding
-    /// whether the operation succeeded.
+    /// convert an error into the type the calling layer expects, without
+    /// deciding whether the operation succeeded.
     /// </remarks>
     /// <param name="map">
     /// Asynchronously produces the mapped error from the contained error.
     /// </param>
-    /// <typeparam name="TOut">The output error value type</typeparam>
+    /// <typeparam name="TOut">The output error value type.</typeparam>
     /// <returns>
     /// An <see cref="Err{TOk,TErr}" /> holding what <paramref name="map" />
     /// produced, or the original ok value.
@@ -1214,7 +1197,7 @@ public abstract partial record Result<TOk, TErr>
 
     /// <summary>
     /// Converts from a <see cref="Result{TOk,TErr}" /> into an
-    /// <c>Option&lt;TOk&gt;</c>
+    /// <c>Option&lt;TOk&gt;</c>.
     /// </summary>
     /// <returns>
     /// A <see cref="Some{T}" /> holding the success value on an
@@ -1225,7 +1208,7 @@ public abstract partial record Result<TOk, TErr>
 
     /// <summary>
     /// Converts from a <see cref="Result{TOk,TErr}" /> to
-    /// <c>Option&lt;TErr&gt;</c>
+    /// <c>Option&lt;TErr&gt;</c>.
     /// </summary>
     /// <returns>
     /// A <see cref="Some{T}" /> holding the error on an
