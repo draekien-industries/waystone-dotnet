@@ -28,6 +28,23 @@ Each `*Async` member takes both a synchronous and an asynchronous delegate, so
 `MapAsync` accepts `Func<T, TOut>` as well as `Func<T, Task<TOut>>`. A step that
 does not itself need to await still belongs in the chain.
 
+Where a member takes two delegates — `MatchAsync`, `MapOrElseAsync` — every
+combination is overloaded: both asynchronous, or either one alone. Pass the
+synchronous branch as it is, rather than making it `async` or wrapping its value
+in `Task.FromResult` to match its sibling.
+
+```csharp
+string text = await result.MatchAsync(
+    async order => await RenderAsync(order), // awaits
+    error => error.Message);                 // does not
+```
+
+The asynchronous branch is typed `Func<…, Task<TOut>>` here, not `ValueTask` —
+`AndThenAsync` and `OrElseAsync` are the only members taking a `ValueTask`
+delegate, because they are the only ones a chain composes into. So a step
+declared `ValueTask` to stay chainable does not bind as a method group to these,
+and the lambda above is what to write.
+
 ## Async members return ValueTask
 
 Every `*Async` member returns `ValueTask` or `ValueTask<T>` — `MapAsync`,
