@@ -11,54 +11,82 @@ internal static class AsyncGuide
 {
     internal sealed record Character(string Name);
 
-    internal static async Task<Character> OneAwaitAtTheEnd(string id) =>
+    internal static async Task<Character> OneAwaitAtTheEnd(string id)
+    {
+        #region async-one-await-at-the-end
         // no intermediate awaits, one await at the end
-        await SummonCharacterAsync(id)
+        Character character = await SummonCharacterAsync(id)
             .MapAsync(c => EnrichAsync(c))
             .UnwrapOrAsync(Commoner);
+        #endregion
+
+        return character;
+    }
 
     internal static async Task<Character> TheSameChainStepByStep(string id)
     {
+        #region async-the-same-chain-step-by-step
         Option<Character> fetched = await SummonCharacterAsync(id);
         Option<Character> enriched = await fetched.MapAsync(c => EnrichAsync(c));
 
-        return enriched.UnwrapOr(Commoner);
+        Character character = enriched.UnwrapOr(Commoner);
+        #endregion
+
+        return character;
     }
 
     internal static ValueTask<string> MatchAsyncOnAResult(
-        Result<Character, Error> result) =>
-        result.MatchAsync(
+        Result<Character, Error> result)
+    {
+        #region async-every-async-member-returns-valuetask
+        ValueTask<string> output = result.MatchAsync(
             async x => await RenderAsync(x),
             async e => await DescribeAsync(e));
+        #endregion
+
+        return output;
+    }
 
     internal static async Task RunTwoInParallel(
         Option<string> a,
         Option<string> b)
     {
+        #region async-as-task-for-when-all
         await Task.WhenAll(
             a.MapAsync(FetchAsync).AsTask(),
             b.MapAsync(FetchAsync).AsTask());
+        #endregion
     }
 
-    internal static async Task<Option<Character>> OptionTryAsync(string id) =>
-        await Option.TryAsync(() => SummonCharacterOrThrowAsync(id));
+    internal static async Task<Option<Character>> OptionTryAsync(string id)
+    {
+        #region async-option-try-async
+        Option<Character> maybeCharacter = await Option.TryAsync(
+            () => SummonCharacterOrThrowAsync(id));
+        #endregion
+
+        return maybeCharacter;
+    }
 
     internal static async Task ResultTryAsync(string id)
     {
+        #region async-result-try-async
         // supply your own error type
         Result<Character, string> result = await Result.TryAsync(
             asyncFactory: () => SummonCharacterOrThrowAsync(id),
             onError: ex => ex.Message);
 
         // or let the error type default to Error
-        Result<Character, Error> builtIn =
-            await Result.TryAsync<Character>(() => SummonCharacterOrThrowAsync(id));
+        Result<Character, Error> builtIn = await Result.TryAsync<Character>(
+            () => SummonCharacterOrThrowAsync(id));
+        #endregion
 
         _ = (result, builtIn);
     }
 
     internal static async Task MixingSyncAndAsyncBranches(Option<int> option)
     {
+        #region async-mixing-sync-and-async-branches
         // both branches async
         string text = await option.MatchAsync(
             async x => await RenderNumberAsync(x),
@@ -73,6 +101,7 @@ internal static class AsyncGuide
         string fromNone = await option.MatchAsync(
             x => x.ToString(),
             async () => await LoadDefaultAsync());
+        #endregion
 
         _ = (text, fromSome, fromNone);
     }
@@ -80,6 +109,7 @@ internal static class AsyncGuide
     internal static async Task MixingSyncAndAsyncBranchesOnAResult(
         Result<Character, Error> result)
     {
+        #region async-mixing-branches-on-a-result
         // both branches async
         string text = await result.MatchAsync(
             async x => await RenderAsync(x),
@@ -94,22 +124,26 @@ internal static class AsyncGuide
         string fromErr = await result.MatchAsync(
             x => x.Name,
             async e => await DescribeAsync(e));
+        #endregion
 
         _ = (text, fromOk, fromErr);
     }
 
     internal static async Task ConsumingAnOptionAsync(string id)
     {
+        #region async-consuming-an-option
         Character character = await SummonCharacterAsync(id).UnwrapAsync();
         Character orCommoner = await SummonCharacterAsync(id).UnwrapOrAsync(Commoner);
         Character? orDefault = await SummonCharacterAsync(id).UnwrapOrDefaultAsync();
         Character expected = await SummonCharacterAsync(id).ExpectAsync("the character must exist");
+        #endregion
 
         _ = (character, orCommoner, orDefault, expected);
     }
 
     internal static async Task ConsumingAResultAsync(string id)
     {
+        #region async-consuming-a-result
         Character character = await LoadCharacterAsync(id).UnwrapAsync();
         Character orCommoner = await LoadCharacterAsync(id).UnwrapOrAsync(Commoner);
         Character? orDefault = await LoadCharacterAsync(id).UnwrapOrDefaultAsync();
@@ -117,6 +151,7 @@ internal static class AsyncGuide
 
         Error error = await LoadCharacterAsync(id).UnwrapErrAsync();
         Error expectedErr = await LoadCharacterAsync(id).ExpectErrAsync("the load must fail");
+        #endregion
 
         _ = (character, orCommoner, orDefault, expected, error, expectedErr);
     }
