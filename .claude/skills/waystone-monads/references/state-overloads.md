@@ -50,6 +50,8 @@ State is the delegate's extra parameter, and the shape follows the branch:
   `onNone`, and all of `UnwrapOrElse`, `OrElse` and `OkOrElse`. Every `Result`
   delegate receives a value first, so this case does not arise there.
 - `MapOrElse` threads the **same** state through both of its delegates.
+- `ZipWith` and `Reduce` hand over every operand first and state last, so the
+  delegate reads `(value, other, state)`.
 
 The two forms differ in where the state sits at the *call*, not in what the
 delegate receives: the binder carries it, while the older form passes it as the
@@ -81,9 +83,12 @@ Leave a lambda that captures only `this`. That allocates a delegate rather than
 a display class — a smaller cost, and rewriting every ordinary instance-method
 call site would drown the signal. `WM2017` excludes it deliberately.
 
-`ZipWith` and `Reduce` take neither form and never will: their delegates already
-receive every operand the call involves, so there is nothing left to capture. The
-binder does not carry them either. Do not go hunting for one.
+**Every member taking a delegate takes state, in both forms, with no exception.**
+`ZipWith` and `Reduce` are the pair that look like one, since their delegates
+already receive every operand of the call — but an operand is not everything a
+delegate closes over, and a combiner capturing a comparer or a format allocates
+the same display class as any other. They take state from `7.3.0`; on an earlier
+version the overload is genuinely absent and the capture has to stay.
 
 **Never bind an `Option` as state.** `With` constrains its type parameter to
 nothing, so an `Option` is as acceptable to it as an `int` and the signature

@@ -280,9 +280,9 @@ capture. Never bind an `Option` as state: the binder hands it over untouched, so
 the second absence is the author's to remember, while `Zip` and `ZipWith` answer
 `None` whenever either side is absent (`WM2023`). Read
 [references/state-overloads.md](references/state-overloads.md) when rewriting one
-— where the state argument goes differs by branch, two members take neither form,
-and an older form passing state as the call's first argument is still supported
-but reaches less of the async surface.
+— where the state argument goes differs by branch, and an older form passing
+state as the call's first argument is still supported but reaches less of the
+async surface.
 
 ### An async delegate handed to a synchronous member
 
