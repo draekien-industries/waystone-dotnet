@@ -1033,6 +1033,48 @@ public abstract partial record Option<T> where T : notnull
         where TOut : notnull;
 
     /// <summary>
+    /// Combines this option with <paramref name="other" /> using a delegate that
+    /// takes state instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Both contained values already reach <paramref name="zip" /> as arguments,
+    /// so the <paramref name="state" /> is for whatever else it would have
+    /// closed over — a format, a comparer, a policy. Handing it over lets the
+    /// delegate be <see langword="static" />, so the call allocates no closure,
+    /// and <c>WM2017</c> reports the capturing form.
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="other">The option to combine with.</param>
+    /// <param name="zip">
+    /// Combines the two contained values with the state. It is invoked only when
+    /// both options are a <see cref="Some{T}" />.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the delegate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOther">The value type of the other option.</typeparam>
+    /// <typeparam name="TOut">The type the delegate produces.</typeparam>
+    /// <returns>
+    /// <see cref="Some{T}" /> of what <paramref name="zip" /> produced when both
+    /// options hold a value, otherwise <see cref="None{T}" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="zip" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
+    public abstract Option<TOut> ZipWith<TState, TOther, TOut>(
+        TState state,
+        Option<TOther> other,
+        Func<T, TOther, TState, TOut> zip)
+        where TOther : notnull
+        where TOut : notnull;
+
+    /// <summary>
     /// Combines this option with <paramref name="other" /> by awaiting
     /// <paramref name="zip" /> against both contained values.
     /// </summary>
@@ -1082,6 +1124,49 @@ public abstract partial record Option<T> where T : notnull
     /// <see cref="None{T}" />.
     /// </exception>
     public abstract Option<T> Reduce(Option<T> other, Func<T, T, T> reduce);
+
+    /// <summary>
+    /// Merges the current option with another using a delegate that takes state
+    /// instead of capturing it.
+    /// </summary>
+    /// <remarks>
+    /// Both contained values already reach <paramref name="reduce" /> as
+    /// arguments, so the <paramref name="state" /> is for whatever else it would
+    /// have closed over — a merge policy, a comparer, a clock. Handing it over
+    /// lets the delegate be <see langword="static" />, so the call allocates no
+    /// closure, and <c>WM2017</c> reports the capturing form.
+    /// <para>
+    /// The state is passed even though the delegate may not run: a single
+    /// <see cref="Some{T}" /> is returned unchanged without it being consulted.
+    /// </para>
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="other">The option to merge with.</param>
+    /// <param name="reduce">
+    /// Combines the two present values with the state. It is invoked only when
+    /// both options are a <see cref="Some{T}" />.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the delegate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <returns>
+    /// <c>Some(reduce(a, b, state))</c> when both options are
+    /// <see cref="Some{T}" />, whichever option is <see cref="Some{T}" /> when
+    /// only one of them is, and <see cref="None{T}" /> when neither is.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="reduce" /> returns null. See the remarks on
+    /// <see cref="Option{T}" /> for why that throws rather than producing a
+    /// <see cref="None{T}" />.
+    /// </exception>
+    public abstract Option<T> Reduce<TState>(
+        TState state,
+        Option<T> other,
+        Func<T, T, TState, T> reduce);
 
     /// <summary>
     /// Merges this option with <paramref name="other" />, awaiting

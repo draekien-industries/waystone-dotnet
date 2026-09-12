@@ -803,6 +803,64 @@ public sealed class SomeTests
     }
 
     [Fact]
+    public void GivenState_AndOtherIsSome_WhenZipWith_ThenCombineWithTheState()
+    {
+        Option<int> self = Option.Some(1);
+        Option<int> other = Option.Some(2);
+
+        self.ZipWith(10, other, static (x, y, state) => x + y + state)
+            .ShouldBeSomeValue(13);
+    }
+
+    [Fact]
+    public void GivenState_AndOtherIsNone_WhenZipWith_ThenReturnNone()
+    {
+        Option<int> self = Option.Some(1);
+
+        var zip = Substitute.For<Func<int, int, int, int>>();
+
+        self.ZipWith(10, Option.None<int>(), zip).ShouldBeNone();
+
+        zip.DidNotReceive()
+           .Invoke(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenState_AndOtherIsSome_WhenReduce_ThenCombineWithTheState()
+    {
+        Option<int> self = Option.Some(1);
+
+        self.Reduce(10, Option.Some(2), static (x, y, state) => x + y + state)
+            .ShouldBeSomeValue(13);
+    }
+
+    [Fact]
+    public void GivenState_AndOtherIsNone_WhenReduce_ThenKeepTheContainedValue()
+    {
+        Option<int> self = Option.Some(1);
+
+        var reduce = Substitute.For<Func<int, int, int, int>>();
+
+        self.Reduce(10, Option.None<int>(), reduce).ShouldBeSomeValue(1);
+
+        reduce.DidNotReceive()
+              .Invoke(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void GivenState_WhenReduceReturnsNull_ThenThrowNamingTheDelegate()
+    {
+        Option<string> self = Option.Some("a");
+
+        Should.Throw<ArgumentNullException>(
+                  () => self.Reduce(
+                      10,
+                      Option.Some("b"),
+                      static (_, _, _) => null!))
+              .ParamName.ShouldBe("reduce");
+    }
+
+    [Fact]
     public async Task GivenOtherIsSome_WhenZipWithAsync_ThenReturnSome()
     {
         Option<int> self = Option.Some(1);

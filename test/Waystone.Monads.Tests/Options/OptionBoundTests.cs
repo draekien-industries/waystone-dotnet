@@ -142,6 +142,48 @@ public sealed class OptionBoundTests
     }
 
     [Fact]
+    public void ZipWithCombinesBothValuesAndTheBoundState()
+    {
+        SomeTwo.With(10)
+               .ZipWith(
+                    Option.Some(3),
+                    static (v, o, s) => v + o + s)
+               .ShouldBeSomeValue(15);
+
+        SomeTwo.With(10)
+               .ZipWith(
+                    Option.None<int>(),
+                    static (v, o, s) => v + o + s)
+               .ShouldBeNone();
+
+        NoneInt.With(10)
+               .ZipWith(
+                    Option.Some(3),
+                    static (v, o, s) => v + o + s)
+               .ShouldBeNone();
+    }
+
+    [Fact]
+    public void ReduceKeepsALoneValueRatherThanDiscardingIt()
+    {
+        SomeTwo.With(10)
+               .Reduce(Option.Some(3), static (a, b, s) => a + b + s)
+               .ShouldBeSomeValue(15);
+
+        SomeTwo.With(10)
+               .Reduce(Option.None<int>(), static (a, b, s) => a + b + s)
+               .ShouldBeSomeValue(2);
+
+        NoneInt.With(10)
+               .Reduce(Option.Some(3), static (a, b, s) => a + b + s)
+               .ShouldBeSomeValue(3);
+
+        NoneInt.With(10)
+               .Reduce(Option.None<int>(), static (a, b, s) => a + b + s)
+               .ShouldBeNone();
+    }
+
+    [Fact]
     public void MapOrNullUsesNullForTheAbsentCaseRatherThanTheDefault()
     {
         SomeTwo.With(10).MapOrNull(static (v, s) => v + s).ShouldBe(12);

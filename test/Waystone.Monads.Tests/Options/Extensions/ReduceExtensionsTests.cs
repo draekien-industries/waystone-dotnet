@@ -131,4 +131,58 @@ public sealed class ReduceExtensionsTests
 
         result.ShouldBeSomeValue(2);
     }
+
+    [Fact]
+    public async Task
+        GivenSomeTask_AndState_WhenReduceAsync_ThenCombineWithTheState()
+    {
+        Option<int> result = await Task.FromResult(Option.Some(1))
+           .ReduceAsync(
+                10,
+                Option.Some(2),
+                static (x, y, state) => x + y + state);
+
+        result.ShouldBeSomeValue(13);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneTask_AndState_WhenReduceAsync_ThenReturnTheOtherOption()
+    {
+        Option<int> result = await Task.FromResult(Option.None<int>())
+           .ReduceAsync(
+                10,
+                Option.Some(2),
+                static (x, y, state) => x + y + state);
+
+        result.ShouldBeSomeValue(2);
+    }
+
+    [Fact]
+    public async Task
+        GivenSomeValueTask_AndState_WhenReduceAsync_ThenCombineWithTheState()
+    {
+        Option<int> result =
+            await new ValueTask<Option<int>>(Option.Some(1))
+               .ReduceAsync(
+                    10,
+                    Option.Some(2),
+                    static (x, y, state) => x + y + state);
+
+        result.ShouldBeSomeValue(13);
+    }
+
+    [Fact]
+    public async Task
+        GivenTheOtherIsNone_AndState_WhenReduceAsync_ThenKeepTheValue()
+    {
+        Option<int> result =
+            await new ValueTask<Option<int>>(Option.Some(1))
+               .ReduceAsync(
+                    10,
+                    Option.None<int>(),
+                    static (x, y, state) => x + y + state);
+
+        result.ShouldBeSomeValue(1);
+    }
 }
