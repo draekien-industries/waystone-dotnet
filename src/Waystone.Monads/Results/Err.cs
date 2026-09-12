@@ -305,6 +305,11 @@ public sealed record Err<TOk, TErr> : Result<TOk, TErr>
     public override TOut? MapOrNull<TOut>(Func<TOk, TOut> map) => null;
 
     /// <inheritdoc />
+    public override TOut? MapOrNull<TState, TOut>(
+        TState state,
+        Func<TOk, TState, TOut> map) => null;
+
+    /// <inheritdoc />
     public override ValueTask<TOut?> MapOrNullAsync<TOut>(
         Func<TOk, Task<TOut>> map) =>
         new ValueTask<TOut?>(default(TOut?));

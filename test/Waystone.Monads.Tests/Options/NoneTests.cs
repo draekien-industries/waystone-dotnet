@@ -220,6 +220,17 @@ public class NoneTest
     }
 
     [Fact]
+    public void GivenNone_AndState_WhenMapOrNull_ThenReturnNull()
+    {
+        Option<int> none = Option.None<int>();
+
+        var map = Substitute.For<Func<int, int, int>>();
+
+        none.MapOrNull(10, map).ShouldBeNull();
+        map.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
+
+    [Fact]
     public void GivenNone_AndState_WhenUnwrapOrElse_ThenComputeFromState()
     {
         Option<int> none = Option.None<int>();

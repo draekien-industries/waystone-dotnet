@@ -234,6 +234,11 @@ public sealed record Some<T> : Option<T>
         map(Value);
 
     /// <inheritdoc />
+    public override TOut? MapOrNull<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> map) => map(Value, state);
+
+    /// <inheritdoc />
     public override async ValueTask<TOut?> MapOrNullAsync<TOut>(
         Func<T, Task<TOut>> map) =>
         await map(Value).ConfigureAwait(false);

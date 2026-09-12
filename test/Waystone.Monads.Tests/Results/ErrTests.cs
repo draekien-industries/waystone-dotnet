@@ -507,4 +507,15 @@ public class ErrTests
 
         err.MapOrDefault(10, static (x, state) => x + state).ShouldBe(0);
     }
+
+    [Fact]
+    public void GivenState_WhenMapOrNull_ThenReturnNull()
+    {
+        Result<int, string> err = Result.Err<int, string>("error");
+
+        var map = Substitute.For<Func<int, int, int>>();
+
+        err.MapOrNull(10, map).ShouldBeNull();
+        map.DidNotReceive().Invoke(Arg.Any<int>(), Arg.Any<int>());
+    }
 }

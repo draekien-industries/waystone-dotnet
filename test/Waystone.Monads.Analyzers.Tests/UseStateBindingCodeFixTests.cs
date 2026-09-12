@@ -28,6 +28,27 @@ public class UseStateBindingCodeFixTests
                .WithLocation(0)
                .WithArguments("Map", "offset"));
 
+    /// <remarks>
+    /// MapOrNull reached the fix by gaining a binder member in DRA-211 rather
+    /// than by anything changing here, so the rewrite it produces has never been
+    /// exercised. Its nullable return is what makes it worth a case of its own:
+    /// the fix rewrites the delegate and must leave the <c>?</c> alone.
+    /// </remarks>
+    [Fact]
+    public Task BindsAMemberWithANullableReturn() =>
+        Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(
+            """
+            internal int? Read(Option<int> option, int offset) =>
+                option.{|#0:MapOrNull|}(value => value + offset);
+            """,
+            """
+            internal int? Read(Option<int> option, int offset) =>
+                option.With(offset).MapOrNull(static (value, state) => value + state);
+            """,
+            Verify.Diagnostic(Rules.DelegateCapturesInsteadOfState)
+               .WithLocation(0)
+               .WithArguments("MapOrNull", "offset"));
+
     [Fact]
     public Task BindsOnTheResultSide() =>
         Verify.CodeFixAsync<StateOverloadAnalyzer, UseStateBindingCodeFix>(

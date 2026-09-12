@@ -328,6 +328,33 @@ public abstract partial record Result<TOk, TErr>
             Source.MapOrDefault(_state, map);
 
         /// <summary>
+        /// Transforms the contained ok value into a nullable value type, using
+        /// null for a failure.
+        /// </summary>
+        /// <remarks>
+        /// The bridge out of <see cref="Result{TOk,TErr}" /> into
+        /// <see cref="Nullable{T}" />. Prefer it to
+        /// <see cref="MapOrDefault{TOut}" /> wherever the produced type is a value
+        /// type, since a mapped zero and a failure are the same
+        /// <see langword="default" /> and different nulls. The error itself is
+        /// discarded either way.
+        /// </remarks>
+        /// <param name="map">
+        /// Produces the result from the contained ok value and the bound state.
+        /// It is not invoked for an <see cref="Err{TOk,TErr}" />.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The value type <paramref name="map" /> produces.
+        /// </typeparam>
+        /// <returns>
+        /// What <paramref name="map" /> produced, or null for an
+        /// <see cref="Err{TOk,TErr}" />.
+        /// </returns>
+        public TOut? MapOrNull<TOut>(Func<TOk, TState, TOut> map)
+            where TOut : struct =>
+            Source.MapOrNull(_state, map);
+
+        /// <summary>
         /// Transforms the contained ok value, or computes a replacement from the
         /// error.
         /// </summary>
@@ -709,6 +736,36 @@ public abstract partial record Result<TOk, TErr>
                 : default;
 
         /// <summary>
+        /// Awaits a transform of the contained ok value and the bound state into a
+        /// nullable value type, using null for a failure.
+        /// </summary>
+        /// <remarks>
+        /// The asynchronous half of the bridge into <see cref="Nullable{T}" />.
+        /// Unlike <see cref="MapOrDefaultAsync{TOut}" />, a failure is a null
+        /// rather than a <see langword="default" />, so it stays distinguishable
+        /// from a transform that produced a zero.
+        /// <para>
+        /// An <see cref="Err{TOk,TErr}" /> returns an already-completed
+        /// <see cref="ValueTask{TResult}" /> and never invokes
+        /// <paramref name="map" />, so that branch builds no state machine.
+        /// </para>
+        /// </remarks>
+        /// <param name="map">
+        /// Transforms the contained ok value using the bound state.
+        /// </param>
+        /// <typeparam name="TOut">
+        /// The value type the transform produces.
+        /// </typeparam>
+        /// <returns>
+        /// The transformed value, or null for an <see cref="Err{TOk,TErr}" />.
+        /// </returns>
+        public ValueTask<TOut?> MapOrNullAsync<TOut>(
+            Func<TOk, TState, Task<TOut>> map) where TOut : struct =>
+            Source is Ok<TOk, TErr> ok
+                ? AwaitedOrNull(map(ok.Value, _state))
+                : default;
+
+        /// <summary>
         /// Awaits a transform of the contained ok value, or awaits a fallback
         /// built from the error, handing the bound state to whichever runs.
         /// </summary>
@@ -771,6 +828,10 @@ public abstract partial record Result<TOk, TErr>
 
         private static async ValueTask<TOut?> AwaitedNullable<TOut>(
             Task<TOut> task) where TOut : notnull =>
+            await task.ConfigureAwait(false);
+
+        private static async ValueTask<TOut?> AwaitedOrNull<TOut>(
+            Task<TOut> task) where TOut : struct =>
             await task.ConfigureAwait(false);
 
         private static async ValueTask<Result<TOk, TErr>> AwaitedInspect(

@@ -153,9 +153,21 @@ the surface you are adding is not the surface you typed.
 *sync* members to state overloads on the monad — `Source.Map(_state, map)` — and
 their *async* members to nothing, matching on the case themselves. The asymmetry
 reads as an oversight and is not: those state overloads are abstract on
-`Option<T>` and `Result<TOk, TErr>` and overridden in both derived types, 57 and
-59 declarations on the bases with 43 and 45 in each derived type, and **not one of
-them is async**. There is nothing to forward to.
+`Option<T>` and `Result<TOk, TErr>` and overridden in both derived types, and
+**not one of them is async**. There is nothing to forward to.
+
+Check that claim rather than trusting this paragraph — it is the one thing here a
+change can falsify, and nothing in the build asserts it:
+
+```
+grep -cE '^abstract .*\.[A-Za-z]+Async<TState' src/Waystone.Monads/PublicAPI.Shipped.txt
+```
+
+It reads `0`, and must. Drop the `Async` from the pattern and the same command
+counts the sync members that *do* take a `TState`, which is the contrast the rule
+rests on. This paragraph previously carried four exact declaration counts instead;
+they had drifted from the source by the time anyone checked, so they are gone
+rather than corrected — a count here is written once and read for years.
 
 Do not close the gap by adding async state overloads to the monads. Each one costs
 three declarations — abstract plus two overrides — so the 27 the binder needs is

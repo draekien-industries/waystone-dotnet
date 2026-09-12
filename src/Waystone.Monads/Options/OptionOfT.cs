@@ -688,6 +688,39 @@ public abstract partial record Option<T> where T : notnull
     public abstract TOut? MapOrNull<TOut>(Func<T, TOut> map) where TOut : struct;
 
     /// <summary>
+    /// Maps the contained value to a nullable value type with state handed to the
+    /// delegate rather than captured by it.
+    /// </summary>
+    /// <remarks>
+    /// Handing the <paramref name="state" /> to the delegate rather than
+    /// capturing it lets the delegate be <see langword="static" />, so the call
+    /// allocates no closure. <c>WM2017</c> reports a capturing call, naming
+    /// <c>With</c> rather than this overload.
+    /// <para>
+    /// <typeparamref name="TOut" /> is constrained to a value type so that null
+    /// cannot also be a mapped result, exactly as on the overload that captures.
+    /// </para>
+    /// </remarks>
+    /// <param name="state">
+    /// The value the delegate would otherwise capture. It is passed through
+    /// unchanged and is never inspected.
+    /// </param>
+    /// <param name="map">
+    /// Transforms the contained value. It is not invoked on a <see cref="None{T}" />.
+    /// </param>
+    /// <typeparam name="TState">
+    /// The type of the state passed to the delegate. It is unconstrained, so a
+    /// null state is permitted.
+    /// </typeparam>
+    /// <typeparam name="TOut">The value type the delegate produces.</typeparam>
+    /// <returns>
+    /// What <paramref name="map" /> produced, or null for a <see cref="None{T}" />.
+    /// </returns>
+    public abstract TOut? MapOrNull<TState, TOut>(
+        TState state,
+        Func<T, TState, TOut> map) where TOut : struct;
+
+    /// <summary>
     /// Awaits <paramref name="map" /> against the contained value and returns it as
     /// a nullable value type, using null for a <see cref="None{T}" />.
     /// </summary>

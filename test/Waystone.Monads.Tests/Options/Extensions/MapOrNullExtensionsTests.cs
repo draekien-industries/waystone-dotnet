@@ -117,4 +117,53 @@ public sealed class MapOrNullExtensionsTests
 
         value.ShouldBeNull();
     }
+
+    [Fact]
+    public async Task
+        GivenSomeTask_WhenMapOrNullAsyncWithState_ThenReturnTheMappedValue()
+    {
+        int? value = await Task.FromResult(Option.Some(1))
+           .MapOrNullAsync(10, static (x, state) => x + state);
+
+        value.ShouldBe(11);
+    }
+
+    [Fact]
+    public async Task GivenNoneTask_WhenMapOrNullAsyncWithState_ThenReturnNull()
+    {
+        int? value = await Task.FromResult(Option.None<int>())
+           .MapOrNullAsync(10, static (x, state) => x + state);
+
+        value.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task
+        GivenSomeValueTask_WhenMapOrNullAsyncWithState_ThenReturnTheMappedValue()
+    {
+        int? value = await new ValueTask<Option<int>>(Option.Some(1))
+           .MapOrNullAsync(10, static (x, state) => x + state);
+
+        value.ShouldBe(11);
+    }
+
+    [Fact]
+    public async Task
+        GivenNoneValueTask_WhenMapOrNullAsyncWithState_ThenReturnNull()
+    {
+        int? value = await new ValueTask<Option<int>>(Option.None<int>())
+           .MapOrNullAsync(10, static (x, state) => x + state);
+
+        value.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task
+        GivenSomeTask_WhenMapOrNullAsyncWithStateToTheDefault_ThenReturnTheDefault()
+    {
+        int? value = await Task.FromResult(Option.Some(1))
+           .MapOrNullAsync(-1, static (x, state) => x + state);
+
+        value.ShouldBe(0);
+    }
 }

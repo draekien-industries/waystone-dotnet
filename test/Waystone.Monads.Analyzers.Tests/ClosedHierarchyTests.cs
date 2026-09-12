@@ -55,6 +55,7 @@ public class ClosedHierarchyTests
                 public override T2 MapOrDefault<T2>(Func<T, T2> map) => default!;
                 public override T2 MapOrDefault<TState, T2>(TState state, Func<T, TState, T2> map) => default!;
                 public override T2? MapOrNull<T2>(Func<T, T2> map) => null;
+                public override T2? MapOrNull<TState, T2>(TState state, Func<T, TState, T2> map) => null;
                 public override ValueTask<T2?> MapOrNullAsync<T2>(Func<T, Task<T2>> map) => throw new Exception();
                 public override T2 MapOrElse<T2>(Func<T2> createDefault, Func<T, T2> map) => createDefault();
                 public override T2 MapOrElse<TState, T2>(TState state, Func<TState, T2> createDefault, Func<T, TState, T2> map) => createDefault(state);
@@ -149,6 +150,7 @@ public class ClosedHierarchyTests
                 public override TOut MapOrDefault<TOut>(Func<TOk, TOut> map) => default!;
                 public override TOut MapOrDefault<TState, TOut>(TState state, Func<TOk, TState, TOut> map) => default!;
                 public override TOut? MapOrNull<TOut>(Func<TOk, TOut> map) => null;
+                public override TOut? MapOrNull<TState, TOut>(TState state, Func<TOk, TState, TOut> map) => null;
                 public override ValueTask<TOut?> MapOrNullAsync<TOut>(Func<TOk, Task<TOut>> map) => throw new Exception();
                 public override TOut MapOrElse<TOut>(Func<TErr, TOut> createDefault, Func<TOk, TOut> map) => throw new Exception();
                 public override TOut MapOrElse<TState, TOut>(TState state, Func<TErr, TState, TOut> createDefault, Func<TOk, TState, TOut> map) => throw new Exception();
