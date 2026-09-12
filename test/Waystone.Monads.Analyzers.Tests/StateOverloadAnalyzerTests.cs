@@ -275,9 +275,10 @@ public class StateOverloadAnalyzerTests
     /// delegate-taking member on a receiver whose *other* members had state
     /// overloads. No such member is left: every delegate-taking member of Option
     /// and Result now has a binder twin, so that failure mode has no real call
-    /// site to fire on. What has to hold instead is that the twin set stays
-    /// complete, which nothing here can assert — it is a property of the library,
-    /// not of any one diagnostic.
+    /// site to fire on. <see cref="BinderShapeCompletenessTests" /> is what
+    /// guards it now — and it asserts the twin set by shape rather than by name,
+    /// which is the stronger property this rule's code fix actually needs. If a
+    /// future member arrives without a twin, that fails rather than this.
     /// </para>
     /// </remarks>
     [Fact]
