@@ -442,6 +442,60 @@ public sealed class OptionBoundAsyncTests
         invoked.ShouldBeEmpty();
     }
 
+    /// <remarks>
+    /// Where the guard throws is decided by the step, not by the member: it
+    /// reads <c>IsCompletedSuccessfully</c> and checks a finished task before
+    /// the call returns. So this pair is not one test written twice — a guard
+    /// reached on only one of the two paths is, to a caller who meets the
+    /// other, the same as no guard at all.
+    /// </remarks>
+    [Fact]
+    public void AndThenAsyncThrowsFromTheCallWhenACompletedStepIsNull()
+    {
+        ArgumentNullException thrown =
+            Should.Throw<ArgumentNullException>(
+                () => SomeTwo.With(10)
+                             .AndThenAsync(
+                                  static (_, _) =>
+                                      new ValueTask<Option<int>>(
+                                          default(Option<int>)!)));
+
+        thrown.ParamName.ShouldBe("optionFactory");
+    }
+
+    /// <remarks>
+    /// The bound state is the gate, which keeps the delegate
+    /// <see langword="static" /> and holds its task incomplete until after the
+    /// call has returned. <c>await Task.Yield()</c> does not: on an idle thread
+    /// pool it can resume before the guard reads
+    /// <c>IsCompletedSuccessfully</c>, and the throw then lands at the call,
+    /// quietly turning this into a second copy of the test above.
+    /// </remarks>
+    [Fact]
+    public async Task AndThenAsyncFaultsTheReturnedTaskWhenAPendingStepIsNull()
+    {
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Option<int>> pending =
+            SomeTwo.With(gate)
+                   .AndThenAsync(
+                        static async ValueTask<Option<int>> (_, s) =>
+                        {
+                            await s.Task;
+
+                            return default(Option<int>)!;
+                        });
+
+        pending.IsCompleted.ShouldBeFalse();
+        gate.SetResult(true);
+
+        ArgumentNullException thrown =
+            await Should.ThrowAsync<ArgumentNullException>(
+                async () => await pending);
+
+        thrown.ParamName.ShouldBe("optionFactory");
+    }
+
     [Fact]
     public async Task MapOrAsyncFallsBackToTheDefaultValueForNone()
     {

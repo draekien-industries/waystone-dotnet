@@ -731,6 +731,13 @@ public abstract partial record Option<T> where T : notnull
         /// <typeparam name="TOut">
         /// The value type the produced option holds.
         /// </typeparam>
+        /// <exception cref="ArgumentNullException">
+        /// If <paramref name="optionFactory" /> returns a null option. See the
+        /// remarks on <see cref="Option{T}" /> for why that throws rather than
+        /// producing a <see cref="None{T}" />. It is thrown from the call when
+        /// the factory's task had already completed and faults the returned
+        /// task otherwise, so await the call to see it either way.
+        /// </exception>
         /// <returns>
         /// Whatever <paramref name="optionFactory" /> produced, or
         /// <see cref="None{T}" /> of <typeparamref name="TOut" />.
@@ -739,7 +746,9 @@ public abstract partial record Option<T> where T : notnull
             Func<T, TState, ValueTask<Option<TOut>>> optionFactory)
             where TOut : notnull =>
             Source is Some<T> some
-                ? optionFactory(some.Value, _state)
+                ? Option.NotNullAsync(
+                      optionFactory(some.Value, _state),
+                      nameof(optionFactory))
                 : new ValueTask<Option<TOut>>(Option.None<TOut>());
 
         /// <summary>
