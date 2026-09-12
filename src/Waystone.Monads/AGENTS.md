@@ -200,9 +200,17 @@ private static async ValueTask<bool> Awaited(Task<bool> task) =>
 **The rule for which members convert is mechanical: count the awaits.** One await
 means a branch returns without awaiting, and it converts. Two awaits means both
 branches build a machine anyway, so converting buys nothing and only adds an
-indirection. `AndThenAsync` and `OrElseAsync` do best of all: their delegates return
-`ValueTask`, so the awaiting branch returns it straight through and neither branch
-builds a machine.
+indirection. `OrElseAsync` does best of all: its delegate returns `ValueTask`, so the
+awaiting branch returns it straight through and neither branch builds a machine.
+
+`AndThenAsync` had that property too until DRA-216 put `Option.NotNullAsync` on its
+result. It keeps it for a step whose task has already completed, which the guard
+unwraps and rewraps synchronously, and pays one machine for a step that has not —
+the cost the non-bound `Some.AndThenAsync` and `Ok.AndThenAsync` already paid, on a
+branch that is awaiting a pending task anyway. **Do not read the loss as a
+regression to undo.** The guard is what turns a factory returning a null monad into
+an `ArgumentNullException` naming the factory, instead of a `NullReferenceException`
+at whatever read the monad next.
 
 **Count per overload, not per member.** `MatchAsync` and `MapOrElseAsync` are where
 this bites: their both-asynchronous overloads await twice and keep `async`, while the

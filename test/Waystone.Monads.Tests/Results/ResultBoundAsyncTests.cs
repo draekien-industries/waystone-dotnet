@@ -352,6 +352,60 @@ public sealed class ResultBoundAsyncTests
         invoked.ShouldBeEmpty();
     }
 
+    /// <remarks>
+    /// Where the guard throws is decided by the step, not by the member: it
+    /// reads <c>IsCompletedSuccessfully</c> and checks a finished task before
+    /// the call returns. So this pair is not one test written twice — a guard
+    /// reached on only one of the two paths is, to a caller who meets the
+    /// other, the same as no guard at all.
+    /// </remarks>
+    [Fact]
+    public void AndThenAsyncThrowsFromTheCallWhenACompletedStepIsNull()
+    {
+        ArgumentNullException thrown =
+            Should.Throw<ArgumentNullException>(
+                () => OkTwo.With(10)
+                           .AndThenAsync(
+                                static (_, _) =>
+                                    new ValueTask<Result<int, string>>(
+                                        default(Result<int, string>)!)));
+
+        thrown.ParamName.ShouldBe("resultFactory");
+    }
+
+    /// <remarks>
+    /// The bound state is the gate, which keeps the delegate
+    /// <see langword="static" /> and holds its task incomplete until after the
+    /// call has returned. <c>await Task.Yield()</c> does not: on an idle thread
+    /// pool it can resume before the guard reads
+    /// <c>IsCompletedSuccessfully</c>, and the throw then lands at the call,
+    /// quietly turning this into a second copy of the test above.
+    /// </remarks>
+    [Fact]
+    public async Task AndThenAsyncFaultsTheReturnedTaskWhenAPendingStepIsNull()
+    {
+        var gate = new TaskCompletionSource<bool>();
+
+        ValueTask<Result<int, string>> pending =
+            OkTwo.With(gate)
+                 .AndThenAsync(
+                      static async ValueTask<Result<int, string>> (_, s) =>
+                      {
+                          await s.Task;
+
+                          return default(Result<int, string>)!;
+                      });
+
+        pending.IsCompleted.ShouldBeFalse();
+        gate.SetResult(true);
+
+        ArgumentNullException thrown =
+            await Should.ThrowAsync<ArgumentNullException>(
+                async () => await pending);
+
+        thrown.ParamName.ShouldBe("resultFactory");
+    }
+
     [Fact]
     public async Task OrElseAsyncRecoversFromTheErrorAndLeavesASuccessAlone()
     {
