@@ -36,7 +36,7 @@
         <ProjectReference Include="..\Waystone.Monads\Waystone.Monads.csproj"/>
     </ItemGroup>
 
-    <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
+    <Import Project="..\Waystone.Internal.SourceGenerators\Waystone.Internal.SourceGenerators.props"/>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\"/>

@@ -86,7 +86,7 @@ parameter and type parameter names from the core member, so a family only conver
 with an untouched baseline when the two already agree — and they frequently do
 not. Do not estimate which families are convertible: build the family with the
 attributes applied and read the RS0016/RS0017 pair, which names the exact drift.
-See [Waystone.SourceGenerators](../Waystone.SourceGenerators/AGENTS.md).
+See [Waystone.Internal.SourceGenerators](../Waystone.Internal.SourceGenerators/AGENTS.md).
 
 ## A delegate that returns null
 
@@ -126,7 +126,7 @@ regression.
 
 **`WA0001` fails the build on a guard left off, so none of the above is on you to
 remember.** The rule lives in
-[Waystone.Analyzers](../Waystone.Analyzers/AGENTS.md), never ships, and finds the
+[Waystone.Internal.Analyzers](../Waystone.Internal.Analyzers/AGENTS.md), never ships, and finds the
 guards by shape rather than by name-checking `Option` — a static `NotNull` or
 `NotNullAsync` taking a value and a `string`, returning that value's own type. Add
 a guarded type by writing its guard in that shape, and add its row to
