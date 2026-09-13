@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Waystone.Internal.SourceGenerators;
 using Waystone.Monads.Options;
 
 /// <summary>
@@ -25,7 +26,8 @@ using Waystone.Monads.Options;
 [ShouldlyMethods]
 [DebuggerStepThrough]
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class OptionAssertions
+[GenerateAwaitedReceivers(typeof(Option<>), ReceiverParameterName = "actual")]
+public static partial class OptionAssertions
 {
     extension<T>(Option<T> actual) where T : notnull
     {
@@ -142,163 +144,5 @@ public static class OptionAssertions
 
             return value;
         }
-    }
-
-    extension<T>(Task<Option<T>> actual) where T : notnull
-    {
-        /// <summary>
-        /// Awaits the task, then asserts that the option it produced is a
-        /// <see cref="Some{T}" /> and hands back the value it holds.
-        /// </summary>
-        /// <param name="customMessage">Extra context to add to the failure.</param>
-        /// <param name="actualExpression">
-        /// Filled in by the compiler and forwarded to the synchronous assertion, so
-        /// the failure names the caller's expression rather than this method's
-        /// parameter.
-        /// </param>
-        /// <returns>
-        /// The value the awaited option holds. Await this, or the assertion never
-        /// runs.
-        /// </returns>
-        /// <exception cref="ShouldAssertException">
-        /// Thrown when the awaited option is a <see cref="None{T}" />.
-        /// </exception>
-        public async ValueTask<T> ShouldBeSomeAsync(
-            string? customMessage = null,
-            [CallerArgumentExpression(nameof(actual))]
-            string? actualExpression = null) =>
-            (await actual.ConfigureAwait(false)).ShouldBeSome(
-                customMessage,
-                actualExpression);
-
-        /// <summary>
-        /// Awaits the task, then asserts that the option it produced holds no
-        /// value.
-        /// </summary>
-        /// <param name="customMessage">Extra context to add to the failure.</param>
-        /// <param name="actualExpression">
-        /// Filled in by the compiler and forwarded to the synchronous assertion.
-        /// </param>
-        /// <returns>
-        /// A task carrying the assertion. Await it, or the assertion never runs.
-        /// </returns>
-        /// <exception cref="ShouldAssertException">
-        /// Thrown when the awaited option is a <see cref="Some{T}" />.
-        /// </exception>
-        public async ValueTask ShouldBeNoneAsync(
-            string? customMessage = null,
-            [CallerArgumentExpression(nameof(actual))]
-            string? actualExpression = null) =>
-            (await actual.ConfigureAwait(false)).ShouldBeNone(
-                customMessage,
-                actualExpression);
-
-        /// <summary>
-        /// Awaits the task, then asserts that the option it produced is a
-        /// <see cref="Some{T}" /> holding a particular value.
-        /// </summary>
-        /// <param name="expected">
-        /// The value the awaited option must hold. Compared through Shouldly, so a
-        /// string or a collection compares by content rather than by reference.
-        /// </param>
-        /// <param name="customMessage">Extra context to add to the failure.</param>
-        /// <param name="actualExpression">
-        /// Filled in by the compiler and forwarded to the synchronous assertion.
-        /// </param>
-        /// <returns>
-        /// The value the awaited option holds. Await this, or the assertion never
-        /// runs.
-        /// </returns>
-        /// <exception cref="ShouldAssertException">
-        /// Thrown when the awaited option is a <see cref="None{T}" />, and when it
-        /// holds a value other than <paramref name="expected" />.
-        /// </exception>
-        public async ValueTask<T> ShouldBeSomeValueAsync(
-            T expected,
-            string? customMessage = null,
-            [CallerArgumentExpression(nameof(actual))]
-            string? actualExpression = null) =>
-            (await actual.ConfigureAwait(false)).ShouldBeSomeValue(
-                expected,
-                customMessage,
-                actualExpression);
-    }
-
-    extension<T>(ValueTask<Option<T>> actual) where T : notnull
-    {
-        /// <summary>
-        /// Awaits the value task, then asserts that the option it produced is a
-        /// <see cref="Some{T}" /> and hands back the value it holds.
-        /// </summary>
-        /// <param name="customMessage">Extra context to add to the failure.</param>
-        /// <param name="actualExpression">
-        /// Filled in by the compiler and forwarded to the synchronous assertion.
-        /// </param>
-        /// <returns>
-        /// The value the awaited option holds. Await this, or the assertion never
-        /// runs.
-        /// </returns>
-        /// <exception cref="ShouldAssertException">
-        /// Thrown when the awaited option is a <see cref="None{T}" />.
-        /// </exception>
-        public async ValueTask<T> ShouldBeSomeAsync(
-            string? customMessage = null,
-            [CallerArgumentExpression(nameof(actual))]
-            string? actualExpression = null) =>
-            (await actual.ConfigureAwait(false)).ShouldBeSome(
-                customMessage,
-                actualExpression);
-
-        /// <summary>
-        /// Awaits the value task, then asserts that the option it produced holds no
-        /// value.
-        /// </summary>
-        /// <param name="customMessage">Extra context to add to the failure.</param>
-        /// <param name="actualExpression">
-        /// Filled in by the compiler and forwarded to the synchronous assertion.
-        /// </param>
-        /// <returns>
-        /// A task carrying the assertion. Await it, or the assertion never runs.
-        /// </returns>
-        /// <exception cref="ShouldAssertException">
-        /// Thrown when the awaited option is a <see cref="Some{T}" />.
-        /// </exception>
-        public async ValueTask ShouldBeNoneAsync(
-            string? customMessage = null,
-            [CallerArgumentExpression(nameof(actual))]
-            string? actualExpression = null) =>
-            (await actual.ConfigureAwait(false)).ShouldBeNone(
-                customMessage,
-                actualExpression);
-
-        /// <summary>
-        /// Awaits the value task, then asserts that the option it produced is a
-        /// <see cref="Some{T}" /> holding a particular value.
-        /// </summary>
-        /// <param name="expected">
-        /// The value the awaited option must hold. Compared through Shouldly, so a
-        /// string or a collection compares by content rather than by reference.
-        /// </param>
-        /// <param name="customMessage">Extra context to add to the failure.</param>
-        /// <param name="actualExpression">
-        /// Filled in by the compiler and forwarded to the synchronous assertion.
-        /// </param>
-        /// <returns>
-        /// The value the awaited option holds. Await this, or the assertion never
-        /// runs.
-        /// </returns>
-        /// <exception cref="ShouldAssertException">
-        /// Thrown when the awaited option is a <see cref="None{T}" />, and when it
-        /// holds a value other than <paramref name="expected" />.
-        /// </exception>
-        public async ValueTask<T> ShouldBeSomeValueAsync(
-            T expected,
-            string? customMessage = null,
-            [CallerArgumentExpression(nameof(actual))]
-            string? actualExpression = null) =>
-            (await actual.ConfigureAwait(false)).ShouldBeSomeValue(
-                expected,
-                customMessage,
-                actualExpression);
     }
 }

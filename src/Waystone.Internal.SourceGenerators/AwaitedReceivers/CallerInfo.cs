@@ -1,6 +1,7 @@
 namespace Waystone.Internal.SourceGenerators.AwaitedReceivers;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 /// <summary>
 /// The parameter attributes a generated member carries over from the source parameter
@@ -62,15 +63,55 @@ internal static class CallerInfo
             return IsCarried(attribute) ? $"[global::{name}] " : string.Empty;
         }
 
-        if (attribute.ConstructorArguments.Length != 1
-         || attribute.ConstructorArguments[0].Value is not string target)
-        {
-            return string.Empty;
-        }
+        if (Target(attribute) is not { } target) return string.Empty;
 
         string retargeted = target == sourceReceiver ? generatedReceiver : target;
 
         return $"[global::{name}(\"{retargeted}\")] ";
+    }
+
+    /// <summary>
+    /// The parameter name a <c>CallerArgumentExpression</c> points at, or
+    /// <see langword="null" /> where it points at nothing readable.
+    /// </summary>
+    /// <remarks>
+    /// Falls back to the syntax, because the attribute is routinely an error type
+    /// here and an error type has no bound constructor arguments. A generator cannot
+    /// see another generator's output, so on a target framework where
+    /// <c>CallerArgumentExpression</c> is polyfilled — every <c>netstandard2.0</c>
+    /// project in this repository, through PolySharp — the attribute does not resolve
+    /// in this view of the compilation even though it resolves perfectly well in the
+    /// one the compiler finally emits.
+    /// <para>
+    /// The two spellings the fallback reads are the two the attribute is written
+    /// with: <c>nameof(parameter)</c> and a string literal. Anything else yields
+    /// null and the attribute is left off rather than guessed at.
+    /// </para>
+    /// </remarks>
+    private static string? Target(AttributeData attribute)
+    {
+        if (attribute.ConstructorArguments.Length == 1
+         && attribute.ConstructorArguments[0].Value is string bound)
+        {
+            return bound;
+        }
+
+        if (attribute.ApplicationSyntaxReference?.GetSyntax() is not AttributeSyntax
+                { ArgumentList.Arguments: [{ Expression: { } argument }] })
+        {
+            return null;
+        }
+
+        return argument switch
+        {
+            InvocationExpressionSyntax
+            {
+                Expression: IdentifierNameSyntax { Identifier.ValueText: "nameof" },
+                ArgumentList.Arguments: [{ Expression: IdentifierNameSyntax named }],
+            } => named.Identifier.ValueText,
+            LiteralExpressionSyntax { Token.Value: string literal } => literal,
+            _ => null,
+        };
     }
 
     private static string? Name(AttributeData attribute) =>
