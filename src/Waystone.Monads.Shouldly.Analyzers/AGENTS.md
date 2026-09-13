@@ -8,19 +8,18 @@ and ship inside the `Waystone.Monads.Shouldly` package, not the `Waystone.Monads
 **These rules must not move into `Waystone.Monads.Analyzers`.** That assembly ships
 inside the core package, so every consumer of `Waystone.Monads` would receive a
 diagnostic telling them to call `ShouldBeSome` — a method they do not reference — with
-a code fix producing source they cannot compile. The two-package split is why this area
-exists; it is not a structural preference to be tidied away later.
+a code fix producing source they cannot compile.
 
 **Never reference `Waystone.Monads` or `Waystone.Monads.Shouldly`.** The assertions
 package loads these assemblies as analyzers, so a project reference back is a build
 cycle. Both libraries' types are resolved by metadata name through
 `AssertionSymbols.TryCreate`, which doubles as the gate: a project without
-`Shouldly.OptionAssertions` gets no diagnostics at all. That gate is a test, not an
-implementation detail — `GivenTheAssertionsPackageIsAbsent_ThenReportNothing` exists in
-both analyzer test classes.
+`Shouldly.OptionAssertions` gets no diagnostics at all.
+`GivenTheAssertionsPackageIsAbsent_ThenReportNothing` pins that gate in both analyzer
+test classes.
 
-**The `WMS` prefix is deliberate and the tier digit carries over.** `WM` is at `WM2021`
-and is validated end to end by `RulesTests` in `Waystone.Monads.Analyzers.Tests`, whose
+**The `WMS` prefix is deliberate and the tier digit carries over.** `WM` is validated
+end to end by `RulesTests` in `Waystone.Monads.Analyzers.Tests`, whose
 `EveryRuleIsSupportedByAnAnalyzer` reflects over that assembly's own types — so a `WM`
 id defined here would either fail that test or force it to be weakened. Keeping the `2`
 means the severity policy in
@@ -39,8 +38,9 @@ one's and fails on a descriptor with no entry. The presets read the *same*
 `WaystoneMonadsRuleset` property the core package reads, so a consumer sets one
 posture for every Waystone package they installed — which means the two packages'
 files have to agree about what each tier name means. `recommended` changes nothing
-here, because there is no misuse tier to promote into; `strict` raises both rules to
-warning. Read [Waystone.Monads.Analyzers](../Waystone.Monads.Analyzers/AGENTS.md) for
+here, because there is no misuse tier to promote into; `strict` raises this area's
+rules to warning. Read
+[Waystone.Monads.Analyzers](../Waystone.Monads.Analyzers/AGENTS.md) for
 why the files are global configs and why `global_level` is negative.
 
 ## Gotchas

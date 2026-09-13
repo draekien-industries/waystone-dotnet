@@ -4,8 +4,8 @@
 
 A collection of small, independently published C# libraries reused across
 draekien-industries projects. The packages share a repository and a version
-number but are otherwise unrelated — there is no unifying thesis, and a change
-in one package implies nothing about the others.
+number but are otherwise unrelated — a change in one implies nothing about the
+others.
 
 ## Area guidance
 
@@ -51,26 +51,25 @@ None is a substitute for a required check, since a clone without `core.hooksPath
 set has none of them.
 
 The snippet check needs a checkout of
-[draekien-industries/docs](https://github.com/draekien-industries/docs), which it finds
-without any path being written down — the candidates and their order are in
+[draekien-industries/docs](https://github.com/draekien-industries/docs); the candidates
+it searches and their order are in
 [tools/Waystone.DocSnippets/README.md](tools/Waystone.DocSnippets/README.md). Finding
-none, it says so and lets the push through: a contributor without that clone is not
-blocked, but nothing is guarding the pages either.
+none, it says so and lets the push through — a contributor without that clone is not
+blocked, and nothing is guarding the pages either.
 
 ## The solution
 
-**`Waystone.Net.slnx` is edited by hand.** It is XML, a project is one `<Project
-Path="..." />` line inside the `<Folder>` it belongs to, and adding one is a
-two-line diff you can read.
+**`Waystone.Net.slnx` is edited by hand.** It is XML; a project is one `<Project
+Path="..." />` line inside the `<Folder>` it belongs to.
 
 **Do not reach for `dotnet sln add`.** On the SDK pinned here it rewrites far more
-than the solution: run once, it dropped nine projects from the solution and
-stripped the `ProjectReference` elements out of eighteen `.csproj` files, which
-turns into a few hundred `CS0246`s and looks nothing like a solution problem.
+than the solution: it drops projects from the solution and strips `ProjectReference`
+elements out of `.csproj` files, which surfaces as a few hundred `CS0246`s and looks
+nothing like a solution problem.
 
-**Two projects carry `<Build Project="false" />`, and it is load-bearing.** Both
-`Waystone.Monads.PreviousMajor*` samples compile against a *previous* major on
-purpose, so the root build has to skip them while an IDE still opens them. See
+**The `Waystone.Monads.PreviousMajor*` samples carry `<Build Project="false" />`,
+and it is load-bearing.** They compile against a *previous* major on purpose, so
+the root build has to skip them while an IDE still opens them. See
 [sample/Waystone.Monads.PreviousMajor.Sample/README.md](sample/Waystone.Monads.PreviousMajor.Sample/README.md).
 
 ## Versioning
@@ -81,8 +80,8 @@ colon forces a major bump on *any* type. PRs are squash-merged, so the PR title
 becomes a version-determining subject. Use `!` only when something is actually
 being removed.
 
-**One version covers every package.** A change to one package bumps and
-republishes the rest. Packages cannot be versioned independently.
+**One version covers every package.** A change to one bumps and republishes the
+rest; packages cannot be versioned independently.
 
 **Merging to `main` publishes to NuGet.org only when the change touches `src`.**
 `release.yml` triggers on `src/**`, with `!**/*.md` after it and
@@ -113,7 +112,6 @@ own namespaces, because the namespace they would shadow is already ours.
 
 **Deprecate; never remove.** Public API is obsoleted with a message naming both its
 replacement and the version that removes it, and removed only in the next major.
-Deleting public API outright is not an option, however small the change looks.
 
 **Deprecations are tracked in GitBook, not here.** The published documentation
 carries the Deprecations page and is the source of truth for what is going away and
@@ -189,12 +187,11 @@ branch below, which then takes a `git branch`, a `reset --hard` and a
 cherry-pick to unpick.
 
 **A stack contributes every one of its PR titles.** `gh stack merge` squashes each
-PR separately, so an eleven-PR stack lands eleven commits and GitVersion reads all
-eleven subjects. It applies one increment for the highest bump among them, so ten
-`feat` commits give a single minor bump. The trap runs the other way: a `!` in
-*any* title takes the whole release major, including a mid-stack PR nobody was
-thinking of as the release. Read the titles together before merging, not one at a
-time as you open them.
+PR separately, so GitVersion reads every subject in the stack and applies one
+increment for the highest bump among them — a stack of `feat` titles gives a single
+minor bump. The risk runs the other way: a `!` in *any* title takes the whole
+release major, including a mid-stack PR nobody was thinking of as the release. Read
+the titles together before merging, not one at a time as you open them.
 
 ## Writing
 
@@ -209,6 +206,12 @@ not a metaphor.
 Agent-facing documentation lives in `docs/`. Read [docs/AGENTS.md](docs/AGENTS.md)
 before reading or writing anything there.
 
+**Task-specific guidance lives in `docs/contexts/`, linked from the `AGENTS.md` of the
+area it applies to.** An area doc is read on every turn there; a context is read only
+when the task calls for it. Add material there rather than to an `AGENTS.md` when the
+answer to "would every agent working in this area need this?" is no. The index and the
+trigger for each is in [docs/AGENTS.md](docs/AGENTS.md).
+
 **A published C# code block is quoted from `sample/`, never typed into the page.**
 `tools/Waystone.DocSnippets` lifts named `#region` blocks out of the sample projects
 and writes them into GitBook, and `pre-push` fails on a page that has drifted. So a
@@ -216,7 +219,6 @@ documentation change that adds or edits C# is a change *here* first, in a projec
 compiles, and only then a change to the page.
 
 **Editing a page that still holds a hand-written C# block converts that block.** The
-space is moving across one page at a time, as each is next edited, rather than in a
-sweep — so the conversion lands in front of a reviewer already reading that page.
-Read [sample/AGENTS.md](sample/AGENTS.md) for the region naming rules and the steps;
-they are easy to get subtly wrong and the tool ignores a bad region name in silence.
+space is moving one page at a time, as each is next edited, rather than in a sweep.
+Read [sample/AGENTS.md](sample/AGENTS.md) for the region naming rules and the steps —
+the tool ignores a bad region name in silence.
