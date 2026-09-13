@@ -37,9 +37,7 @@ int port = configured.UnwrapOr(8080);
 ## Converting a page is part of editing it
 
 **Touching a GitBook page that still holds a hand-written C# block means moving that
-block here first.** The space is being converted one page at a time as each is next
-edited, deliberately rather than in a sweep. Most pages still hold hand-written
-copies; only `guides/configuration.md` is done.
+block here first.**
 
 The `diff`, `ini`, `jsonc`, `xml` and shell blocks stay hand-written, and so do the
 `upgrading/` pages — their samples are older majors that no longer compile here.

@@ -10,12 +10,12 @@ factories and the three extensions that map a value to each.
 `IsPackable=false` *and* absent from `PackMonadAnalyzers`, so it only ever runs on
 this repository's own compilations. This project is in that pack target, so it lands
 in `analyzers/dotnet/cs` and runs in every consumer's build. Adding the awaited
-receivers generator to the pack target instead would have shipped
-`[GenerateAwaitedReceivers]` to consumers as a side effect.
+receivers generator to the pack target ships `[GenerateAwaitedReceivers]` to
+consumers as a side effect.
 
-The two consequences of shipping: the generator must stay silent on a compilation
-with no attributed enum — `ForAttributeWithMetadataName` gives that for free — and
-every consumer gets it on upgrade with no opt-out beyond not applying the attribute.
+Shipping means the generator must stay silent on a compilation with no attributed
+enum — `ForAttributeWithMetadataName` gives that for free — and that every consumer
+gets it on upgrade with no opt-out beyond not applying the attribute.
 
 ## The generator contract
 
@@ -34,19 +34,20 @@ and the default is `{enum}.{member}` so an enum that sets nothing gets exactly w
 `ErrorCodeFactory.FromEnum` produces. Precedence is the enum's `Format`, then the
 assembly's `[ErrorCodeFormat]`, then that default.
 
-This exists because the alternative does not work: a generator cannot execute a
-factory. `ErrorCodeFactory.FromEnum` is arbitrary C# that runs later, and the compiler
-has no facility to invoke user code and read the result back. So a consumer who
-installs a custom factory through `MonadOptions.UseErrorCodeFactory` changes the
-runtime string and not the generated one, which is why the factory is being obsoleted
-in favour of the format — see DRA-112.
+A generator cannot execute a factory: `ErrorCodeFactory.FromEnum` is arbitrary C#
+that runs later, and the compiler has no facility to invoke user code and read the
+result back. A consumer who installs a custom factory through
+`MonadOptions.UseErrorCodeFactory` changes the runtime string and not the generated
+one. The format is the supported way to change a generated code; check
+`MonadOptionsBuilder.UseErrorCodeFactory` for an `[Obsolete]` before describing the
+factory as current.
 
 **`ErrorCodeFormat.cs` is compiled into `Waystone.Monads.Analyzers` as well**, as a
 linked `Compile` item rather than a project reference, because `WM2018` keys on the
 generated code and has to resolve the format identically. Two copies of the parser
 would let the rule and the generator disagree about what code an enum produces, which
-is exactly the bug the rule exists to catch. The two assemblies cannot reference each
-other, so shared source is the only mechanism.
+is the bug the rule exists to catch. The two assemblies cannot reference each other,
+so shared source is the only mechanism.
 
 **`ApplyToUndeclared` folds everything that does not depend on the member into a
 literal**, so the `default:` arm is a concatenation of constants around one
@@ -54,15 +55,14 @@ literal**, so the `default:` arm is a concatenation of constants around one
 call: an undeclared value renders as digits, and all four casings are the identity on
 digits. `EveryCasingIsTheIdentityOnDigits` is what makes that safe to rely on.
 
-**The nesting is what makes member names safe.** `Names`, `Codes`
-and `Errors` each hold one member per enum member, named verbatim, so an enum member
-called `NotFoundCode` cannot collide with the generated name for `NotFound`. The
-price is `WMG0003`, and only that: a member named after one of the three *nested
-classes* produces a member with its enclosing type's name, which is CS0542. A member
-named after one of the three *extensions* is fine — the extensions are on the outer
-class and the members on the nested ones, so the two never share a container.
-`AcceptsAMemberNamedAfterAnExtension` pins that down, because the asymmetry looks
-like an oversight otherwise.
+**The nesting is what makes member names safe.** `Names`, `Codes` and `Errors` each
+hold one member per enum member, named verbatim, so an enum member called
+`NotFoundCode` cannot collide with the generated name for `NotFound`. The price is
+`WMG0003`, and only that: a member named after one of the three *nested classes*
+produces a member with its enclosing type's name, which is CS0542. A member named
+after one of the three *extensions* is fine — the extensions are on the outer class
+and the members on the nested ones, so the two never share a container.
+`AcceptsAMemberNamedAfterAnExtension` pins that asymmetry down.
 
 **The three extensions must sit on the outer class**, because C# forbids extension
 methods in a nested static class. Their `default:` arm is not optional either — a value
@@ -71,11 +71,11 @@ exhaustive.
 
 **No generated member ever consults the configured `ErrorCodeFactory`, including on
 that fallback path.** The arm builds the string itself rather than calling
-`ErrorCode.FromEnum`. It used to call it, which was wrong in a way no test could see:
-under the default factory the two are identical, so a declared member returning the
-baked constant while an undeclared value returned the factory's string looked correct
-until someone installed a custom factory, at which point one method disagreed with
-itself. `ACustomFactoryChangesNothingTheGeneratedMembersReturn` installs a factory that
+`ErrorCode.FromEnum`. Calling the factory there looks correct under the default
+factory, where the two are identical — and the moment a consumer installs a custom
+one, a declared member returns the baked constant while an undeclared value returns
+the factory's string, so a single method disagrees with itself.
+`ACustomFactoryChangesNothingTheGeneratedMembersReturn` installs a factory that
 prefixes every code and asserts the generated members do not move.
 
 **A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
@@ -102,21 +102,21 @@ cannot edit.
 
 **`#nullable enable` is the one exception, and it is conditional.**
 `AnnotatesNullability` reads `LanguageVersion` off the `CSharpCompilation` and emits
-the directive only from C# 8 up; below that the output is byte-for-byte what it has
-always been. It casts rather than pattern-matches, because a generator that matches
-C# syntax never sees another language and the false arm was an uncoverable partial.
-Without it the whole catalog is nullable-oblivious, which is `RS0041` in any consumer
-with a public API baseline — on public API they did not write and cannot annotate.
-`NoWarn` there would disable the rule for their hand-written code too, and an
-`.editorconfig` severity glob does not reach a generated document; both were tried.
+the directive only from C# 8 up; below that the output carries no directive at all.
+It casts rather than pattern-matches, because a generator that matches C# syntax
+never sees another language and a pattern-match's false arm is an uncoverable
+partial. Without it the whole catalog is nullable-oblivious, which is `RS0041` in any
+consumer with a public API baseline — on public API they did not write and cannot
+annotate. `NoWarn` there disables the rule for their hand-written code too, and an
+`.editorconfig` severity glob does not reach a generated document.
 
 The directive is the whole change. The emitted `Errors.{Member}(string message)`
 and `ToError(..., string message)` keep a *non-nullable* `message`, matching
 `Error`'s own constructor. Annotating them `string?` only moves the problem: the
 generated body passes the value straight into `new Error(code, message)`, so it
 buys a `CS8604` and a suppression to silence it. The doc comment's note that a
-blank message is replaced by the configured fallback describes a runtime safety
-net, not permission to pass null.
+blank message is replaced by the configured fallback is a runtime safety net, not
+permission to pass null.
 
 **Generated doc comments use `<c>` and never `<see cref="..." />`.** An unresolved
 cref is CS1574, which is an error in any consumer with
@@ -125,11 +125,11 @@ CS1591 is on by default in a consumer with a documentation file, and the generat
 surface is public.
 
 **The catalog name is the enum's name plus `Catalog`, and nothing is trimmed off
-it.** An earlier version deduplicated a trailing `Error` or `ErrorCode`, which gave
-`OrderError` and `OrderErrorCode` one class name and a CS0101 the generator never
-reported. Do not reintroduce trimming: the hint name is keyed on the *enum* name, so a
-collision here does not throw a duplicate-hint-name exception and surfaces only as a
-confusing error in the consumer.
+it.** Do not trim a trailing `Error` or `ErrorCode`: `OrderError` and
+`OrderErrorCode` would collide on one class name, and the generator never reports
+the resulting CS0101. The hint name is keyed on the *enum* name, so a collision here
+throws no duplicate-hint-name exception and surfaces only as a confusing error in
+the consumer.
 
 **`StringBuilder.AppendLine` writes CRLF on Windows.** `ErrorCodeCatalogWriter`
 appends `'\n'` directly and never calls `AppendLine`, so the emitted source does not
@@ -142,6 +142,5 @@ git may check the test file out either way.
 `Verify.Run` drives it over a synthetic compilation and asserts the emitted text and
 the diagnostics. `GeneratedErrorCodeTests` is the stronger one: the test project
 imports `Waystone.Monads.SourceGenerators.props`, so it declares a real
-`[ErrorCodeCatalog]` enum and calls the generated members, which proves the emitted
-source compiles and agrees with `ErrorCode.FromEnum` at runtime rather than by
-inspection.
+`[ErrorCodeCatalog]` enum and calls the generated members, proving the emitted source
+compiles and agrees with `ErrorCode.FromEnum` at runtime.

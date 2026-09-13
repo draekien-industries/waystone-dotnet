@@ -6,8 +6,7 @@ extension classes in `Waystone.Monads`.
 
 ## The generator contract
 
-**There are two seeds, and knowing both is what makes a failed conversion
-readable.** `Analyse` emits the union of:
+**There are two seeds.** `Analyse` emits the union of:
 
 * `FromReceiverMember` — the written list. A destination class carries
   `[GenerateAwaitedReceivers(typeof(Option<>))]` naming the receiver and one
@@ -16,44 +15,31 @@ readable.** `Analyse` emits the union of:
   class **whose receiver is not itself awaitable**, lifted onto both awaited
   receivers, unless it carries `[ExcludeFromAwaitedReceivers]`.
 
-The written half used to be deliberate for a reason that no longer applies: which
-extension class a core member's async shape belonged in was not derivable, since
-the mapping was nearly `{Member}Extensions` but `Unwrap`, `UnwrapOr`,
-`UnwrapOrDefault` and `Result.UnwrapErr` all lived in `UnwrapExtensions`. DRA-111
-collapsed the per-family classes into `OptionExtensions` and `ResultExtensions`,
-so there is now exactly one destination per monad and no mapping to get wrong.
+The written list is not a mapping: there is exactly one destination class per monad,
+`OptionExtensions` and `ResultExtensions`. It answers *which* core members get
+lifted.
 
-The list stays anyway, because it still answers a second question the destination
-never did: *which* core members get lifted. It remains the strongest available form
-of "emit exactly today's set".
+**Nothing here notices a core member left off every list** — the generator emits
+what it is told, so the failure is a missing overload rather than a diagnostic.
+Two causes produce it and they need different fixes: a core member whose family has
+no destination class, and one whose family has a destination class that does not
+name it. `AwaitedReceiverCoverageTests` in `Waystone.Monads.Tests`
+fails when a public core member has no `…Async` reachable from either awaited
+receiver. It asserts on the emitted surface rather than on the attributes, so it
+covers both causes and a hand-written family equally.
 
-**A written list is only as good as the list, so a test reads the surface
-instead.** Nothing here notices a core member left off every list — the generator
-emits what it is told and says nothing about the rest, so the failure is a missing
-overload rather than a diagnostic. Seven members reached 7.0.0 that way, and the
-two causes need distinguishing because they suggest different fixes: `Option.Or`,
-`Option.Xor` and `Result.Or` had no destination class, while `Option.Zip`,
-`Result.And`, `Result.GetOk` and `Result.GetErr` each had one and were simply not
-listed in it. `AwaitedReceiverCoverageTests` in `Waystone.Monads.Tests` now fails
-when a public core member has no `…Async` reachable from either awaited receiver.
-It asserts on the emitted surface rather than on the attributes, so it covers both
-causes and a hand-written family equally.
-
-The lifted half is what carries the shapes the core member does not have — an
-async-delegate overload, say, which exists only as an extension. It is also the
-half that surprises people, in both directions: a hand-written member on a
-synchronous receiver silently gains two awaited overloads, and one on an awaited
+The lifted half carries the shapes the core member does not have — an
+async-delegate overload, which exists only as an extension. A hand-written member
+on a synchronous receiver silently gains two awaited overloads; one on an awaited
 receiver contributes nothing and will be deleted by the conversion. **Which
-receiver a hand-written overload sits on is therefore part of the contract, not a
-detail.**
+receiver a hand-written overload sits on is part of the contract.**
 
 **`[ExcludeFromAwaitedReceivers]` on the member is the only way to decline the
-lift.** It was added in DRA-200 for `Option.With` and `Result.With`, whose awaited
-form returns a task of a state binder — a shape nobody can chain, for two public
-members and their baseline rows. The seed filters on `IsExtensionMethod`, so a
-classic `static (this T)` method is lifted exactly like an `extension` block
-member and rewriting one in classic form does **not** dodge it; that was measured
-before the attribute existed. The attribute is read only inside
+lift.** It exists for `Option.With` and `Result.With`, whose awaited
+form returns a task of a state binder — a shape nobody can chain. The seed filters
+on `IsExtensionMethod`, so a classic `static (this T)` method is lifted exactly
+like an `extension` block member and rewriting one in classic form does **not**
+dodge it. The attribute is read only inside
 `FromExtensionBlocks` and is inert elsewhere, including on a member named by
 `GenerateAwaitedMember` — that list is opt-in, so leave the name off it instead.
 
@@ -62,15 +48,14 @@ in `nameof`, so `nameof(Option<>.Unwrap)` compiles, matches the `typeof(Option<>
 above it, and makes a rename fail the build instead of silently dropping a family
 into `WSG0002`.
 
-`GenerateAwaitedMember.Summary` overrides the synthesised summary per member, for
-cases where the source member's own wording does not read well after the await
-prefix.
+`GenerateAwaitedMember.Summary` overrides the synthesised summary per member, where
+the source member's own wording does not read well after the await prefix.
 
 **Four parameter attributes reach the generated member and every other one is
 dropped.** `CallerInfo` carries `[CallerMemberName]`, `[CallerFilePath]`,
 `[CallerLineNumber]` and `[CallerArgumentExpression]`, because the compiler fills
 those at the outer call site and the forward hands the value straight on. Nothing
-else has a meaning that survives being forwarded, so nothing else is written —
+else has a meaning that survives being forwarded —
 `WA0004` in
 [Waystone.Internal.Analyzers](../Waystone.Internal.Analyzers/AGENTS.md) is what
 stops a dropped one reaching a build, and the two lists of four have to stay in
@@ -85,36 +70,31 @@ nothing then reports the compiler's own "will have no effect" warning — the sa
 diagnostic the source member already gets — instead of a `CS0103` against generated
 source, which is the harder of the two to act on.
 
-**`ReceiverParameterName` pins the awaited receiver's name, and it is for keeping
-one rather than choosing one.** The default is the source receiver's name with
-`Task` appended — `option` becomes `optionTask` — and that name is in the public API
+**`ReceiverParameterName` pins the awaited receiver's name, for keeping a name
+rather than choosing one.** The default is the source receiver's name with `Task`
+appended — `option` becomes `optionTask` — and that name is in the public API
 baseline, where renaming it is source-breaking for a caller naming it in static
 invocation syntax. A class whose awaited shapes were hand-written before they were
-generated therefore has to pin whatever they were already called, or the conversion
-that changes nothing else still moves every baseline row. `Waystone.Monads.Shouldly`
+generated has to pin whatever they were already called, or the conversion that
+changes nothing else still moves every baseline row. `Waystone.Monads.Shouldly`
 pins `actual` for exactly that. A new class has nothing to preserve: leave it unset.
 
-Pinning the source receiver's own name is the ordinary case and works, because the
-local holding the awaited value is renamed to `awaited` instead of colliding with the
-parameter it is awaiting. Read the two together — the pin decides the receiver's
-name, and `CallerInfo` re-points a `CallerArgumentExpression` at whatever that name
-turned out to be.
+Pinning the source receiver's own name works: the local holding the awaited value
+is renamed to `awaited` instead of colliding with the parameter it is awaiting.
+`CallerInfo` re-points a `CallerArgumentExpression` at whatever the pin decided.
 
-The drop is worth a rule because it is silent in every channel that normally
-catches this. A generated assertion with `[CallerArgumentExpression]` missing still
-compiles, still ships, and merely stops naming the caller's expression in its
-failure message; the public API baseline does not record parameter attributes, so
-RS0016/RS0017 — the oracle for everything else about this surface — say nothing
-either.
+A dropped `[CallerArgumentExpression]` is silent in every channel. The generated
+assertion still compiles, still ships, and merely stops naming the caller's
+expression in its failure message; the public API baseline does not record parameter
+attributes, so RS0016/RS0017 say nothing either.
 
 **The generator writes only the `extension` block; the containing class must be
 `partial`.** Generated shapes land in the same static class as the hand-written
-ones so the baseline entries keep naming `OptionExtensions` rather than some new
-class — a rename there would be a public API change. Two blocks of the same
-receiver shape in the same partial class across two files merge without complaint,
-so the generator can add to a class that already hand-writes one. `WSG0001` catches a
-marked class that is not partial, because otherwise the failure is a CS0260
-pointing at generated source.
+ones, so the baseline entries keep naming `OptionExtensions`; a rename there would
+be a public API change. Two blocks of the same receiver shape in the same partial
+class across two files merge without complaint, so the generator can add to a class
+that already hand-writes one. `WSG0001` catches a marked class that is not partial,
+because otherwise the failure is a CS0260 pointing at generated source.
 
 **A new rule needs an `AnalyzerReleases.Unshipped.md` entry in the same change.**
 RS2008 fails the build without one.
@@ -130,21 +110,19 @@ beside `Map` under `where T : notnull` — land in one block that carries whiche
 constraint happened to come first. Nothing fails in this repository: the generated
 source compiles, and the break surfaces as `CS0453` in a *consumer*, at a call site
 whose type argument the surviving constraint rejects. `Key` therefore includes the
-rendered block constraints. This was latent until DRA-111 put both families in one
-class; before that no marked class held two same-shape receivers.
+rendered block constraints.
 
 **The generated receivers are deliberately not marked as generated code.** Hint
 names end `.AwaitedReceivers.cs`, not `.g.cs`, and the members carry no
 `[GeneratedCode]`. Both omissions are load-bearing: Roslyn suppresses analyzers on
 source it considers generated, and that would take RS0016/RS0017 with it — which
 are the entire proof that the generated surface matches the hand-written one it
-replaced. Verified by marking a class and watching RS0016 fire on the emitted file.
-A side effect is that coverlet's default `ExcludeByAttribute` never matches, so the
-generated members stay in the coverage denominator and the specs covering them keep
-counting. `DoesNotMarkTheEmittedSourceAsGeneratedCode` holds the line. Note the
-scope: the attribute file from `RegisterPostInitializationOutput` *is* `.g.cs`
-legitimately, since it is not part of the surface RS0016/RS0017 prove. Only the
-receiver files must stay `.AwaitedReceivers.cs`.
+replaced. A side effect is that coverlet's default `ExcludeByAttribute` never
+matches, so the generated members stay in the coverage denominator.
+`DoesNotMarkTheEmittedSourceAsGeneratedCode` holds the line. The attribute file from
+`RegisterPostInitializationOutput` *is* `.g.cs` legitimately, since it is not part
+of the surface RS0016/RS0017 prove. Only the receiver files must stay
+`.AwaitedReceivers.cs`.
 
 **A forwarding call must not name the type arguments of a member read from an
 `extension` block.** The generator sees that member as the compatibility static
@@ -178,11 +156,8 @@ silently emits no attribute at all. `CallerInfo.Target` falls back to the
 application syntax for that reason.
 
 The name still matches because Roslyn keeps it on the error symbol; only the
-arguments are missing. That is what makes the failure quiet — the attribute passes
-every check that looks at what it *is*, and fails only the one that reads what it
-*says*. It cost the `Waystone.Monads.Shouldly` conversion a full build-and-test
-cycle to find, because the package compiles either way and only the assertion
-failure text changes.
+arguments are missing. The package compiles either way and only the assertion
+failure text changes, so nothing but reading the emitted attribute catches it.
 
 **`StringBuilder.AppendLine` writes CRLF on Windows, so emitted source would vary
 by build platform.** `AwaitedReceiverWriter` normalises the line endings before
@@ -191,45 +166,7 @@ check the test file out either way.
 
 ## Converting a family
 
-Read the baseline, do not estimate. Apply the attributes, build, and read the
-RS0016/RS0017 pair: it names the exact parameter and type parameter drift between
-the hand-written extension and the core member it forwards to. A family converts
-with an untouched baseline only when the two already agree. See
-[Waystone.Monads](../Waystone.Monads/AGENTS.md) for what each kind of drift costs.
-
-**Drift is not the only blocker.** DRA-108 tried all eight remaining families and
-landed one — `Result.Match`. Six were parameter renames, which DRA-110 owns.
-`Option.Match` was neither. **When a conversion appears to remove overloads, check
-which receiver the hand-written ones sit on before reaching for the generator.**
-
-Converting `Option.MatchExtensions` removed six overloads — the three
-async-delegate shapes on each of the `Task` and `ValueTask` receivers — because
-every one of its hand-written overloads was on an awaited receiver, and
-`FromExtensionBlocks` skips those. `Result.Match` lost nothing from the identical
-attempt because its async-delegate shapes sit on the synchronous
-`Result<TOk, TErr>` receiver, so they were lifted. Both core types declare the same
-four-overload `Match` set, so the core surface was never the difference.
-
-DRA-130 fixed it by adding the three synchronous-receiver overloads Option was
-missing and then converting, which measured 0 RS0017 and 38 RS0016. An apparent
-removal was a *missing addition*: the family was the only Option family with no
-synchronous-receiver block at all. Reach for that check first.
-
-The lead recorded here before DRA-130 — that Option's lost overloads all involved a
-parameterless `Func<Task<TOut>>` branch where Result's took the contained value —
-was a coincidence of which overloads Option happened to ship. It is called out
-because it is the kind of pattern that reads like a cause and costs a day.
-
-`OkOrElseExtensions` is the other trap, and it is downstream of the same thing. It
-forwards through `optionTask.MatchAsync(...)` with a value-returning `async` lambda
-in the `None` branch. Convert without the synchronous overloads and resolution
-falls to the generated `MatchAsync(Action<T>, Action)` shape, so the lambda becomes
-a void-returning conversion and fails as `CS8030` in a file with nothing wrong in
-it. With the synchronous overloads present it resolves correctly and needs no edit,
-so treat a `CS8030` there as a symptom of the missing block rather than a call site
-to fix.
-
-Run the experiment on the whole set at once rather than one family at a time:
-one build reports every family's verdict, and the count of RS0017 rows per class
-is the verdict. Do it before the core members change, so a failed conversion
-does not also hide fresh RS0016 rows.
+Read the baseline, do not estimate. Applying the attributes and reading the RS0016/RS0017
+pair is the only reliable verdict, and an apparent removal is usually a missing addition.
+The procedure, the two traps it has, and what each kind of drift costs are in
+[docs/contexts/awaited-receiver-conversion.md](../../docs/contexts/awaited-receiver-conversion.md).

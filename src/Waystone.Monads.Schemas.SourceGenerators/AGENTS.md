@@ -8,10 +8,10 @@ body uses.
 
 `Waystone.Monads.SourceGenerators` is packed into `Waystone.Monads`, so anything
 placed there loads into the compilation of every consumer of the monads package.
-This generator has no attribute to key on — the design triggers on *inheritance*,
-so its predicate matches every class with a base list and its transform asks the
-compiler for that class's symbol. Shipped with `Waystone.Monads`, that work would
-run over every class in codebases that never installed the schema package, and
+This generator has no attribute to key on — it triggers on *inheritance*, so its
+predicate matches every class with a base list and its transform asks the compiler
+for that class's symbol. Shipped with `Waystone.Monads`, that work would run over
+every class in codebases that never installed the schema package, and
 `WMSC0001`–`WMSC0005` would reach people with no `SchemaConfig` to get wrong.
 
 `Waystone.Monads.Schemas.csproj` therefore carries its own `PackSchemaAnalyzers`
@@ -22,16 +22,14 @@ framework, and both runs would place the same file at the same package path.
 
 ## The id space is `WMSC`, not `WMS`
 
-`WMS` was the design's choice and is already taken — `Waystone.Monads.Shouldly.Analyzers`
-ships `WMS2001` and `WMS2002`. The numbers would not have collided, but one prefix
-across two unrelated packages means an `.editorconfig` entry for
-`dotnet_diagnostic.WMS*` silences both. `RulesTests` pins the prefix so the next
-rule cannot drift back.
+`WMS` is taken — `Waystone.Monads.Shouldly.Analyzers` ships `WMS2001` and
+`WMS2002`. The numbers do not collide, but one prefix across two unrelated packages
+means an `.editorconfig` entry for `dotnet_diagnostic.WMS*` silences both.
+`RulesTests` pins the prefix so a new rule cannot drift to `WMS`.
 
 The help link points at `source-generation/diagnostics`, the page that already
-carries `WMG` and `WSG`. These are source-generation diagnostics like those, and
-the anchor has to keep resolving forever — a consumer reaches it from the build
-output of versions long past.
+carries `WMG` and `WSG`. The anchor has to keep resolving forever — a consumer
+reaches it from the build output of versions long past.
 
 ## What the generator decides, and why
 
@@ -41,9 +39,9 @@ it into every consumer's compiler. There is no `WMG0004` equivalent here: the
 trigger *is* deriving from `SchemaConfig`, so a compilation that cannot resolve it
 has a class that does not compile and a generator that correctly matched nothing.
 
-**An abstract schema is skipped in silence.** It exists to be derived from, has no
-shared instance to offer, and nothing about it is wrong. A diagnostic there would
-fire on every intermediate base in the tree.
+**An abstract schema is skipped in silence.** It has no shared instance to offer and
+nothing about it is wrong; a diagnostic there would fire on every intermediate base
+in the tree.
 
 **`WMSC0001` is reported against the type missing the modifier, which is not always
 the schema.** A nested schema needs every type containing it to be `partial` too,
@@ -51,17 +49,17 @@ and the declaration a reader has to edit is the outermost one that is not.
 
 **A `private` parameterless constructor is enough.** The generated `Instance` sits
 inside the schema, so `WMSC0002` asks whether a parameterless constructor *exists*,
-not whether anyone else could reach it. Note that `SchemaConfig` supplies a
-protected one, so a derived schema has an implicit constructor until it declares a
-constructor of its own — at which point the implicit one disappears with no
-diagnostic from the compiler.
+not whether anyone else could reach it. `SchemaConfig` supplies a protected one, so
+a derived schema has an implicit constructor until it declares a constructor of its
+own — at which point the implicit one disappears with no diagnostic from the
+compiler.
 
 **`WMSC0003` covers every name the generator writes, not just `Instance`.** The other
-two are the nested `Schema` and the `FieldSet` struct, and both are checked only where
-a ladder is actually being emitted — a schema that never calls `Schema.Fields` receives
-neither name and may keep a member of either. Arity does not separate them: `CS0102`
-fires on a nested `FieldSet<T1>` beside a property called `FieldSet`. `SchemaWriter`
-holds all three names as constants so the guard and the emission cannot drift.
+two are the nested `Schema` and the `FieldSet` struct, checked only where a ladder is
+being emitted — a schema that never calls `Schema.Fields` receives neither name and
+may keep a member of either. Arity does not separate them: `CS0102` fires on a nested
+`FieldSet<T1>` beside a property called `FieldSet`. `SchemaWriter` holds all three
+names as constants so the guard and the emission cannot drift.
 
 **The generator anchors on the first part carrying a base list, not the first part.**
 A partial class reaches the pipeline once per part that names a base type, and
@@ -102,11 +100,10 @@ to nothing**, which is what keeps it off a consumer's own method named `Fields`.
 is the one warning here about code that does not compile: the compiler already
 reports the missing member, and this adds the reason.
 
-A consumer who writes `using Schema = Something;` is still outside all of it. The
-call matches by name, so a ladder is generated and nothing is reported, and the alias
-then sends it somewhere else. Left alone deliberately: detecting it means
-re-implementing alias resolution for the one member that cannot bind, over a name
-collision the consumer created inside a type whose whole vocabulary is `Schema.`.
+A consumer who writes `using Schema = Something;` is outside all of it: the call
+matches by name, so a ladder is generated and nothing is reported, and the alias
+sends it somewhere else. Do not try to detect it: that means re-implementing alias
+resolution for the one member that cannot bind.
 
 **`WMSC0008` re-runs the runtime's own path derivation at build time.** A field's
 path comes from `CallerArgumentExpression`, and `PathName.From` keeps whatever
@@ -122,18 +119,17 @@ would hide a namespace-level `Fields<,>` in type-name lookup. Only the method is
 called `Fields`.
 
 **`FieldAccumulator` is the seam and the only one.** Evaluating a field is internal
-to the runtime, and generated code compiles in the consumer's assembly, so every
-generated `Into` goes through that public type. Widening the ladder therefore starts
-in `Waystone.Monads.Schemas`, not here.
+to the runtime and generated code compiles in the consumer's assembly, so every
+generated `Into` goes through that public type. Widening the ladder starts in
+`Waystone.Monads.Schemas`, not here.
 
 **The emitted `Into` branches on `HasViolations` itself rather than handing the
-accumulator a delegate.** Generated code runs in production on every parse, so the
-closure that a `Complete(Func<TOut>)` seam would allocate each time is worth the two
-extra emitted lines.
+accumulator a delegate.** Generated code runs on every parse, so avoiding the
+closure a `Complete(Func<TOut>)` seam would allocate is worth two extra emitted
+lines.
 
-**There is no arity cap.** Generation scales, so a cap would be a policy rather than
-a limit, and the policy is wrong: flat thirty-field objects arrive from external
-APIs, and failing legitimate code is worse than emitting a wide type.
+**There is no arity cap.** Flat thirty-field objects arrive from external APIs, and
+failing legitimate code is worse than emitting a wide type.
 
 ## The emitted constraints depend on the consumer's language version
 
@@ -146,10 +142,9 @@ nullability either.
 compilation changes on every keystroke and combining with it would defeat the cache
 for every schema in the solution. Parse options change when the project file does.
 
-This is why the transform builds a `SchemaModel` of plain values rather than source:
-the writer has to run after the language version is known. Keeping symbols out of
-the pipeline is the second reason and the more important one — a cached symbol
-compares by reference, so the cache never hits, and it roots the compilation it came
+The transform builds a `SchemaModel` of plain values rather than source, because the
+writer has to run after the language version is known, and because a cached symbol
+compares by reference — the cache never hits, and it roots the compilation it came
 from.
 
 ## Emission constraints
@@ -171,26 +166,24 @@ from.
 ## Testing
 
 `SchemaGeneratorTests` and `LadderGeneratorTests` pin the emitted text and each
-diagnostic. `GeneratedInstanceTests` and `GeneratedLadderTests` are the other half
-and are not optional: this project loads the generator as an analyzer, so the schemas
-at the bottom of those files are compiled against emitted source rather than written
-source. **A snapshot proves text; only those files prove the text compiles, binds,
-infers and runs.** The ladder is where that matters most — generic inference through
-`Schema.Fields(...).Refine(...).Into(...)` is the thing most likely to be subtly
-wrong, and no amount of string comparison would notice.
+diagnostic. `GeneratedInstanceTests` and `GeneratedLadderTests` are not optional:
+this project loads the generator as an analyzer, so the schemas at the bottom of
+those files are compiled against emitted source rather than written source. **A
+snapshot proves text; only those files prove the text compiles, binds, infers and
+runs.** Generic inference through `Schema.Fields(...).Refine(...).Into(...)` is what
+a string comparison would not notice going wrong.
 
 `RunOnCSharp73` is the only case that exercises the constraint decision, because
 every other test compiles at the latest version where both spellings are legal.
 
-## Duplication that was considered and kept
+## Duplication that is deliberate
 
 Two analyzer assemblies cannot share a runtime assembly without shipping it, so
-some scaffolding here has a twin in `Waystone.Monads.SourceGenerators`. Both were
-looked at and both were left alone; do not "fix" either without a new reason.
+some scaffolding here has a twin in `Waystone.Monads.SourceGenerators`. Do not
+"fix" either without a new reason.
 
-* **`DiagnosticInfo` and `EquatableArray`** are near-copies of that project's, and
-  converged on it once the ladder needed a third message argument. They *could* be
-  shared with a `<Compile Include="..\..." Link="..."/>` item —
+* **`DiagnosticInfo` and `EquatableArray`** are near-copies of that project's. They
+  *could* be shared with a `<Compile Include="..\..." Link="..."/>` item —
   `Waystone.Monads.Analyzers.csproj` links `ErrorCodeFormat.cs` that way — but that
   precedent is a hundred lines of parsing with real logic to get wrong, and this is
   a record and a thirty-line struct. Linking would couple two generators' builds and
@@ -201,41 +194,11 @@ looked at and both were left alone; do not "fix" either without a new reason.
 
 ## Severity is not uniform
 
-`Create` builds an error; `Advice` builds a warning; `Suggestion` builds an
-information diagnostic. **The line is whether the code has a reading that is
-correct**, not whether the schema generates.
+`Create` builds an error; `Advice` builds a warning; `Suggestion` builds an information
+diagnostic. **The line is whether the code has a reading that is correct**, not whether
+the schema generates. `RulesTests` spells out which ids warn and which suggest rather
+than deriving either, so promoting a rule has to be a deliberate edit in two places.
 
-`WMSC0001`–`WMSC0004` describe a schema that cannot be built, so failing the build
-is the whole point — the alternative is a missing member reported against a
-generated file the author cannot open. `WMSC0006` describes one that builds
-perfectly and throws the moment anyone runs it, which is no better; a field set only
-ever runs the synchronous path, so an asynchronous rule reached from `Configure`
-never does its job under any input.
-
-`WMSC0005` is the only warning, because it is the only rule with a correct reading
-of the same code: gating on a value deliberately not kept, such as a confirmation
-field that must be well-formed and is never stored. An error there would leave that
-author nothing but the id in an `.editorconfig`.
-
-`WMSC0009` is quieter still, and is the only rule here reporting on code with
-nothing wrong with it: both spellings of a named schema are the same cached object,
-and one is merely easier to find the rules for. A warning would put a line in the
-build log of a consumer who wrote correct code on an upgrade they did not choose, so
-it suggests — an IDE offers it and a build never mentions it.
-
-**An analyzer ships in this assembly as well as the generator, and `WMSC0009` is
-why.** The generator only ever sees a `Configure` body, and a schema is as likely to
-sit in a shared static field, which is the shape the documentation recommends. The
-assembly is packed to `analyzers/dotnet/cs`, which Roslyn loads analyzers and
-generators from alike, so nothing about the packaging changed.
-
-**That analyzer skips the assembly it is compiling when that assembly declares
-`Schema.For` itself.** The named schemas *are* `For<T>()` initialisers, so without
-the guard the rule reports nine times on the definitions it is recommending — and
-this project's `.props` is imported into `Waystone.Monads.Schemas.csproj`, so it runs
-there. No unit test covers it, because the harness compiles a subject assembly that
-is never the runtime one; it was verified by raising the rule to an error and
-building both the package and a consumer.
-
-`RulesTests` spells out which ids warn and which suggest rather than deriving
-either, so promoting a rule has to be a deliberate edit in two places.
+Read [docs/contexts/wmsc-severity.md](../../docs/contexts/wmsc-severity.md) before adding
+a rule: which side of that line each shipped id fell on, and why an analyzer ships in this
+assembly alongside the generator.
