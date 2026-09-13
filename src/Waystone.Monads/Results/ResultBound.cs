@@ -643,9 +643,9 @@ public abstract partial record Result<TOk, TErr>
         /// <remarks>
         /// The step may fail in its own right, so this is where a chain's error
         /// can first appear. It returns a <see cref="ValueTask{TResult}" /> so a
-        /// chain of these composes by name: a method group returning
-        /// <see cref="Task{TResult}" /> does not convert to it, and
-        /// <c>WA0002</c> reports that shape at the declaration.
+        /// chain of these composes by name. Declare your own step the same way:
+        /// a method group returning <see cref="Task{TResult}" /> does not
+        /// convert to it, and the call site fails with <c>CS0411</c>.
         /// </remarks>
         /// <param name="resultFactory">
         /// Produces the next result from the contained ok value and the bound

@@ -474,8 +474,9 @@ public abstract partial record Option<T> where T : notnull
     /// The delegate returns a <see cref="Task{TResult}" /> rather than a
     /// <see cref="ValueTask{TResult}" /> so that an ordinary <c>async</c> method
     /// group converts to it by name. Only a chain <em>step</em> — one producing
-    /// another monad — takes a <see cref="ValueTask{TResult}" />, which
-    /// <c>WA0002</c> enforces.
+    /// another monad — takes a <see cref="ValueTask{TResult}" />, and the split
+    /// is uniform, so the delegate type tells you which kind of member you are
+    /// looking at.
     /// </remarks>
     /// <param name="map">
     /// Transforms the contained value. It is not invoked on a
@@ -581,7 +582,9 @@ public abstract partial record Option<T> where T : notnull
     /// The delegate returns a <see cref="ValueTask{TResult}" /> rather than a
     /// <see cref="Task{TResult}" /> because it produces another
     /// <see cref="Option{T}" /> and is therefore a chain step, which lets an
-    /// existing async chain be handed to it by name. <c>WA0002</c> enforces that.
+    /// existing async chain be handed to it by name. Declare your own step the
+    /// same way: an <c>async</c> method returning <see cref="Task{TResult}" />
+    /// does not convert, and the call site fails with <c>CS0411</c>.
     /// </remarks>
     /// <param name="optionFactory">
     /// Produces the next option from the contained value. It is not invoked on a
@@ -1015,7 +1018,10 @@ public abstract partial record Option<T> where T : notnull
     /// The delegate returns a <see cref="ValueTask{TResult}" /> rather than a
     /// <see cref="Task{TResult}" /> because it produces another
     /// <see cref="Option{T}" /> and is therefore a chain step: an existing async
-    /// chain can be handed to it by name. <c>WA0002</c> enforces the distinction.
+    /// chain can be handed to it by name. A fallback written as an <c>async</c>
+    /// method returning <see cref="Task{TResult}" /> does not convert — the
+    /// call site fails with <c>CS0407</c> — so declare it to return
+    /// <see cref="ValueTask{TResult}" /> instead.
     /// </remarks>
     /// <param name="optionFactory">
     /// Produces the fallback option. It is not invoked on a
