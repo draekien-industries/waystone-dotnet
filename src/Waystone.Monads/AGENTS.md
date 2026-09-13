@@ -133,6 +133,31 @@ a guarded type by writing its guard in that shape, and add its row to
 `GuardConventionTests`, which is the only thing that fails when a rename turns the
 rule off instead of breaking the build.
 
+## The async delegate split
+
+**A delegate producing another monad takes a `ValueTask`; every other delegate
+takes a `Task`.** A chain *step* is the first kind — `AndThenAsync` and
+`OrElseAsync` are the only two — so an existing async chain composes into one by
+name. Everything else is a transform, so an ordinary `async` method group
+converts to it. Check the claim rather than trusting this paragraph:
+
+```
+grep -cE 'Func<.*ValueTask<' src/Waystone.Monads/Options/OptionOfT.cs
+```
+
+Every hit is an `AndThenAsync` or an `OrElseAsync`, and the split is what lets a
+caller read the delegate type and know which kind of member they have.
+
+**`WA0002` and `WA0003` fail the build on a member that breaks it**, so it is not
+on you to hold. Both live in
+[Waystone.Internal.Analyzers](../Waystone.Internal.Analyzers/AGENTS.md) and never
+ship — which is exactly why **neither may be named in an XML doc comment.** Those
+comments land in `Waystone.Monads.xml` and in GitBook, where the id names a rule
+the reader cannot run, look up or suppress. Five comments cited `WA0002` until
+7.3.0. They now state the constraint and name the error a caller actually sees:
+`CS0411` where the member is generic, `CS0407` on the non-generic
+`Option<T>.OrElseAsync`. Name the compiler's code, never ours.
+
 ## Gotchas
 
 **An internal constructor does not close a `record` hierarchy.** Records get a
