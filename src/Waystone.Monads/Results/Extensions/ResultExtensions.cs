@@ -1,7 +1,7 @@
 namespace Waystone.Monads.Results.Extensions;
 
 using Options;
-using Waystone.SourceGenerators;
+using Waystone.Internal.SourceGenerators;
 #if !DEBUG
 using System.Diagnostics;
 #endif
