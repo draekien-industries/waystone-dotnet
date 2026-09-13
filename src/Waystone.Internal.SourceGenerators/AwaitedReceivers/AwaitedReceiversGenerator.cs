@@ -107,7 +107,8 @@ public sealed class AwaitedReceiversGenerator : IIncrementalGenerator
             : AwaitedReceiverWriter.Emit(
                 target,
                 members,
-                context.SemanticModel.Compilation);
+                context.SemanticModel.Compilation,
+                NamedArgument(receivers, "ReceiverParameterName"));
 
         return new GenerationResult(
             HintNameFor(target),
@@ -163,10 +164,7 @@ public sealed class AwaitedReceiversGenerator : IIncrementalGenerator
             yield break;
         }
 
-        string? summary = member.NamedArguments
-                              .FirstOrDefault(
-                                   argument => argument.Key == "Summary")
-                              .Value.Value as string;
+        string? summary = NamedArgument(member, "Summary");
 
         string receiverParameterName = Identifiers.CamelCase(receiver.Name);
         var matched = false;
@@ -202,6 +200,15 @@ public sealed class AwaitedReceiversGenerator : IIncrementalGenerator
                 receiver.Name,
                 memberName));
     }
+
+    /// <summary>
+    /// The string value of <paramref name="attribute" />'s named argument
+    /// <paramref name="name" />, or <see langword="null" /> where it was not set.
+    /// </summary>
+    private static string? NamedArgument(AttributeData attribute, string name) =>
+        attribute.NamedArguments
+                 .FirstOrDefault(argument => argument.Key == name)
+                 .Value.Value as string;
 
     private static string HintNameFor(INamedTypeSymbol target) =>
         $"{target.ContainingNamespace.ToDisplayString()}.{target.Name}.AwaitedReceivers.cs";
