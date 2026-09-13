@@ -87,6 +87,12 @@ internal static class CallerInfo
     /// with: <c>nameof(parameter)</c> and a string literal. Anything else yields
     /// null and the attribute is left off rather than guessed at.
     /// </para>
+    /// <para>
+    /// The application is read as an <c>AttributeSyntax</c> outright rather than
+    /// tested for one. <paramref name="attribute" /> always sits on a parameter of
+    /// the marked class, which is source in the compilation being generated into, so
+    /// it has an application and that application is an attribute.
+    /// </para>
     /// </remarks>
     private static string? Target(AttributeData attribute)
     {
@@ -96,8 +102,8 @@ internal static class CallerInfo
             return bound;
         }
 
-        if (attribute.ApplicationSyntaxReference?.GetSyntax() is not AttributeSyntax
-                { ArgumentList.Arguments: [{ Expression: { } argument }] })
+        if ((AttributeSyntax)attribute.ApplicationSyntaxReference!.GetSyntax()
+                is not { ArgumentList.Arguments: [{ Expression: var argument }] })
         {
             return null;
         }
