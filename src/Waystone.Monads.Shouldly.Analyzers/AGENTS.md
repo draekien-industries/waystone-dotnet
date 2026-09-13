@@ -8,9 +8,8 @@ and ship inside the `Waystone.Monads.Shouldly` package, not the `Waystone.Monads
 **These rules must not move into `Waystone.Monads.Analyzers`.** That assembly ships
 inside the core package, so every consumer of `Waystone.Monads` would receive a
 diagnostic telling them to call `ShouldBeSome` — a method they do not reference — with
-a code fix producing source they cannot compile. The two-package split is the whole
-reason this area exists, and it is not a structural preference that can be tidied away
-later.
+a code fix producing source they cannot compile. The two-package split is why this area
+exists; it is not a structural preference to be tidied away later.
 
 **Never reference `Waystone.Monads` or `Waystone.Monads.Shouldly`.** The assertions
 package loads these assemblies as analyzers, so a project reference back is a build
@@ -90,8 +89,8 @@ exclusion is a test in both analyzer test classes, not a comment.
 **This namespace shadows the global `Shouldly`.** A file declaring
 `namespace Waystone.Monads.Shouldly.Analyzers` resolves a plain `using Shouldly;` to the
 enclosing `Waystone.Monads.Shouldly`, which holds no types, and every assertion in the
-file stops compiling. Write `using global::Shouldly;`. It is the same resolution rule
-the package's own README describes, met from the other side.
+file stops compiling. Write `using global::Shouldly;`. The package's own README
+describes the same resolution rule from the consumer's side.
 
 The harness, framework pinning and force-enabled-diagnostic caveats are the same as
 [Waystone.Monads.Analyzers](../Waystone.Monads.Analyzers/AGENTS.md); read that file's

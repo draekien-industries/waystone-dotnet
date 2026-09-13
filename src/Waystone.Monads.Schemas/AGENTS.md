@@ -5,7 +5,7 @@ could not have built without passing. The design lives in
 [DRA-181](https://linear.app/draekien-industries/issue/DRA-181/design-waystonemonadsschema-composable-schema-validation);
 this file carries only what a change here has to obey.
 
-## The name is plural, and it has to be
+## The name is plural
 
 Package, assembly, root namespace and directory are all `Waystone.Monads.Schemas`.
 The plural is forced, not a preference.
@@ -107,7 +107,7 @@ Note that it works at `ParseContext.Root`. A nested schema's paths are rebased b
 `SchemaConfig.Evaluate` after `Configure` returns, so the accumulator never needs to
 know where in a larger parse it sits.
 
-## The `Transform` overloads are not ambiguous, and it is worth knowing why
+## The `Transform` overloads are not ambiguous
 
 `Transform(Func<TOut, TNext>)` and `Transform(Func<TOut, Result<TNext, Error>>)`
 both apply to a factory returning `Result<Money, Error>`, and after inference both
@@ -267,8 +267,7 @@ type holds rather than something recovered from rendered text.
 ## There are two `Named` members, and the field one is the one to reach for
 
 `Schema.Named` renames through the parse context; `FieldExtensions.Named` rebuilds
-the field with a different segment. They are not redundant, and the split is about
-what each thing's lifetime is.
+the field with a different segment. They are not redundant.
 
 **A schema is shared and a field is not.** A schema declared as a static field is
 reused by every field of its shape, so `.Named("patron")` baked into one silently
@@ -297,7 +296,7 @@ nullable local and a `!` on a state the type system cannot see is impossible,
 which costs a partially covered branch to save one allocation on a path that is
 not hot.
 
-## RS0026 is suppressed for one file, and the reason is not stylistic
+## RS0026 is suppressed for one file
 
 `CallerArgumentExpression` is what derives a violation path, and the compiler only
 fills it in on an *optional* parameter. RS0026 forbids several overloads of one
@@ -401,7 +400,7 @@ arbitrary enum to its underlying integer across all eight backing types, which i
 more machinery than the case is worth; the doc comment points a flags user at
 `Check` instead. If that changes, it is an additive fix, not a breaking one.
 
-## The comparison rules are one family, and `Number` is the exception that proves it
+## The comparison rules are one family, with `Number` the exception
 
 `AtLeast`, `AtMost`, `GreaterThan` and `LessThan` are generic over
 `IComparable<T>`, so one set covers both integers, both floating-point types, both

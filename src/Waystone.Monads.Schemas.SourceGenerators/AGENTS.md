@@ -154,8 +154,6 @@ from.
 
 ## Emission constraints
 
-All of these are cheap to break and expensive to notice.
-
 * **Emitted source targets C# 7.3**, not this repository's language version. It
   compiles in the consumer's project, and a `net472` project still defaults to 7.3.
   A static auto-property with an initializer is C# 6 and safe; a switch expression
@@ -201,7 +199,7 @@ looked at and both were left alone; do not "fix" either without a new reason.
 * **`SchemaWriter.Writer`** is byte-for-byte the same fourteen-line `StringBuilder`
   wrapper for the same reason.
 
-## Severity is not uniform, and the split is the point
+## Severity is not uniform
 
 `Create` builds an error; `Advice` builds a warning; `Suggestion` builds an
 information diagnostic. **The line is whether the code has a reading that is

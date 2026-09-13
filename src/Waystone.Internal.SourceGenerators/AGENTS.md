@@ -199,9 +199,8 @@ with an untouched baseline only when the two already agree. See
 
 **Drift is not the only blocker.** DRA-108 tried all eight remaining families and
 landed one — `Result.Match`. Six were parameter renames, which DRA-110 owns.
-`Option.Match` was neither, and what it turned out to be is the generalisable
-lesson: **when a conversion appears to remove overloads, check which receiver the
-hand-written ones sit on before reaching for the generator.**
+`Option.Match` was neither. **When a conversion appears to remove overloads, check
+which receiver the hand-written ones sit on before reaching for the generator.**
 
 Converting `Option.MatchExtensions` removed six overloads — the three
 async-delegate shapes on each of the `Task` and `ValueTask` receivers — because
@@ -212,10 +211,9 @@ attempt because its async-delegate shapes sit on the synchronous
 four-overload `Match` set, so the core surface was never the difference.
 
 DRA-130 fixed it by adding the three synchronous-receiver overloads Option was
-missing and then converting, which measured 0 RS0017 and 38 RS0016. Note what that
-means for the shape of the problem: an apparent removal was a *missing addition*,
-and the family was the only Option family with no synchronous-receiver block at
-all. Reach for that check first.
+missing and then converting, which measured 0 RS0017 and 38 RS0016. An apparent
+removal was a *missing addition*: the family was the only Option family with no
+synchronous-receiver block at all. Reach for that check first.
 
 The lead recorded here before DRA-130 — that Option's lost overloads all involved a
 parameterless `Func<Task<TOut>>` branch where Result's took the contained value —

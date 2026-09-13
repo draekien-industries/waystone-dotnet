@@ -215,8 +215,7 @@ it to save rows on a member whose awaited form a caller would actually use.
 
 That is the argument for a satellite package whenever a family is additive
 vocabulary rather than core behaviour, and it is why the LINQ names ship in
-`Waystone.Monads.Linq` instead of here. Weigh it before hand-writing a member:
-the surface you are adding is not the surface you typed.
+`Waystone.Monads.Linq` instead of here. Weigh it before hand-writing a member.
 
 **The state binder's async members do not forward, and must not be made to.**
 `Option<T>.Bound<TState>` and `Result<TOk, TErr>.Bound<TState>` forward their

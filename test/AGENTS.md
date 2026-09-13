@@ -95,7 +95,7 @@ which needs the assembly loaded, and a net8.0 test host cannot load all of them.
 set to those two members instead, so a third arriving under that namespace fails
 and has to be confirmed internal by hand.
 
-Two things make that guard non-vacuous, and both are load-bearing.
+Two things make that guard non-vacuous.
 `EveryPackableProjectHasDocumentationToScan` fails when a project yields no XML,
 so a scan that found nothing cannot pass as a scan that found no problem —
 `src/Directory.Build.props` sets `GenerateDocumentationFile` for everything under
