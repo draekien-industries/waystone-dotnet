@@ -44,6 +44,59 @@ explicitly.** `ValueTask<T>` is not part of .NET Framework, so a test with a
 never mentions. Keep the version in step with the one `Waystone.Monads`
 references, so the compilation sees what a consumer on that framework would.
 
+## Conventions
+
+**`Waystone.Conventions.Tests` holds rules about the tree, not about behaviour.**
+A test belongs there when its subject is what the build produced — a file the
+compiler wrote, a naming rule spanning projects, a layout that has to hold — and
+belongs in a type's own test project when it exercises that type. It is the only
+test project that targets `net8.0` alone, because a property of the tree answers
+the same on every runtime and the matrix would prove it five times.
+
+It carries `ProjectReference` items to everything under `src/` with
+`ReferenceOutputAssembly="false"`, which is build ordering rather than a
+dependency — nothing there is on its compile line. **That reference is what makes
+the guard real.** Reading build output without it means reading whatever the last
+build left: the first version passed against a doc comment that had just
+reintroduced the very leak it exists to catch, because a targeted `dotnet test`
+never rebuilt the library. Do not add `SkipGetTargetFrameworkProperties`; it
+forces `net8.0` onto each reference instead of letting them negotiate, and the
+`netstandard2.0` analyzers then fail `NETSDK1005` for a target they never had.
+
+**`WA` and `WSG` ids must not appear in a shipped XML doc comment**, and
+`PackagedDocumentationTests` fails the build on one. Both spaces belong to
+analyzers that never leave this repository, so a consumer who sees the id in a
+tooltip cannot run the rule, look it up, or suppress it, and the help link derived
+from it points at an anchor that does not exist. State the constraint and name the
+compiler error the caller actually sees instead. Members under
+`Waystone.Internal.*` are exempt: the awaited-receiver attributes document a
+contract for this repository's own authors, and a consumer cannot reach them.
+
+**That exemption reads a namespace, not an accessibility, and the difference is
+pinned rather than ignored.** The two attributes are `internal`, but the scan skips
+them because of where their doc id says they live — put a genuinely public type
+under `Waystone.Internal.*` and the proxy diverges from the invariant it stands in
+for. Reading the real accessibility means resolving each doc id back to a symbol,
+which needs the assembly loaded, and a net8.0 test host cannot load all of them.
+`TheInternalNamespaceExemptionCoversOnlyTheGeneratorAttributes` pins the exempted
+set to those two members instead, so a third arriving under that namespace fails
+and has to be confirmed internal by hand.
+
+Two things make that guard non-vacuous, and both are load-bearing.
+`EveryPackableProjectHasDocumentationToScan` fails when a project yields no XML,
+so a scan that found nothing cannot pass as a scan that found no problem —
+`src/Directory.Build.props` sets `GenerateDocumentationFile` for everything under
+`src/`, so a project with no XML was not built rather than undocumented. And a
+project counts as packable unless its `.csproj` text carries
+`<IsPackable>false</IsPackable>`; all eight opt-outs spell it exactly that way
+today, and a project that somehow escaped the match would be scanned and required
+to have XML, which errs toward checking too much rather than too little.
+
+**One source comment is not one shipped line.** The awaited-receiver generator
+lifts a comment onto every generated member it produces, so the five comments this
+guard was written for shipped thirteen citations, and a single `MapAsync` remark
+shipped three. Read the count off the built `.xml`, never off the source.
+
 ## Gotchas
 
 **The Reqnroll specs are gone; their coverage is not.** 186 scenarios across 21

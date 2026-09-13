@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+    Repository conventions that nothing else fails on: rules about what the build
+    produces rather than about how any of it behaves. A test belongs here when its
+    subject is the tree - a file the compiler wrote, a naming rule across projects,
+    a layout that has to hold - and not when it exercises a type, which belongs in
+    that type's own test project.
+
+    One framework rather than the shared matrix, for that reason. Every other test
+    project runs the matrix because its subject behaves differently on net472 than
+    on net10.0; a convention is a property of the tree, and the runtime reading it
+    cannot change the answer. Run on five and the suite proves the same thing five
+    times. A test added here that would answer differently per framework is in the
+    wrong project rather than a reason to widen this.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <!--
+    A reference for build order only. A convention asserted over build output is
+    only as fresh as the last build, so without this a targeted run reads whatever
+    was left behind - which is not a hypothetical: it passed against a doc comment
+    that had just reintroduced the leak. ReferenceOutputAssembly="false" keeps
+    every assembly out of the compilation, so this project still compiles against
+    nothing, and the glob is what stops a project added later from being built too
+    late to be read.
+
+    Do not add SkipGetTargetFrameworkProperties here. It forces this project's
+    net8.0 onto each reference instead of letting them negotiate, and the
+    netstandard2.0 analyzers and generators then fail NETSDK1005 for a target
+    they never had. Ordinary negotiation resolves all of them, because every
+    project under src offers netstandard2.0 or net8.0.
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\*\*.csproj"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="Shouldly"/>
+    </ItemGroup>
+
+</Project>
