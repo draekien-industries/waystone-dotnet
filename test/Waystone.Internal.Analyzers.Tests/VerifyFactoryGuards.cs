@@ -15,7 +15,7 @@ using Waystone.Internal.Analyzers.FactoryGuards;
 /// <c>Option</c>. The rule knows no type by name, and a test written against the
 /// one type the repository happens to guard could not tell the difference.
 /// </remarks>
-internal static class VerifyAnalyzer
+internal static class VerifyFactoryGuards
 {
     private const string Preamble = """
         namespace Subject;

@@ -21,7 +21,7 @@ working in — each is loaded when you touch files under it.
 | [src/Waystone.Monads.Schemas.SourceGenerators](src/Waystone.Monads.Schemas.SourceGenerators/AGENTS.md) | Why it is its own package, the `WMSC` id space, the emission constraints |
 | [src/Waystone.Monads.SourceGenerators](src/Waystone.Monads.SourceGenerators/AGENTS.md) | The shipped error code generator contract and emission |
 | [src/Waystone.Internal.SourceGenerators](src/Waystone.Internal.SourceGenerators/AGENTS.md) | The awaited-receiver generator contract and emission |
-| [src/Waystone.Internal.Analyzers](src/Waystone.Internal.Analyzers/AGENTS.md) | Rules on our own source that never ship, and why they name no types |
+| [src/Waystone.Internal.Analyzers](src/Waystone.Internal.Analyzers/AGENTS.md) | Every analyzer that never ships, the two rule families, and the `WA` id space |
 | [sample](sample/AGENTS.md) | Which samples are published, and the snippet regions the GitBook pages quote |
 | [test](test/AGENTS.md) | Running the framework matrix, the shared test configuration, shared mutable state |
 | [.github](.github/AGENTS.md) | Workflow triggers, required checks, coverage gates |

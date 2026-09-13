@@ -1,4 +1,4 @@
-namespace Waystone.Internal.SourceGenerators.AsyncSurface;
+namespace Waystone.Internal.Analyzers.AsyncSurface;
 
 using Microsoft.CodeAnalysis;
 
@@ -12,7 +12,7 @@ internal static class Rules
     /// <c>MapAsync(client.GetStringAsync)</c> still binds.
     /// </summary>
     public static readonly DiagnosticDescriptor TaskReturningStepDelegate = new(
-        "WSG0003",
+        "WA0002",
         "Do not take a delegate returning a Task of Option or Result",
         "Parameter '{0}' of '{1}' takes a delegate returning '{2}', so an "
       + "async chain cannot be passed to it by name; take a delegate "
@@ -33,7 +33,7 @@ internal static class Rules
     /// parameter — the diagnostic quality that made this rule worth writing.
     /// </summary>
     public static readonly DiagnosticDescriptor TaskReturningMonad = new(
-        "WSG0004",
+        "WA0003",
         "Do not return a Task of Option or Result",
         "'{0}' returns '{1}', so a chain ending in it cannot be passed as a step "
       + "to 'AndThenAsync' or 'OrElseAsync'; return '{2}' instead",

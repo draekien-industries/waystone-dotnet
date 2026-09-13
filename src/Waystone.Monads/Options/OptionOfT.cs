@@ -475,7 +475,7 @@ public abstract partial record Option<T> where T : notnull
     /// <see cref="ValueTask{TResult}" /> so that an ordinary <c>async</c> method
     /// group converts to it by name. Only a chain <em>step</em> — one producing
     /// another monad — takes a <see cref="ValueTask{TResult}" />, which
-    /// <c>WSG0003</c> enforces.
+    /// <c>WA0002</c> enforces.
     /// </remarks>
     /// <param name="map">
     /// Transforms the contained value. It is not invoked on a
@@ -581,7 +581,7 @@ public abstract partial record Option<T> where T : notnull
     /// The delegate returns a <see cref="ValueTask{TResult}" /> rather than a
     /// <see cref="Task{TResult}" /> because it produces another
     /// <see cref="Option{T}" /> and is therefore a chain step, which lets an
-    /// existing async chain be handed to it by name. <c>WSG0003</c> enforces that.
+    /// existing async chain be handed to it by name. <c>WA0002</c> enforces that.
     /// </remarks>
     /// <param name="optionFactory">
     /// Produces the next option from the contained value. It is not invoked on a
@@ -1015,7 +1015,7 @@ public abstract partial record Option<T> where T : notnull
     /// The delegate returns a <see cref="ValueTask{TResult}" /> rather than a
     /// <see cref="Task{TResult}" /> because it produces another
     /// <see cref="Option{T}" /> and is therefore a chain step: an existing async
-    /// chain can be handed to it by name. <c>WSG0003</c> enforces the distinction.
+    /// chain can be handed to it by name. <c>WA0002</c> enforces the distinction.
     /// </remarks>
     /// <param name="optionFactory">
     /// Produces the fallback option. It is not invoked on a

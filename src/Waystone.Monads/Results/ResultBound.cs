@@ -645,7 +645,7 @@ public abstract partial record Result<TOk, TErr>
         /// can first appear. It returns a <see cref="ValueTask{TResult}" /> so a
         /// chain of these composes by name: a method group returning
         /// <see cref="Task{TResult}" /> does not convert to it, and
-        /// <c>WSG0003</c> reports that shape at the declaration.
+        /// <c>WA0002</c> reports that shape at the declaration.
         /// </remarks>
         /// <param name="resultFactory">
         /// Produces the next result from the contained ok value and the bound

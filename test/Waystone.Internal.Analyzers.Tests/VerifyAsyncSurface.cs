@@ -1,4 +1,4 @@
-namespace Waystone.Internal.SourceGenerators;
+namespace Waystone.Internal.Analyzers;
 
 using System;
 using System.Collections.Generic;
@@ -9,9 +9,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Waystone.Monads.Options;
-using Waystone.Internal.SourceGenerators.AsyncSurface;
+using Waystone.Internal.Analyzers.AsyncSurface;
 
-internal static class VerifyAnalyzer
+internal static class VerifyAsyncSurface
 {
     private const string Preamble = """
         namespace Waystone.Monads.Subject;
@@ -39,7 +39,7 @@ internal static class VerifyAnalyzer
         bool withMonads = true)
     {
         CSharpCompilation compilation = CSharpCompilation.Create(
-            "Waystone.Internal.SourceGenerators.Tests.AnalyzerSubject",
+            "Waystone.Internal.Analyzers.Tests.AsyncSurfaceSubject",
             [
                 CSharpSyntaxTree.ParseText(
                     Preamble + source,

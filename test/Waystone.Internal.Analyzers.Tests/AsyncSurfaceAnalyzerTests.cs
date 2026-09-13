@@ -1,4 +1,4 @@
-namespace Waystone.Internal.SourceGenerators;
+namespace Waystone.Internal.Analyzers;
 
 using System.Collections.Immutable;
 using System.Linq;
@@ -8,7 +8,7 @@ using Shouldly;
 using Xunit;
 
 /// <remarks>
-/// WSG0004 is the mechanism behind DRA-115's audit rather than a convenience: the
+/// WA0003 is the mechanism behind DRA-115's audit rather than a convenience: the
 /// invariant it enforces — that this library's own return type is assignable to
 /// its own step parameter type — was established by a hand count, and a hand count
 /// is not repeatable. These cases pin the two edges that decide whether it stays
@@ -20,7 +20,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     public async Task
         GivenAStepDelegateReturningTask_WhenAnalysed_ThenReportWsg0003()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -30,14 +30,14 @@ public sealed class AsyncSurfaceAnalyzerTests
             """);
 
         diagnostics.Select(diagnostic => diagnostic.Id)
-                   .ShouldBe(["WSG0003"]);
+                   .ShouldBe(["WA0002"]);
     }
 
     [Fact]
     public async Task
         GivenAStepDelegateReturningTaskOfResult_WhenAnalysed_ThenReportWsg0003()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -47,14 +47,14 @@ public sealed class AsyncSurfaceAnalyzerTests
             """);
 
         diagnostics.Select(diagnostic => diagnostic.Id)
-                   .ShouldBe(["WSG0003"]);
+                   .ShouldBe(["WA0002"]);
     }
 
     [Fact]
     public async Task
         GivenAStepDelegate_WhenAnalysed_ThenNameTheParameterAndTheFix()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -84,7 +84,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     public async Task
         GivenABoundaryDelegateReturningTask_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -103,7 +103,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     public async Task
         GivenAStepDelegateReturningValueTask_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -123,7 +123,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     public async Task
         GivenADelegateReturningNonGenericTask_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -138,7 +138,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenANonDelegateParameter_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -157,7 +157,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenANamedDelegateType_WhenAnalysed_ThenReportWsg0003()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public delegate Task<Option<int>> Step(int value);
 
@@ -169,13 +169,13 @@ public sealed class AsyncSurfaceAnalyzerTests
             """);
 
         diagnostics.Select(diagnostic => diagnostic.Id)
-                   .ShouldBe(["WSG0003"]);
+                   .ShouldBe(["WA0002"]);
     }
 
     [Fact]
     public async Task GivenTaskOfOption_WhenAnalysed_ThenReportWsg0004()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -184,13 +184,13 @@ public sealed class AsyncSurfaceAnalyzerTests
             """);
 
         diagnostics.Select(diagnostic => diagnostic.Id)
-                   .ShouldBe(["WSG0004"]);
+                   .ShouldBe(["WA0003"]);
     }
 
     [Fact]
     public async Task GivenTaskOfResult_WhenAnalysed_ThenReportWsg0004()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -199,7 +199,7 @@ public sealed class AsyncSurfaceAnalyzerTests
             """);
 
         diagnostics.Select(diagnostic => diagnostic.Id)
-                   .ShouldBe(["WSG0004"]);
+                   .ShouldBe(["WA0003"]);
     }
 
     /// <summary>
@@ -209,7 +209,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenTaskOfOption_WhenAnalysed_ThenNameTheMemberAndTheFix()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -228,7 +228,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenValueTaskOfOption_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -242,7 +242,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenTaskOfAForeignType_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -260,7 +260,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenTaskOfAnArray_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -274,7 +274,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenAnArrayReturn_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -292,7 +292,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenAnInternalMember_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             public static class Subject
             {
@@ -310,7 +310,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenAPublicMemberOfAnInternalType_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             internal static class Subject
             {
@@ -325,7 +325,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     public async Task
         GivenAPublicMemberOfAPublicTypeNestedInAnInternalType_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             internal static class Outer
             {
@@ -352,7 +352,7 @@ public sealed class AsyncSurfaceAnalyzerTests
     [Fact]
     public async Task GivenNoReferenceToTheLibrary_WhenAnalysed_ThenReportNothing()
     {
-        ImmutableArray<Diagnostic> diagnostics = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> diagnostics = await VerifyAsyncSurface.Run(
             """
             namespace Waystone.Monads.Options
             {
