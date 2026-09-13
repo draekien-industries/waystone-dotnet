@@ -677,6 +677,146 @@ public sealed class AwaitedReceiversGeneratorTests
         run.Source.ShouldContain("crate.Fallback(@else, count, label, other);");
     }
 
+    /// <remarks>
+    /// One member covers both directions at once. The receiver is the only parameter
+    /// the generated member renames, so a <c>CallerArgumentExpression</c> naming it has
+    /// to be re-pointed while one naming an ordinary parameter has to be left alone —
+    /// and a test asserting only one of those passes against code that copies every
+    /// target verbatim.
+    /// </remarks>
+    [Fact]
+    public void RepointsACallerArgumentExpressionOnTheReceiverAndLeavesTheRestAlone()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : notnull
+                {
+                    /// <summary>Reads the value.</summary>
+                    /// <param name="expected">The value to compare against.</param>
+                    /// <param name="expectedExpression">The caller's text for the comparand.</param>
+                    /// <param name="boxExpression">The caller's text for the receiver.</param>
+                    public T Read(
+                        T expected,
+                        [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(expected))]
+                        string? expectedExpression = null,
+                        [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(box))]
+                        string? boxExpression = null) => box.Get();
+                }
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain(
+            """[global::System.Runtime.CompilerServices.CallerArgumentExpressionAttribute("expected")] string? expectedExpression = null""");
+        run.Source.ShouldContain(
+            """[global::System.Runtime.CompilerServices.CallerArgumentExpressionAttribute("boxTask")] string? boxExpression = null""");
+        run.Source.ShouldNotContain("""CallerArgumentExpressionAttribute("box")""");
+    }
+
+    [Fact]
+    public void CarriesTheCallerInfoAttributesThatNeedNoRepointing()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : notnull
+                {
+                    /// <summary>Reads the value.</summary>
+                    /// <param name="member">The calling member.</param>
+                    /// <param name="file">The calling file.</param>
+                    /// <param name="line">The calling line.</param>
+                    public T Read(
+                        [System.Runtime.CompilerServices.CallerMemberName] string? member = null,
+                        [System.Runtime.CompilerServices.CallerFilePath] string? file = null,
+                        [System.Runtime.CompilerServices.CallerLineNumber] int line = 0) =>
+                        box.Get();
+                }
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain(
+            "[global::System.Runtime.CompilerServices.CallerMemberNameAttribute] string? member = null");
+        run.Source.ShouldContain(
+            "[global::System.Runtime.CompilerServices.CallerFilePathAttribute] string? file = null");
+        run.Source.ShouldContain(
+            "[global::System.Runtime.CompilerServices.CallerLineNumberAttribute] int line = 0");
+    }
+
+    /// <remarks>
+    /// A target the compiler cannot bind is the source member's own problem and it
+    /// already warns about it there. Writing it through would report the same thing a
+    /// second time against generated source, which is the harder of the two to act on.
+    /// </remarks>
+    [Fact]
+    public void WritesNoCallerArgumentExpressionWhenTheSourceNamesNothing()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : notnull
+                {
+                    /// <summary>Reads the value.</summary>
+                    /// <param name="unbound">The caller's text for nothing at all.</param>
+                    public T Read(
+                        [System.Runtime.CompilerServices.CallerArgumentExpression(null)]
+                        string? unbound = null) => box.Get();
+                }
+            }
+            """);
+
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("string? unbound = null");
+        run.Source.ShouldNotContain("CallerArgumentExpressionAttribute");
+    }
+
+    /// <remarks>
+    /// Pinned as the generator's half of the contract <c>WA0004</c> enforces: the
+    /// attribute is gone and the parameter it sat on is not, so the generated member
+    /// compiles and behaves differently. The analyzer is what stops that reaching a
+    /// build; this asserts the shape it is reporting about.
+    /// </remarks>
+    [Fact]
+    public void DropsAParameterAttributeThatIsNotCallerInfo()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : notnull
+                {
+                    /// <summary>Reads the value.</summary>
+                    /// <param name="fallback">The value to fall back on.</param>
+                    public T Read(
+                        [System.Runtime.InteropServices.Optional] T fallback) =>
+                        box.Get();
+                }
+            }
+            """);
+
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain("ReadAsync(T fallback)");
+        run.Source.ShouldNotContain("Optional");
+    }
+
     [Fact]
     public void ReusesTheCachedOutputWhenTheDriverRunsTwiceOverTheSameInput()
     {

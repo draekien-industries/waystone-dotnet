@@ -65,10 +65,10 @@ internal static class AwaitedReceiverWriter
     {
         AwaitedMember head = group[0];
         string receiver = head.ReceiverType.ToDisplayString(Display.Format);
-        string parameterName = Identifiers.Escape(head.ReceiverParameterName + "Task");
+        string parameterName = head.ReceiverParameterName + "Task";
 
         writer.AppendLine(
-            $"    extension{TypeParameters.Render(head.BlockTypeParameters)}({wrapper}<{receiver}> {parameterName})");
+            $"    extension{TypeParameters.Render(head.BlockTypeParameters)}({wrapper}<{receiver}> {Identifiers.Escape(parameterName)})");
 
         foreach (string constraint in TypeParameters.Constraints(head.BlockTypeParameters))
         {
@@ -109,7 +109,7 @@ internal static class AwaitedReceiverWriter
         (string returnType, string statement) = Invocation(member);
 
         writer.AppendLine(
-            $"        public async {returnType} {name}{TypeParameters.Render(member.MemberTypeParameters)}({RenderParameters(member.Parameters)})");
+            $"        public async {returnType} {name}{TypeParameters.Render(member.MemberTypeParameters)}({RenderParameters(member, receiverParameterName)})");
 
         foreach (string constraint in
                  TypeParameters.Constraints(member.MemberTypeParameters))
@@ -119,7 +119,7 @@ internal static class AwaitedReceiverWriter
 
         writer.AppendLine("        {");
         writer.AppendLine(
-            $"            {member.ReceiverType.ToDisplayString(Display.Format)} {Identifiers.Escape(member.ReceiverParameterName)} = await {receiverParameterName}.ConfigureAwait(false);");
+            $"            {member.ReceiverType.ToDisplayString(Display.Format)} {Identifiers.Escape(member.ReceiverParameterName)} = await {Identifiers.Escape(receiverParameterName)}.ConfigureAwait(false);");
         writer.AppendLine();
         writer.AppendLine($"            {statement}");
         writer.AppendLine("        }");
@@ -160,12 +160,29 @@ internal static class AwaitedReceiverWriter
             ? TypeParameters.Render(member.MemberTypeParameters)
             : string.Empty;
 
-    private static string RenderParameters(ImmutableArray<IParameterSymbol> parameters) =>
-        string.Join(", ", parameters.Select(RenderParameter));
+    private static string RenderParameters(
+        AwaitedMember member,
+        string receiverParameterName) =>
+        string.Join(
+            ", ",
+            member.Parameters.Select(
+                parameter => RenderParameter(
+                    parameter,
+                    member.ReceiverParameterName,
+                    receiverParameterName)));
 
-    private static string RenderParameter(IParameterSymbol parameter)
+    private static string RenderParameter(
+        IParameterSymbol parameter,
+        string sourceReceiver,
+        string generatedReceiver)
     {
         var rendered = new StringBuilder();
+
+        foreach (AttributeData attribute in parameter.GetAttributes())
+        {
+            rendered.Append(
+                CallerInfo.Render(attribute, sourceReceiver, generatedReceiver));
+        }
 
         if (parameter.IsParams) rendered.Append("params ");
 

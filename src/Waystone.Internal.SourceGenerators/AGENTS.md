@@ -66,6 +66,32 @@ into `WSG0002`.
 cases where the source member's own wording does not read well after the await
 prefix.
 
+**Four parameter attributes reach the generated member and every other one is
+dropped.** `CallerInfo` carries `[CallerMemberName]`, `[CallerFilePath]`,
+`[CallerLineNumber]` and `[CallerArgumentExpression]`, because the compiler fills
+those at the outer call site and the forward hands the value straight on. Nothing
+else has a meaning that survives being forwarded, so nothing else is written —
+`WA0004` in
+[Waystone.Internal.Analyzers](../Waystone.Internal.Analyzers/AGENTS.md) is what
+stops a dropped one reaching a build, and the two lists of four have to stay in
+step.
+
+`CallerArgumentExpression` needs more than a copy. Its target is a parameter name,
+and the receiver is the one parameter a generated member renames, so
+`nameof(option)` on the source becomes `"optionTask"` on the generated member while
+a target naming any other parameter is written through unchanged. The target is
+emitted as a string literal rather than a `nameof` deliberately: a name matching
+nothing then reports the compiler's own "will have no effect" warning — the same
+diagnostic the source member already gets — instead of a `CS0103` against generated
+source, which is the harder of the two to act on.
+
+The drop is worth a rule because it is silent in every channel that normally
+catches this. A generated assertion with `[CallerArgumentExpression]` missing still
+compiles, still ships, and merely stops naming the caller's expression in its
+failure message; the public API baseline does not record parameter attributes, so
+RS0016/RS0017 — the oracle for everything else about this surface — say nothing
+either.
+
 **The generator writes only the `extension` block; the containing class must be
 `partial`.** Generated shapes land in the same static class as the hand-written
 ones so the baseline entries keep naming `OptionExtensions` rather than some new
