@@ -40,7 +40,7 @@
         ViolationCode's [ErrorCodeCatalog] needs the generator imported by hand.
     -->
     <Import Project="..\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
-    <Import Project="..\Waystone.SourceGenerators\Waystone.SourceGenerators.props"/>
+    <Import Project="..\Waystone.Internal.SourceGenerators\Waystone.Internal.SourceGenerators.props"/>
     <Import Project="..\Waystone.Monads.Schemas.SourceGenerators\Waystone.Monads.Schemas.SourceGenerators.props"/>
 
     <!--

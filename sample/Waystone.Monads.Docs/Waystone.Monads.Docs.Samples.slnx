@@ -12,7 +12,7 @@
   <Project Path="../../src/Waystone.Monads.SourceGenerators/Waystone.Monads.SourceGenerators.csproj" />
   <Project Path="../../src/Waystone.Monads.SystemTextJson/Waystone.Monads.SystemTextJson.csproj" />
   <Project Path="../../src/Waystone.Monads/Waystone.Monads.csproj" />
-  <Project Path="../../src/Waystone.SourceGenerators/Waystone.SourceGenerators.csproj" />
+  <Project Path="../../src/Waystone.Internal.SourceGenerators/Waystone.Internal.SourceGenerators.csproj" />
   <Project Path="Waystone.Monads.Docs.Core.Sample/Waystone.Monads.Docs.Core.Sample.csproj" />
   <Project Path="Waystone.Monads.Docs.FluentValidation.Sample/Waystone.Monads.Docs.FluentValidation.Sample.csproj" />
   <Project Path="Waystone.Monads.Docs.Linq.Sample/Waystone.Monads.Docs.Linq.Sample.csproj" />

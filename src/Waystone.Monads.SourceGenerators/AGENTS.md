@@ -4,9 +4,9 @@ Emits the error code members of an enum a consumer marked with
 `[ErrorCodeCatalog]` — the code strings, the `ErrorCode` fields, the `Error`
 factories and the three extensions that map a value to each.
 
-## Why this is not Waystone.SourceGenerators
+## Why this is not Waystone.Internal.SourceGenerators
 
-**This assembly ships; that one does not.** `Waystone.SourceGenerators` is
+**This assembly ships; that one does not.** `Waystone.Internal.SourceGenerators` is
 `IsPackable=false` *and* absent from `PackMonadAnalyzers`, so it only ever runs on
 this repository's own compilations. This project is in that pack target, so it lands
 in `analyzers/dotnet/cs` and runs in every consumer's build. Adding the awaited
