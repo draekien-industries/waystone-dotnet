@@ -11,10 +11,9 @@ run tests`,** all three from `pull-request.yml`. Renaming one of those jobs leav
 required check that can never report, which blocks every PR. Add jobs; do not
 rename these.
 
-**Runner minutes are the reason checks live in git hooks where they can.** The
-framework matrix and the release-tracking checks run in `.githooks/pre-push`
-rather than here. Do not migrate them into a workflow without a reason that
-outweighs the cost.
+**Checks live in git hooks where they can, to save runner minutes.** The framework
+matrix and the release-tracking checks run in `.githooks/pre-push` rather than here.
+Do not migrate them into a workflow without a reason that outweighs the cost.
 
 ## Gotchas
 
@@ -37,7 +36,7 @@ carried one until a `chore:` PR touching only `bench/**` and `artifacts/**` sat
 reported, and there was nothing pending to wait for. A check that never reports
 cannot be satisfied. `gh pr merge --admin` clears one such PR, but not a stack —
 `gh stack merge` is the only supported way to land one and it has no per-PR
-bypass, so a filtered-out PR at the bottom wedges every PR above it.
+bypass, so a filtered-out PR at the bottom blocks every PR above it.
 
 **Skipping the jobs is not the alternative.** GitHub counts a skipped job as a
 passing required check, so `Calculate Version` and `Build and run tests` would be
@@ -46,12 +45,12 @@ only after a coverage report is uploaded for the head commit, and no upload
 happens if the job that runs `dotnet test` is skipped. The required check is
 pinned to Codecov's integration id, so nothing else can post that context in its
 place. Any scheme that skips the test job has to drop `codecov/patch` from the
-ruleset, which trades a real gate for runner minutes.
+ruleset, which gives up a real gate for runner minutes.
 
-The filter was also hiding a compile: `bench/Waystone.Monads.Benchmarks.csproj`
-is in `Waystone.Net.slnx`, so `dotnet build` builds it, but `bench/**` was not in
-the filter. A benchmark that stopped compiling would have reached `main` without
-CI ever noticing.
+The filter also hid a build failure: `bench/Waystone.Monads.Benchmarks.csproj` is
+in `Waystone.Net.slnx`, so `dotnet build` builds it, but `bench/**` was not in the
+filter. A benchmark that stopped compiling would have reached `main` without CI
+ever noticing.
 
 `release.yml` keeps its filter, and there the `!**/*.md` ordering still matters.
 The exclusion has to come *after* the positive patterns, because a later pattern

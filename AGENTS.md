@@ -196,6 +196,14 @@ eleven subjects. It applies one increment for the highest bump among them, so te
 thinking of as the release. Read the titles together before merging, not one at a
 time as you open them.
 
+## Writing
+
+Agent docs are read on every turn — every line is context each agent pays for
+whether or not the task touches it. One rule per line, stated as the rule. No
+preamble, no restating the heading. Cut anything two source files would teach.
+State behaviour literally: no metaphor, no analogy. The domain's own vocabulary is
+not a metaphor.
+
 ## Documentation
 
 Agent-facing documentation lives in `docs/`. Read [docs/AGENTS.md](docs/AGENTS.md)
