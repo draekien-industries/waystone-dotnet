@@ -726,9 +726,9 @@ public abstract partial record Option<T> where T : notnull
         /// <remarks>
         /// The step returns a <see cref="ValueTask{TResult}" /> rather than a
         /// <see cref="Task{TResult}" /> so that a chain of these composes by
-        /// name: a method group returning <see cref="Task{TResult}" /> does not
-        /// convert to it, and <c>WA0002</c> reports that shape at the
-        /// declaration rather than leaving the caller a <c>CS0411</c>.
+        /// name. Declare your own step the same way: a method group returning
+        /// <see cref="Task{TResult}" /> does not convert to it, and the call
+        /// site fails with <c>CS0411</c> rather than naming the mismatch.
         /// </remarks>
         /// <param name="optionFactory">
         /// Produces the next option from the contained value and the bound state.
