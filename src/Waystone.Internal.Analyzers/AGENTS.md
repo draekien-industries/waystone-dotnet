@@ -3,10 +3,11 @@
 Rules that hold **this repository's own source** to invariants the compiler does
 not check. Nothing here reaches a consumer.
 
-Every analyzer in this repository that does not ship lives here. There are two
+Every analyzer in this repository that does not ship lives here. There are three
 families — `FactoryGuards/` holds `WA0001`, `AsyncSurface/` holds `WA0002` and
-`WA0003` — and the only thing they have in common is that a consumer could not
-act on either. That is the whole membership test.
+`WA0003`, `AwaitedReceivers/` holds `WA0004` — and the only thing they have in
+common is that a consumer could not act on any of them. That is the whole
+membership test.
 
 ## It is not a package, and that is the point
 
@@ -26,6 +27,13 @@ belongs here; that project emits source and reports only on its own emission.
 `WA0002` and `WA0003` lived there until 7.3.0 purely because they were written
 alongside the generator, and two of the three projects importing its props wanted
 nothing but the analyzer.
+
+**The line is what the rule reports *about*, not what it knows about.** `WA0004`
+knows the generator's attributes, its lifting conditions and the set of parameter
+attributes it carries, and still belongs here: its subject is a hand-written member
+in this tree. `WSG0001` and `WSG0002` stay with the generator because their subject
+is the generator failing to emit — a class it cannot add to, a member name it cannot
+resolve. Ask which of the two a reader would go and edit.
 
 **A rule here may be an `Error`.** The prohibition in
 `.claude/skills/writing-diagnostic-descriptors` is about a rule shipping inside
@@ -48,7 +56,7 @@ import it. Any project under `src/` may, and the rules are written so that one
 which declares nothing for them to act on is silent rather than noisy — which is
 what makes importing it cheap enough to be the default.
 
-## The two families
+## The three families
 
 **A rule here may name `Option` and `Result`, and one pair does.** Until 7.3.0 this
 file carried the opposite instruction — that a rule hardcoding those names "would be
@@ -80,6 +88,26 @@ attribute would survive a rename; a convention does not. What it buys is that
 there is no marker type to compile into the importing project, no `Compile` item
 in the props, and nothing to apply and forget to apply — the signature already
 said everything the attribute would have.
+
+`WA0004` sits between them. It names no monad, but it does hold a copy of a list
+that lives in another project: the four caller-info attributes
+`Waystone.Internal.SourceGenerators`' `CallerInfo` writes onto a generated
+parameter. **Nothing keeps the two in step.** The generator is loaded as an
+analyzer and is on nobody's compile line, so there is no reference to share the
+list through, and teaching one side to carry a fifth attribute without the other
+makes this rule fail a build over an attribute that is in fact carried. Change
+`AwaitedReceiverContract.Carried` and `CallerInfo` in the same commit.
+
+**Read the marked class's members; do not walk up from the method.** A C# 14
+`extension` block member is declared inside a compiler-generated container, so its
+`ContainingType` is that container rather than the class carrying
+`[GenerateAwaitedReceivers]`, and it does not report `IsExtensionMethod` either. A
+`SymbolKind.Method` action over such a member therefore matches nothing and the
+rule goes silent — which looks exactly like a clean tree. `WA0004` registers on
+`SymbolKind.NamedType` and enumerates `GetMembers()`, which hands back the
+compatibility static form the generator itself reads. The classic
+`static (this T)` form works either way, so a test using only that shape passes
+against the broken version.
 
 **The rename hazard is closed by a test, not by the build.** `GuardConventionTests`
 in `Waystone.Monads.Tests` asserts all four guards still match the convention.
