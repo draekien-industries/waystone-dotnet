@@ -85,6 +85,21 @@ nothing then reports the compiler's own "will have no effect" warning — the sa
 diagnostic the source member already gets — instead of a `CS0103` against generated
 source, which is the harder of the two to act on.
 
+**`ReceiverParameterName` pins the awaited receiver's name, and it is for keeping
+one rather than choosing one.** The default is the source receiver's name with
+`Task` appended — `option` becomes `optionTask` — and that name is in the public API
+baseline, where renaming it is source-breaking for a caller naming it in static
+invocation syntax. A class whose awaited shapes were hand-written before they were
+generated therefore has to pin whatever they were already called, or the conversion
+that changes nothing else still moves every baseline row. `Waystone.Monads.Shouldly`
+pins `actual` for exactly that. A new class has nothing to preserve: leave it unset.
+
+Pinning the source receiver's own name is the ordinary case and works, because the
+local holding the awaited value is renamed to `awaited` instead of colliding with the
+parameter it is awaiting. Read the two together — the pin decides the receiver's
+name, and `CallerInfo` re-points a `CallerArgumentExpression` at whatever that name
+turned out to be.
+
 The drop is worth a rule because it is silent in every channel that normally
 catches this. A generated assertion with `[CallerArgumentExpression]` missing still
 compiles, still ships, and merely stops naming the caller's expression in its

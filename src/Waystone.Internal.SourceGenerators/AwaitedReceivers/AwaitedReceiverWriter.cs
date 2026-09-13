@@ -18,7 +18,8 @@ internal static class AwaitedReceiverWriter
     public static string Emit(
         INamedTypeSymbol target,
         IEnumerable<AwaitedMember> members,
-        Compilation compilation)
+        Compilation compilation,
+        string? pinnedReceiverName)
     {
         var writer = new StringBuilder();
 
@@ -40,7 +41,12 @@ internal static class AwaitedReceiverWriter
 
                 first = false;
 
-                EmitBlock(writer, group.ToImmutableArray(), wrapper, compilation);
+                EmitBlock(
+                    writer,
+                    group.ToImmutableArray(),
+                    wrapper,
+                    compilation,
+                    pinnedReceiverName);
             }
         }
 
@@ -61,11 +67,16 @@ internal static class AwaitedReceiverWriter
         StringBuilder writer,
         ImmutableArray<AwaitedMember> group,
         string wrapper,
-        Compilation compilation)
+        Compilation compilation,
+        string? pinnedReceiverName)
     {
         AwaitedMember head = group[0];
         string receiver = head.ReceiverType.ToDisplayString(Display.Format);
-        string parameterName = head.ReceiverParameterName + "Task";
+        string parameterName =
+            pinnedReceiverName ?? head.ReceiverParameterName + "Task";
+        string awaitedName = parameterName == head.ReceiverParameterName
+            ? "awaited"
+            : head.ReceiverParameterName;
 
         writer.AppendLine(
             $"    extension{TypeParameters.Render(head.BlockTypeParameters)}({wrapper}<{receiver}> {Identifiers.Escape(parameterName)})");
@@ -81,7 +92,12 @@ internal static class AwaitedReceiverWriter
         {
             if (i > 0) writer.AppendLine();
 
-            EmitMember(writer, group[i], parameterName, compilation);
+            EmitMember(
+                writer,
+                group[i],
+                parameterName,
+                awaitedName,
+                compilation);
         }
 
         writer.AppendLine("    }");
@@ -91,6 +107,7 @@ internal static class AwaitedReceiverWriter
         StringBuilder writer,
         AwaitedMember member,
         string receiverParameterName,
+        string awaitedName,
         Compilation compilation)
     {
         foreach (string line in DocComments.Render(
@@ -106,7 +123,7 @@ internal static class AwaitedReceiverWriter
             ? member.Source.Name
             : member.Source.Name + "Async";
 
-        (string returnType, string statement) = Invocation(member);
+        (string returnType, string statement) = Invocation(member, awaitedName);
 
         writer.AppendLine(
             $"        public async {returnType} {name}{TypeParameters.Render(member.MemberTypeParameters)}({RenderParameters(member, receiverParameterName)})");
@@ -119,16 +136,18 @@ internal static class AwaitedReceiverWriter
 
         writer.AppendLine("        {");
         writer.AppendLine(
-            $"            {member.ReceiverType.ToDisplayString(Display.Format)} {Identifiers.Escape(member.ReceiverParameterName)} = await {Identifiers.Escape(receiverParameterName)}.ConfigureAwait(false);");
+            $"            {member.ReceiverType.ToDisplayString(Display.Format)} {Identifiers.Escape(awaitedName)} = await {Identifiers.Escape(receiverParameterName)}.ConfigureAwait(false);");
         writer.AppendLine();
         writer.AppendLine($"            {statement}");
         writer.AppendLine("        }");
     }
 
-    private static (string ReturnType, string Statement) Invocation(AwaitedMember member)
+    private static (string ReturnType, string Statement) Invocation(
+        AwaitedMember member,
+        string awaitedName)
     {
         var call =
-            $"{Identifiers.Escape(member.ReceiverParameterName)}.{member.Source.Name}{CallTypeArguments(member)}({RenderArguments(member.Parameters)})";
+            $"{Identifiers.Escape(awaitedName)}.{member.Source.Name}{CallTypeArguments(member)}({RenderArguments(member.Parameters)})";
 
         ITypeSymbol returns = member.Source.ReturnType;
 

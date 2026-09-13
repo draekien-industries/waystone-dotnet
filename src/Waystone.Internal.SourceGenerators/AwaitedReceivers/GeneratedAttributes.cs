@@ -67,6 +67,29 @@ internal static class GeneratedAttributes
                 /// against, for example <c>typeof(Option&lt;&gt;)</c>.
                 /// </summary>
                 public System.Type Receiver { get; }
+
+                /// <summary>
+                /// The name to give the awaited receiver on every generated
+                /// <c>extension</c> block, in place of the source receiver's name
+                /// with <c>Task</c> appended.
+                /// </summary>
+                /// <remarks>
+                /// Set this only to keep an existing name. A receiver parameter is
+                /// part of the public API baseline and renaming one is
+                /// source-breaking for a caller who passes it by name in static
+                /// invocation syntax, so a class whose awaited shapes were
+                /// hand-written before they were generated has to pin whatever they
+                /// were called. There is nothing to preserve on a new class; leave
+                /// it unset and take the default. Default:
+                /// <see langword="null" />.
+                /// <para>
+                /// Pinning the source receiver's own name is the ordinary case and
+                /// is allowed: the local holding the awaited value is called
+                /// <c>awaited</c> rather than taking that name, so the two cannot
+                /// collide.
+                /// </para>
+                /// </remarks>
+                public string? ReceiverParameterName { get; set; }
             }
 
             /// <summary>
