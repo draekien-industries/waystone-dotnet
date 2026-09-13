@@ -817,6 +817,112 @@ public sealed class AwaitedReceiversGeneratorTests
         run.Source.ShouldNotContain("Optional");
     }
 
+    /// <remarks>
+    /// The receiver's name is what the pin exists for: it is recorded in the public API
+    /// baseline, and renaming it is source-breaking for a caller naming it in static
+    /// invocation syntax. A class whose awaited shapes were hand-written before they
+    /// were generated has to keep whatever they were called.
+    /// </remarks>
+    [Fact]
+    public void NamesTheAwaitedReceiverWhateverTheAttributePins()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>), ReceiverParameterName = "actual")]
+            [GenerateAwaitedMember("Get")]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+        run.GeneratorDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain(
+            "extension<T>(global::System.Threading.Tasks.Task<global::Waystone.Monads.Options.Extensions.Box<T>> actual)");
+        run.Source.ShouldNotContain("boxTask");
+    }
+
+    /// <remarks>
+    /// Pinning the source receiver's own name is the case the pin was written for, and
+    /// the one where the local holding the awaited value would otherwise collide with
+    /// the parameter it is awaiting. Renaming the local rather than refusing the pin is
+    /// what makes the ordinary case work.
+    /// </remarks>
+    [Fact]
+    public void RenamesTheAwaitedLocalWhenThePinTakesItsName()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>), ReceiverParameterName = "box")]
+            [GenerateAwaitedMember("Get")]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain(
+            "global::Waystone.Monads.Options.Extensions.Box<T> awaited = await box.ConfigureAwait(false);");
+        run.Source.ShouldContain("return awaited.Get();");
+    }
+
+    /// <remarks>
+    /// The pin moves the receiver, and a <c>CallerArgumentExpression</c> aimed at the
+    /// receiver has to follow it. Asserting the two separately would pass against a
+    /// version that pinned the parameter and left the attribute pointing at
+    /// <c>boxTask</c>, which no longer exists.
+    /// </remarks>
+    [Fact]
+    public void RepointsACallerArgumentExpressionAtThePinnedReceiver()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>), ReceiverParameterName = "actual")]
+            public static partial class BoxExtensions
+            {
+                extension<T>(Box<T> box) where T : notnull
+                {
+                    /// <summary>Reads the value.</summary>
+                    /// <param name="boxExpression">The caller's text for the receiver.</param>
+                    public T Read(
+                        [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(box))]
+                        string? boxExpression = null) => box.Get();
+                }
+            }
+            """);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+
+        run.Source.ShouldContain(
+            """[global::System.Runtime.CompilerServices.CallerArgumentExpressionAttribute("actual")] string? boxExpression = null""");
+        run.Source.ShouldNotContain("boxTask");
+    }
+
+    [Fact]
+    public void KeepsTheTaskSuffixedReceiverWhenNothingIsPinned()
+    {
+        GeneratorRun run = Verify.Run(
+            Box
+          + """
+            [GenerateAwaitedReceivers(typeof(Box<>))]
+            [GenerateAwaitedMember("Get")]
+            public static partial class BoxExtensions
+            {
+            }
+            """);
+
+        run.Source.ShouldContain(
+            "extension<T>(global::System.Threading.Tasks.Task<global::Waystone.Monads.Options.Extensions.Box<T>> boxTask)");
+        run.Source.ShouldContain(
+            "global::Waystone.Monads.Options.Extensions.Box<T> box = await boxTask.ConfigureAwait(false);");
+        run.Source.ShouldNotContain("awaited");
+    }
+
     [Fact]
     public void ReusesTheCachedOutputWhenTheDriverRunsTwiceOverTheSameInput()
     {
