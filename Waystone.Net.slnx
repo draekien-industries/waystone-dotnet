@@ -72,6 +72,7 @@
     <Project Path="test/Waystone.Monads.Shouldly.Analyzers.Tests/Waystone.Monads.Shouldly.Analyzers.Tests.csproj" />
     <Project Path="test/Waystone.Monads.SourceGenerators.Tests/Waystone.Monads.SourceGenerators.Tests.csproj" />
     <Project Path="test/Waystone.Monads.Tests/Waystone.Monads.Tests.csproj" />
+    <Project Path="test/Waystone.Conventions.Tests/Waystone.Conventions.Tests.csproj" />
     <Project Path="test/Waystone.Internal.SourceGenerators.Tests/Waystone.Internal.SourceGenerators.Tests.csproj" />
     <Project Path="test/Waystone.WideLogEvents.Tests/Waystone.WideLogEvents.Tests.csproj" />
   </Folder>
