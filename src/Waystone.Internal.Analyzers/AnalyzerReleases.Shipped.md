@@ -10,3 +10,4 @@ Rule ID | Category | Severity | Notes
 WA0001 | Reliability | Error | A delegate returning a guarded type is invoked without the guard
 WA0002 | Usage | Error | A public delegate parameter must not return a Task of Option or Result
 WA0003 | Usage | Error | A public member must not return a Task of Option or Result
+WA0004 | Usage | Error | A lifted member must not take a parameter attribute the generator drops
