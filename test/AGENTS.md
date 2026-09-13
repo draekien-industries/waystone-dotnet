@@ -44,6 +44,19 @@ explicitly.** `ValueTask<T>` is not part of .NET Framework, so a test with a
 never mentions. Keep the version in step with the one `Waystone.Monads`
 references, so the compilation sees what a consumer on that framework would.
 
+**`Waystone.Internal.SourceGenerators.Tests` picks its subject's references a third
+way — the test host's own loaded assemblies — so what a subject can name is decided
+by the framework running the tests.** That is deliberate and is why the matrix is
+worth running here, but it means a subject using a type .NET Framework lacks fails
+on net472 and net481 alone. `CallerArgumentExpressionPolyfill.cs` declares
+`CallerArgumentExpression` publicly under `#if NETFRAMEWORK` for that reason: the
+only declaration otherwise reachable is PolySharp's `internal` one inside
+`Waystone.Monads`, which reports as `CS0122` rather than as a missing type. Declare
+such a fill in the *test assembly*, never in the subject source — `Verify.Preamble`
+opens with a file-scoped namespace, so a subject cannot open a second namespace at
+all, and on the three frameworks that already have the real type a duplicate is a
+`CS0436`.
+
 ## Conventions
 
 **`Waystone.Conventions.Tests` holds rules about the tree, not about behaviour.**
