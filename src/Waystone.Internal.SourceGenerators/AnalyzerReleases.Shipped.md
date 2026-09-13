@@ -18,3 +18,12 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WSG0003 | Usage | Error | A public delegate parameter must not return a Task of Option or Result
 WSG0004 | Usage | Error | A public member must not return a Task of Option or Result
+
+## Release 7.3.0
+
+### Removed Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WSG0003 | Usage | Error | Moved to Waystone.Internal.Analyzers and renumbered WA0002
+WSG0004 | Usage | Error | Moved to Waystone.Internal.Analyzers and renumbered WA0003

@@ -727,7 +727,7 @@ public abstract partial record Option<T> where T : notnull
         /// The step returns a <see cref="ValueTask{TResult}" /> rather than a
         /// <see cref="Task{TResult}" /> so that a chain of these composes by
         /// name: a method group returning <see cref="Task{TResult}" /> does not
-        /// convert to it, and <c>WSG0003</c> reports that shape at the
+        /// convert to it, and <c>WA0002</c> reports that shape at the
         /// declaration rather than leaving the caller a <c>CS0411</c>.
         /// </remarks>
         /// <param name="optionFactory">

@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
         <ProjectReference Include="..\..\src\Waystone.Internal.Analyzers\Waystone.Internal.Analyzers.csproj"/>
     </ItemGroup>
 
