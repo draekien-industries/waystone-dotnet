@@ -167,6 +167,23 @@ compat-static form is also how a Roslyn-4.8-built generator sees extension membe
 at all, since `ExtensionBlockDeclarationSyntax` does not exist in its reference
 assembly.
 
+**A polyfilled attribute is an error type here, and reading it off the symbol gets
+nothing.** `[CallerArgumentExpression]` in a `netstandard2.0` project resolves
+through PolySharp, whose declaration is another generator's output and therefore
+invisible to this one — the nearest candidate left is the `internal` copy inside
+`Waystone.Monads`, which is not accessible, so `AttributeClass` comes back with the
+right name and `TypeKind.Error`. An error type has no bound constructor, so
+`ConstructorArguments` is *empty* rather than wrong, and a reader that trusts it
+silently emits no attribute at all. `CallerInfo.Target` falls back to the
+application syntax for that reason.
+
+The name still matches because Roslyn keeps it on the error symbol; only the
+arguments are missing. That is what makes the failure quiet — the attribute passes
+every check that looks at what it *is*, and fails only the one that reads what it
+*says*. It cost the `Waystone.Monads.Shouldly` conversion a full build-and-test
+cycle to find, because the package compiles either way and only the assertion
+failure text changes.
+
 **`StringBuilder.AppendLine` writes CRLF on Windows, so emitted source would vary
 by build platform.** `AwaitedReceiverWriter` normalises the line endings before
 returning, and the snapshot test normalises its expected literal too, since git may
