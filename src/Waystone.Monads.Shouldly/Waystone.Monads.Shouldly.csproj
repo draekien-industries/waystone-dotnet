@@ -16,7 +16,7 @@
         <!--
             RS0026 forbids two same-named overloads that both take an optional
             parameter, because adding one later can silently move a call site
-            between them. Each Async assertion here is declared twice, once on a
+            between them. Each Async assertion is generated twice, once on a
             Task receiver and once on a ValueTask receiver, and both carry the
             optional customMessage that Shouldly's extension guide asks for. The
             receivers are disjoint types, so overload resolution is settled by the
@@ -67,6 +67,9 @@
     <PropertyGroup>
         <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackAssertionAnalyzers</TargetsForTfmSpecificContentInPackage>
     </PropertyGroup>
+
+    <Import Project="..\Waystone.Internal.SourceGenerators\Waystone.Internal.SourceGenerators.props"/>
+    <Import Project="..\Waystone.Internal.Analyzers\Waystone.Internal.Analyzers.props"/>
 
     <Import Project="..\Waystone.Monads.Shouldly.Analyzers\Waystone.Monads.Shouldly.Analyzers.props"/>
 
