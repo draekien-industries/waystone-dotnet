@@ -1,4 +1,4 @@
-namespace Waystone.Internal.SourceGenerators.AsyncSurface;
+namespace Waystone.Internal.Analyzers.AsyncSurface;
 
 using Microsoft.CodeAnalysis;
 

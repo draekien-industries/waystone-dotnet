@@ -33,7 +33,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task ReportsADelegateReturningAGuardedTypeUnguarded()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -61,7 +61,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task NamesTheAsynchronousGuardForAnAsynchronousDelegate()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -81,7 +81,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task AcceptsACallRoutedThroughTheGuard()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -98,7 +98,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task AcceptsAnAsynchronousCallRoutedThroughTheGuard()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -121,7 +121,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task AcceptsADelegateForwardedRatherThanInvoked()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -146,7 +146,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task AcceptsADelegateReturningAnUnguardedType()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -168,7 +168,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task StaysSilentInACompilationWithNoGuards()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             """
             public sealed class Box<T>
             {
@@ -193,7 +193,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task IgnoresAMethodNamedLikeAGuardThatReturnsAnotherType()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             """
             public sealed class Box<T>
             {
@@ -224,7 +224,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task IgnoresAGuardShapedMethodThatCannotNameItsSource()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             """
             public sealed class Box<T>
             {
@@ -254,7 +254,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task ReportsACallWhoseResultIsAwaitedIntoALocal()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -282,7 +282,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task ReportsADelegateReturningATaskOfAGuardedType()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -306,7 +306,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task AcceptsADelegateReturningAnUnboundTypeParameter()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
@@ -327,7 +327,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task AcceptsAnAsyncCallOnATypeWithOnlyASynchronousGuard()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             """
             public sealed class Box<T>
             {
@@ -359,7 +359,7 @@ public class UnguardedFactoryAnalyzerTests
     [Fact]
     public async Task ReportsADelegateReachedThroughAField()
     {
-        ImmutableArray<Diagnostic> reported = await VerifyAnalyzer.Run(
+        ImmutableArray<Diagnostic> reported = await VerifyFactoryGuards.Run(
             $$"""
               {{Guarded}}
 
