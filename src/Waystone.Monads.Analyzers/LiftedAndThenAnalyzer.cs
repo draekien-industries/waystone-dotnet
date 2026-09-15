@@ -100,12 +100,15 @@ public sealed class LiftedAndThenAnalyzer : MonadAnalyzer
     /// </remarks>
     private static bool IsLift(IMethodSymbol method, MonadSymbols symbols) =>
         method.Parameters.Length == 1
-     && ((method.Name == SomeName
-          && SymbolEqualityComparer.Default.Equals(
-                 method.ContainingType,
-                 symbols.OptionFactory))
-      || (method.Name == OkName
-          && SymbolEqualityComparer.Default.Equals(
-                 method.ContainingType,
-                 symbols.ResultFactory)));
+     && (IsDeclaredBy(method, SomeName, symbols.OptionFactory)
+      || IsDeclaredBy(method, OkName, symbols.ResultFactory));
+
+    private static bool IsDeclaredBy(
+        IMethodSymbol method,
+        string name,
+        INamedTypeSymbol factory) =>
+        method.Name == name
+     && SymbolEqualityComparer.Default.Equals(
+            method.ContainingType,
+            factory);
 }
