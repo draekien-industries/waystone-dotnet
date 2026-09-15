@@ -31,7 +31,7 @@ public sealed class NestedChainAnalyzer : MonadAnalyzer
     {
         var invocation = (IInvocationOperation)context.Operation;
 
-        if (!IsChainCall(invocation, symbols)
+        if (!Semantics.IsChainCall(invocation, symbols)
          || invocation.Syntax is not InvocationExpressionSyntax
          || ReceiverIsAChainCall(invocation, symbols))
         {
@@ -100,21 +100,8 @@ public sealed class NestedChainAnalyzer : MonadAnalyzer
             {
                 Parent: IInvocationOperation invocation,
             }
-            && IsChainCall(invocation, symbols);
+            && Semantics.IsChainCall(invocation, symbols);
     }
-
-    /// <remarks>
-    /// The binder's members are the second half. A call on the type <c>With</c>
-    /// returns is not a monad invocation — the binder is neither an <c>Option</c>
-    /// nor a <c>Result</c> — so a rule that asked only the first question would go
-    /// quiet on the capture-free spelling <c>WM2017</c> recommends, which is the one
-    /// a consumer following this library's advice ends up writing.
-    /// </remarks>
-    private static bool IsChainCall(
-        IInvocationOperation invocation,
-        MonadSymbols symbols) =>
-        symbols.IsMonadInvocation(invocation)
-     || symbols.IsBinder(invocation.TargetMethod.ContainingType);
 
     /// <remarks>
     /// The receiver reports instead, so a flat run of calls inside one delegate
@@ -125,7 +112,7 @@ public sealed class NestedChainAnalyzer : MonadAnalyzer
         MonadSymbols symbols) =>
         Semantics.ReceiverOf(invocation) is { } receiver
      && Semantics.Unconverted(receiver) is IInvocationOperation call
-     && IsChainCall(call, symbols);
+     && Semantics.IsChainCall(call, symbols);
 
     private static int MaxChainDepth(OperationAnalysisContext context) =>
         context.Options.AnalyzerConfigOptionsProvider

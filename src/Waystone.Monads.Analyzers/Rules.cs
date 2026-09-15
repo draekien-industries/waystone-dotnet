@@ -517,6 +517,41 @@ internal static class Rules
         "'{0}' is called on a monad from inside another monad's delegate, so the step it performs has no name of its own and cannot be tested without the call around it. Extract the nested chain into a method and pass that method instead.",
         "A delegate passed to Map, AndThen, Filter or Match can call into another Option or Result, and each level of nesting buries a step inside a body that nothing else can reach. The result compiles and behaves, but the inner steps cannot be named, called from anywhere else, or tested without reconstructing the outer call, and the reader has to hold every enclosing parameter in mind to follow the innermost line. Extracting the nested chain leaves a flat chain at the call site and a function that stands on its own. The depth this reports at is configurable with dotnet_code_quality.WM2025.max_chain_depth, which defaults to 2.");
 
+    /// <remarks>
+    /// Reads the delegate's returned expression rather than its type. A delegate
+    /// returning <c>Option&lt;T&gt;</c> is what <c>AndThen</c> is for, so the
+    /// signature says nothing; only the body distinguishes a step that can be
+    /// absent from one that is wrapped to satisfy the parameter.
+    /// <para>
+    /// The lift set is <c>Option.Some</c> and <c>Result.Ok</c> and stops there.
+    /// <c>Option.FromNullable</c> and <c>Option.Try</c> both produce <c>None</c> for
+    /// some inputs and <c>Result.Err</c> reverses the two cases rather than skipping
+    /// one, so none of the three has <c>Map</c> as its rewrite.
+    /// </para>
+    /// <para>
+    /// The opposite direction to <c>WM2005</c>, which reports <c>Map</c> followed by
+    /// <c>Flatten</c> and points at <c>AndThen</c>. The two cannot meet: that rule
+    /// needs a <c>Flatten</c> call this one's shape does not have, and this one needs
+    /// a lift in the delegate that rule's shape does not read.
+    /// </para>
+    /// <para>
+    /// No <c>Unnecessary</c> tag, though the fix does remove the wrapper. The span is
+    /// the member name, to match <c>WM2016</c>, <c>WM2017</c> and <c>WM2024</c>, and
+    /// the fix renames that name rather than deleting it — the tag would fade the one
+    /// part of the call that survives.
+    /// </para>
+    /// <para>
+    /// Synchronous <c>AndThen</c> only. The asynchronous delegate returns a task of a
+    /// monad, so the lift there is a task construction the rewrite would have to
+    /// unwrap as well, and <c>MapAsync</c> takes a differently shaped delegate.
+    /// </para>
+    /// </remarks>
+    public static readonly DiagnosticDescriptor LiftedAndThen = Idiom(
+        "WM2026",
+        "Prefer Map over an AndThen that only lifts",
+        "The delegate passed to '{0}' wraps its result rather than producing one, so this binds where it projects. Use '{1}', which takes the projection and wraps it for you.",
+        "AndThen is for a delegate that returns an Option or a Result of its own — a step that can be absent or fail independently of the receiver. A delegate whose body is Option.Some or Result.Ok has no such case: it always produces a value, and the wrapper is there to satisfy AndThen's signature rather than to say anything. Map takes the projection directly, so the call reads as the single step it is and a reader no longer has to check the delegate for a second absent case. The two behave alike on a null projection, throwing ArgumentNullException either way.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",

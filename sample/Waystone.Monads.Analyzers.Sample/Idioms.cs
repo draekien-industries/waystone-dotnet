@@ -187,4 +187,27 @@ internal class Idioms
 
     private static Option<string> TierOf(int gold) =>
         gold > 100 ? Option.Some("gold") : Option.None<string>();
+
+    // One WM2026, on the first of the pair below. Both produce the same option.
+    // The difference is what the signature claims: the first says the step can
+    // be absent and then never is.
+
+    internal Option<int> LiftsInsideAndThen(Option<int> reward)
+    {
+        #region idioms-wm2026-lifted
+        Option<int> doubled = reward.AndThen(
+            static gold => Option.Some(gold * 2));
+        #endregion
+
+        return doubled;
+    }
+
+    internal Option<int> ProjectsInstead(Option<int> reward)
+    {
+        #region idioms-wm2026-projected
+        Option<int> doubled = reward.Map(static gold => gold * 2);
+        #endregion
+
+        return doubled;
+    }
 }
