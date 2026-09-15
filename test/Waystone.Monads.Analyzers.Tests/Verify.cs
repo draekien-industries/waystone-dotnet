@@ -33,6 +33,30 @@ internal static class Verify
     }
 
     /// <summary>
+    /// Runs the analyzer with <paramref name="config" /> as the project's
+    /// <c>.editorconfig</c>, for a rule a consumer can tune.
+    /// </summary>
+    /// <remarks>
+    /// The file is added at the root rather than beside the source so that its
+    /// sections are resolved the way a consumer's are, through path matching. A rule
+    /// reading its option off <c>GetOptions(tree)</c> sees nothing here unless the
+    /// section matches, which is the half of the mechanism worth pinning.
+    /// </remarks>
+    public static Task ConfiguredAnalyzerAsync<TAnalyzer>(
+        string source,
+        string config,
+        params DiagnosticResult[] expected)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        var test = new AnalyzerTest<TAnalyzer> { TestCode = Wrap(source) };
+
+        test.TestState.AnalyzerConfigFiles.Add(("/.editorconfig", config));
+        test.ExpectedDiagnostics.AddRange(expected);
+
+        return test.RunAsync();
+    }
+
+    /// <summary>
     /// Runs the analyzer over a source that does not compile, asserting on the rule's
     /// own diagnostics and ignoring the compiler's.
     /// </summary>

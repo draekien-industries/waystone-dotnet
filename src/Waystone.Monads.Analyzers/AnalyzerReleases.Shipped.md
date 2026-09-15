@@ -109,3 +109,11 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2023 | Usage | Info | An option is bound as state instead of zipped
 WM2024 | Usage | Info | A delegate with nothing to defer is passed to a lazy member
+
+## Release 7.4.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WM2025 | Usage | Info | A monad chain nested past a configurable depth
