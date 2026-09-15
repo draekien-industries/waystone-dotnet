@@ -104,23 +104,10 @@ public sealed class UseMapCodeFix : MonadCodeFix
     /// </remarks>
     private static LambdaExpressionSyntax Projecting(
         LambdaExpressionSyntax lambda,
-        ExpressionSyntax projection)
-    {
-        var arrow = lambda.ArrowToken.WithTrailingTrivia(SyntaxFactory.Space);
-
-        var body = projection.WithoutTrivia();
-
-        return lambda switch
-        {
-            SimpleLambdaExpressionSyntax simple => simple
-               .WithBlock(null)
-               .WithExpressionBody(body)
-               .WithArrowToken(arrow),
-            ParenthesizedLambdaExpressionSyntax parenthesized => parenthesized
-               .WithBlock(null)
-               .WithExpressionBody(body)
-               .WithArrowToken(arrow),
-            _ => lambda,
-        };
-    }
+        ExpressionSyntax projection) =>
+        (LambdaExpressionSyntax)lambda
+           .WithArrowToken(
+                lambda.ArrowToken.WithTrailingTrivia(SyntaxFactory.Space))
+           .WithBlock(null)
+           .WithExpressionBody(projection.WithoutTrivia());
 }
