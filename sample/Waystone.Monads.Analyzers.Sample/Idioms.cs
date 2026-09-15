@@ -104,6 +104,11 @@ internal class Idioms
     // deliberately do not agree: the bound version treats an absent bonus as
     // zero, which is the mistake the rule reports. Keep them different, and
     // keep the page saying why.
+    //
+    // The bound version also carries a WM2007 and a WM2025, both on the
+    // 'UnwrapOr' the delegate has to call by hand. That is the rule stack this
+    // spelling earns rather than a defect in the sample: unwrapping inside a
+    // delegate is a nested chain whatever it unwraps to.
 
     internal Option<int> BindsAnOptionAsState(
         Option<int> reward,
@@ -153,4 +158,33 @@ internal class Idioms
 
         return gold;
     }
+
+    // One WM2025, on the 'Map' inside the delegate below. The pair produces the
+    // same option; the difference is that the second gives the nested step a
+    // name, a signature and somewhere to be called from.
+
+    internal Option<string> NestsAChainInsideADelegate(Option<int> reward)
+    {
+        #region idioms-wm2025-nested
+        Option<string> label = reward.AndThen(
+            static gold => TierOf(gold).Map(tier => tier.ToUpperInvariant()));
+        #endregion
+
+        return label;
+    }
+
+    internal Option<string> ExtractsTheNestedChain(Option<int> reward)
+    {
+        #region idioms-wm2025-extracted
+        Option<string> label = reward.AndThen(TierLabel);
+        #endregion
+
+        return label;
+    }
+
+    private static Option<string> TierLabel(int gold) =>
+        TierOf(gold).Map(tier => tier.ToUpperInvariant());
+
+    private static Option<string> TierOf(int gold) =>
+        gold > 100 ? Option.Some("gold") : Option.None<string>();
 }

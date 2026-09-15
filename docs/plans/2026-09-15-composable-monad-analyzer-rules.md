@@ -90,13 +90,14 @@ shape. An unparseable or non-positive value falls back to the default in silence
 analyzer that throws on a consumer's typo takes their build down, and there is no
 diagnostic to report it through.
 
-Options resolve per syntax tree exactly as severities do, so both presets can set the
-key alongside the severity:
+The presets carry the severity and nothing else.
+`PresetTests.ThePresetSetsSeveritiesAndNothingElse` fails on any key that is not a
+`dotnet_diagnostic.` severity, and the option's default is already what a preset would
+have written:
 
 ```ini
 # src/Waystone.Monads/build/strict.globalconfig
 dotnet_diagnostic.WM2025.severity = warning
-dotnet_code_quality.WM2025.max_chain_depth = 2
 ```
 
 ## Rules

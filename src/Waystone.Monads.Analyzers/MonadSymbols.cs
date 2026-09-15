@@ -260,6 +260,24 @@ internal sealed class MonadSymbols
      || (method.Parameters.Length > 0
       && IsMonad(UnwrapAwaitable(method.Parameters[0].Type)));
 
+    /// <summary>
+    /// Checks whether <paramref name="type" /> is one of the four binders
+    /// <c>With</c> returns.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="IsMonadInvocation" /> answers false for a call on one of these,
+    /// because a binder is neither an <c>Option</c> nor a <c>Result</c> and its
+    /// members are declared on the nested type rather than on either. A rule about
+    /// chained calls has to ask this as well, or it goes quiet on the spelling
+    /// <c>WM2017</c> exists to recommend.
+    /// </remarks>
+    /// <param name="type">The type to test, usually a receiver's.</param>
+    public bool IsBinder(ITypeSymbol? type) =>
+        IsSameDefinition(type, _optionBinder)
+     || IsSameDefinition(type, _optionFactoryBinder)
+     || IsSameDefinition(type, _resultBinder)
+     || IsSameDefinition(type, _resultFactoryBinder);
+
     public bool IsMonadMethod(IMethodSymbol method)
     {
         if (IsMonad(method.ContainingType))
@@ -308,6 +326,11 @@ internal sealed class MonadSymbols
         declaring.GetTypeMembers(BinderTypeName, 1) is { Length: > 0 } binders
             ? binders[0]
             : null;
+
+    private static bool IsSameDefinition(
+        ITypeSymbol? type,
+        INamedTypeSymbol? definition) =>
+        definition is not null && IsConstructedFrom(type, definition);
 
     private static bool IsConstructedFrom(
         ITypeSymbol? type,

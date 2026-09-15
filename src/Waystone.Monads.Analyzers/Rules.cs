@@ -473,6 +473,50 @@ internal static class Rules
         "'{0}' defers a value that is already built, so the call allocates a delegate and defers nothing. Use '{1}', which takes the value directly.",
         "The Else members take a delegate so that an expensive fallback runs only on the branch that needs it. Where the delegate's body is a literal, a constant, or a variable already in scope, the value was built before the delegate was handed over, so there is nothing left to defer. The call allocates a delegate for no gain, and it tells whoever reads it that the fallback is costly when it is not. And, Or, UnwrapOr, MapOr and OkOr take the value directly.");
 
+    /// <remarks>
+    /// Keyed on nesting depth rather than on what the inner delegate reads. A
+    /// delegate that reads the outer one's parameter is <c>WM2017</c>'s to
+    /// report, and it says something else about the same code — that the capture
+    /// allocates — so a second rule keyed on the capture would double-report and
+    /// name two problems where there is one.
+    /// <para>
+    /// Reports where the depth *equals* the threshold rather than where it
+    /// reaches it, which is what keeps one pyramid to one diagnostic. A call at
+    /// depth <c>d</c> is inside a delegate belonging to a call at depth
+    /// <c>d - 1</c>, so a node over the threshold always has an ancestor exactly
+    /// on it; the equality is the shallowest qualifying node stated as a local
+    /// test, and no walk upward is needed to find it. A call whose own receiver
+    /// is another monad call is skipped for the same reason — the receiver
+    /// reports, so <c>Load(x).Map(f).Filter(g)</c> is one diagnostic rather than
+    /// two.
+    /// </para>
+    /// <para>
+    /// Restricted to a call the author wrote, by requiring an
+    /// <c>InvocationExpressionSyntax</c>. A LINQ query expression over
+    /// <c>Waystone.Monads.Linq</c> desugars into chained <c>SelectMany</c> calls
+    /// whose syntax is the query clause, and every one of them is nested inside
+    /// the last — so without the test the rule reports a pyramid nobody typed,
+    /// on the one spelling that already avoids the nesting.
+    /// </para>
+    /// <para>
+    /// No code fix. The extracted method needs a name, a parameter list once the
+    /// captures are lifted, and somewhere to live, and none of the three is
+    /// derivable from the source. Every IDE ships an extract-method refactoring
+    /// that asks.
+    /// </para>
+    /// <para>
+    /// The threshold is read per syntax tree, and an unparseable or non-positive
+    /// value falls back to the default without reporting. There is no diagnostic
+    /// to report a bad option through, and throwing out of an analyzer takes a
+    /// consumer's build down over a typo in their <c>.editorconfig</c>.
+    /// </para>
+    /// </remarks>
+    public static readonly DiagnosticDescriptor NestedMonadChain = Idiom(
+        "WM2025",
+        "Extract a nested monad chain",
+        "'{0}' is called on a monad from inside another monad's delegate, so the step it performs has no name of its own and cannot be tested without the call around it. Extract the nested chain into a method and pass that method instead.",
+        "A delegate passed to Map, AndThen, Filter or Match can call into another Option or Result, and each level of nesting buries a step inside a body that nothing else can reach. The result compiles and behaves, but the inner steps cannot be named, called from anywhere else, or tested without reconstructing the outer call, and the reader has to hold every enclosing parameter in mind to follow the innermost line. Extracting the nested chain leaves a flat chain at the call site and a function that stands on its own. The depth this reports at is configurable with dotnet_code_quality.WM2025.max_chain_depth, which defaults to 2.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",
