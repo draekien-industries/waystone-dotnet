@@ -103,6 +103,31 @@ public class UseMapCodeFixTests
                .WithLocation(0)
                .WithArguments("AndThen", "Map"));
 
+    /// <summary>
+    /// An anonymous method is reported and left as it stands. It carries no arrow
+    /// to rewrite around, so the fix declines rather than emitting a shape that
+    /// does not parse.
+    /// </summary>
+    [Fact]
+    public Task DeclinesAnAnonymousMethod()
+    {
+        const string source = """
+                              internal Option<int> Project(Option<int> option) =>
+                                  option.{|#0:AndThen|}(
+                                      delegate(int value)
+                                      {
+                                          return Option.Some(value + 1);
+                                      });
+                              """;
+
+        return Verify.CodeFixAsync<LiftedAndThenAnalyzer, UseMapCodeFix>(
+            source,
+            source,
+            Verify.Diagnostic(Rules.LiftedAndThen)
+               .WithLocation(0)
+               .WithArguments("AndThen", "Map"));
+    }
+
     [Fact]
     public Task RewritesABinderMember() =>
         Verify.CodeFixAsync<LiftedAndThenAnalyzer, UseMapCodeFix>(
