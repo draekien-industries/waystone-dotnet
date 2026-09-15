@@ -38,7 +38,9 @@ public sealed class NestedChainAnalyzer : MonadAnalyzer
             return;
         }
 
-        if (DepthOf(invocation, symbols) != MaxChainDepth(context))
+        int threshold = MaxChainDepth(context);
+
+        if (DepthOf(invocation, symbols, threshold) != threshold)
         {
             return;
         }
@@ -54,13 +56,22 @@ public sealed class NestedChainAnalyzer : MonadAnalyzer
     /// One for the call itself, and one more for every monad delegate it sits
     /// inside. A delegate passed to anything else counts for nothing, so a chain
     /// inside a <c>Select</c> lambda is as shallow as one at statement level.
+    /// <para>
+    /// Stops counting once <paramref name="threshold" /> is passed. The caller
+    /// wants to know whether the depth *equals* the threshold, so every value
+    /// above it is the same answer, and the walk would otherwise climb to the root
+    /// of the tree on every call in the compilation.
+    /// </para>
     /// </remarks>
-    private static int DepthOf(IOperation operation, MonadSymbols symbols)
+    private static int DepthOf(
+        IOperation operation,
+        MonadSymbols symbols,
+        int threshold)
     {
         int depth = 1;
 
         for (var parent = operation.Parent;
-             parent is not null;
+             parent is not null && depth <= threshold;
              parent = parent.Parent)
         {
             if (parent is IAnonymousFunctionOperation lambda
