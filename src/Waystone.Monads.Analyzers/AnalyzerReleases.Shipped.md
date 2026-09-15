@@ -117,3 +117,4 @@ WM2024 | Usage | Info | A delegate with nothing to defer is passed to a lazy mem
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2025 | Usage | Info | A monad chain nested past a configurable depth
+WM2026 | Usage | Info | An AndThen whose delegate only lifts its projection

@@ -162,6 +162,25 @@ internal static class Semantics
                 : null;
     }
 
+    /// <summary>
+    /// Checks whether <paramref name="invocation" /> is a call on one of this
+    /// library's types — either monad, or the binder <c>With</c> returns.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="MonadSymbols.IsMonadInvocation" /> alone answers false for a call
+    /// on a binder, which is neither an <c>Option</c> nor a <c>Result</c> and
+    /// declares its members on the nested type. A rule about chained calls has to
+    /// ask both questions, or it goes quiet on the capture-free spelling
+    /// <c>WM2017</c> exists to recommend.
+    /// </remarks>
+    /// <param name="invocation">The call to test.</param>
+    /// <param name="symbols">The library's types, resolved for this compilation.</param>
+    public static bool IsChainCall(
+        IInvocationOperation invocation,
+        MonadSymbols symbols) =>
+        symbols.IsMonadInvocation(invocation)
+     || symbols.IsBinder(invocation.TargetMethod.ContainingType);
+
     public static ISymbol? ReferencedSymbol(IOperation? operation)
     {
         if (operation is null)
