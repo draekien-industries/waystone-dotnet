@@ -118,3 +118,4 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 WM2025 | Usage | Info | A monad chain nested past a configurable depth
 WM2026 | Usage | Info | An AndThen whose delegate only lifts its projection
+WM2027 | Usage | Info | A projecting delegate mutates state declared outside it

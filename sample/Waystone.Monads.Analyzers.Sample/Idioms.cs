@@ -210,4 +210,36 @@ internal class Idioms
 
         return doubled;
     }
+
+    // One WM2027, on the first of the pair below. The two do not agree, and that
+    // is the point: the first counts only the rewards that turned up, which is a
+    // tally of the receiver rather than of the calls.
+
+    private int _counted;
+
+    internal Option<int> CountsInsideAProjection(Option<int> reward)
+    {
+        #region idioms-wm2027-mutating
+        Option<int> doubled = reward.Map(
+            gold =>
+            {
+                _counted++;
+
+                return gold * 2;
+            });
+        #endregion
+
+        return doubled;
+    }
+
+    internal Option<int> CountsThroughInspect(Option<int> reward)
+    {
+        #region idioms-wm2027-inspected
+        Option<int> doubled = reward
+            .Inspect(_ => _counted++)
+            .Map(static gold => gold * 2);
+        #endregion
+
+        return doubled;
+    }
 }

@@ -552,6 +552,48 @@ internal static class Rules
         "The delegate passed to '{0}' wraps its result rather than producing one, so this binds where it projects. Use '{1}', which takes the projection and wraps it for you.",
         "AndThen is for a delegate that returns an Option or a Result of its own — a step that can be absent or fail independently of the receiver. A delegate whose body is Option.Some or Result.Ok has no such case: it always produces a value, and the wrapper is there to satisfy AndThen's signature rather than to say anything. Map takes the projection directly, so the call reads as the single step it is and a reader no longer has to check the delegate for a second absent case. The two behave alike on a null projection, throwing ArgumentNullException either way.");
 
+    /// <remarks>
+    /// Scoped by the delegate's return type rather than by a list of members.
+    /// <c>Inspect</c>, <c>InspectErr</c> and the <c>Action</c> overloads of
+    /// <c>Match</c> are the members that exist to run an effect, and they are
+    /// exactly the ones whose delegate returns <see langword="void" /> — so the
+    /// exclusion is read off the delegate and a member added later is covered
+    /// without a line changing here. A list would have to be revisited every time
+    /// the surface grows, and nothing in the build would say so.
+    /// <para>
+    /// Reports the mutation it can see and never infers one. An assignment, a
+    /// compound assignment, an increment and a call to a mutating
+    /// <c>ICollection&lt;T&gt;</c> member are all visible at the call site; whether
+    /// an ordinary method mutates is not decidable, and a rule that guessed from a
+    /// method's name would report a consumer's pure <c>Add</c> and stay silent on
+    /// their impure <c>Compute</c>. That is the same floor every rule in this family
+    /// works to, and it is why the description tells a reader what is not judged.
+    /// </para>
+    /// <para>
+    /// Mutation of the delegate's own parameter is not reported. Whether a projected
+    /// value can be mutated at all is settled by its type — a record makes the line
+    /// an error — so a rule reporting it would argue with a decision already taken
+    /// by whoever declared the type. Widening to cover it is a change to
+    /// <c>IsOutsideState</c> rather than a rule of its own.
+    /// </para>
+    /// <para>
+    /// Every mutated name lands in one diagnostic, as <c>WM2017</c> does with
+    /// captures. One delegate carrying three effects is one decision to undo, and
+    /// three diagnostics on one member name read as three problems.
+    /// </para>
+    /// <para>
+    /// No code fix. <c>Inspect</c> runs before the projection rather than inside it,
+    /// and for <c>Filter</c> it runs whatever the predicate returns, so moving the
+    /// effect changes when it happens. Which of those the author wanted is not in
+    /// the source.
+    /// </para>
+    /// </remarks>
+    public static readonly DiagnosticDescriptor EffectInsideProjection = Idiom(
+        "WM2027",
+        "Do not mutate outside state inside a projection",
+        "The delegate passed to '{0}' mutates '{1}', so a projection carries an effect that runs only on the branch the receiver takes. Use 'Inspect' or an Action overload of 'Match', which exist to run one.",
+        "Map, AndThen, Filter and the MapOr family compute a value from the receiver's, and they run their delegate only when the receiver has one. An effect written inside one therefore happens on some runs and not others, decided by a state the line does not mention — and Filter is the sharpest case, because its predicate runs only for a value that is present, so the effect is conditional on the very thing being tested. Inspect takes an Action and hands back its receiver unchanged, and Match's Action overloads cover both branches, so an effect written through either says that it is one. This reports only what it can see: an assignment, an increment, or a call to a mutating ICollection<T> member. An ordinary method call is never judged, so a delegate that hands its work to another method stays silent whatever that method does.");
+
     public static readonly DiagnosticDescriptor NullableReturnCouldBeOption = Migration(
         "WM3001",
         "Prefer an Option over a nullable return",
