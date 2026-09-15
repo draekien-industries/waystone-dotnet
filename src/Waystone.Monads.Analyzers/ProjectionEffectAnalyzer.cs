@@ -103,7 +103,7 @@ public sealed class ProjectionEffectAnalyzer : MonadAnalyzer
                 continue;
             }
 
-            if (Semantics.ReferencedSymbol(target) is { } mutated)
+            if (Semantics.ReferencedSymbol(NameableIn(target)) is { } mutated)
             {
                 yield return mutated.Name;
             }
@@ -132,6 +132,23 @@ public sealed class ProjectionEffectAnalyzer : MonadAnalyzer
      || type.AllInterfaces.Any(
             declared => declared.OriginalDefinition.SpecialType
              == SpecialType.System_Collections_Generic_ICollection_T);
+
+    /// <remarks>
+    /// An element carries no symbol of its own, so the array holding it is what the
+    /// message can name. Without this the rule finds the mutation, finds nothing to
+    /// call it, and reports nothing at all.
+    /// </remarks>
+    private static IOperation NameableIn(IOperation target)
+    {
+        var current = Semantics.Unconverted(target);
+
+        while (current is IArrayElementReferenceOperation array)
+        {
+            current = Semantics.Unconverted(array.ArrayReference);
+        }
+
+        return current;
+    }
 
     /// <remarks>
     /// Walks to the reference the mutation reaches through, so that
