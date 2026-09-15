@@ -202,6 +202,90 @@ public class ProjectionEffectAnalyzerTests
                .WithArguments("Map", "Count"));
 
     [Fact]
+    public Task FlagsACoalesceAssignmentToAField() =>
+        Verify.AnalyzerAsync<ProjectionEffectAnalyzer>(
+            """
+            private string _label;
+
+            internal Option<string> Project(Option<int> option) =>
+                option.{|#0:Map|}(
+                    value =>
+                    {
+                        _label ??= value.ToString();
+
+                        return _label;
+                    });
+            """,
+            Verify.Diagnostic(Rules.EffectInsideProjection)
+               .WithLocation(0)
+               .WithArguments("Map", "_label"));
+
+    /// <summary>
+    /// An element is judged by the array it sits in, so the diagnostic names the
+    /// array rather than an index nobody declared.
+    /// </summary>
+    [Fact]
+    public Task FlagsAnAssignmentToAnArrayElement() =>
+        Verify.AnalyzerAsync<ProjectionEffectAnalyzer>(
+            """
+            private readonly int[] _slots = new int[4];
+
+            internal Option<int> Project(Option<int> option) =>
+                option.{|#0:Map|}(
+                    value =>
+                    {
+                        _slots[0] = value;
+
+                        return value + 1;
+                    });
+            """,
+            Verify.Diagnostic(Rules.EffectInsideProjection)
+               .WithLocation(0)
+               .WithArguments("Map", "_slots"));
+
+    /// <summary>
+    /// A static has no instance to reach it through, so the reference itself is
+    /// the root. It is as far outside the delegate as state gets.
+    /// </summary>
+    [Fact]
+    public Task FlagsAnAssignmentToAStaticField() =>
+        Verify.AnalyzerAsync<ProjectionEffectAnalyzer>(
+            """
+            private static int Total;
+
+            internal Option<int> Project(Option<int> option) =>
+                option.{|#0:Map|}(
+                    value =>
+                    {
+                        Total = value;
+
+                        return value + 1;
+                    });
+            """,
+            Verify.Diagnostic(Rules.EffectInsideProjection)
+               .WithLocation(0)
+               .WithArguments("Map", "Total"));
+
+    [Fact]
+    public Task FlagsAnAssignmentToAStaticProperty() =>
+        Verify.AnalyzerAsync<ProjectionEffectAnalyzer>(
+            """
+            private static int Total { get; set; }
+
+            internal Option<int> Project(Option<int> option) =>
+                option.{|#0:Map|}(
+                    value =>
+                    {
+                        Total = value;
+
+                        return value + 1;
+                    });
+            """,
+            Verify.Diagnostic(Rules.EffectInsideProjection)
+               .WithLocation(0)
+               .WithArguments("Map", "Total"));
+
+    [Fact]
     public Task DoesNotFlagInspect() =>
         Verify.NoDiagnosticAsync<ProjectionEffectAnalyzer>(
             """
@@ -341,6 +425,51 @@ public class ProjectionEffectAnalyzerTests
                 internal Option<int> Project(Option<int> option) =>
                     option.Map(value => _ledger.Add(value));
             }
+            """);
+
+    /// <summary>
+    /// The interface itself counts, not only the types that implement it, so a
+    /// field declared as the abstraction is reported like the concrete one.
+    /// </summary>
+    [Fact]
+    public Task FlagsAMutationOfACollectionDeclaredAsTheInterface() =>
+        Verify.AnalyzerAsync<ProjectionEffectAnalyzer>(
+            """
+            private readonly System.Collections.Generic.ICollection<int> _audit =
+                new System.Collections.Generic.List<int>();
+
+            internal Option<int> Project(Option<int> option) =>
+                option.{|#0:Map|}(
+                    value =>
+                    {
+                        _audit.Add(value);
+
+                        return value + 1;
+                    });
+            """,
+            Verify.Diagnostic(Rules.EffectInsideProjection)
+               .WithLocation(0)
+               .WithArguments("Map", "_audit"));
+
+    /// <summary>
+    /// The collection is whatever the call returned, so there is no state outside
+    /// the delegate to name and nothing for a reader to be surprised by.
+    /// </summary>
+    [Fact]
+    public Task DoesNotFlagACollectionReturnedByACall() =>
+        Verify.NoDiagnosticAsync<ProjectionEffectAnalyzer>(
+            """
+            private static System.Collections.Generic.List<int> Scratch() =>
+                new System.Collections.Generic.List<int>();
+
+            internal Option<int> Project(Option<int> option) =>
+                option.Map(
+                    value =>
+                    {
+                        Scratch().Add(value);
+
+                        return value + 1;
+                    });
             """);
 
     [Fact]
