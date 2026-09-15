@@ -59,6 +59,7 @@ dotnet_diagnostic.WM2023.severity = warning
 dotnet_diagnostic.WM2024.severity = warning
 dotnet_diagnostic.WM2025.severity = warning
 dotnet_diagnostic.WM2026.severity = warning
+dotnet_diagnostic.WM2027.severity = warning
 
 # Adoption — enabled at warning. A severity of anything but none is what enables a
 # rule that ships disabled; there is no separate switch.
