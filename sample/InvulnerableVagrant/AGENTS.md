@@ -193,6 +193,56 @@ WM2025 rejects an `Option.Match` written inside a `Result.Match` delegate.
 stateful `Match`. This is separate from WM2017: WM2017 is about capture, WM2025 about
 nesting, and a `static` lambda satisfies only the first.
 
+## The document is generated, and the reference is mapped in every environment
+
+`GET /openapi/v1.json` and `GET /scalar/v1`, both mapped unconditionally in `Program.cs`.
+Plain `dotnet run` is Production, so an `IsDevelopment` check answers a 404 to the reader
+the README sends there.
+
+`GenerateDocumentationFile` is set in the `.csproj` for the document, not for a published
+`.xml`. The generator reads its descriptions out of the compilation's doc comments, so with
+the property off every `<summary>` in `Contracts` is dropped from the document in silence
+while a referenced package's summaries still arrive — which makes the gap look like a
+transformer bug rather than a missing property.
+
+`Microsoft.AspNetCore.OpenApi` is referenced directly although `Scalar.AspNetCore.Microsoft`
+brings it. That package asks for `10.0.0`, which resolves `Microsoft.OpenApi` 2.0.0 and
+its GHSA-v5pm-xwqc-g5wc advisory; `TreatWarningsAsErrors` is on here, so the `NU1903` that
+raises fails the restore. Deleting the reference as redundant breaks the build.
+
+## An endpoint declares the responses it produces
+
+Every handler returns `IResult`, so nothing about a response is inferred. A route without
+`.Produces<T>(...)` and a `.ProducesProblem(...)` per refusal appears in the document as a
+path with a bare 200 and no schema, and the build says nothing. `.WithTags` names the
+bounded context the route belongs to, matching the tags `ShopDocumentTransformer`
+declares.
+
+A 400 is declared once, as `.ProducesValidationProblem()`, on a route whose body a schema
+parses. Adding `.ProducesProblem(400)` beside it leaves two declarations of one status and
+the document keeps one of them.
+
+## An `Option` is inlined into the document as its payload or null
+
+`OptionSchemaTransformer` rewrites it to `anyOf: [payload, null]`, and its `ReferenceId`
+returns none for an option so the schema is inlined rather than registered. Both halves
+matter: without the transformer a converted type has no properties for the exporter to
+read and the field is published as an empty schema, and without the inlining the document
+grows an `OptionOfGuid` component naming a CLR type no client ever sees.
+
+Do not null the schema's description there. The doc-comment generator runs after this
+transformer, so the description on the inlined schema is the field's own summary.
+
+`RefusalSchemaTransformer` adds `code` to `ProblemDetails` for the same reason:
+`Refusal.From` writes it into `Extensions`, which the serializer flattens into the body
+and the exporter does not describe.
+
+## A string literal here is ASCII
+
+No file in this sample carries a byte order mark, so the compiler reads a source file as
+Windows-1252 and an em dash inside a string literal reaches the wire as three bytes of
+mojibake. Comments and doc comments are safe, since neither reaches the output.
+
 ## Coverage
 
 `codecov.yml` ignores `sample/**`. Tests here exist to demonstrate assertions on a monad,

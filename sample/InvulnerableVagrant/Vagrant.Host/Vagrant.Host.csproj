@@ -1,12 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <!--
+        Set for the OpenAPI document rather than for a published .xml file, which this
+        project does not produce. The document generator reads its descriptions out of the
+        compilation's doc comments, and with this off every summary in Contracts is dropped
+        from the document in silence while a referenced package's summaries still arrive.
+    -->
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <!--
         The only project here that references EF Core. Persistence stays behind the
         repository interfaces the contexts declare, so a context is testable without
         a database and cannot reach for a DbContext by accident.
     -->
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+        <PackageReference Include="Scalar.AspNetCore.Microsoft"/>
+
+        <!--
+            Referenced directly although Scalar.AspNetCore.Microsoft brings it. That
+            package asks for 10.0.0, which resolves Microsoft.OpenApi 2.0.0 and its
+            GHSA-v5pm-xwqc-g5wc advisory; TreatWarningsAsErrors is on here, so the
+            NU1903 that raises fails the restore. 10.0.11 asks for 2.7.5, where the
+            advisory is fixed.
+        -->
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Extensions.Hosting"/>
         <PackageReference Include="Serilog.Settings.Configuration"/>

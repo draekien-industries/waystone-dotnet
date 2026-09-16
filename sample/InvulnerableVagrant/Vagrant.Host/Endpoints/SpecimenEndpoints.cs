@@ -22,46 +22,68 @@ internal static class SpecimenEndpoints
         // validation step and nothing downstream that accepts an unparsed request. The
         // Result it returns is unwrapped into a status here and never reaches the wire.
         routes.MapPost(
-            "/specimens",
-            async (
-                    HandInSpecimenRequest body,
-                    ISpecimenShelf shelf,
-                    CancellationToken ct) =>
-                await HandInSpecimenSchema
-                     .Instance
-                     .Parse(body)
-                     .Match((shelf, ct), ShelveAsync, Rejected)
-                     .ConfigureAwait(false));
+                "/specimens",
+                async (
+                        HandInSpecimenRequest body,
+                        ISpecimenShelf shelf,
+                        CancellationToken ct) =>
+                    await HandInSpecimenSchema
+                         .Instance
+                         .Parse(body)
+                         .Match((shelf, ct), ShelveAsync, Rejected)
+                         .ConfigureAwait(false))
+           .WithTags("Appraisal")
+           .WithSummary("Leaves an item with the shop to be identified.")
+           .Produces<SpecimenResponse>(StatusCodes.Status201Created)
+           .ProducesValidationProblem();
 
         // Two monads answering two questions. The Result says whether the request was a
         // check at all; the Option says whether the shop holds the item. A specimen that
         // was read and gave nothing up is neither — it is a 200 whose enchantment is
         // null.
         routes.MapPost(
-            "/specimens/{id:guid}/identify",
-            async (
-                    Guid id,
-                    IdentifySpecimenRequest body,
-                    ISpecimenShelf shelf,
-                    IClerkRoster roster,
-                    CancellationToken ct) =>
-                await IdentifySpecimenSchema
-                     .Instance
-                     .Parse(body)
-                     .Match((id, shelf, roster, ct), ReadAsync, Rejected)
-                     .ConfigureAwait(false));
+                "/specimens/{id:guid}/identify",
+                async (
+                        Guid id,
+                        IdentifySpecimenRequest body,
+                        ISpecimenShelf shelf,
+                        IClerkRoster roster,
+                        CancellationToken ct) =>
+                    await IdentifySpecimenSchema
+                         .Instance
+                         .Parse(body)
+                         .Match((id, shelf, roster, ct), ReadAsync, Rejected)
+                         .ConfigureAwait(false))
+           .WithTags("Appraisal")
+           .WithSummary("Has a clerk read an item the shop is holding.")
+           .WithDescription(
+                "A specimen the shop looked at and could not place is a 200 whose "
+              + "enchantment is null, not a 404 and not an error code. Appraisal "
+              + "declares no error codes at all; the 503 is Staffing's, raised when "
+              + "all four clerks are already holding something.")
+           .Produces<SpecimenResponse>(StatusCodes.Status200OK)
+           .ProducesProblem(StatusCodes.Status404NotFound)
+           .ProducesValidationProblem()
+           .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
         // Collecting is what frees the clerk. A shop of four cannot read a fifth item
         // until a patron comes back for one of the four, which is why POST /identify can
         // answer 503 at all.
         routes.MapPost(
-            "/specimens/{id:guid}/collect",
-            async (
-                    Guid id,
-                    ISpecimenShelf shelf,
-                    IClerkRoster roster,
-                    CancellationToken ct) =>
-                await CollectAsync(id, shelf, roster, ct).ConfigureAwait(false));
+                "/specimens/{id:guid}/collect",
+                async (
+                        Guid id,
+                        ISpecimenShelf shelf,
+                        IClerkRoster roster,
+                        CancellationToken ct) =>
+                    await CollectAsync(id, shelf, roster, ct).ConfigureAwait(false))
+           .WithTags("Appraisal")
+           .WithSummary("Takes an item back off the examination shelf.")
+           .WithDescription(
+                "This is what frees the clerk, so it is what lets the next identify "
+              + "call be answered rather than refused.")
+           .Produces<SpecimenResponse>(StatusCodes.Status200OK)
+           .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     private static async Task<IResult> ShelveAsync(
