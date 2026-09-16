@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <!-- xunit.v3 fails the build outright unless the test project is an executable. -->
     <PropertyGroup>
@@ -6,12 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Vagrant.Host\Vagrant.Host.csproj"/>
+        <ProjectReference Include="..\Vagrant.Staffing\Vagrant.Staffing.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.Shouldly\Waystone.Monads.Shouldly.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
         <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="coverlet.collector">

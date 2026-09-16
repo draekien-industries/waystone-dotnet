@@ -242,7 +242,8 @@ contexts:
   Staffing:
     terms:
       Clerk:
-        definition: Pumat Sol or one of his simulacra, serving one Patron at a time.
+        definition: Pumat Sol or one of his three simulacra, serving one Patron at
+          a time.
         aliases:
         - Staff
         - Employee
@@ -250,12 +251,13 @@ contexts:
         - Server
         usage: Only one Clerk was free, so the second Patron waited.
       Simulacrum:
-        definition: A magical copy of Pumat Sol who works the shop alongside him.
+        definition: One of the three magical copies of Pumat Sol who work the shop.
         aliases:
         - Clone
         - Copy
         - Duplicate
-        usage: A Simulacrum took the Specimen while Pumat Sol handled the counter.
+        usage: A Simulacrum took the Specimen while Pumat Prime enchanted in the back
+          room.
         related:
         - term: Clerk
           relationship: part of
@@ -275,6 +277,17 @@ contexts:
         - Task
         - Job
         usage: An Identification is an Errand; it waits until a Clerk is free.
+      ErrandSubject:
+        definition: What an Errand is about, named in a way Staffing does not interpret.
+        aliases:
+        - Target
+        - Ref
+        - SubjectId
+        usage: The ErrandSubject of an Identification is the Specimen, though a Clerk
+          cannot tell that from the Errand alone.
+        related:
+        - term: Errand
+          relationship: part of
       Assignment:
         definition: A Clerk held to an Errand until it is finished.
         aliases:

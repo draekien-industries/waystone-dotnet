@@ -9,15 +9,19 @@ using Xunit;
 // The expectations here come from OptionJsonConverter<T>.Write, which writes a Some as
 // its value with no wrapper and a None as null, and from Aura.YieldsTo, which reads an
 // aura when the check reaches its obscurity. Neither was read off a running shop.
-public sealed class SpecimenEndpointsTests : IClassFixture<ShopFixture>, IDisposable
+//
+// A shop per test rather than the IClassFixture the other endpoint classes use. Reading
+// an item claims a clerk who holds it until it is collected, and four clerks do not go
+// round a class of tests that each read one — a shared shop would fail whichever test
+// happened to run fifth.
+public sealed class SpecimenEndpointsTests : IAsyncDisposable
 {
+    private readonly ShopFixture _shop = new();
     private readonly HttpClient _client;
 
-    public SpecimenEndpointsTests(ShopFixture shop)
+    public SpecimenEndpointsTests()
     {
-        ArgumentNullException.ThrowIfNull(shop);
-
-        _client = shop.CreateClient();
+        _client = _shop.CreateClient();
     }
 
     [Fact]
@@ -81,6 +85,127 @@ public sealed class SpecimenEndpointsTests : IClassFixture<ShopFixture>, IDispos
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
+    // Four clerks, from ClerkSeed: one Pumat Prime and three simulacra. A fifth item read
+    // before any of the four is collected has nobody to read it, and 503 is the status
+    // that says the request was fine and the shop is momentarily out of hands.
+    [Fact]
+    public async Task A_fifth_item_read_at_once_finds_every_clerk_busy()
+    {
+        for (int taken = 0; taken < 4; taken++)
+        {
+            await IdentifyAsync(await HandInIdAsync(obscurity: 15), check: 15);
+        }
+
+        using HttpResponseMessage response = await PostIdentifyAsync(
+            await HandInIdAsync(obscurity: 15),
+            check: 15);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
+        (await ProblemAsync(response)).GetProperty("code")
+                                     .GetString()
+                                     .ShouldBe("vagrant.staffing.no_clerk_free");
+    }
+
+    [Fact]
+    public async Task Collecting_an_item_frees_the_clerk_who_was_holding_it()
+    {
+        List<Guid> read = [];
+
+        for (int taken = 0; taken < 4; taken++)
+        {
+            Guid id = await HandInIdAsync(obscurity: 15);
+            await IdentifyAsync(id, check: 15);
+            read.Add(id);
+        }
+
+        await CollectAsync(read[0]);
+
+        using HttpResponseMessage response = await PostIdentifyAsync(
+            await HandInIdAsync(obscurity: 15),
+            check: 15);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    // Otherwise a patron asking four times about one cloak would empty the shop.
+    [Fact]
+    public async Task Asking_twice_about_the_same_item_takes_no_second_clerk()
+    {
+        Guid cloak = await HandInIdAsync(obscurity: 15);
+
+        await IdentifyAsync(cloak, check: 15);
+        await IdentifyAsync(cloak, check: 15);
+
+        for (int remaining = 0; remaining < 3; remaining++)
+        {
+            await IdentifyAsync(await HandInIdAsync(obscurity: 15), check: 15);
+        }
+
+        using HttpResponseMessage response = await PostIdentifyAsync(
+            await HandInIdAsync(obscurity: 15),
+            check: 15);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
+    }
+
+    [Fact]
+    public async Task Collecting_an_item_hands_back_what_the_shop_read()
+    {
+        Guid id = await HandInIdAsync(obscurity: 15);
+        await IdentifyAsync(id, check: 15);
+
+        using HttpResponseMessage response = await PostCollectAsync(id);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        JsonElement collected = await response.Content.ReadFromJsonAsync<JsonElement>(
+            TestContext.Current.CancellationToken);
+
+        collected.GetProperty("enchantment")
+                 .GetProperty("name")
+                 .GetString()
+                 .ShouldBe("Cloak of Elvenkind");
+    }
+
+    [Fact]
+    public async Task Collecting_an_item_no_clerk_is_holding_is_a_404()
+    {
+        Guid id = await HandInIdAsync(obscurity: 15);
+
+        using HttpResponseMessage response = await PostCollectAsync(id);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Collecting_the_same_item_twice_is_a_404_the_second_time()
+    {
+        Guid id = await HandInIdAsync(obscurity: 15);
+        await IdentifyAsync(id, check: 15);
+        await CollectAsync(id);
+
+        using HttpResponseMessage response = await PostCollectAsync(id);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    // No clerk is claimed for an item the shop does not hold, so the 404 above leaves all
+    // four free rather than one holding an errand about nothing.
+    [Fact]
+    public async Task An_item_the_shop_never_took_in_costs_no_clerk()
+    {
+        using (HttpResponseMessage missing =
+               await PostIdentifyAsync(Guid.CreateVersion7(), check: 20))
+        {
+            missing.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        }
+
+        for (int taken = 0; taken < 4; taken++)
+        {
+            await IdentifyAsync(await HandInIdAsync(obscurity: 15), check: 15);
+        }
+    }
+
     [Fact]
     public async Task A_body_missing_the_patron_is_refused_by_name()
     {
@@ -125,7 +250,12 @@ public sealed class SpecimenEndpointsTests : IClassFixture<ShopFixture>, IDispos
     }
 
     /// <inheritdoc />
-    public void Dispose() => _client.Dispose();
+    public async ValueTask DisposeAsync()
+    {
+        _client.Dispose();
+
+        await _shop.DisposeAsync().ConfigureAwait(false);
+    }
 
     private static object Body(int obscurity, string description = "a grey cloak, well worn") =>
         new
@@ -172,16 +302,36 @@ public sealed class SpecimenEndpointsTests : IClassFixture<ShopFixture>, IDispos
     private async Task<Guid> HandInIdAsync(int obscurity) =>
         (await HandInAsync(obscurity)).GetProperty("id").GetGuid();
 
-    private async Task<JsonElement> IdentifyAsync(Guid id, int check)
-    {
-        using HttpResponseMessage response = await _client.PostAsJsonAsync(
+    private Task<HttpResponseMessage> PostIdentifyAsync(Guid id, int check) =>
+        _client.PostAsJsonAsync(
             new Uri($"/specimens/{id}/identify", UriKind.Relative),
             new { check },
             TestContext.Current.CancellationToken);
+
+    private Task<HttpResponseMessage> PostCollectAsync(Guid id) =>
+        _client.PostAsync(
+            new Uri($"/specimens/{id}/collect", UriKind.Relative),
+            content: null,
+            TestContext.Current.CancellationToken);
+
+    private async Task<JsonElement> IdentifyAsync(Guid id, int check)
+    {
+        using HttpResponseMessage response = await PostIdentifyAsync(id, check);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
         return await response.Content.ReadFromJsonAsync<JsonElement>(
             TestContext.Current.CancellationToken);
     }
+
+    private async Task CollectAsync(Guid id)
+    {
+        using HttpResponseMessage response = await PostCollectAsync(id);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    private static async Task<JsonElement> ProblemAsync(HttpResponseMessage response) =>
+        await response.Content.ReadFromJsonAsync<JsonElement>(
+            TestContext.Current.CancellationToken);
 }

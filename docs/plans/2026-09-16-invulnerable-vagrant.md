@@ -294,8 +294,11 @@ sealed class Clerk                                          // aggregate root
     string Name { get; }
     Option<Assignment> Engagement { get; }
 
-    Result<Assignment, Error> Take(Errand errand);
+    Result<Assignment, Error> Take(Errand errand, TimeProvider clock);
     void Release();
+
+    internal Assignment Holding { get; }                    // what they have, engaged or not
+    internal bool Engaged { get; }                          // and the concurrency token
 }
 
 readonly record struct ErrandSubject(Guid Value);
@@ -304,14 +307,26 @@ readonly record struct Assignment(ClerkId Clerk, Errand Errand, DateTimeOffset S
 
 interface IClerkRoster
 {
+    Task<IReadOnlyList<Clerk>> OnDutyAsync(CancellationToken ct);
     Task<Result<Assignment, Error>> ClaimAsync(Errand errand, CancellationToken ct);
-    Task ReleaseAsync(Assignment assignment, CancellationToken ct);
+    Task<Option<Assignment>> ReleaseAsync(ErrandSubject subject, CancellationToken ct);
 }
 ```
 
 `ClaimAsync` is one call: it finds a free clerk, gives them the errand, saves, and on a
 lost race tries the next free clerk. The caller learns that no clerk was free, never
 that a particular row version was stale.
+
+`ReleaseAsync` takes the subject rather than the `Assignment` the claim returned, and
+returns `Option<Assignment>` rather than a bare `Task`. A patron coming back to collect
+an item names the item, not a receipt for a clerk's time; and nobody is owed an error for
+releasing work no clerk has, so the answer is `None` rather than a `Result`.
+
+`ClaimAsync` also answers an errand a clerk already holds with that clerk rather than a
+second one. Without that, a patron asking four times about one cloak empties the shop.
+
+`Clerk.Take` takes a `TimeProvider`, for the reason `Purchase.Settle` does: an aggregate
+that reads the ambient clock cannot be tested for what it writes down.
 
 `Clerk` is the aggregate root rather than a roster holding all clerks, so two patrons
 claiming different clerks do not contend. A roster aggregate would serialise every
@@ -322,6 +337,24 @@ claim on one row and the concurrency would be an artefact of the model.
 in the sample be handed to a clerk as any other. The host translates, and Staffing knows
 only that an errand is about something.
 
+**The roster holds four clerks.** Pumat Sol has three simulacra, provided by the Cerberus
+Assembly, who mostly run the shop while he does the enchanting in the back room; Pumat
+Prime is the original. Four is the number that makes `NoClerkFree` reachable, and it is
+not a number this design picked.
+
+**Three of the four have no name of their own.** All four introduce themselves as
+"Enchanter Pumat Sol", and the wiki records no number or nickname distinguishing the
+simulacra. So the seed writes `Pumat Prime` once and `Pumat Sol` three times, and
+`ClerkId` is what tells them apart. A `Clerk.Name` that repeats is the point rather than
+an oversight: a name is not an identity, and a model that keyed on one here would collapse
+three clerks into one.
+
+**There is no discount scheme, named or otherwise, and none is being added.** The only
+attested discount is one-off goodwill — 100gp off an item priced at 1200gp, because a
+patron had spent a lot that visit. `Offer`, `AgreedPrice` and `LineItem.Floor` in
+`Vagrant.Ordering` already model exactly that, so a `Discount` or a membership tier would
+be a second way to arrive at the same agreed price. Do not add one.
+
 ## Interface at the boundary
 
 ```
@@ -329,6 +362,8 @@ GET  /items                     -> 200 [StockedItemResponse]
 GET  /items/{id}                -> 200 StockedItemResponse | 404
 POST /specimens                 -> 201 SpecimenResponse | 400
 POST /specimens/{id}/identify   -> 200 SpecimenResponse | 400 | 404 | 503
+POST /specimens/{id}/collect    -> 200 SpecimenResponse | 404
+GET  /clerks                    -> 200 [ClerkResponse]
 POST /purchases                 -> 201 PurchaseResponse | 400 | 404 | 409
 GET  /purchases/{id}            -> 200 PurchaseResponse | 404
 POST /purchases/{id}/offer      -> 200 AgreementResponse | 400 | 404 | 409
@@ -360,8 +395,17 @@ the shop will take four hundred for the potions is the question asked, and readi
 whole purchase back to answer it would be a second query nobody asked for.
 
 The 400 on both specimen routes is a `SchemaViolation` rendered as an RFC 9110
-ProblemDetails, not an error code — Appraisal has none. The 503 on `identify` is the clerk
-claim and arrives with Staffing; until then that route answers 200, 400 or 404.
+ProblemDetails, not an error code — Appraisal has none.
+
+`POST /specimens/{id}/identify` claims a clerk who holds the item until
+`POST /specimens/{id}/collect` releases them. That is what makes the 503 reachable: four
+clerks read four items, and a fifth has nobody. A claim released at the end of the same
+request would make `NoClerkFree` an outcome only real parallelism could produce, and the
+shop does not work that way either — Pumat takes the item and you come back for it.
+
+The shelf is asked before the roster, so an item the shop never took in is a 404 that
+costs no clerk. Claiming first would need a compensating release, which is a second rule
+about the same clerk.
 
 ```csharp
 internal sealed record SpecimenResponse(
@@ -374,6 +418,8 @@ internal sealed record LineItemResponse(
     Guid Item, uint Quantity, string AskingPrice, Option<string> AgreedPrice, string Due);
 
 internal sealed record AgreementResponse(Guid Item, string AgreedPrice);
+
+internal sealed record ClerkResponse(Guid Id, string Name, Option<Guid> Holding);
 ```
 
 `Option<T>` is serialized into response bodies by `AddMonadConverters()`. `Result<T, E>`
@@ -468,9 +514,14 @@ promise the domain cannot keep.
 | --- | --- |
 | 400 | a `SchemaViolation`, `NoLineItems`, or `DuplicateLine` |
 | 402 | `InsufficientCoin`, `TillCannotCover` |
-| 404 | a `None` from a repository lookup — no code, because no reason is owed — or `NotStocked`, `NoSuchPurchase`, `NoSuchBuyback`, `NotOnThisPurchase` |
+| 404 | a `None` from a repository lookup — no code, because no reason is owed — or `NotStocked`, `NoSuchPurchase`, `NoSuchBuyback`, `NotOnThisPurchase`. `POST /specimens/{id}/collect` is a `None` too: nobody is owed a reason for collecting work no clerk has. |
 | 409 | `NotEnoughOnHand`, `OfferBelowFloor`, `PurchaseAlreadySettled`, `BuybackAlreadySettled`, `ClerkAlreadyEngaged` |
 | 503 | `NoClerkFree` |
+
+`ClerkAlreadyEngaged` reaches no patron. `ClerkRoster` only ever calls `Clerk.Take` on a
+clerk it has just read as free, so the aggregate's own refusal is a domain rule the
+context's tests assert and not an answer the HTTP surface produces. It has a row in
+`Refusal` regardless, because a code without one falls to 500.
 
 `FloorAboveAsking` reaches no status code. `PriceBand.Between` is called when the shop
 stocks an item, which happens in seeding, so the failure is a startup failure rather than
@@ -482,18 +533,19 @@ and nothing a patron does to a `Specimen` can fail.
 ## Internal decomposition
 
 - **`Vagrant.Host/Endpoints`** — one file per resource, mapping `Result` to a status code.
-  `POST /specimens/{id}/identify` is the one endpoint that spans two contexts: it claims a
-  clerk through `IClerkRoster.ClaimAsync`, calls `ISpecimenShelf.IdentifyAsync`, and
-  releases the clerk through `ReleaseAsync`. `NoClerkFree` becomes a 503 and the
-  identification never starts; a `None` from `IdentifyAsync` becomes a 404 and the clerk
-  is released either way.
+  The specimen routes are the ones that span two contexts. `POST /specimens/{id}/identify`
+  asks `ISpecimenShelf.FindAsync` first — an item the shop never took in is a 404 that
+  costs no clerk — then claims one through `IClerkRoster.ClaimAsync` and calls
+  `IdentifyAsync`. `NoClerkFree` becomes a 503 and the identification never starts. The
+  clerk keeps the item until `POST /specimens/{id}/collect` calls `ReleaseAsync`.
 - **`Vagrant.Host/Contracts`** — request schemas and response records
 - **`Vagrant.Host/Translation`** — turns a Catalog `Withdrawal` into an Ordering
   `LineItem` and an Appraisal `SpecimenId` into a Staffing `ErrandSubject`, the one
   place two contexts' vocabularies meet
-- **`Vagrant.Host/Infrastructure`** — four `DbContext`s over one SQLite file, the `Coin`
-  converter, the seeding path, and every repository implementation. This is where
-  `DbUpdateConcurrencyException` is converted and stopped; no context project sees one.
+- **`Vagrant.Host/Infrastructure`** — one `DbContext` per context over its own SQLite
+  file, the value converters, the seeding path, and every repository implementation. This
+  is where `DbUpdateConcurrencyException` is converted and stopped; no context project
+  sees one.
 
 ## Rejected alternatives
 

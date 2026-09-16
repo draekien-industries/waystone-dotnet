@@ -27,6 +27,7 @@
         <ProjectReference Include="..\Vagrant.Appraisal\Vagrant.Appraisal.csproj"/>
         <ProjectReference Include="..\Vagrant.Catalog\Vagrant.Catalog.csproj"/>
         <ProjectReference Include="..\Vagrant.Ordering\Vagrant.Ordering.csproj"/>
+        <ProjectReference Include="..\Vagrant.Staffing\Vagrant.Staffing.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.Extensions.Hosting\Waystone.Monads.Extensions.Hosting.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.Schemas\Waystone.Monads.Schemas.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>

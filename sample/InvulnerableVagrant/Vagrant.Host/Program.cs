@@ -9,6 +9,7 @@ using Vagrant.Catalog;
 using Vagrant.Host.Endpoints;
 using Vagrant.Host.Infrastructure;
 using Vagrant.Ordering;
+using Vagrant.Staffing;
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
@@ -56,6 +57,11 @@ builder.Services.AddDbContext<OrderingDbContext>(options =>
 builder.Services.AddScoped<VagrantDbContext>(
     services => services.GetRequiredService<OrderingDbContext>());
 
+builder.Services.AddDbContext<StaffingDbContext>(options =>
+    options.UseSqlite(ShopDatabase.For(shop, "staffing")));
+builder.Services.AddScoped<VagrantDbContext>(
+    services => services.GetRequiredService<StaffingDbContext>());
+
 // The shop's clock. Purchase.Settle and Buyback.Settle take a TimeProvider rather than
 // reading DateTimeOffset.UtcNow, so what goes on a receipt is testable; this is the one
 // registration that decides it is the real time of day.
@@ -65,6 +71,7 @@ builder.Services.AddScoped<IStockLedger, StockLedger>();
 builder.Services.AddScoped<ISpecimenShelf, SpecimenShelf>();
 builder.Services.AddScoped<IPurchaseBook, PurchaseBook>();
 builder.Services.AddScoped<IBuybackBook, BuybackBook>();
+builder.Services.AddScoped<IClerkRoster, ClerkRoster>();
 
 WebApplication app = builder.Build();
 
@@ -98,6 +105,7 @@ app.MapItems();
 app.MapSpecimens();
 app.MapPurchases();
 app.MapBuybacks();
+app.MapClerks();
 
 await app.RunAsync().ConfigureAwait(false);
 

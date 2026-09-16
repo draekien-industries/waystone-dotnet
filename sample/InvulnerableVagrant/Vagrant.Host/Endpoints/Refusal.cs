@@ -2,6 +2,7 @@ namespace Vagrant.Host.Endpoints;
 
 using Vagrant.Catalog;
 using Vagrant.Ordering;
+using Vagrant.Staffing;
 using Waystone.Monads.Results.Errors;
 using Waystone.Monads.Schemas;
 
@@ -39,6 +40,13 @@ internal static class Refusal
             StatusCodes.Status409Conflict,
         [OrderingErrorCatalog.Codes.BuybackAlreadySettled] =
             StatusCodes.Status409Conflict,
+        [StaffingErrorCatalog.Codes.ClerkAlreadyEngaged] =
+            StatusCodes.Status409Conflict,
+
+        // The one 503 in the shop, and it is the honest status: every clerk is busy, the
+        // request is fine, and trying again after one is collected will work.
+        [StaffingErrorCatalog.Codes.NoClerkFree] =
+            StatusCodes.Status503ServiceUnavailable,
     };
 
     /// <summary>Renders a refusal the shop made as a problem document.</summary>

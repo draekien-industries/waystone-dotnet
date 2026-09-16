@@ -28,6 +28,8 @@
     <Project Path="sample/InvulnerableVagrant/Vagrant.Ordering.Tests/Vagrant.Ordering.Tests.csproj" />
     <Project Path="sample/InvulnerableVagrant/Vagrant.SharedKernel/Vagrant.SharedKernel.csproj" />
     <Project Path="sample/InvulnerableVagrant/Vagrant.SharedKernel.Tests/Vagrant.SharedKernel.Tests.csproj" />
+    <Project Path="sample/InvulnerableVagrant/Vagrant.Staffing/Vagrant.Staffing.csproj" />
+    <Project Path="sample/InvulnerableVagrant/Vagrant.Staffing.Tests/Vagrant.Staffing.Tests.csproj" />
   </Folder>
   <Folder Name="/sample/Waystone.Monads.Docs/">
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Analyzers.Sample/Waystone.Monads.Docs.Analyzers.Sample.csproj" />

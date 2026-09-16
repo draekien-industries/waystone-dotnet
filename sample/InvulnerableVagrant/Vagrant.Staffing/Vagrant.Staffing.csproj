@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\Vagrant.SharedKernel\Vagrant.SharedKernel.csproj"/>
+    </ItemGroup>
+
+    <!--
+        The error catalog is internal. The host reads its codes to choose a status,
+        and the tests assert on them; nothing else in the sample can see them. A
+        clerk's engagement is internal for the same reason the host persists it.
+    -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="Vagrant.Host"/>
+        <InternalsVisibleTo Include="Vagrant.Staffing.Tests"/>
+    </ItemGroup>
+
+    <!--
+        Imported by hand because this project takes the library by ProjectReference.
+        A consumer with a PackageReference gets the generator from the nupkg and
+        writes nothing.
+    -->
+    <Import Project="..\..\..\src\Waystone.Monads.SourceGenerators\Waystone.Monads.SourceGenerators.props"/>
+
+</Project>
