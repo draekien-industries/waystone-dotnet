@@ -80,6 +80,12 @@ internal static class ShopDatabase
             await context.Database.EnsureCreatedAsync(ct).ConfigureAwait(false);
         }
 
+        await ClerkSeed
+             .OpenTheCounterAsync(
+                  scope.ServiceProvider.GetRequiredService<StaffingDbContext>(),
+                  ct)
+             .ConfigureAwait(false);
+
         return await CatalogSeed
                     .StockTheShelvesAsync(
                          scope.ServiceProvider.GetRequiredService<CatalogDbContext>(),

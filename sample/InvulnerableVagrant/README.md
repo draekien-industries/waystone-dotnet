@@ -35,9 +35,9 @@ curl -X POST http://localhost:5000/specimens/01a0a884-447b-78fe-aa46-744f66e5bec
 ```
 
 Each bounded context gets its own SQLite file beside the host, gitignored — currently
-`invulnerable-vagrant-catalog.db`, `invulnerable-vagrant-appraisal.db` and
-`invulnerable-vagrant-ordering.db`. Delete them and run again to start from a freshly
-stocked shop.
+`invulnerable-vagrant-catalog.db`, `invulnerable-vagrant-appraisal.db`,
+`invulnerable-vagrant-ordering.db` and `invulnerable-vagrant-staffing.db`. Delete them
+and run again to start from a freshly stocked shop.
 
 That 404 is the sample's first argument in one line. `IStockLedger.FindAsync` returns
 `Option<StockedItem>`, the endpoint calls `Match`, and nothing anywhere throws or
@@ -131,6 +131,57 @@ body to say, and something offered more than the till holds is a refusal with a 
  "code":"vagrant.ordering.till_cannot_cover"}
 ```
 
+## Four clerks and no more
+
+```
+curl http://localhost:5000/clerks
+[{"id":"01a0a8e8-60d6-...","name":"Pumat Prime","holding":null},
+ {"id":"01a0a8e8-60f9-...","name":"Pumat Sol","holding":null},
+ {"id":"01a0a8e8-60fa-70a1-...","name":"Pumat Sol","holding":null},
+ {"id":"01a0a8e8-60fa-7c43-...","name":"Pumat Sol","holding":null}]
+```
+
+Three of them answer to the same name. Pumat Sol keeps three simulacra to serve the
+counter, and the wiki records no number or nickname telling them apart — so `Clerk.Name`
+is not unique and `ClerkId` is what distinguishes them. A model that keyed on the name
+would collapse three clerks into one.
+
+Reading an item takes one of them, and they hold it until the patron comes back:
+
+```
+curl -X POST http://localhost:5000/specimens/01a0a8e8-901a-.../identify   -H 'Content-Type: application/json' -d '{"check":15}'
+{"id":"01a0a8e8-901a-...","description":"a grey cloak, well worn",
+ "enchantment":{"name":"Cloak of Elvenkind","effect":"you are harder to see"}}
+
+curl http://localhost:5000/clerks
+[{"id":"01a0a8e8-60d6-...","name":"Pumat Prime","holding":"01a0a8e8-901a-..."},
+ {"id":"01a0a8e8-60f9-...","name":"Pumat Sol","holding":"01a0a8e8-9089-..."},
+ {"id":"01a0a8e8-60fa-70a1-...","name":"Pumat Sol","holding":"01a0a8e8-90f5-..."},
+ {"id":"01a0a8e8-60fa-7c43-...","name":"Pumat Sol","holding":"01a0a8e8-9161-..."}]
+
+curl -i -X POST http://localhost:5000/specimens/01a0a8e8-91cf-.../identify   -H 'Content-Type: application/json' -d '{"check":15}'
+HTTP/1.1 503 Service Unavailable
+{"status":503,"detail":"every clerk is holding something, and 01a0a8e8-91cf-... is waiting",
+ "code":"vagrant.staffing.no_clerk_free"}
+
+curl -X POST http://localhost:5000/specimens/01a0a8e8-901a-.../collect
+{"id":"01a0a8e8-901a-...","description":"a grey cloak, well worn",
+ "enchantment":{"name":"Cloak of Elvenkind","effect":"you are harder to see"}}
+
+curl -o /dev/null -w '%{http_code}\n' -X POST http://localhost:5000/specimens/01a0a8e8-91cf-.../identify   -H 'Content-Type: application/json' -d '{"check":15}'
+200
+```
+
+`holding` is an `Option<Guid>`, so a free clerk is a `null` rather than a zero GUID — the
+same reason `enchantment` is one.
+
+The 503 is what the whole context exists to produce. `Clerk.Engaged` is an EF concurrency
+token, so a claim is `UPDATE Clerks SET Engaged = 1 WHERE Id = @id AND Engaged = 0`: two
+requests reading the same free clerk both issue it, one matches a row and the other
+matches none. `ClerkRoster` catches the `DbUpdateConcurrencyException` that raises,
+reloads, and tries the next free clerk. A caller is told that no clerk was free — never
+that a row it had never heard of was stale.
+
 The bounded contexts arrive one at a time — see the design's Steps section for which
 layer brings what.
 
@@ -163,7 +214,8 @@ are ours, so nobody goes looking for a canonical definition of a term we made up
 | Aura | D&D — what *detect magic* reveals |
 | ArcanaCheck | D&D — the Arcana skill |
 | Enchantment | ours. In D&D, Enchantment is a school of magic about charming people, not the property a magic item carries. We use it in the loose sense, and it is the one term here most likely to mislead a reader who knows the game. |
-| Patron, Clerk, Counter, Errand, Assignment | ours |
+| Pumat Prime | Critical Role — the original, as against his simulacra |
+| Patron, Clerk, Counter, Errand, ErrandSubject, Assignment | ours |
 | StockedItem, AskingPrice, FloorPrice, PriceBand, Withdrawal, Wanted | ours |
 | Specimen | ours |
 | Purchase, LineItem, Offer, AgreedPrice, Buyback, Receipt | ours |

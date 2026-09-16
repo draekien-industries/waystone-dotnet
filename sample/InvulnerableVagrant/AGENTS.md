@@ -68,6 +68,14 @@ it on, and `Program` turns it into a log line and an exit code.
 A lambda that captures a local is WM2017. Take the stateful overload —
 `Match(state, static (ok, s) => …)` — rather than suppressing it.
 
+## An endpoint test class that claims clerks needs a shop per test
+
+`SpecimenEndpointsTests`, `ClerkEndpointsTests` and `PurchaseEndpointsTests` each build
+their own `ShopFixture` and implement `IAsyncDisposable`, rather than sharing one through
+`IClassFixture`. A clerk stays engaged until the item is collected and there are four of
+them, so a shared shop fails whichever test happens to run fifth. The other endpoint
+classes take no clerk and share a fixture.
+
 ## A class fixture must not be a `WebApplicationFactory`
 
 That type implements both `IDisposable` and `IAsyncDisposable`, and xUnit v3 fails a
@@ -147,6 +155,36 @@ has succeeded — the tracked changes of a failed set are discarded with the sco
 `LineItems.Of` refuses two lines naming the same subject, and `PurchaseLines` is keyed on
 `(PurchaseId, Subject)` because of it. `Purchase.Agree` finds a line by subject; two
 matching lines would haggle over one and leave the other at the asking price.
+
+## A lost race is caught at the repository, never surfaced
+
+`Clerk.Engaged` is an EF concurrency token, so a claim is `UPDATE ... WHERE Id = @id AND
+Engaged = 0`. `ClerkRoster.ClaimAsync` catches the `DbUpdateConcurrencyException` that
+raises, reloads the entry and tries the next free clerk. No caller sees that type, and
+`IClerkRoster` names no version, row or token — the only outcomes are an `Assignment` and
+`NoClerkFree`.
+
+`ClerkRosterTests` drives that with a real `DbUpdateConcurrencyException`: a
+`SaveChangesInterceptor` on the losing context runs the winning claim to completion at
+the moment the loser is about to write. Deterministic, no threads, and a real refusal
+from SQLite. Do not replace it with a mocked repository or a simulated conflict.
+
+## EF cannot bind a complex property to a constructor parameter
+
+`Assignment(ClerkId, Errand, DateTimeOffset)` is a positional record, so leaving `Errand`
+as a nested complex property fails at model build with "No suitable constructor was found
+for the type 'Clerk.Holding#Assignment'". `ErrandConverter` makes it a scalar and it
+binds. The same rule is why each aggregate carries a private parameterless constructor.
+
+## A clerk is claimed only once the shop knows it holds the item
+
+`SpecimenEndpoints.ReadAsync` asks the shelf before the roster. Claiming first would need
+a compensating release when the item turns out not to be there, which is a second rule
+about the same clerk and a second thing to get wrong.
+
+`ClerkRoster.ClaimAsync` answers an errand a clerk already holds with that clerk rather
+than a second one. Four clerks would otherwise run out on the fourth question about one
+cloak.
 
 ## A nested monad chain is extracted into a named method
 
