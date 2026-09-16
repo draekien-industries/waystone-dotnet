@@ -13,7 +13,12 @@ internal static class ItemEndpoints
     {
         ArgumentNullException.ThrowIfNull(routes);
 
-        routes.MapGet(
+        // The tag goes on the group so a route mapped later inherits it, rather than
+        // needing one added that nothing in the build would miss. The prefix is empty
+        // because each route below names its whole path.
+        RouteGroupBuilder catalog = routes.MapGroup(string.Empty).WithTags("Catalog");
+
+        catalog.MapGet(
                 "/items",
                 async (IStockLedger ledger, CancellationToken ct) =>
                 {
@@ -23,14 +28,13 @@ internal static class ItemEndpoints
                     return Results.Ok(
                         onDisplay.Select(StockedItemResponse.From).ToList());
                 })
-           .WithTags("Catalog")
            .WithSummary("Reads every shelf label in the shop.")
            .Produces<List<StockedItemResponse>>(StatusCodes.Status200OK);
 
         // Match, not IsSome and Unwrap. The Option is the whole answer here: an
         // identifier the shop has never held has one thing to say about it, and 404
         // says it without an error code a client would have nothing to do with.
-        routes.MapGet(
+        catalog.MapGet(
                 "/items/{id:guid}",
                 async (Guid id, IStockLedger ledger, CancellationToken ct) =>
                 {
@@ -44,7 +48,6 @@ internal static class ItemEndpoints
                         item => Results.Ok(StockedItemResponse.From(item)),
                         () => Results.NotFound());
                 })
-           .WithTags("Catalog")
            .WithSummary("Reads one shelf label.")
            .WithDescription(
                 "The 404 carries no error code: an identifier the shop has never held "

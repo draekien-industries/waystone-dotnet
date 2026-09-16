@@ -36,7 +36,9 @@ builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi(options =>
 {
     // The one place the option becomes a nullable, because the delegate's null means
-    // "inline this schema" and nothing else can say it.
+    // "inline this schema" and nothing else can say it. ReferenceId cannot just return
+    // the string? itself: WM3001 rejects a member declared that way, and a lambda is
+    // the only shape the rule does not reach.
     options.CreateSchemaReferenceId = static info =>
         OptionSchemaTransformer.ReferenceId(info).UnwrapOrDefault();
     options.AddSchemaTransformer<OptionSchemaTransformer>();

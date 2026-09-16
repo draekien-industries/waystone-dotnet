@@ -16,7 +16,9 @@ internal static class BuybackEndpoints
     {
         ArgumentNullException.ThrowIfNull(routes);
 
-        routes.MapPost(
+        RouteGroupBuilder ordering = routes.MapGroup(string.Empty).WithTags("Ordering");
+
+        ordering.MapPost(
                 "/buybacks",
                 async (
                         OpenBuybackRequest body,
@@ -27,12 +29,11 @@ internal static class BuybackEndpoints
                          .Parse(body)
                          .Match((book, ct), TakeInAsync, Refusal.Rejected)
                          .ConfigureAwait(false))
-           .WithTags("Ordering")
            .WithSummary("Offers a patron coin for something they are selling back.")
            .Produces<BuybackResponse>(StatusCodes.Status201Created)
            .ProducesValidationProblem();
 
-        routes.MapGet(
+        ordering.MapGet(
                 "/buybacks/{id:guid}",
                 async (Guid id, IBuybackBook book, CancellationToken ct) =>
                 {
@@ -44,7 +45,6 @@ internal static class BuybackEndpoints
                         buyback => Results.Ok(BuybackResponse.From(buyback)),
                         () => Results.NotFound());
                 })
-           .WithTags("Ordering")
            .WithSummary("Reads a buyback back.")
            .Produces<BuybackResponse>(StatusCodes.Status200OK)
            .ProducesProblem(StatusCodes.Status404NotFound);
@@ -52,7 +52,7 @@ internal static class BuybackEndpoints
         // No body. The shop already knows what it offered and what its till holds, and a
         // patron cannot be asked either — so there is nothing left for the request to
         // say beyond which buyback is being paid out.
-        routes.MapPost(
+        ordering.MapPost(
                 "/buybacks/{id:guid}/settle",
                 async (Guid id, IBuybackBook book, CancellationToken ct) =>
                 {
@@ -65,7 +65,6 @@ internal static class BuybackEndpoints
                         static receipt => Results.Ok(ReceiptResponse.From(receipt)),
                         static error => Refusal.From(error));
                 })
-           .WithTags("Ordering")
            .WithSummary("Pays a patron what the shop offered them.")
            .WithDescription(
                 "No request body, and the absence is the point. What the shop offered "

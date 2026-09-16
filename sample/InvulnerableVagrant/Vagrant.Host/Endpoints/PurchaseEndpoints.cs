@@ -24,10 +24,12 @@ internal static class PurchaseEndpoints
     {
         ArgumentNullException.ThrowIfNull(routes);
 
+        RouteGroupBuilder ordering = routes.MapGroup(string.Empty).WithTags("Ordering");
+
         // The body names shelf labels and quantities and no prices at all. What each
         // line costs is read off the Catalog withdrawal, so a client cannot state what
         // it intends to be charged.
-        routes.MapPost(
+        ordering.MapPost(
                 "/purchases",
                 async (
                         OpenPurchaseRequest body,
@@ -39,7 +41,6 @@ internal static class PurchaseEndpoints
                          .Parse(body)
                          .Match((ledger, book, ct), OpenAsync, Refusal.Rejected)
                          .ConfigureAwait(false))
-           .WithTags("Ordering")
            .WithSummary("Opens a purchase over what a patron has brought to the counter.")
            .WithDescription(
                 "The body names shelf labels and quantities and carries no prices. "
@@ -52,7 +53,7 @@ internal static class PurchaseEndpoints
            .ProducesProblem(StatusCodes.Status404NotFound)
            .ProducesProblem(StatusCodes.Status409Conflict);
 
-        routes.MapGet(
+        ordering.MapGet(
                 "/purchases/{id:guid}",
                 async (Guid id, IPurchaseBook book, CancellationToken ct) =>
                 {
@@ -64,7 +65,6 @@ internal static class PurchaseEndpoints
                         purchase => Results.Ok(PurchaseResponse.From(purchase)),
                         () => Results.NotFound());
                 })
-           .WithTags("Ordering")
            .WithSummary("Reads a purchase back, line by line.")
            .WithDescription(
                 "The agreedPrice on each line is the strongest case in the shop for "
@@ -74,7 +74,7 @@ internal static class PurchaseEndpoints
            .Produces<PurchaseResponse>(StatusCodes.Status200OK)
            .ProducesProblem(StatusCodes.Status404NotFound);
 
-        routes.MapPost(
+        ordering.MapPost(
                 "/purchases/{id:guid}/offer",
                 async (
                         Guid id,
@@ -86,7 +86,6 @@ internal static class PurchaseEndpoints
                          .Parse(body)
                          .Match((id, book, ct), HaggleAsync, Refusal.Rejected)
                          .ConfigureAwait(false))
-           .WithTags("Ordering")
            .WithSummary("Offers a price for one line of a purchase.")
            .WithDescription(
                 "Answers with the agreement rather than the whole purchase. A 409 "
@@ -97,7 +96,7 @@ internal static class PurchaseEndpoints
            .ProducesProblem(StatusCodes.Status404NotFound)
            .ProducesProblem(StatusCodes.Status409Conflict);
 
-        routes.MapPost(
+        ordering.MapPost(
                 "/purchases/{id:guid}/settle",
                 async (
                         Guid id,
@@ -109,7 +108,6 @@ internal static class PurchaseEndpoints
                          .Parse(body)
                          .Match((id, book, ct), SettleAsync, Refusal.Rejected)
                          .ConfigureAwait(false))
-           .WithTags("Ordering")
            .WithSummary("Pays for a purchase with coin the patron tenders.")
            .WithDescription(
                 "The body says what is being handed over and nothing about the "

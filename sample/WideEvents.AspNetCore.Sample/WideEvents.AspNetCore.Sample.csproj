@@ -10,6 +10,18 @@
 
     <ItemGroup>
         <PackageReference Include="Scalar.AspNetCore.Microsoft"/>
+
+        <!--
+            Referenced directly although Scalar.AspNetCore.Microsoft brings it. That
+            package asks for 10.0.0, which resolves Microsoft.OpenApi 2.0.0 and its
+            GHSA-v5pm-xwqc-g5wc advisory; 10.0.11 asks for 2.7.5, where the advisory is
+            fixed. Nothing here sets TreatWarningsAsErrors, so the NU1903 that raises is
+            a warning rather than a failed restore, and the vulnerable version resolves
+            in silence. A central PackageVersion does not reach a project without a
+            direct PackageReference, since CentralPackageTransitivePinningEnabled is
+            unset.
+        -->
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Extensions.Hosting"/>
         <PackageReference Include="Serilog.Settings.Configuration"/>

@@ -18,10 +18,12 @@ internal static class SpecimenEndpoints
     {
         ArgumentNullException.ThrowIfNull(routes);
 
+        RouteGroupBuilder appraisal = routes.MapGroup(string.Empty).WithTags("Appraisal");
+
         // The schema is the only route from a body to a Specimen, so there is no second
         // validation step and nothing downstream that accepts an unparsed request. The
         // Result it returns is unwrapped into a status here and never reaches the wire.
-        routes.MapPost(
+        appraisal.MapPost(
                 "/specimens",
                 async (
                         HandInSpecimenRequest body,
@@ -32,7 +34,6 @@ internal static class SpecimenEndpoints
                          .Parse(body)
                          .Match((shelf, ct), ShelveAsync, Rejected)
                          .ConfigureAwait(false))
-           .WithTags("Appraisal")
            .WithSummary("Leaves an item with the shop to be identified.")
            .Produces<SpecimenResponse>(StatusCodes.Status201Created)
            .ProducesValidationProblem();
@@ -41,7 +42,7 @@ internal static class SpecimenEndpoints
         // check at all; the Option says whether the shop holds the item. A specimen that
         // was read and gave nothing up is neither — it is a 200 whose enchantment is
         // null.
-        routes.MapPost(
+        appraisal.MapPost(
                 "/specimens/{id:guid}/identify",
                 async (
                         Guid id,
@@ -54,7 +55,6 @@ internal static class SpecimenEndpoints
                          .Parse(body)
                          .Match((id, shelf, roster, ct), ReadAsync, Rejected)
                          .ConfigureAwait(false))
-           .WithTags("Appraisal")
            .WithSummary("Has a clerk read an item the shop is holding.")
            .WithDescription(
                 "A specimen the shop looked at and could not place is a 200 whose "
@@ -69,7 +69,7 @@ internal static class SpecimenEndpoints
         // Collecting is what frees the clerk. A shop of four cannot read a fifth item
         // until a patron comes back for one of the four, which is why POST /identify can
         // answer 503 at all.
-        routes.MapPost(
+        appraisal.MapPost(
                 "/specimens/{id:guid}/collect",
                 async (
                         Guid id,
@@ -77,7 +77,6 @@ internal static class SpecimenEndpoints
                         IClerkRoster roster,
                         CancellationToken ct) =>
                     await CollectAsync(id, shelf, roster, ct).ConfigureAwait(false))
-           .WithTags("Appraisal")
            .WithSummary("Takes an item back off the examination shelf.")
            .WithDescription(
                 "This is what frees the clerk, so it is what lets the next identify "

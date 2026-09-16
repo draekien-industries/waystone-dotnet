@@ -126,9 +126,13 @@ public sealed class OpenApiDocumentTests : IClassFixture<ShopFixture>, IDisposab
         responses.TryGetProperty(status, out _).ShouldBeTrue();
     }
 
+    // One case per group, because a tag lives on the group rather than the route and a
+    // file whose group is missing one takes every route in it down with it.
     [Theory]
     [InlineData("/items", "Catalog")]
     [InlineData("/specimens", "Appraisal")]
+    [InlineData("/purchases", "Ordering")]
+    [InlineData("/buybacks", "Ordering")]
     [InlineData("/clerks", "Staffing")]
     public async Task A_route_is_tagged_with_the_context_it_belongs_to(
         string route,

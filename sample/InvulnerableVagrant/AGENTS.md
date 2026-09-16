@@ -209,14 +209,26 @@ transformer bug rather than a missing property.
 brings it. That package asks for `10.0.0`, which resolves `Microsoft.OpenApi` 2.0.0 and
 its GHSA-v5pm-xwqc-g5wc advisory; `TreatWarningsAsErrors` is on here, so the `NU1903` that
 raises fails the restore. Deleting the reference as redundant breaks the build.
+`sample/WideEvents.AspNetCore.Sample` carries the same reference for the same advisory,
+where it silences a warning rather than an error — the central `PackageVersion` reaches
+neither project on its own, because `CentralPackageTransitivePinningEnabled` is unset.
 
 ## An endpoint declares the responses it produces
 
 Every handler returns `IResult`, so nothing about a response is inferred. A route without
 `.Produces<T>(...)` and a `.ProducesProblem(...)` per refusal appears in the document as a
-path with a bare 200 and no schema, and the build says nothing. `.WithTags` names the
-bounded context the route belongs to, matching the tags `ShopDocumentTransformer`
-declares.
+path with a bare 200 and no schema, and the build says nothing.
+
+A 404 is `.ProducesProblem`, not `.Produces`. `UseStatusCodePages` fills in a bodiless
+`Results.NotFound()` with a problem document, so the plain form describes a response the
+shop does not send.
+
+**The context's tag goes on a route group, never on a route.** Each `Map*Endpoints` class
+opens with `routes.MapGroup(string.Empty).WithTags("...")` and maps every route off that,
+so a route added later inherits the tag instead of needing one nothing in the build would
+miss. The prefix is empty because each route names its whole path. The tag has to match a
+name `ShopDocumentTransformer` declares, or the reference shows a group with no
+description.
 
 A 400 is declared once, as `.ProducesValidationProblem()`, on a route whose body a schema
 parses. Adding `.ProducesProblem(400)` beside it leaves two declarations of one status and
