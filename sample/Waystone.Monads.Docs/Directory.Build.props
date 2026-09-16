@@ -3,8 +3,11 @@
     <!--
       Shared settings for the documentation sample projects only. The other
       projects under sample/ are runnable demonstrations with their own
-      requirements, and Waystone.Monads.Analyzers.Sample deliberately produces
-      warnings, so this file sits one level down rather than in sample/.
+      requirements, so this file sits one level down rather than in sample/.
+
+      Waystone.Monads.Docs.Analyzers.Sample inherits TreatWarningsAsErrors
+      below and reports rules on purpose. Its .editorconfig holds those rules
+      at suggestion; see the README beside it.
     -->
 
     <PropertyGroup>

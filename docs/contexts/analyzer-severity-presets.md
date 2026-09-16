@@ -23,15 +23,22 @@ at all — an `.editorconfig` fragment would ship a preset with one rule silentl
 from it. Two consequences to keep: `global_level` stays negative, because a tie with a
 consumer's own global config is resolved by *unsetting* the option rather than by reporting
 a conflict; and a consumer's path-matched `.editorconfig` beats the preset, which is the
-override route the docs promise. `sample/Waystone.Monads.Analyzers.Sample` applies `strict`
-and holds the `WM1` rules back down to warning in its `.editorconfig` — that is the only
-executable statement of the precedence anywhere, and what keeps a project full of
-deliberate misuse building.
+override route the docs promise.
+`sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Analyzers.Sample` applies `strict` and
+holds the rules its members report back down to `suggestion` in its `.editorconfig` — that
+is the only executable statement of the precedence anywhere, and what stops a project that
+exists to report diagnostics from failing on them.
 
-**Do not read that sample as evidence that a codebase can adopt `strict` as shipped.** Most
-of the rules `strict` moves are overridden straight back down in that `.editorconfig`, so
-what the sample validates is the `EditorConfigFiles` plumbing, the override precedence, and
-the `WM2` tier's raise from suggestion to warning. A preset's effect on real code is not
+**It is `suggestion` rather than `warning` because that project inherits
+`TreatWarningsAsErrors`** from `sample/Waystone.Monads.Docs/Directory.Build.props`. A rule
+held at warning is an error again by the time that property has run. The same inheritance
+is what makes the statement executable rather than decorative: delete the `.editorconfig`
+and the build fails on exactly the ids it listed.
+
+**Do not read that sample as evidence that a codebase can adopt `strict` as shipped.** Every
+rule it reports is overridden straight back down in that `.editorconfig`, so what it
+validates is the `EditorConfigFiles` plumbing, the override precedence, and that
+`WaystoneMonadsRuleset` reaches the compiler at all. A preset's effect on real code is not
 testable here: the only consumer in the tree is a fixture built to report.
 
 **Do not change a shipped default to make a preset tidier.** The presets are additive by

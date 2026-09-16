@@ -70,8 +70,9 @@ fails on a descriptor with no entry, and on an entry carrying the wrong tier's s
 
 Read [docs/contexts/analyzer-severity-presets.md](../../docs/contexts/analyzer-severity-presets.md)
 before editing anything under `build/`: why they must be global configs rather than
-`.editorconfig` fragments, what `sample/Waystone.Monads.Analyzers.Sample` does and does
-not prove, and why a shipped default must not move to tidy a preset.
+`.editorconfig` fragments, what
+`sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Analyzers.Sample` does and does not
+prove, and why a shipped default must not move to tidy a preset.
 
 ## Gotchas
 

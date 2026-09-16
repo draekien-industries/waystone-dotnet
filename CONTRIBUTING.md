@@ -87,8 +87,11 @@ To add one:
    never add a project reference to `Waystone.Monads`.
 4. Write three tests: it fires, it does not fire on the nearest legitimate shape,
    and — if it has a fix — the fix produces the expected source.
-5. Add the misuse to `sample/Waystone.Monads.Analyzers.Sample` so the rule shows
-   up in build output too.
+5. Add a member to
+   `sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Analyzers.Sample` only if a
+   documentation page quotes it. Every member there backs a `#region` a page
+   names. Rule coverage is the tests' job, so a rule with no page needs nothing
+   here.
 
 Messages must satisfy RS1032: one sentence with no trailing period, or several
 with one.

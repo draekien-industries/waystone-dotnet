@@ -67,6 +67,25 @@ It already caught one. `companion-packages/fluentvalidation.md` chains
 `Waystone.Monads.Extensions.Logging` and the page's install section names only
 `Waystone.Monads.FluentValidation`. See the comment in `FluentValidation.cs`.
 
+## The analyzers sample is the exception
+
+`Waystone.Monads.Docs.Analyzers.Sample` is the only project here that imports
+the analyzers, so it is the only one where a diagnostic is the output rather
+than a defect. What belongs in it is in [../AGENTS.md](../AGENTS.md); why its
+`.editorconfig` holds the reported rules at `suggestion` is in
+[../../docs/contexts/analyzer-severity-presets.md](../../docs/contexts/analyzer-severity-presets.md).
+
+To read the live set of rules its members report, take the holddown away:
+
+```
+mv .editorconfig .editorconfig.off
+dotnet build --no-incremental
+```
+
+The reported errors are the list that `.editorconfig` should hold. Run it after
+editing a member: the build catches an id the file is missing, and nothing
+catches one it no longer needs.
+
 ## One file per page
 
 A file is named for the page it comes from, and says so in a `<summary>` on the
@@ -97,13 +116,6 @@ new one, and pick a domain noun that carries the constraint the sample is
 demonstrating.
 
 ## What is deliberately not here
-
-**Analyzer rule samples.** Every one is wrong on purpose, so it cannot live in a
-project that treats warnings as errors.
-[`sample/Waystone.Monads.Analyzers.Sample`](../Waystone.Monads.Analyzers.Sample/README.md)
-covers those, and this project does not import the analyzers at all — a
-documentation page shows `Unwrap` and `Expect` on purpose, and the `WM1xxx`
-rules exist to report exactly that.
 
 **Upgrade guide samples.** They are written against v5 and v6 on purpose. The
 break inventory in

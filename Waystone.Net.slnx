@@ -8,7 +8,6 @@
     <Project Path="bench/Waystone.Monads.Benchmarks/Waystone.Monads.Benchmarks.csproj" />
   </Folder>
   <Folder Name="/sample/">
-    <Project Path="sample/Waystone.Monads.Analyzers.Sample/Waystone.Monads.Analyzers.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Configuration.Sample/Waystone.Monads.Configuration.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Hosting.Sample/Waystone.Monads.Hosting.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Observability.Sample/Waystone.Monads.Observability.Sample.csproj" />
@@ -21,6 +20,7 @@
     <Project Path="sample/WideEvents.AspNetCore.Sample/WideEvents.AspNetCore.Sample.csproj" />
   </Folder>
   <Folder Name="/sample/Waystone.Monads.Docs/">
+    <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Analyzers.Sample/Waystone.Monads.Docs.Analyzers.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Core.Sample/Waystone.Monads.Docs.Core.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.FluentValidation.Sample/Waystone.Monads.Docs.FluentValidation.Sample.csproj" />
     <Project Path="sample/Waystone.Monads.Docs/Waystone.Monads.Docs.Linq.Sample/Waystone.Monads.Docs.Linq.Sample.csproj" />
