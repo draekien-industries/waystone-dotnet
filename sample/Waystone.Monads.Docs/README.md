@@ -117,10 +117,10 @@ demonstrating.
 
 ## What is deliberately not here
 
-**Upgrade guide samples.** They are written against v5 and v6 on purpose. The
-break inventory in
-[`sample/Waystone.Monads.PreviousMajor.Sample`](../Waystone.Monads.PreviousMajor.Sample/README.md)
-is where old API is compiled against the working tree.
+**Upgrade guide samples.** They are written against v5 and v6 on purpose, so they
+do not compile here. The `upgrading/` pages keep their blocks hand-written. To
+measure a break rather than describe one, read
+[../../docs/contexts/measuring-a-major-break.md](../../docs/contexts/measuring-a-major-break.md).
 
 **Configuration, hosting and observability.** Those three pages already have
 runnable sample projects of their own under `sample/`, and a second copy here
