@@ -14,7 +14,7 @@ public sealed class CoinTests
     {
         Coin coin = Coin.From(45, 1, 0, 3);
 
-        coin.InCopper().ShouldBe((45 * 1000) + (1 * 100) + 3);
+        coin.InCopper().ShouldBe((45UL * 1000) + (1UL * 100) + 3);
     }
 
     [Fact]
@@ -29,34 +29,13 @@ public sealed class CoinTests
     [Fact]
     public void FromGold_is_a_hundred_copper_to_the_gold()
     {
-        Coin.FromGold(450).InCopper().ShouldBe(45_000);
-    }
-
-    [Theory]
-    [InlineData(-1, 0, 0, 0)]
-    [InlineData(0, -1, 0, 0)]
-    [InlineData(0, 0, -1, 0)]
-    [InlineData(0, 0, 0, -1)]
-    public void From_rejects_a_negative_component(
-        int platinum,
-        int gold,
-        int silver,
-        int copper)
-    {
-        Should.Throw<ArgumentOutOfRangeException>(
-            () => Coin.From(platinum, gold, silver, copper));
-    }
-
-    [Fact]
-    public void FromGold_rejects_a_negative_amount()
-    {
-        Should.Throw<ArgumentOutOfRangeException>(() => Coin.FromGold(-1));
+        Coin.FromGold(450).InCopper().ShouldBe(45_000UL);
     }
 
     [Fact]
     public void Nothing_is_zero_copper()
     {
-        Coin.Nothing.InCopper().ShouldBe(0);
+        Coin.Nothing.InCopper().ShouldBe(0UL);
         Coin.Nothing.IsNothing.ShouldBeTrue();
     }
 
@@ -71,7 +50,7 @@ public sealed class CoinTests
     {
         Coin sum = Coin.FromGold(4) + Coin.From(0, 0, 5, 0);
 
-        sum.InCopper().ShouldBe(450);
+        sum.InCopper().ShouldBe(450UL);
     }
 
     [Fact]
@@ -79,7 +58,7 @@ public sealed class CoinTests
     {
         Coin line = Coin.FromGold(45) * 3;
 
-        line.InCopper().ShouldBe(13_500);
+        line.InCopper().ShouldBe(13_500UL);
     }
 
     [Fact]
@@ -89,9 +68,19 @@ public sealed class CoinTests
     }
 
     [Fact]
-    public void Multiplication_rejects_a_negative_quantity()
+    public void Addition_that_would_wrap_throws_instead()
     {
-        Should.Throw<ArgumentOutOfRangeException>(() => Coin.FromGold(45) * -1);
+        Coin everything = Coin.FromCopper(ulong.MaxValue);
+
+        Should.Throw<OverflowException>(() => everything + Coin.From(0, 0, 0, 1));
+    }
+
+    [Fact]
+    public void Multiplication_that_would_wrap_throws_instead()
+    {
+        Coin half = Coin.FromCopper((ulong.MaxValue / 2) + 1);
+
+        Should.Throw<OverflowException>(() => half * 2);
     }
 
     [Fact]
@@ -172,12 +161,6 @@ public sealed class CoinTests
         Coin original = Coin.From(45, 1, 0, 3);
 
         Coin.FromCopper(original.InCopper()).ShouldBe(original);
-    }
-
-    [Fact]
-    public void FromCopper_rejects_a_negative_total()
-    {
-        Should.Throw<ArgumentOutOfRangeException>(() => Coin.FromCopper(-1));
     }
 
     [Fact]

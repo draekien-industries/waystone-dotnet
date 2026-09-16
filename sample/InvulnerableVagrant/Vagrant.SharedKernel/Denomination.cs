@@ -5,8 +5,9 @@ namespace Vagrant.SharedKernel;
 /// Ordered smallest first, and the numeric value of each member is how many copper
 /// pieces one of it is worth. <see cref="Coin" /> relies on that, so reordering the
 /// members or assigning different values changes what every price in the shop means.
+/// The base type is unsigned because no coin is worth a negative number of copper.
 /// </remarks>
-public enum Denomination
+public enum Denomination : uint
 {
     /// <summary>The lightest denomination, worth a hundredth of a gold piece.</summary>
     Copper = 1,

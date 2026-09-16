@@ -6,15 +6,17 @@ using Waystone.Monads.Options;
 
 /// <summary>Money of the Dwendalian Empire, reckoned in four denominations.</summary>
 /// <remarks>
-/// A coin amount is never negative. The type has no subtraction operator for that
-/// reason — <see cref="Less" /> returns <see cref="Option{T}" /> so that taking more
-/// than is there produces no value rather than a debt.
+/// A coin amount is never negative, and the type says so in its signatures rather than
+/// in its guards: every component is unsigned, so a negative price is a compile error
+/// instead of an exception. The type has no subtraction operator for the same reason —
+/// <see cref="Less" /> returns <see cref="Option{T}" /> so that taking more than is
+/// there produces no value rather than a debt.
 /// </remarks>
 public readonly record struct Coin : IComparable<Coin>
 {
-    private readonly long _copper;
+    private readonly ulong _copper;
 
-    private Coin(long copper)
+    private Coin(ulong copper)
     {
         _copper = copper;
     }
@@ -28,11 +30,7 @@ public readonly record struct Coin : IComparable<Coin>
     /// <summary>An amount in gold pieces alone.</summary>
     /// <param name="gold">How many gold pieces. Zero is allowed.</param>
     /// <returns>The amount.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="gold" /> is negative. Coin cannot represent a debt, so this is a
-    /// mistake at the call site rather than an outcome a caller could act on.
-    /// </exception>
-    public static Coin FromGold(int gold) => From(0, gold, 0, 0);
+    public static Coin FromGold(uint gold) => From(0, gold, 0, 0);
 
     /// <summary>An amount counted out in each of the four denominations.</summary>
     /// <param name="platinum">How many platinum pieces.</param>
@@ -43,43 +41,32 @@ public readonly record struct Coin : IComparable<Coin>
     /// The total the four components come to. The components need not be reduced —
     /// twelve silver and no gold is the same amount as one gold and two silver.
     /// </returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Any component is negative.
-    /// </exception>
-    public static Coin From(int platinum, int gold, int silver, int copper)
-    {
-        Require(platinum, nameof(platinum));
-        Require(gold, nameof(gold));
-        Require(silver, nameof(silver));
-        Require(copper, nameof(copper));
-
-        return new Coin(
-            (platinum * (long)Denomination.Platinum)
-          + (gold * (long)Denomination.Gold)
-          + (silver * (long)Denomination.Silver)
+    public static Coin From(uint platinum, uint gold, uint silver, uint copper) =>
+        new((platinum * (ulong)Denomination.Platinum)
+          + (gold * (ulong)Denomination.Gold)
+          + (silver * (ulong)Denomination.Silver)
           + copper);
-    }
 
     /// <summary>Adds two amounts together.</summary>
     /// <param name="left">One amount.</param>
     /// <param name="right">The other.</param>
-    /// <returns>The sum. Always representable, since neither operand is negative.</returns>
+    /// <returns>The sum.</returns>
+    /// <exception cref="OverflowException">
+    /// The sum exceeds what a <see cref="ulong" /> of copper can hold. Unreachable with
+    /// the shop's prices; checked so that a sum can never wrap into a smaller one.
+    /// </exception>
     public static Coin operator +(Coin left, Coin right) =>
-        new(left._copper + right._copper);
+        new(checked(left._copper + right._copper));
 
     /// <summary>Repeats an amount, for a line of several of the same item.</summary>
     /// <param name="coin">The amount to repeat.</param>
     /// <param name="quantity">How many times. Zero gives <see cref="Nothing" />.</param>
     /// <returns>The product.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="quantity" /> is negative.
+    /// <exception cref="OverflowException">
+    /// The product exceeds what a <see cref="ulong" /> of copper can hold.
     /// </exception>
-    public static Coin operator *(Coin coin, int quantity)
-    {
-        Require(quantity, nameof(quantity));
-
-        return new Coin(coin._copper * quantity);
-    }
+    public static Coin operator *(Coin coin, uint quantity) =>
+        new(checked(coin._copper * quantity));
 
     /// <summary>Takes one amount away from another.</summary>
     /// <param name="other">The amount to take away.</param>
@@ -135,26 +122,12 @@ public readonly record struct Coin : IComparable<Coin>
     /// Prefer the denomination-aware members for anything else.
     /// </remarks>
     /// <returns>The total in copper.</returns>
-    public long InCopper() => _copper;
+    public ulong InCopper() => _copper;
 
     /// <summary>Rebuilds an amount from a total in copper pieces.</summary>
     /// <param name="copper">The total, as <see cref="InCopper" /> reported it.</param>
     /// <returns>The amount.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="copper" /> is negative.
-    /// </exception>
-    public static Coin FromCopper(long copper)
-    {
-        if (copper < 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(copper),
-                copper,
-                "Coin cannot be negative.");
-        }
-
-        return new Coin(copper);
-    }
+    public static Coin FromCopper(ulong copper) => new(copper);
 
     /// <summary>Writes the amount the way a price is written on a shelf.</summary>
     /// <returns>
@@ -167,7 +140,7 @@ public readonly record struct Coin : IComparable<Coin>
         if (_copper == 0) return "0gp";
 
         var written = new StringBuilder();
-        long left = _copper;
+        ulong left = _copper;
 
         Write(written, ref left, Denomination.Platinum, "pp");
         Write(written, ref left, Denomination.Gold, "gp");
@@ -179,12 +152,12 @@ public readonly record struct Coin : IComparable<Coin>
 
     private static void Write(
         StringBuilder written,
-        ref long left,
+        ref ulong left,
         Denomination denomination,
         string suffix)
     {
-        long worth = (long)denomination;
-        long count = left / worth;
+        var worth = (ulong)denomination;
+        ulong count = left / worth;
 
         if (count == 0) return;
 
@@ -192,16 +165,5 @@ public readonly record struct Coin : IComparable<Coin>
 
         written.Append(count.ToString(CultureInfo.InvariantCulture)).Append(suffix);
         left -= count * worth;
-    }
-
-    private static void Require(int component, string name)
-    {
-        if (component < 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                name,
-                component,
-                "Coin cannot be negative.");
-        }
     }
 }

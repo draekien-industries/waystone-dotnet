@@ -10,7 +10,12 @@ public readonly record struct PatronId(Guid Value)
 {
     /// <summary>Mints an identifier for a patron the shop has not seen before.</summary>
     /// <returns>An identifier no existing patron holds.</returns>
-    public static PatronId New() => new(Guid.NewGuid());
+    /// <remarks>
+    /// Version 7, so the value sorts by the moment it was minted. Identifiers here are
+    /// stored keys, and a random one scatters inserts across the index instead of
+    /// appending to it.
+    /// </remarks>
+    public static PatronId New() => new(Guid.CreateVersion7());
 
     /// <inheritdoc />
     public override string ToString() => Value.ToString();

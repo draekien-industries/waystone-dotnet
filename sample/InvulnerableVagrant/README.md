@@ -23,15 +23,12 @@ layer brings what. Until Catalog lands there is nothing to buy.
 
 ## How it is put together
 
-`Vagrant.SharedKernel` and each bounded context target `net8.0` and `net10.0` and
-reference no persistence library at all. `Vagrant.Host` targets `net10.0`, and is the
-only project that knows EF Core exists: a context declares its repository interface and
-the host implements it.
+`Vagrant.SharedKernel` and each bounded context reference no persistence library at all.
+`Vagrant.Host` is the only project that knows EF Core exists: a context declares its
+repository interface and the host implements it.
 
-That is worth a sentence because it is not only a purity argument. EF Core 10 ships
-`net10.0` and nothing older, and CI runs `dotnet test` against `net8.0` across the whole
-solution — so a context project that referenced EF Core would take its own tests out of
-that run.
+Two things follow. A context's tests need no database, and a context cannot reach for a
+`DbContext` by accident — the reference is not there to reach for.
 
 ## Where the names come from
 

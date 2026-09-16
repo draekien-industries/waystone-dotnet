@@ -11,8 +11,17 @@ using Vagrant.SharedKernel;
 /// </remarks>
 internal sealed class CoinConverter : ValueConverter<Coin, long>
 {
+    /// <summary>Creates the converter.</summary>
+    /// <remarks>
+    /// <see cref="Coin" /> counts copper in a <see cref="ulong" /> and SQLite's INTEGER
+    /// is signed, so the column is <see cref="long" />. The conversion is checked: a
+    /// price past <see cref="long.MaxValue" /> copper would otherwise be stored as a
+    /// negative one, which is the state the type exists to make impossible.
+    /// </remarks>
     public CoinConverter()
-        : base(coin => coin.InCopper(), copper => Coin.FromCopper(copper))
+        : base(
+            coin => checked((long)coin.InCopper()),
+            copper => Coin.FromCopper(checked((ulong)copper)))
     {
     }
 }

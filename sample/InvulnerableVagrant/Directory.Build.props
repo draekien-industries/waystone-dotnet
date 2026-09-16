@@ -9,13 +9,16 @@
     </PropertyGroup>
 
     <!--
-        The contexts target net8.0 as well as net10.0 because CI runs dotnet test
-        against net8.0 across the whole solution. Vagrant.Host overrides this to
-        net10.0 alone: it is the only project that references EF Core, which
-        targets net10.0 and nothing older.
+        net10.0 alone, because the shop is an ASP.NET Core 10 application over EF Core
+        10 and both ship net10.0 and nothing older.
+
+        Singular, because TargetFrameworks makes a project multi-targeting even when it
+        names one framework, and dotnet run then refuses until it is told which
+        framework to use. Plain `dotnet run` is the command the README tells a reader to
+        type.
     -->
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+        <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
 
     <!--
