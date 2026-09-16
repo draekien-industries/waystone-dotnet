@@ -40,6 +40,21 @@ Five projects carrying domain code, one host, one test project per context.
 Each context project references `Vagrant.SharedKernel` and nothing else in the sample.
 Translation between two contexts happens in `Vagrant.Host`.
 
+**No context project references EF Core.** A context declares its repository interface;
+`Vagrant.Host` implements it. The contexts are persistence-ignorant, so their tests need
+no database and run in milliseconds.
+
+There is a second reason, and it is the one that forced the decision. EF Core 10 targets
+`net10.0` alone, and CI runs `dotnet test --framework net8.0` across the solution. A
+context project referencing EF Core would be `net10.0`-only, its test project would be
+`net10.0`-only, and that run would fail for every project in the repository. The context
+projects target `net8.0;net10.0`; only `Vagrant.Host` is `net10.0`.
+
+| Project | Frameworks | EF Core |
+| --- | --- | --- |
+| `Vagrant.SharedKernel`, the four contexts, their tests | `net8.0;net10.0` | no |
+| `Vagrant.Host` | `net10.0` | yes |
+
 ## Key data structures
 
 ### Vagrant.SharedKernel
@@ -369,9 +384,8 @@ and nothing a patron does to a `Specimen` can fail.
   `LineItem` and an Appraisal `SpecimenId` into a Staffing `ErrandSubject`, the one
   place two contexts' vocabularies meet
 - **`Vagrant.Host/Infrastructure`** — four `DbContext`s over one SQLite file, the `Coin`
-  converter, and the seeding path
-- **`Vagrant.*/Infrastructure`** — each context's repository implementation, which is
-  where `DbUpdateConcurrencyException` is converted and stopped
+  converter, the seeding path, and every repository implementation. This is where
+  `DbUpdateConcurrencyException` is converted and stopped; no context project sees one.
 
 ## Rejected alternatives
 

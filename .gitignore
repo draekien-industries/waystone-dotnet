@@ -21,3 +21,8 @@ artifacts/**
 CLAUDE.local.md
 settings.local.json
 .draekien/.skillsrc
+
+# The Invulnerable Vagrant sample writes its SQLite file beside the host.
+invulnerable-vagrant.db
+invulnerable-vagrant.db-shm
+invulnerable-vagrant.db-wal

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <!--
+        The only project here that targets net10.0 alone, and the only one that
+        references EF Core. EF Core 10 ships net10.0 and nothing older, so a context
+        project taking it would drop out of the net8.0 leg that CI runs its tests on.
+        Persistence stays behind the repository interfaces the contexts declare.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>net10.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+        <PackageReference Include="Serilog.AspNetCore"/>
+        <PackageReference Include="Serilog.Extensions.Hosting"/>
+        <PackageReference Include="Serilog.Settings.Configuration"/>
+        <PackageReference Include="Serilog.Sinks.Console"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Vagrant.SharedKernel\Vagrant.SharedKernel.csproj"/>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads.Extensions.Hosting\Waystone.Monads.Extensions.Hosting.csproj"/>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>
+        <ProjectReference Include="..\..\..\src\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.csproj"/>
+    </ItemGroup>
+
+</Project>

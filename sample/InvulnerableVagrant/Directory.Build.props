@@ -1,0 +1,36 @@
+<Project>
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
+        <LangVersion>latestMajor</LangVersion>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <!--
+        The contexts target net8.0 as well as net10.0 because CI runs dotnet test
+        against net8.0 across the whole solution. Vagrant.Host overrides this to
+        net10.0 alone: it is the only project that references EF Core, which
+        targets net10.0 and nothing older.
+    -->
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <!--
+        The sample is held to the analyzers it demonstrates. `strict` is the preset a
+        reader copying this code should be running, so anything the rules dislike here
+        fails the build rather than shipping as an example.
+
+        The property is set before the import because the preset is added as an
+        EditorConfigFiles item under a condition on it, and MSBuild evaluates in order.
+    -->
+    <PropertyGroup>
+        <WaystoneMonadsRuleset>strict</WaystoneMonadsRuleset>
+    </PropertyGroup>
+
+    <Import Project="..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
+    <Import Project="..\..\src\Waystone.Monads\build\Waystone.Monads.props"/>
+
+</Project>
