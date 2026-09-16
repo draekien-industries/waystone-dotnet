@@ -13,9 +13,12 @@
     cannot change the answer. Run on five and the suite proves the same thing five
     times. A test added here that would answer differently per framework is in the
     wrong project rather than a reason to widen this.
+
+    Which one is arbitrary, but it has to match the framework the CI test step
+    names. Pinned elsewhere, these tests stop running in CI and nothing fails.
     -->
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFrameworks>net10.0</TargetFrameworks>
     </PropertyGroup>
 
     <!--

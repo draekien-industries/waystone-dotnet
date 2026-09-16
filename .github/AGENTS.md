@@ -14,6 +14,16 @@ rename these.
 matrix and the release-tracking checks run in `.githooks/pre-push` rather than here.
 Do not migrate them into a workflow without a reason that outweighs the cost.
 
+**The test step names `net10.0`, and the three workflows must agree.** ASP.NET Core 10
+and EF Core 10 ship `net10.0` and nothing older, so the sample host and anything testing
+it exist on that framework alone. A test project pinned to a single framework must pin
+that one: `dotnet test --framework` silently runs nothing for a project without it, so a
+mismatch removes a suite from CI without failing anything.
+`Waystone.Conventions.Tests` and `Waystone.DocSnippets.Tests` are the two.
+
+CI runs one framework and always has; this step named `net8.0` before. The matrix is
+`pre-push`'s job, not this workflow's.
+
 ## Gotchas
 
 **Do not put a `branches` filter on `pull_request`.** GitHub's stacked-pull-request

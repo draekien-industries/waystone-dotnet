@@ -3,8 +3,13 @@
 ## Running them
 
 `dotnet test` with no `--framework` runs every target framework. The `pre-push`
-hook runs exactly that, because CI pins `--framework net8.0` for coverage
-collection and would let a net472, net481, net9.0 or net10.0 break through.
+hook runs exactly that, because CI pins `--framework net10.0` for coverage
+collection and would let a net472, net481, net8.0 or net9.0 break through.
+
+**A test project that pins one framework pins `net10.0`.** `dotnet test --framework`
+runs nothing for a project without that target and reports no failure, so a project
+pinned elsewhere leaves CI silently. `Waystone.Conventions.Tests` and
+`Waystone.DocSnippets.Tests` are the two that pin.
 
 ## Shared configuration
 

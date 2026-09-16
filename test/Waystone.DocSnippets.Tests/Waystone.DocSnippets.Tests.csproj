@@ -6,11 +6,12 @@
 
     <!--
       The default matrix does not apply. The subject is a developer utility that
-      targets net8.0 alone, so there is nothing for the other four frameworks to
-      run against.
+      targets net10.0 alone, so there is nothing for the other four frameworks to
+      run against. It has to be whichever framework the CI test step names, or
+      these tests stop running there without failing.
     -->
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFrameworks>net10.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
