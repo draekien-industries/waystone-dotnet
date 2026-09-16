@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads\Waystone.Monads.csproj"/>
+    </ItemGroup>
+
+    <!--
+        The only documentation sample that imports the analyzers. The pages it
+        backs are about the rules, so a block that does not trip the rule it
+        illustrates is wrong in a way no other project here can be. The
+        .editorconfig beside this file is what keeps that from failing the
+        build.
+    -->
+    <Import Project="..\..\..\src\Waystone.Monads.Analyzers\Waystone.Monads.Analyzers.props"/>
+
+    <!--
+        The one line a consumer writes to apply a preset, and the only place in
+        the tree where that path is executed rather than asserted. PresetTests
+        reads build/strict.globalconfig off disk directly, so nothing else
+        checks that the property reaches the compiler at all.
+
+        It has to be set before the import below: the preset is added as an
+        EditorConfigFiles item under a condition on this property, and MSBuild
+        evaluates in order.
+    -->
+    <PropertyGroup>
+        <WaystoneMonadsRuleset>strict</WaystoneMonadsRuleset>
+    </PropertyGroup>
+
+    <!--
+        Imported by hand because this project takes the library by
+        ProjectReference. A consumer with a PackageReference gets this file from
+        build/ in the nupkg automatically and writes only the property above.
+    -->
+    <Import Project="..\..\..\src\Waystone.Monads\build\Waystone.Monads.props"/>
+
+</Project>

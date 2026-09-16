@@ -6,10 +6,11 @@
 
     <!--
         The analyzers are deliberately not imported. A documentation page shows
-        Unwrap and Expect on purpose, and the WM1xxx rules exist to report
+        Unwrap and Expect on purpose, and WM2001 and WM2002 exist to report
         exactly that, so importing them would fail this build on samples that
-        are correct for their page. Rule coverage lives in
-        sample/Waystone.Monads.Analyzers.Sample instead.
+        are correct for their page. Waystone.Monads.Docs.Analyzers.Sample is
+        the one project here that does import them, because its pages are about
+        the rules.
     -->
 
     <!--

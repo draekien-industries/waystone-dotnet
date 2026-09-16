@@ -1,80 +1,22 @@
-#nullable enable
-
-namespace Waystone.Monads.Analyzers.Sample;
-
-using System;
 using Waystone.Monads.Options;
 using Waystone.Monads.Options.Extensions;
-using Waystone.Monads.Results;
 
+namespace Waystone.Monads.Docs.Analyzers.Sample;
+
+/// <summary>
+/// analyzers/idioms.md. Every member here backs a published snippet and trips
+/// the rule its page documents, so a member that stops reporting is a broken
+/// sample rather than fixed code.
+/// </summary>
 internal class Idioms
 {
-    internal Option<string> MaybeNullPassedToSome(string? value) =>
-        Option.Some(value);
-
-    internal Option<string> ProjectionMayReturnNull(Option<int> option) =>
-        option.Map(Describe);
-
-    internal Option<string> ProjectionMayReturnNullFromALambda(
-        Option<int> option) =>
-        option.Map(value => Describe(value));
-
-    private static string? Describe(int value) =>
-        value > 0 ? value.ToString() : null;
-
-    internal int Panics(Option<int> option) => option.Unwrap();
-
-    internal int Expects(Option<int> option) => option.Expect("checked");
-
-    internal Result<int, string> ThrowsFromAResultMember(int value)
-    {
-        if (value > 0)
-        {
-            return Result.Ok<int, string>(value);
-        }
-
-        throw new InvalidOperationException("not positive");
-    }
-
-    internal int GuardsThenUnwraps(Option<int> option)
-    {
-        if (option.IsSome)
-        {
-            return option.Unwrap();
-        }
-
-        return 0;
-    }
-
-    internal bool ChecksThenUnwraps(Option<int> option) =>
-        option.IsSome && option.Unwrap() > 2;
-
-    internal Option<int> MapsThenFlattens(Option<int> option) =>
-        option.Map(value => Option.Some(value * 2)).Flatten();
-
-    internal int UnwrapsOrADefault(Option<int> option) => option.UnwrapOr(0);
-
-    internal bool ComparesToNull(Option<int> option) => option == null;
-
-    internal Option<Option<int>> Nested() => Option.None<Option<int>>();
-
-    internal Result<string, string> IdenticalTypeArguments() =>
-        Result.Ok<string, string>("value");
-
-    internal bool DeclaresACase(Some<int> some) => some.IsSome;
-
-    internal string? NullableAlongsideOption(int id) => null;
-
-    internal int UnwrapsOrDefaultOnAStruct(Option<int> option) =>
-        option.UnwrapOrDefault();
-
-    // The pair below is WM2017 before and after, and both halves belong in this
-    // project rather than one of them in Waystone.Monads.Docs. The rule is on
-    // here, so the second method asserts something the documentation samples
-    // cannot: that the rewrite the message names actually silences the rule.
-    // Watch the build output — one WM2017 for the whole pair, on the first.
-    // Change one half and change the other, or the page shows a before and an
-    // after that are not the same call.
+    // The pair below is WM2017 before and after, and both halves belong in the
+    // same file. The rule is on in this project, so the second method asserts
+    // what the other documentation samples cannot: that the rewrite the message
+    // names actually silences the rule. One WM2017 for the whole pair, on the
+    // first — at suggestion, so an IDE shows it and the build does not. Change
+    // one half and change the other, or the page shows a before and an after
+    // that are not the same call.
 
     internal Option<int> CapturesInsteadOfBindingState(
         Option<int> reward,
@@ -211,9 +153,11 @@ internal class Idioms
         return doubled;
     }
 
-    // One WM2027, on the first of the pair below. The two do not agree, and that
-    // is the point: the first counts only the rewards that turned up, which is a
-    // tally of the receiver rather than of the calls.
+    // One WM2027, on the first of the pair below. The two produce the same
+    // option and the same count — 'Inspect' runs its action only on 'Some',
+    // exactly as 'Map' runs its projection only on 'Some'. What differs is
+    // where the effect is stated: the first hides it inside a projection, the
+    // second gives it the member that exists to carry one.
 
     private int _counted;
 

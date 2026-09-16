@@ -7,9 +7,15 @@ sample that stops building is a break found before release rather than by a
 consumer.
 
 `Waystone.Monads.Docs/*` exists to be *published* — its code appears on GitBook.
-Everything else exists to be *run*, cloned and started by a reader. The analyzer
-sample additionally exists to be *wrong*: it carries code that trips the rules on
-purpose, so warnings there are the output, not a defect.
+Everything else exists to be *run*, cloned and started by a reader.
+
+`Waystone.Monads.Docs/Waystone.Monads.Docs.Analyzers.Sample` is the one project that
+imports the analyzers, and its members report on purpose. A member there that stops
+reporting is a broken sample. Rule coverage is not its job — every rule in `Rules.cs`
+is exercised by `test/Waystone.Monads.Analyzers.Tests` — so add a member only when a
+page quotes it. Read
+[Waystone.Monads.Docs/README.md](Waystone.Monads.Docs/README.md) before changing its
+`.editorconfig`.
 
 ## Published code lives here once
 

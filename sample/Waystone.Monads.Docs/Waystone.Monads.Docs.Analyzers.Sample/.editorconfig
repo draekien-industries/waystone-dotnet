@@ -1,0 +1,36 @@
+[*.cs]
+
+# Every member in this project trips the rule its page documents. The strict
+# preset applied in the csproj raises WM2xxx to warning, and the parent
+# Directory.Build.props sets TreatWarningsAsErrors, so without this section the
+# project fails to build on the diagnostics it exists to produce.
+#
+# Suggestion rather than warning: a rule held at warning is an error again by
+# the time TreatWarningsAsErrors has run.
+#
+# This is also the only executable test of the precedence the presets promise.
+# A path-matched .editorconfig section beats any global analyzer config, which
+# is why the presets ship as global configs rather than as a second
+# .editorconfig. If that ever stops holding, these rules return at warning,
+# TreatWarningsAsErrors turns them into errors, and the build fails.
+# PresetTests pins the preset against a consumer's own .globalconfig, which is
+# the other precedence rule; nothing but a real compilation covers this one.
+#
+# One id per rule a member reports.
+#
+# A rule reported without an id here fails the build, so the list cannot go
+# missing an entry. Nothing checks the other direction: an id left behind after
+# the member that reported it changed keeps the build green and means nothing.
+# Re-read the live set by hand after editing a member --
+#
+#     mv .editorconfig .editorconfig.off && dotnet build --no-incremental
+#
+# -- and the reported errors are the list this file should hold.
+
+dotnet_diagnostic.WM2007.severity = suggestion
+dotnet_diagnostic.WM2017.severity = suggestion
+dotnet_diagnostic.WM2023.severity = suggestion
+dotnet_diagnostic.WM2024.severity = suggestion
+dotnet_diagnostic.WM2025.severity = suggestion
+dotnet_diagnostic.WM2026.severity = suggestion
+dotnet_diagnostic.WM2027.severity = suggestion
