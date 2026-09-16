@@ -22,6 +22,19 @@ Do not add `SkipGetTargetFrameworkProperties`; it forces `net10.0` onto each ref
 of letting them negotiate, and the `netstandard2.0` analyzers then fail `NETSDK1005` for a
 target they never had.
 
+## The coverage-collector guard
+
+`CoverageCollectionTests` fails when a `*.Tests.csproj` under `test/` or `sample/` carries a
+`ProjectReference` it compiles against but no `coverlet.collector` `PackageReference`.
+Without one the collector is not installed, `--collect:"XPlat Code Coverage"` writes no
+report for that project, and `dotnet test` says `Passed!` either way — so the failure is
+silent at every point a human looks.
+
+**The `ReferenceOutputAssembly="false"` clause is what exempts this project itself.** Its
+references are build ordering and nothing is on its compile line, so a report collected from
+it would cover nothing. A test project added here that does compile against `src/` is not an
+exception to find room for; it is the rule applying.
+
 ## The documentation scan
 
 `PackagedDocumentationTests` fails the build on a `WA` or `WSG` id in a shipped XML doc
