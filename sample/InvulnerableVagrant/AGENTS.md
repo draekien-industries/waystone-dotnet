@@ -101,6 +101,53 @@ WM3001 rejects a DTO of `Guid?`/`string?`/`int?` under `strict`. Declare each fi
 parameter: `Option<T>` is a record class, so an omitted JSON property would otherwise
 arrive as `null` rather than `None`. `Schema.Required` takes the `Option<TIn>` directly.
 
+## An aggregate that needs the time takes a `TimeProvider`
+
+`Purchase.Settle(Coin, TimeProvider)` and `Buyback.Settle(Coin, TimeProvider)`. Neither
+the moment nor `DateTimeOffset.UtcNow` appears anywhere else: `Program` registers
+`TimeProvider.System`, the books hold it, and the domain tests pass a
+`FakeTimeProvider`. Do not add a `DateTimeOffset` parameter to a repository method — a
+caller that can name the hour can write any hour it likes on a receipt.
+
+## A route is named for the intent, never for the row it changes
+
+`POST /purchases/{id}/offer` and `POST /purchases/{id}/settle`, not a `PATCH
+/purchases/{id}` taking `{"settled": true}` or `{"agreedPrice": 400}`. Both of those are
+outcomes the shop decides; a body that could set them would let a client write what it
+wants to be true.
+
+The same rule shapes the bodies. `POST /purchases` names shelf labels and quantities and
+carries no prices, because the prices are the Catalog's. `POST /buybacks/{id}/settle`
+carries no body at all, because what the shop offered and what its till holds are both
+the shop's to know.
+
+## A schema produces the domain type when the body holds one
+
+`OpenBuybackSchema` returns a `Buyback`, so nothing downstream accepts an unparsed body.
+`OpenPurchaseSchema` returns `OpenPurchase` instead — a purchase is opened on prices that
+are not in the body, so a `Purchase` is not something the parse can honestly produce. Do
+not add a request type between a schema and an aggregate the body could have built.
+
+## EF maps public properties and nothing else
+
+`Purchase.Settled`, `LineItem.Haggled` and `Specimen.Identified` are internal, so
+`Property(p => p.Settled)` is named explicitly in the context's `OnModelCreating`. Leave
+it out and the column is silently absent: a settled purchase reads back as open, and
+nothing in the build or at startup says so.
+
+## Stock comes off the shelf all at once
+
+`IStockLedger.WithdrawAsync` takes every `Wanted` line in one call. A patron refused their
+fourth item must find the first three still on the shelf, and one call per line cannot
+promise that. `StockLedger` relies on `SaveChangesAsync` running once, after every line
+has succeeded — the tracked changes of a failed set are discarded with the scope.
+
+## A purchase carries one line per thing
+
+`LineItems.Of` refuses two lines naming the same subject, and `PurchaseLines` is keyed on
+`(PurchaseId, Subject)` because of it. `Purchase.Agree` finds a line by subject; two
+matching lines would haggle over one and leave the other at the asking price.
+
 ## A nested monad chain is extracted into a named method
 
 WM2025 rejects an `Option.Match` written inside a `Result.Match` delegate.

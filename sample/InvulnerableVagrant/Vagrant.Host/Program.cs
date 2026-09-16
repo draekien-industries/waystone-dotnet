@@ -8,9 +8,11 @@ using Vagrant.Appraisal;
 using Vagrant.Catalog;
 using Vagrant.Host.Endpoints;
 using Vagrant.Host.Infrastructure;
+using Vagrant.Ordering;
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
+using Waystone.Monads.Results.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -49,8 +51,20 @@ builder.Services.AddDbContext<AppraisalDbContext>(options =>
 builder.Services.AddScoped<VagrantDbContext>(
     services => services.GetRequiredService<AppraisalDbContext>());
 
+builder.Services.AddDbContext<OrderingDbContext>(options =>
+    options.UseSqlite(ShopDatabase.For(shop, "ordering")));
+builder.Services.AddScoped<VagrantDbContext>(
+    services => services.GetRequiredService<OrderingDbContext>());
+
+// The shop's clock. Purchase.Settle and Buyback.Settle take a TimeProvider rather than
+// reading DateTimeOffset.UtcNow, so what goes on a receipt is testable; this is the one
+// registration that decides it is the real time of day.
+builder.Services.AddSingleton(TimeProvider.System);
+
 builder.Services.AddScoped<IStockLedger, StockLedger>();
 builder.Services.AddScoped<ISpecimenShelf, SpecimenShelf>();
+builder.Services.AddScoped<IPurchaseBook, PurchaseBook>();
+builder.Services.AddScoped<IBuybackBook, BuybackBook>();
 
 WebApplication app = builder.Build();
 
@@ -60,8 +74,7 @@ WebApplication app = builder.Build();
 Result<int, Error> opened =
     await ShopDatabase.OpenAsync(app.Services).ConfigureAwait(false);
 
-int exitCode = opened.Match(
-    app.Logger,
+int exitCode = opened.With(app.Logger).Match(
     static (_, _) => 0,
     static (error, log) =>
     {
@@ -83,6 +96,8 @@ app.UseStatusCodePages();
 app.MapGet("/", () => Results.Ok(new { shop = "The Invulnerable Vagrant", city = "Zadash" }));
 app.MapItems();
 app.MapSpecimens();
+app.MapPurchases();
+app.MapBuybacks();
 
 await app.RunAsync().ConfigureAwait(false);
 

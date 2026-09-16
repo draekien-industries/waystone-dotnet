@@ -35,8 +35,9 @@ curl -X POST http://localhost:5000/specimens/01a0a884-447b-78fe-aa46-744f66e5bec
 ```
 
 Each bounded context gets its own SQLite file beside the host, gitignored — currently
-`invulnerable-vagrant-catalog.db` and `invulnerable-vagrant-appraisal.db`. Delete them
-and run again to start from a freshly stocked shop.
+`invulnerable-vagrant-catalog.db`, `invulnerable-vagrant-appraisal.db` and
+`invulnerable-vagrant-ordering.db`. Delete them and run again to start from a freshly
+stocked shop.
 
 That 404 is the sample's first argument in one line. `IStockLedger.FindAsync` returns
 `Option<StockedItem>`, the endpoint calls `Match`, and nothing anywhere throws or
@@ -60,6 +61,75 @@ curl -X POST http://localhost:5000/specimens -H 'Content-Type: application/json'
 `Aura.Obscurity` is a `uint` and JSON has one kind of number. `HandInSpecimenSchema` is
 where the two meet, so the domain needs no guard against a negative it can no longer be
 given.
+
+## Buying something
+
+```
+curl -X POST http://localhost:5000/purchases -H 'Content-Type: application/json'   -d '{"patron":"0199aa00-0000-7000-8000-000000000001",
+       "items":[{"item":"<potion of healing>","quantity":3},
+                {"item":"<driftglobe>","quantity":1}]}'
+{"id":"01a0a8bd-e844-...","patron":"0199aa00-...",
+ "lines":[{"item":"...","quantity":3,"askingPrice":"5pp","agreedPrice":null,"due":"15pp"},
+          {"item":"...","quantity":1,"askingPrice":"75pp","agreedPrice":null,"due":"75pp"}],
+ "total":"90pp"}
+
+curl -X POST http://localhost:5000/purchases/01a0a8bd-e844-.../offer   -H 'Content-Type: application/json' -d '{"item":"<potion of healing>","offer":{"gold":100}}'
+{"status":409,"detail":"10pp offered for 3, and the shop will not go below 13pp 5gp",
+ "code":"vagrant.ordering.offer_below_floor"}
+
+curl -X POST http://localhost:5000/purchases/01a0a8bd-e844-.../offer   -H 'Content-Type: application/json' -d '{"item":"<potion of healing>","offer":{"gold":135}}'
+{"item":"...","agreedPrice":"13pp 5gp"}
+
+curl -X POST http://localhost:5000/purchases/01a0a8bd-e844-.../settle   -H 'Content-Type: application/json' -d '{"tendered":{"gold":800}}'
+{"status":402,"detail":"80pp tendered against a total of 88pp 5gp",
+ "code":"vagrant.ordering.insufficient_coin"}
+
+curl -X POST http://localhost:5000/purchases/01a0a8bd-e844-.../settle   -H 'Content-Type: application/json' -d '{"tendered":{"platinum":88,"gold":5}}'
+{"id":"01a0a8bd-eab6-...","patron":"0199aa00-...","moved":"88pp 5gp",
+ "at":"2026-09-16T05:43:33.8148923+00:00"}
+```
+
+Every route is named for what the patron is doing — `offer`, `settle` — and no route
+accepts a field describing the outcome. There is no `PATCH /purchases/{id}` taking
+`{"settled":true}` or `{"agreedPrice":400}`, because the shop decides both. The body of
+`POST /purchases` names shelf labels and quantities and no prices at all; what each line
+costs is read off the Catalog withdrawal.
+
+The two `agreedPrice` fields on the read-back are the strongest case in the sample for
+putting an `Option<T>` on the wire. One line was haggled over and one was not, and
+`null` against `"13pp 5gp"` is that difference. A nullable decimal would render a line
+agreed at its asking price identically to a line nobody touched.
+
+`at` comes from a `TimeProvider`. `Purchase.Settle` takes one rather than reading
+`DateTimeOffset.UtcNow`, the host registers `TimeProvider.System`, and the domain tests
+pass a `FakeTimeProvider` — so what goes on a receipt is something a test can assert.
+
+## Selling something back
+
+```
+curl -X POST http://localhost:5000/buybacks -H 'Content-Type: application/json'   -d '{"patron":"0199aa00-0000-7000-8000-000000000001",
+       "description":"a wand nobody can place","offered":{"gold":200}}'
+{"id":"01a0a8be-17b2-...","patron":"0199aa00-...",
+ "description":"a wand nobody can place","offered":"20pp"}
+
+curl -X POST http://localhost:5000/buybacks/01a0a8be-17b2-.../settle
+{"id":"01a0a8be-18a8-...","patron":"0199aa00-...","moved":"20pp",
+ "at":"2026-09-16T05:43:45.5765283+00:00"}
+
+curl -X POST http://localhost:5000/buybacks/01a0a8be-17b2-.../settle
+{"status":409,"detail":"buyback 01a0a8be-17b2-... has already been settled",
+ "code":"vagrant.ordering.buyback_already_settled"}
+```
+
+That settle call carries no body, and the absence is the point. The shop already knows
+what it offered, and what its till holds is `ShopTill`'s answer rather than the request's
+— a patron cannot be asked how much money the shop has. So there is nothing left for the
+body to say, and something offered more than the till holds is a refusal with a reason:
+
+```
+{"status":402,"detail":"300pp offered against a till holding 200pp",
+ "code":"vagrant.ordering.till_cannot_cover"}
+```
 
 The bounded contexts arrive one at a time — see the design's Steps section for which
 layer brings what.
@@ -94,7 +164,7 @@ are ours, so nobody goes looking for a canonical definition of a term we made up
 | ArcanaCheck | D&D — the Arcana skill |
 | Enchantment | ours. In D&D, Enchantment is a school of magic about charming people, not the property a magic item carries. We use it in the loose sense, and it is the one term here most likely to mislead a reader who knows the game. |
 | Patron, Clerk, Counter, Errand, Assignment | ours |
-| StockedItem, AskingPrice, FloorPrice, PriceBand, Withdrawal | ours |
+| StockedItem, AskingPrice, FloorPrice, PriceBand, Withdrawal, Wanted | ours |
 | Specimen | ours |
 | Purchase, LineItem, Offer, AgreedPrice, Buyback, Receipt | ours |
 

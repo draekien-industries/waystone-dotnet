@@ -43,6 +43,17 @@ contexts:
           relationship: contains
         - term: StockedItem
           relationship: part of
+      Wanted:
+        definition: How many of one StockedItem someone has asked the shop for.
+        aliases:
+        - Requested
+        - OrderLine
+        usage: Three Wanted entries went to the shelf and three Withdrawals came back.
+        related:
+        - term: StockedItem
+          relationship: part of
+        - term: Withdrawal
+          relationship: produces
       Withdrawal:
         definition: Stock taken off the shelf, and what the shop was asking for it.
         aliases:
