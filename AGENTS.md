@@ -67,11 +67,6 @@ than the solution: it drops projects from the solution and strips `ProjectRefere
 elements out of `.csproj` files, which surfaces as a few hundred `CS0246`s and looks
 nothing like a solution problem.
 
-**The `Waystone.Monads.PreviousMajor*` samples carry `<Build Project="false" />`,
-and it is load-bearing.** They compile against a *previous* major on purpose, so
-the root build has to skip them while an IDE still opens them. See
-[sample/Waystone.Monads.PreviousMajor.Sample/README.md](sample/Waystone.Monads.PreviousMajor.Sample/README.md).
-
 ## Versioning
 
 **The commit type determines the published version.** GitVersion parses commit
@@ -82,6 +77,11 @@ being removed.
 
 **One version covers every package.** A change to one bumps and republishes the
 rest; packages cannot be versioned independently.
+
+Read [docs/contexts/measuring-a-major-break.md](docs/contexts/measuring-a-major-break.md)
+before starting a major, or before writing an upgrade guide that claims what breaks.
+The harness that measures it is built at the start of a major and deleted at the end,
+so there is none in the tree today.
 
 **Merging to `main` publishes to NuGet.org only when the change touches `src`.**
 `release.yml` triggers on `src/**`, with `!**/*.md` after it and

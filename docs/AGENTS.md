@@ -34,6 +34,7 @@ Filename describes the task, not the area: `binder-async-conversion.md`, not
 | `schema-structures.md` | Editing `Internal/Structures/`, `MinCount` or `MaxCount` |
 | `conventions-tests.md` | Adding to `Waystone.Conventions.Tests` or editing its `.csproj` |
 | `assertion-analyzer-sweep.md` | Migrating a test project's assertions to the Shouldly forms |
+| `measuring-a-major-break.md` | Starting a major version; building a break inventory for an upgrade guide |
 
 **Every link to a context states the trigger**, because a link with no trigger is a
 context nobody opens. Several areas may link the same file where the task spans them —

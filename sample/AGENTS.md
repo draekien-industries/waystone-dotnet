@@ -37,8 +37,8 @@ int port = configured.UnwrapOr(8080);
 4. Scaffolding — the declarations, the `Console.WriteLine`, the method signature —
    goes *outside* the region. Only the lines a reader needs go between the markers.
 5. The tool reads all of `sample/`, so the runnable projects can be quoted too.
-   Quote nothing from the `PreviousMajor` ones: they are excluded from the root
-   build, so a break in them would not be caught.
+   Quote nothing from a project carrying `<Build Project="false" />` in the
+   solution: it is excluded from the root build, so a break in it is not caught.
 
 ## Converting a page is part of editing it
 
