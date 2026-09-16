@@ -13,8 +13,18 @@
         <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
 
+    <!--
+        Top-level statements make Program internal, so WebApplicationFactory<Program>
+        cannot see it from outside. The tests reach ShopDatabase.ConnectionName the same
+        way, rather than repeating the configuration key as a literal.
+    -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="Vagrant.Host.Tests"/>
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Vagrant.SharedKernel\Vagrant.SharedKernel.csproj"/>
+        <ProjectReference Include="..\Vagrant.Catalog\Vagrant.Catalog.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.Extensions.Hosting\Waystone.Monads.Extensions.Hosting.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>
         <ProjectReference Include="..\..\..\src\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.csproj"/>

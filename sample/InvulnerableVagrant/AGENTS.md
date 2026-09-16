@@ -45,6 +45,41 @@ Requests are parsed by `.Schemas`; nothing else validates. `Option<T>` is serial
 response bodies; `Result<T, E>` is unwrapped at the endpoint into a status code and never
 appears on the wire.
 
+## An error catalog is internal, and the host sees it through `InternalsVisibleTo`
+
+`CatalogError` and its siblings are `internal`. `Vagrant.Host` reads their generated
+codes to choose a status code, and the context's own test project asserts on them; the
+`InternalsVisibleTo` items are in the context's `.csproj`. Making one public puts codes
+on the context's API surface for callers that have no status code to choose.
+
+`Vagrant.Host` grants the same to `Vagrant.Host.Tests`, because top-level statements make
+`Program` internal and `WebApplicationFactory<Program>` cannot see it otherwise.
+
+## `strict` refuses every throwing unwrap
+
+`Unwrap`, `Expect`, a discarded `InspectErr` and a bare `throw` in a method that does not
+return a `Result` are all build errors here. The way through is to return the `Result` to
+a caller that can act on it — `CatalogSeed` returns one, `ShopDatabase.OpenAsync` passes
+it on, and `Program` turns it into a log line and an exit code.
+
+A lambda that captures a local is WM2017. Take the stateful overload —
+`Match(state, static (ok, s) => …)` — rather than suppressing it.
+
+## A class fixture must not be a `WebApplicationFactory`
+
+That type implements both `IDisposable` and `IAsyncDisposable`, and xUnit v3 fails a
+class fixture implementing both with a `TestPipelineException` — reported as a *cleanup*
+failure after every test has already passed, so `dotnet test` still says `Passed!` while
+`pre-push` fails. `ShopFixture` wraps a private factory and implements
+`IAsyncDisposable` alone.
+
+## An aggregate carries a private parameterless constructor
+
+EF Core cannot bind a complex property through a constructor parameter, so
+`StockedItem(StockedItemId, string, PriceBand, uint)` alone fails at model build with
+"No suitable constructor was found". The parameterless one is for rehydration and says
+so; do not delete it as unused.
+
 ## Coverage
 
 `codecov.yml` ignores `sample/**`. Tests here exist to demonstrate assertions on a monad,

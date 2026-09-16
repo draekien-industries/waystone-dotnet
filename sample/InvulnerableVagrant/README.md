@@ -11,15 +11,27 @@ The vocabulary is [ubiquitous-language.yaml](ubiquitous-language.yaml).
 
 ```
 dotnet run --project sample/InvulnerableVagrant/Vagrant.Host
+
 curl http://localhost:5000/
 {"shop":"The Invulnerable Vagrant","city":"Zadash"}
+
+curl http://localhost:5000/items
+[{"id":"01a0a847-fc0d-717e-a441-bd5414595330","name":"Bag of Holding","askingPrice":"400pp","onHand":1}, ...]
+
+curl -i http://localhost:5000/items/00000000-0000-0000-0000-000000000000
+HTTP/1.1 404 Not Found
 ```
 
 The shop's SQLite file is created beside the host on startup and is gitignored. Delete
 it and run again to start from a freshly stocked shop.
 
+That 404 is the sample's first argument in one line. `IStockLedger.FindAsync` returns
+`Option<StockedItem>`, the endpoint calls `Match`, and nothing anywhere throws or
+invents an error code — because an identifier the shop has never held needs no
+explanation beyond its absence.
+
 The bounded contexts arrive one at a time — see the design's Steps section for which
-layer brings what. Until Catalog lands there is nothing to buy.
+layer brings what.
 
 ## How it is put together
 
