@@ -1,0 +1,278 @@
+contexts:
+  Catalog:
+    terms:
+      StockedItem:
+        definition: A magical item the Invulnerable Vagrant holds and offers for sale.
+        aliases:
+        - Item
+        - Product
+        - Ware
+        usage: Pumat brought the Cloak of Elvenkind out of the back room, making it
+          a StockedItem.
+      AskingPrice:
+        definition: The sum in coin the shop names for a StockedItem before any haggling.
+        aliases:
+        - Price
+        - ListPrice
+        usage: The AskingPrice on that StockedItem is four hundred and fifty gold.
+        related:
+        - term: StockedItem
+          relationship: part of
+      FloorPrice:
+        definition: The least the shop will take for a StockedItem.
+        aliases:
+        - Reserve
+        - MinimumPrice
+        - Floor
+        usage: Pumat will come down to the FloorPrice on that StockedItem and no further.
+        related:
+        - term: StockedItem
+          relationship: part of
+        - term: AskingPrice
+          relationship: part of
+      PriceBand:
+        definition: The AskingPrice and the FloorPrice of a StockedItem, taken together.
+        aliases:
+        - PriceRange
+        - Pricing
+        usage: Any Offer inside the PriceBand is one Pumat will take.
+        related:
+        - term: AskingPrice
+          relationship: contains
+        - term: FloorPrice
+          relationship: contains
+        - term: StockedItem
+          relationship: part of
+      Withdrawal:
+        definition: Stock taken off the shelf, and what the shop was asking for it.
+        aliases:
+        - Removal
+        - Allocation
+        usage: A Withdrawal leaves the shelf one StockedItem lighter.
+        related:
+        - term: StockedItem
+          relationship: produced by
+        - term: PriceBand
+          relationship: contains
+  SharedKernel:
+    terms:
+      Gold:
+        definition: The Denomination of Coin the shop quotes its prices in.
+        aliases:
+        - GoldPiece
+        - gp
+        usage: The AskingPrice on that StockedItem is four hundred and fifty Gold.
+        related:
+        - term: Denomination
+          relationship: part of
+      Patron:
+        definition: Someone who trades with the Invulnerable Vagrant.
+        aliases:
+        - Customer
+        - User
+        - Buyer
+        usage: A Patron came in with a Specimen and left with Gold.
+      Coin:
+        definition: Money of the Dwendalian Empire, reckoned in four Denominations.
+        aliases:
+        - Money
+        - Currency
+        - Amount
+        - Funds
+        usage: A Patron pays the AskingPrice in Coin.
+      Denomination:
+        definition: One of the four kinds of Coin the shop deals in.
+        aliases:
+        - Unit
+        - CoinType
+        usage: Pumat quoted the price in the largest Denomination that divided it
+          evenly.
+        related:
+        - term: Coin
+          relationship: part of
+      Platinum:
+        definition: The heaviest Denomination of Coin, worth ten Gold.
+        aliases:
+        - PlatinumPiece
+        - pp
+        usage: The Patron settled a large Purchase in Platinum rather than counting
+          out Gold.
+        related:
+        - term: Denomination
+          relationship: part of
+      Silver:
+        definition: The Denomination of Coin worth a tenth of a Gold.
+        aliases:
+        - SilverPiece
+        - sp
+        usage: The Identification fee came to eight Silver.
+        related:
+        - term: Denomination
+          relationship: part of
+      Copper:
+        definition: The lightest Denomination of Coin, worth a hundredth of a Gold.
+        aliases:
+        - CopperPiece
+        - cp
+        usage: The Patron counted out the last of an AgreedPrice in Copper.
+        related:
+        - term: Denomination
+          relationship: part of
+  Appraisal:
+    terms:
+      Specimen:
+        definition: An item handed to the shop whose magical nature is not yet known.
+        aliases:
+        - Item
+        - UnknownItem
+        usage: The Patron put a Specimen on the counter and asked what it was.
+      Aura:
+        definition: The magical signature a Specimen gives off under examination.
+        usage: That Specimen carries a faint Aura.
+        related:
+        - term: Specimen
+          relationship: part of
+      Enchantment:
+        definition: The effect an identified Specimen carries.
+        aliases:
+        - Magic
+        - Effect
+        - Property
+        usage: Reading the Aura told Pumat the Enchantment was a cloak of elvenkind.
+        related:
+        - term: Specimen
+          relationship: part of
+        - term: Aura
+          relationship: produced by
+      Identification:
+        definition: The shop's examination of a Specimen to learn what it does.
+        aliases:
+        - Appraisal
+        - Analysis
+        usage: An Identification either names the Enchantment or comes back with nothing.
+        related:
+        - term: Specimen
+          relationship: precedes
+        - term: Enchantment
+          relationship: precedes
+      ArcanaCheck:
+        definition: How well the shop read a Specimen on one attempt.
+        aliases:
+        - Roll
+        - SkillCheck
+        usage: The ArcanaCheck fell short of the Aura, so the Identification found
+          nothing.
+        related:
+        - term: Specimen
+          relationship: part of
+        - term: Aura
+          relationship: precedes
+  Ordering:
+    terms:
+      Purchase:
+        definition: A Patron taking an item from the shop in exchange for Gold.
+        aliases:
+        - Order
+        - Sale
+        - Transaction
+        usage: The Purchase settled once the Patron handed over the Gold.
+      LineItem:
+        definition: One item on a Purchase, at the price settled for it.
+        aliases:
+        - Item
+        - StockedItem
+        - OrderLine
+        usage: The Purchase carried two LineItems, a cloak and a wand.
+        related:
+        - term: Purchase
+          relationship: part of
+      Offer:
+        definition: A sum a Patron names for a LineItem, short of what the shop is
+          asking.
+        aliases:
+        - Bid
+        - Proposal
+        usage: The Patron made an Offer of four hundred on a LineItem marked four
+          fifty.
+        related:
+        - term: LineItem
+          relationship: part of
+      AgreedPrice:
+        definition: The sum a Patron and the shop settle on for a LineItem.
+        aliases:
+        - FinalPrice
+        - NegotiatedPrice
+        usage: Pumat took the Offer, so the AgreedPrice on that LineItem is four hundred.
+        related:
+        - term: LineItem
+          relationship: part of
+        - term: Offer
+          relationship: produced by
+      Buyback:
+        definition: The shop taking an item from a Patron in exchange for Gold.
+        aliases:
+        - Sellback
+        - Trade
+        - TradeIn
+        usage: Pumat settled a Buyback for the wand the Patron no longer wanted.
+      Receipt:
+        definition: The record of a settled Purchase or Buyback.
+        aliases:
+        - Confirmation
+        - Invoice
+        usage: The Receipt names every LineItem and the Gold that changed hands.
+        related:
+        - term: Purchase
+          relationship: produced by
+        - term: Buyback
+          relationship: produced by
+        - term: LineItem
+          relationship: contains
+  Staffing:
+    terms:
+      Clerk:
+        definition: Pumat Sol or one of his simulacra, serving one Patron at a time.
+        aliases:
+        - Staff
+        - Employee
+        - Worker
+        - Server
+        usage: Only one Clerk was free, so the second Patron waited.
+      Simulacrum:
+        definition: A magical copy of Pumat Sol who works the shop alongside him.
+        aliases:
+        - Clone
+        - Copy
+        - Duplicate
+        usage: A Simulacrum took the Specimen while Pumat Sol handled the counter.
+        related:
+        - term: Clerk
+          relationship: part of
+      Counter:
+        definition: The one place in the shop where a Clerk attends to a Patron.
+        aliases:
+        - Desk
+        - Till
+        usage: Both Patrons arrived at the Counter at once.
+        related:
+        - term: Clerk
+          relationship: owned by
+      Errand:
+        definition: A piece of work needing a Clerk before it can be done.
+        aliases:
+        - WorkItem
+        - Task
+        - Job
+        usage: An Identification is an Errand; it waits until a Clerk is free.
+      Assignment:
+        definition: A Clerk held to an Errand until it is finished.
+        aliases:
+        - Allocation
+        - Booking
+        - Claim
+        usage: The Assignment names which Clerk took the Errand.
+        related:
+        - term: Clerk
+          relationship: contains
+        - term: Errand
+          relationship: contains
