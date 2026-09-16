@@ -11,6 +11,7 @@ using Vagrant.Host.Infrastructure;
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
+using Waystone.Monads.Results.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -60,8 +61,7 @@ WebApplication app = builder.Build();
 Result<int, Error> opened =
     await ShopDatabase.OpenAsync(app.Services).ConfigureAwait(false);
 
-int exitCode = opened.Match(
-    app.Logger,
+int exitCode = opened.With(app.Logger).Match(
     static (_, _) => 0,
     static (error, log) =>
     {
