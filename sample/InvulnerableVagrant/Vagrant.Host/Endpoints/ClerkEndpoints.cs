@@ -12,17 +12,25 @@ internal static class ClerkEndpoints
     {
         ArgumentNullException.ThrowIfNull(routes);
 
+        RouteGroupBuilder staffing = routes.MapGroup(string.Empty).WithTags("Staffing");
+
         // No Result to unwrap. Asking who is behind the counter cannot be refused, so
         // the roster returns a list and the endpoint returns a 200 — an empty shop is an
         // empty array, not a 404.
-        routes.MapGet(
-            "/clerks",
-            async (IClerkRoster roster, CancellationToken ct) =>
-            {
-                IReadOnlyList<Clerk> onDuty =
-                    await roster.OnDutyAsync(ct).ConfigureAwait(false);
+        staffing.MapGet(
+                "/clerks",
+                async (IClerkRoster roster, CancellationToken ct) =>
+                {
+                    IReadOnlyList<Clerk> onDuty =
+                        await roster.OnDutyAsync(ct).ConfigureAwait(false);
 
-                return Results.Ok(onDuty.Select(ClerkResponse.From).ToList());
-            });
+                    return Results.Ok(onDuty.Select(ClerkResponse.From).ToList());
+                })
+           .WithSummary("Reads who is behind the counter.")
+           .WithDescription(
+                "One 200 and no refusal. Three of the four rows come back named "
+              + "\"Pumat Sol\" because the simulacra share a name, and holding is "
+              + "null for a clerk who is free.")
+           .Produces<List<ClerkResponse>>(StatusCodes.Status200OK);
     }
 }

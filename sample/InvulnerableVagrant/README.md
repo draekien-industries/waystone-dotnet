@@ -11,7 +11,30 @@ The vocabulary is [ubiquitous-language.yaml](ubiquitous-language.yaml).
 
 ```
 dotnet run --project sample/InvulnerableVagrant/Vagrant.Host
+```
 
+Then open `http://localhost:5000/scalar/v1`, which is every route below with its
+schemas, tags and refusal codes — read off the running shop rather than written by hand.
+The document it renders is at `http://localhost:5000/openapi/v1.json`. Both are mapped in
+every environment, because plain `dotnet run` is Production and a reader following this
+page would otherwise be answered a 404.
+
+The reference is where `Option<T>` is worth looking at twice. `enchantment`, `holding`
+and `agreedPrice` are each documented as their payload or `null` — the shape the
+converters actually write — rather than as the monad holding them:
+
+```jsonc
+"enchantment": {
+  "anyOf": [{ "$ref": "#/components/schemas/Enchantment" }, { "type": "null" }],
+  "description": "What it does, once the shop has read it."
+}
+```
+
+`OptionSchemaTransformer` is what puts it there. Without it the exporter finds no
+properties on a converted type and publishes an empty `OptionOfEnchantment` schema, which
+describes neither the enchantment nor the null.
+
+```
 curl http://localhost:5000/
 {"shop":"The Invulnerable Vagrant","city":"Zadash"}
 

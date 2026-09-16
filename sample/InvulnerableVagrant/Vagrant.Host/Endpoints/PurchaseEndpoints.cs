@@ -24,60 +24,101 @@ internal static class PurchaseEndpoints
     {
         ArgumentNullException.ThrowIfNull(routes);
 
+        RouteGroupBuilder ordering = routes.MapGroup(string.Empty).WithTags("Ordering");
+
         // The body names shelf labels and quantities and no prices at all. What each
         // line costs is read off the Catalog withdrawal, so a client cannot state what
         // it intends to be charged.
-        routes.MapPost(
-            "/purchases",
-            async (
-                    OpenPurchaseRequest body,
-                    IStockLedger ledger,
-                    IPurchaseBook book,
-                    CancellationToken ct) =>
-                await OpenPurchaseSchema
-                     .Instance
-                     .Parse(body)
-                     .Match((ledger, book, ct), OpenAsync, Refusal.Rejected)
-                     .ConfigureAwait(false));
+        ordering.MapPost(
+                "/purchases",
+                async (
+                        OpenPurchaseRequest body,
+                        IStockLedger ledger,
+                        IPurchaseBook book,
+                        CancellationToken ct) =>
+                    await OpenPurchaseSchema
+                         .Instance
+                         .Parse(body)
+                         .Match((ledger, book, ct), OpenAsync, Refusal.Rejected)
+                         .ConfigureAwait(false))
+           .WithSummary("Opens a purchase over what a patron has brought to the counter.")
+           .WithDescription(
+                "The body names shelf labels and quantities and carries no prices. "
+              + "What each line costs is read off the Catalog withdrawal, so the 404 "
+              + "and the 409 here are the Catalog's refusals carried out unchanged. A "
+              + "400 is either the field list shown below or a refusal code, depending "
+              + "on whether the body parsed at all.")
+           .Produces<PurchaseResponse>(StatusCodes.Status201Created)
+           .ProducesValidationProblem()
+           .ProducesProblem(StatusCodes.Status404NotFound)
+           .ProducesProblem(StatusCodes.Status409Conflict);
 
-        routes.MapGet(
-            "/purchases/{id:guid}",
-            async (Guid id, IPurchaseBook book, CancellationToken ct) =>
-            {
-                Option<Purchase> found = await book
-                                              .FindAsync(new PurchaseId(id), ct)
-                                              .ConfigureAwait(false);
+        ordering.MapGet(
+                "/purchases/{id:guid}",
+                async (Guid id, IPurchaseBook book, CancellationToken ct) =>
+                {
+                    Option<Purchase> found = await book
+                                                  .FindAsync(new PurchaseId(id), ct)
+                                                  .ConfigureAwait(false);
 
-                return found.Match(
-                    purchase => Results.Ok(PurchaseResponse.From(purchase)),
-                    () => Results.NotFound());
-            });
+                    return found.Match(
+                        purchase => Results.Ok(PurchaseResponse.From(purchase)),
+                        () => Results.NotFound());
+                })
+           .WithSummary("Reads a purchase back, line by line.")
+           .WithDescription(
+                "The agreedPrice on each line is the strongest case in the shop for "
+              + "putting an Option on the wire: null against \"13pp 5gp\" is the "
+              + "difference between a line nobody haggled over and one agreed at its "
+              + "asking price, which a nullable decimal would render identically.")
+           .Produces<PurchaseResponse>(StatusCodes.Status200OK)
+           .ProducesProblem(StatusCodes.Status404NotFound);
 
-        routes.MapPost(
-            "/purchases/{id:guid}/offer",
-            async (
-                    Guid id,
-                    MakeOfferRequest body,
-                    IPurchaseBook book,
-                    CancellationToken ct) =>
-                await MakeOfferSchema
-                     .Instance
-                     .Parse(body)
-                     .Match((id, book, ct), HaggleAsync, Refusal.Rejected)
-                     .ConfigureAwait(false));
+        ordering.MapPost(
+                "/purchases/{id:guid}/offer",
+                async (
+                        Guid id,
+                        MakeOfferRequest body,
+                        IPurchaseBook book,
+                        CancellationToken ct) =>
+                    await MakeOfferSchema
+                         .Instance
+                         .Parse(body)
+                         .Match((id, book, ct), HaggleAsync, Refusal.Rejected)
+                         .ConfigureAwait(false))
+           .WithSummary("Offers a price for one line of a purchase.")
+           .WithDescription(
+                "Answers with the agreement rather than the whole purchase. A 409 "
+              + "carries vagrant.ordering.offer_below_floor and the floor the shop "
+              + "will not go below.")
+           .Produces<AgreementResponse>(StatusCodes.Status200OK)
+           .ProducesValidationProblem()
+           .ProducesProblem(StatusCodes.Status404NotFound)
+           .ProducesProblem(StatusCodes.Status409Conflict);
 
-        routes.MapPost(
-            "/purchases/{id:guid}/settle",
-            async (
-                    Guid id,
-                    SettlePurchaseRequest body,
-                    IPurchaseBook book,
-                    CancellationToken ct) =>
-                await SettlePurchaseSchema
-                     .Instance
-                     .Parse(body)
-                     .Match((id, book, ct), SettleAsync, Refusal.Rejected)
-                     .ConfigureAwait(false));
+        ordering.MapPost(
+                "/purchases/{id:guid}/settle",
+                async (
+                        Guid id,
+                        SettlePurchaseRequest body,
+                        IPurchaseBook book,
+                        CancellationToken ct) =>
+                    await SettlePurchaseSchema
+                         .Instance
+                         .Parse(body)
+                         .Match((id, book, ct), SettleAsync, Refusal.Rejected)
+                         .ConfigureAwait(false))
+           .WithSummary("Pays for a purchase with coin the patron tenders.")
+           .WithDescription(
+                "The body says what is being handed over and nothing about the "
+              + "outcome. Coin short of the total is a 402 carrying "
+              + "vagrant.ordering.insufficient_coin, and a purchase already paid for "
+              + "is a 409.")
+           .Produces<ReceiptResponse>(StatusCodes.Status200OK)
+           .ProducesValidationProblem()
+           .ProducesProblem(StatusCodes.Status402PaymentRequired)
+           .ProducesProblem(StatusCodes.Status404NotFound)
+           .ProducesProblem(StatusCodes.Status409Conflict);
     }
 
     /// <remarks>
