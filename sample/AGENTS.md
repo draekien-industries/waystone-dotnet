@@ -9,6 +9,11 @@ consumer.
 `Waystone.Monads.Docs/*` exists to be *published* — its code appears on GitBook.
 Everything else exists to be *run*, cloned and started by a reader.
 
+`InvulnerableVagrant/` is the one multi-project sample: a domain-driven shop with four
+bounded contexts. Read [InvulnerableVagrant/AGENTS.md](InvulnerableVagrant/AGENTS.md)
+before changing anything under it — the context boundaries and the package list there
+are decisions, not conveniences.
+
 `Waystone.Monads.Docs/Waystone.Monads.Docs.Analyzers.Sample` is the one project that
 imports the analyzers, and its members report on purpose. A member there that stops
 reporting is a broken sample. Rule coverage is not its job — every rule in `Rules.cs`

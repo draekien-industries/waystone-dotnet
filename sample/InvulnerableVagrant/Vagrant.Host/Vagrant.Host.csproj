@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <!--
+        The only project here that references EF Core. Persistence stays behind the
+        repository interfaces the contexts declare, so a context is testable without
+        a database and cannot reach for a DbContext by accident.
+    -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+        <PackageReference Include="Serilog.AspNetCore"/>
+        <PackageReference Include="Serilog.Extensions.Hosting"/>
+        <PackageReference Include="Serilog.Settings.Configuration"/>
+        <PackageReference Include="Serilog.Sinks.Console"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Vagrant.SharedKernel\Vagrant.SharedKernel.csproj"/>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads.Extensions.Hosting\Waystone.Monads.Extensions.Hosting.csproj"/>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>
+        <ProjectReference Include="..\..\..\src\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.csproj"/>
+    </ItemGroup>
+
+</Project>

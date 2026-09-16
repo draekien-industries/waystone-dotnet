@@ -9,8 +9,26 @@ The vocabulary is [ubiquitous-language.yaml](ubiquitous-language.yaml).
 
 ## Running it
 
-The projects arrive one bounded context at a time — see the design's Steps section for
-which layer brings what. There is nothing to run until `Vagrant.Host` lands.
+```
+dotnet run --project sample/InvulnerableVagrant/Vagrant.Host
+curl http://localhost:5000/
+{"shop":"The Invulnerable Vagrant","city":"Zadash"}
+```
+
+The shop's SQLite file is created beside the host on startup and is gitignored. Delete
+it and run again to start from a freshly stocked shop.
+
+The bounded contexts arrive one at a time — see the design's Steps section for which
+layer brings what. Until Catalog lands there is nothing to buy.
+
+## How it is put together
+
+`Vagrant.SharedKernel` and each bounded context reference no persistence library at all.
+`Vagrant.Host` is the only project that knows EF Core exists: a context declares its
+repository interface and the host implements it.
+
+Two things follow. A context's tests need no database, and a context cannot reach for a
+`DbContext` by accident — the reference is not there to reach for.
 
 ## Where the names come from
 

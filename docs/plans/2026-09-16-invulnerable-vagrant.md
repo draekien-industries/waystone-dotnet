@@ -40,6 +40,14 @@ Five projects carrying domain code, one host, one test project per context.
 Each context project references `Vagrant.SharedKernel` and nothing else in the sample.
 Translation between two contexts happens in `Vagrant.Host`.
 
+**No context project references EF Core.** A context declares its repository interface;
+`Vagrant.Host` implements it. The contexts are persistence-ignorant, so their tests need
+no database, run in milliseconds, and cannot reach for a `DbContext` by accident.
+
+Every project here targets `net10.0`, which is what ASP.NET Core 10 and EF Core 10
+support. CI's test step was moved to `net10.0` to match; the framework matrix still runs
+in `pre-push`.
+
 ## Key data structures
 
 ### Vagrant.SharedKernel
@@ -47,10 +55,10 @@ Translation between two contexts happens in `Vagrant.Host`.
 ```csharp
 readonly record struct Coin
 {
-    static Coin FromGold(int gold);
-    static Coin From(int platinum, int gold, int silver, int copper);
+    static Coin FromGold(uint gold);
+    static Coin From(uint platinum, uint gold, uint silver, uint copper);
     static Coin operator +(Coin left, Coin right);
-    static Coin operator *(Coin coin, int quantity);
+    static Coin operator *(Coin coin, uint quantity);
     Option<Coin> Less(Coin other);
     bool IsAtLeast(Coin other);
     string ToString();                      // "45gp 3sp"
@@ -59,14 +67,17 @@ readonly record struct Coin
 readonly record struct PatronId(Guid Value);
 ```
 
-`Coin` holds a non-negative count of copper. A negative sum is unrepresentable, so
-`Less` returns `Option<Coin>` — `None` when the subtrahend exceeds the balance. No
-caller can build a debt by accident.
+**`Coin` holds a count of copper in a `ulong`, and every component is unsigned.** A
+negative price is a compile error rather than an `ArgumentOutOfRangeException`, so the
+type needs no guards and no caller has a rejection to handle. `+` and `*` are `checked`,
+so the one remaining way to reach a wrong amount — a sum wrapping past `ulong.MaxValue` —
+throws instead of producing a small number.
 
-`FromGold` and `From` throw `ArgumentOutOfRangeException` on a negative component.
-Every call site passes either a literal or an amount that `Waystone.Monads.Schemas`
-has already parsed, so the check sits at construction as a guard rather than reaching
-a caller as a `Result` it would have nothing useful to do with.
+There is no subtraction operator. `Less` returns `Option<Coin>` — `None` when the
+subtrahend exceeds the balance — so no caller can build a debt by accident.
+
+This is the rule the rest of the sample follows. A quantity, a count on hand or an
+amount of coin is unsigned wherever it appears.
 
 `Patron` is vocabulary, not a type. Each context that needs a patron holds a
 `PatronId` and its own view of what it needs to know about them.
@@ -77,14 +88,14 @@ a caller as a `Result` it would have nothing useful to do with.
 sealed class StockedItem                                    // aggregate root
 {
     static StockedItem Stock(
-        StockedItemId id, string name, PriceBand band, int onHand);
+        StockedItemId id, string name, PriceBand band, uint onHand);
 
     StockedItemId Id { get; }
     string Name { get; }
     PriceBand Band { get; }
-    int OnHand { get; }
+    uint OnHand { get; }
 
-    Result<Withdrawal, Error> Withdraw(int quantity);
+    Result<Withdrawal, Error> Withdraw(uint quantity);
 }
 
 readonly record struct PriceBand           // invariant: FloorPrice <= AskingPrice
@@ -95,14 +106,14 @@ readonly record struct PriceBand           // invariant: FloorPrice <= AskingPri
     bool Admits(Coin offer);
 }
 
-readonly record struct Withdrawal(StockedItemId Item, int Quantity, PriceBand Band);
+readonly record struct Withdrawal(StockedItemId Item, uint Quantity, PriceBand Band);
 
 interface IStockLedger
 {
     Task<Option<StockedItem>> FindAsync(StockedItemId id, CancellationToken ct);
     Task<IReadOnlyList<StockedItem>> OnDisplayAsync(CancellationToken ct);
     Task<Result<Withdrawal, Error>> WithdrawAsync(
-        StockedItemId id, int quantity, CancellationToken ct);
+        StockedItemId id, uint quantity, CancellationToken ct);
 }
 ```
 
@@ -128,7 +139,7 @@ sealed class Specimen                                       // aggregate root
     void Identify(ArcanaCheck check);
 }
 
-readonly record struct Aura(int Obscurity);
+readonly record struct Aura(uint Obscurity);
 readonly record struct ArcanaCheck(int Total);
 readonly record struct Enchantment(string Name, string Effect);
 
@@ -175,7 +186,7 @@ readonly record struct LineItems                            // invariant: at lea
     IReadOnlyList<LineItem> All { get; }
 }
 
-readonly record struct LineItem(StockedItemId Item, int Quantity, PriceBand Band);
+readonly record struct LineItem(StockedItemId Item, uint Quantity, PriceBand Band);
 readonly record struct Offer(Coin Named);
 readonly record struct AgreedPrice(Coin Settled);
 readonly record struct Receipt(ReceiptId Id, PatronId Patron, Coin Moved, DateTimeOffset At);
@@ -272,7 +283,7 @@ internal sealed record PurchaseResponse(
     Guid Id, IReadOnlyList<LineItemResponse> Lines, string Total);
 
 internal sealed record LineItemResponse(
-    Guid Item, int Quantity, string AskingPrice, Option<string> AgreedPrice);
+    Guid Item, uint Quantity, string AskingPrice, Option<string> AgreedPrice);
 ```
 
 `Option<T>` is serialized into response bodies by `AddMonadConverters()`. `Result<T, E>`
@@ -369,9 +380,8 @@ and nothing a patron does to a `Specimen` can fail.
   `LineItem` and an Appraisal `SpecimenId` into a Staffing `ErrandSubject`, the one
   place two contexts' vocabularies meet
 - **`Vagrant.Host/Infrastructure`** — four `DbContext`s over one SQLite file, the `Coin`
-  converter, and the seeding path
-- **`Vagrant.*/Infrastructure`** — each context's repository implementation, which is
-  where `DbUpdateConcurrencyException` is converted and stopped
+  converter, the seeding path, and every repository implementation. This is where
+  `DbUpdateConcurrencyException` is converted and stopped; no context project sees one.
 
 ## Rejected alternatives
 

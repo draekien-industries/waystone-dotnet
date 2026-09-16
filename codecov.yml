@@ -5,6 +5,14 @@
 # repository, where rounding moves it by a hundredth of a percent on a PR that
 # adds no code at all. Without a threshold the default target of "auto" fails on
 # any decrease whatsoever, including that.
+# sample/ is excluded because the sample exists to be read, not to be covered. Its
+# tests demonstrate how to assert on a monad; holding them to the patch gate would
+# mean writing tests for EF Core value converters and DbContext configuration, which
+# teaches a reader nothing and would block a layer on a check rather than a defect.
+# Nothing under src/ is affected.
+ignore:
+  - "sample/**"
+
 coverage:
   status:
     project:
