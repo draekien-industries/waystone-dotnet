@@ -23,6 +23,13 @@ fails the build outright unless the project is an executable, and net472 and
 net481 default to C# 7.3, so a test project that set neither would either not
 build or compile against a language a decade older than the tests are written in.
 
+**A test project that compiles against another project references `coverlet.collector`.**
+Without it `--collect:"XPlat Code Coverage"` writes no report for that project and the run
+still says `Passed!`, so its subject is absent from Codecov until something else loads the
+assembly — which is how `Waystone.WideLogEvents` and both Serilog enrichers first reached
+the report near 0%, from a sample host that referenced them. `CoverageCollectionTests`
+fails the build on one.
+
 **Warnings are errors across `test/`.** The only warnings left in the tree are
 codeless MSBuild ones from `Microsoft.Extensions.Diagnostics.Testing`, which says
 it does not support net472 or net481. A warning with no code cannot be promoted
