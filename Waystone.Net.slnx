@@ -18,7 +18,10 @@
     <File Path="sample/InvulnerableVagrant/Directory.Build.props" />
     <File Path="sample/InvulnerableVagrant/README.md" />
     <File Path="sample/InvulnerableVagrant/ubiquitous-language.yaml" />
+    <Project Path="sample/InvulnerableVagrant/Vagrant.Catalog/Vagrant.Catalog.csproj" />
+    <Project Path="sample/InvulnerableVagrant/Vagrant.Catalog.Tests/Vagrant.Catalog.Tests.csproj" />
     <Project Path="sample/InvulnerableVagrant/Vagrant.Host/Vagrant.Host.csproj" />
+    <Project Path="sample/InvulnerableVagrant/Vagrant.Host.Tests/Vagrant.Host.Tests.csproj" />
     <Project Path="sample/InvulnerableVagrant/Vagrant.SharedKernel/Vagrant.SharedKernel.csproj" />
     <Project Path="sample/InvulnerableVagrant/Vagrant.SharedKernel.Tests/Vagrant.SharedKernel.Tests.csproj" />
   </Folder>

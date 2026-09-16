@@ -1,6 +1,8 @@
 namespace Vagrant.Host.Infrastructure;
 
 using Microsoft.EntityFrameworkCore;
+using Waystone.Monads.Results;
+using Waystone.Monads.Results.Errors;
 
 /// <summary>Where the shop's SQLite file lives and how it comes into being.</summary>
 internal static class ShopDatabase
@@ -14,13 +16,16 @@ internal static class ShopDatabase
     /// </summary>
     /// <param name="services">The application's service provider.</param>
     /// <param name="ct">Cancels the work.</param>
-    /// <returns>A task that completes once the shop is ready to trade.</returns>
+    /// <returns>
+    /// How many lines of stock were seeded, or the reason the shop cannot open. The
+    /// caller is <c>Program</c>, which is the first place with anything to do about it.
+    /// </returns>
     /// <remarks>
     /// <c>EnsureCreated</c> rather than a migration. The shop has no schema history to
     /// preserve — a reader deletes the file and runs again — and a migration per context
     /// would be four sets of generated files teaching nothing about the library.
     /// </remarks>
-    public static async Task OpenAsync(
+    public static async Task<Result<int, Error>> OpenAsync(
         IServiceProvider services,
         CancellationToken ct = default)
     {
@@ -33,5 +38,11 @@ internal static class ShopDatabase
         {
             await context.Database.EnsureCreatedAsync(ct).ConfigureAwait(false);
         }
+
+        return await CatalogSeed
+                    .StockTheShelvesAsync(
+                         scope.ServiceProvider.GetRequiredService<CatalogDbContext>(),
+                         ct)
+                    .ConfigureAwait(false);
     }
 }
