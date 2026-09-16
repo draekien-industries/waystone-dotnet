@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\Vagrant.SharedKernel\Vagrant.SharedKernel.csproj"/>
+    </ItemGroup>
+
+    <!--
+        A specimen carries its enchantment from the moment it is handed in, and hides
+        it until an examination reads it. The host has to persist the hidden value and
+        the tests have to arrange it, so both see internals; nothing else can.
+
+        No import of the error code generator here. Appraisal declares no errors.
+    -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="Vagrant.Host"/>
+        <InternalsVisibleTo Include="Vagrant.Appraisal.Tests"/>
+    </ItemGroup>
+
+</Project>
