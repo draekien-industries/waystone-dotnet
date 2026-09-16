@@ -5,8 +5,10 @@ Read before adding a test to `test/Waystone.Conventions.Tests` or editing its `.
 **It holds rules about the tree, not about behaviour.** A test belongs there when its
 subject is what the build produced — a file the compiler wrote, a naming rule spanning
 projects, a layout that has to hold — and belongs in a type's own test project when it
-exercises that type. It targets `net8.0` alone, because a property of the tree answers the
-same on every runtime and the matrix would prove it five times.
+exercises that type. It targets `net10.0` alone, because a property of the tree answers the
+same on every runtime and the matrix would prove it five times. Which single framework is
+arbitrary, but it has to be the one the CI test step names — `dotnet test --framework` runs
+nothing for a project without that target, so a mismatch drops the suite from CI silently.
 
 ## The build-ordering references are what make the guard real
 
@@ -16,7 +18,7 @@ nothing there is on its compile line. Reading build output without it means read
 the last build left: a targeted `dotnet test` never rebuilds the library, so the guard passes
 against a doc comment that has just reintroduced the very leak it exists to catch.
 
-Do not add `SkipGetTargetFrameworkProperties`; it forces `net8.0` onto each reference instead
+Do not add `SkipGetTargetFrameworkProperties`; it forces `net10.0` onto each reference instead
 of letting them negotiate, and the `netstandard2.0` analyzers then fail `NETSDK1005` for a
 target they never had.
 
@@ -30,7 +32,7 @@ document a contract for this repository's own authors, and a consumer cannot rea
 rather than ignored.** The two attributes are `internal`, but the scan skips them because of
 where their doc id says they live — put a genuinely public type under `Waystone.Internal.*`
 and the proxy diverges from the invariant it stands in for. Reading the real accessibility
-means resolving each doc id back to a symbol, which needs the assembly loaded, and a net8.0
+means resolving each doc id back to a symbol, which needs the assembly loaded, and a net10.0
 test host cannot load all of them.
 `TheInternalNamespaceExemptionCoversOnlyTheGeneratorAttributes` pins the exempted set to
 those two members instead, so a third arriving under that namespace fails and has to be

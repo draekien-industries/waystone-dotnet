@@ -45,9 +45,9 @@ below.
    dotnet test
    ```
 
-   **This matters.** CI runs `dotnet test --framework net8.0` only, while the
+   **This matters.** CI runs `dotnet test --framework net10.0` only, while the
    Monads tests target net8.0, net9.0, net10.0 and, on Windows, net472 and
-   net481. A break on any framework other than net8.0 will pass CI and reach
+   net481. A break on any framework other than net10.0 will pass CI and reach
    NuGet. Running the full matrix locally is the only place that gets caught.
 
 6. Commit and push, then open a Pull Request.

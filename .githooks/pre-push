@@ -56,6 +56,6 @@ esac
 echo "pre-push: testing every target framework..."
 
 if ! dotnet test --configuration Release --nologo; then
-    echo "pre-push: a target framework failed. CI only tests net8.0 and will not catch it." >&2
+    echo "pre-push: a target framework failed. CI only tests net10.0 and will not catch it." >&2
     exit 1
 fi
