@@ -5,6 +5,7 @@ using Vagrant.Catalog;
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
+using Waystone.Monads.Results.Extensions;
 
 /// <summary>The stock ledger, over SQLite.</summary>
 /// <remarks>
@@ -33,26 +34,52 @@ internal sealed class StockLedger(CatalogDbContext db) : IStockLedger
                 .ConfigureAwait(false);
 
     /// <inheritdoc />
-    public async Task<Result<Withdrawal, Error>> WithdrawAsync(
-        StockedItemId id,
-        uint quantity,
+    /// <remarks>
+    /// All or nothing without a transaction. <see cref="StockedItem.Withdraw" /> changes
+    /// a tracked entity and nothing else, so the counts reach SQLite only at
+    /// <c>SaveChangesAsync</c> — which runs once, after every line has succeeded.
+    /// Returning early leaves the changes in a scoped context that is discarded with the
+    /// request.
+    /// </remarks>
+    public async Task<Result<IReadOnlyList<Withdrawal>, Error>> WithdrawAsync(
+        IReadOnlyList<Wanted> wanted,
         CancellationToken ct)
     {
-        StockedItem? item = await db.StockedItems
-                                    .FirstOrDefaultAsync(stocked => stocked.Id == id, ct)
-                                    .ConfigureAwait(false);
+        ArgumentNullException.ThrowIfNull(wanted);
 
-        if (item is null)
+        List<Result<Withdrawal, Error>> taken = new(wanted.Count);
+
+        foreach (Wanted want in wanted)
         {
-            return Result.Err<Withdrawal, Error>(
-                CatalogErrorCatalog.Errors.NotStocked(
-                    $"the shop holds no line of stock under {id}"));
+            taken.Add(await TakeAsync(want, ct).ConfigureAwait(false));
         }
 
-        Result<Withdrawal, Error> withdrawal = item.Withdraw(quantity);
+        Result<IReadOnlyList<Withdrawal>, Error> withdrawn = taken.Collect();
 
-        if (withdrawal.IsOk) await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        if (withdrawn.IsErr) return withdrawn;
 
-        return withdrawal;
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        return withdrawn;
+    }
+
+    /// <remarks>
+    /// Asking for the same line twice is not a special case. EF hands back the entity it
+    /// is already tracking, so the second call sees the count the first one left.
+    /// </remarks>
+    private async Task<Result<Withdrawal, Error>> TakeAsync(
+        Wanted want,
+        CancellationToken ct)
+    {
+        StockedItem? item =
+            await db.StockedItems
+                    .FirstOrDefaultAsync(stocked => stocked.Id == want.Item, ct)
+                    .ConfigureAwait(false);
+
+        return item is null
+            ? Result.Err<Withdrawal, Error>(
+                CatalogErrorCatalog.Errors.NotStocked(
+                    $"the shop holds no line of stock under {want.Item}"))
+            : item.Withdraw(want.Quantity);
     }
 }

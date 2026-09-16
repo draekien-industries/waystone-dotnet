@@ -51,6 +51,32 @@ public sealed class PurchaseTests
     }
 
     [Fact]
+    public void A_purchase_cannot_carry_the_same_thing_twice()
+    {
+        Error error = LineItems.Of([Potions(1), Potions(2)]).ShouldBeErr();
+
+        error.Code.Value.ShouldBe("vagrant.ordering.duplicate_line");
+    }
+
+    [Fact]
+    public void Two_lines_for_different_things_are_not_a_duplicate()
+    {
+        LineItems lines = LineItems
+                         .Of(
+                              [
+                                  Potions(1),
+                                  LineItem.For(
+                                      Driftglobe,
+                                      1,
+                                      Coin.FromGold(750),
+                                      Coin.FromGold(700)),
+                              ])
+                         .ShouldBeOk();
+
+        lines.All.Count.ShouldBe(2);
+    }
+
+    [Fact]
     public void Coin_short_of_the_total_is_refused()
     {
         Error error = Open()

@@ -37,15 +37,20 @@ public interface IStockLedger
     Task<IReadOnlyList<StockedItem>> OnDisplayAsync(CancellationToken ct);
 
     /// <summary>Takes stock off the shelf and records that it has gone.</summary>
-    /// <param name="id">Which line to take from.</param>
-    /// <param name="quantity">How many to take.</param>
+    /// <param name="wanted">Which lines to take from, and how many of each.</param>
     /// <param name="ct">Cancels the work.</param>
     /// <returns>
-    /// What came off the shelf, <see cref="CatalogError.NotStocked" /> when the shop
-    /// holds no such line, or <see cref="CatalogError.NotEnoughOnHand" /> when too few
-    /// are there.
+    /// What came off the shelf, in the order it was asked for;
+    /// <see cref="CatalogError.NotStocked" /> when the shop holds no such line; or
+    /// <see cref="CatalogError.NotEnoughOnHand" /> when too few are there.
     /// </returns>
     /// <remarks>
+    /// <para>
+    /// Every line or none. A patron buying four things and being refused the fourth
+    /// should find the other three still on the shelf, and taking them one call at a
+    /// time cannot promise that — so the whole set is one call and the failure of any
+    /// line is the failure of all of them.
+    /// </para>
     /// <para>
     /// One call, not a reservation the caller has to commit. Splitting it would hand
     /// back a count that is already stale and make the conflict the caller's problem.
@@ -57,8 +62,7 @@ public interface IStockLedger
     /// owes the patron the reason it cannot.
     /// </para>
     /// </remarks>
-    Task<Result<Withdrawal, Error>> WithdrawAsync(
-        StockedItemId id,
-        uint quantity,
+    Task<Result<IReadOnlyList<Withdrawal>, Error>> WithdrawAsync(
+        IReadOnlyList<Wanted> wanted,
         CancellationToken ct);
 }

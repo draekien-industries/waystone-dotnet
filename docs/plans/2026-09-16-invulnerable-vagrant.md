@@ -113,14 +113,15 @@ readonly record struct PriceBand           // invariant: FloorPrice <= AskingPri
     bool Admits(Coin offer);
 }
 
+readonly record struct Wanted(StockedItemId Item, uint Quantity);
 readonly record struct Withdrawal(StockedItemId Item, uint Quantity, PriceBand Band);
 
 interface IStockLedger
 {
     Task<Option<StockedItem>> FindAsync(StockedItemId id, CancellationToken ct);
     Task<IReadOnlyList<StockedItem>> OnDisplayAsync(CancellationToken ct);
-    Task<Result<Withdrawal, Error>> WithdrawAsync(
-        StockedItemId id, uint quantity, CancellationToken ct);
+    Task<Result<IReadOnlyList<Withdrawal>, Error>> WithdrawAsync(
+        IReadOnlyList<Wanted> wanted, CancellationToken ct);
 }
 ```
 
@@ -128,8 +129,10 @@ interface IStockLedger
 pair has an invariant. A `StockedItem` whose floor exceeds its asking price cannot be
 constructed.
 
-`WithdrawAsync` is one call. It finds the item, takes the quantity, persists, and
-returns what was taken — the caller never sees a reservation it has to commit.
+`WithdrawAsync` is one call, and it takes every line at once. It finds each item, takes
+the quantity, persists all of them together, and returns what was taken — the caller
+never sees a reservation it has to commit, and a patron refused their fourth item finds
+the first three still on the shelf. One call per line could promise neither.
 
 ### Vagrant.Appraisal
 
@@ -201,23 +204,36 @@ sealed class Purchase                                       // aggregate root
 
     PurchaseId Id { get; }
     Coin Total { get; }
-    Result<AgreedPrice, Error> Agree(StockedItemId item, Offer offer);
-    Result<Receipt, Error> Settle(Coin tendered);
+    IReadOnlyList<LineItem> Lines { get; }
+    Result<AgreedPrice, Error> Agree(LineItemSubject subject, Offer offer);
+    Result<Receipt, Error> Settle(Coin tendered, TimeProvider clock);
 }
 
 sealed class Buyback                                        // aggregate root
 {
     static Buyback Open(BuybackId id, PatronId patron, string description, Coin offered);
-    Result<Receipt, Error> Settle(Coin fromTill);
+    Result<Receipt, Error> Settle(Coin fromTill, TimeProvider clock);
 }
 
-readonly record struct LineItems                            // invariant: at least one
+readonly record struct LineItems       // invariants: at least one, one per subject
 {
     static Result<LineItems, Error> Of(IEnumerable<LineItem> items);
     IReadOnlyList<LineItem> All { get; }
 }
 
-readonly record struct LineItem(StockedItemId Item, uint Quantity, PriceBand Band);
+sealed class LineItem                                       // haggling mutates it
+{
+    static LineItem For(LineItemSubject subject, uint quantity, Coin asking, Coin floor);
+
+    LineItemSubject Subject { get; }
+    uint Quantity { get; }
+    Coin Asking { get; }
+    Coin Floor { get; }
+    Option<AgreedPrice> Agreed { get; }
+    Coin Due { get; }
+}
+
+readonly record struct LineItemSubject(Guid Value);
 readonly record struct Offer(Coin Named);
 readonly record struct AgreedPrice(Coin Settled);
 readonly record struct Receipt(ReceiptId Id, PatronId Patron, Coin Moved, DateTimeOffset At);
@@ -225,14 +241,16 @@ readonly record struct Receipt(ReceiptId Id, PatronId Patron, Coin Moved, DateTi
 interface IPurchaseBook
 {
     Task AddAsync(Purchase purchase, CancellationToken ct);
+    Task<Option<Purchase>> FindAsync(PurchaseId id, CancellationToken ct);
     Task<Result<AgreedPrice, Error>> AgreeAsync(
-        PurchaseId id, StockedItemId item, Offer offer, CancellationToken ct);
+        PurchaseId id, LineItemSubject subject, Offer offer, CancellationToken ct);
     Task<Result<Receipt, Error>> SettleAsync(
         PurchaseId id, Coin tendered, CancellationToken ct);
 }
 
 interface IBuybackBook
 {
+    Task<Option<Buyback>> FindAsync(BuybackId id, CancellationToken ct);
     Task AddAsync(Buyback buyback, CancellationToken ct);
     Task<Result<Receipt, Error>> SettleAsync(
         BuybackId id, Coin fromTill, CancellationToken ct);
@@ -250,6 +268,22 @@ haggled over totals what the shop asked.
 `Purchase` and `Buyback` both produce a `Receipt` and are not unified. They share a
 shape, not a concept: one takes coin from the till and one puts coin in it, and the
 invariants differ accordingly.
+
+`LineItem` names a `LineItemSubject` and two `Coin`s rather than Catalog's
+`StockedItemId` and `PriceBand`. The earlier shape named two Catalog types, which would
+have forced a `ProjectReference` between two contexts and deleted the lesson. The host
+translates a `Withdrawal` into a `LineItem`, and the prices travel with the withdrawal so
+a purchase is not repriced by a shelf label that changed before it settled.
+
+A purchase carries one line per subject. `Agree` finds a line by its subject, so two
+lines naming the same thing would haggle over one and leave the other at the asking
+price; `LineItems.Of` reports `DuplicateLine` rather than admitting the set.
+
+`Settle` takes a `TimeProvider` rather than a `DateTimeOffset`. An aggregate reading the
+ambient clock cannot be tested for what it writes on a receipt, and a caller that could
+name the moment could write any hour it liked — so neither book puts one on its
+signature, the host registers `TimeProvider.System`, and the tests pass a
+`FakeTimeProvider`.
 
 ### Vagrant.Staffing
 
@@ -295,16 +329,35 @@ GET  /items                     -> 200 [StockedItemResponse]
 GET  /items/{id}                -> 200 StockedItemResponse | 404
 POST /specimens                 -> 201 SpecimenResponse | 400
 POST /specimens/{id}/identify   -> 200 SpecimenResponse | 400 | 404 | 503
-POST /orders                    -> 201 PurchaseResponse | 400 | 404 | 409
-POST /orders/{id}/offers        -> 200 PurchaseResponse | 400 | 404 | 409
-POST /orders/{id}/settlement    -> 200 ReceiptResponse | 402 | 404 | 409
+POST /purchases                 -> 201 PurchaseResponse | 400 | 404 | 409
+GET  /purchases/{id}            -> 200 PurchaseResponse | 404
+POST /purchases/{id}/offer      -> 200 AgreementResponse | 400 | 404 | 409
+POST /purchases/{id}/settle     -> 200 ReceiptResponse | 400 | 402 | 404 | 409
 POST /buybacks                  -> 201 BuybackResponse | 400
-POST /buybacks/{id}/settlement  -> 200 ReceiptResponse | 402 | 404 | 409
+GET  /buybacks/{id}             -> 200 BuybackResponse | 404
+POST /buybacks/{id}/settle      -> 200 ReceiptResponse | 402 | 404 | 409
 ```
 
-`POST /orders` withdraws from Catalog before opening the Purchase, so it fails the way
+Every route is named for what the patron is trying to do rather than for the row it
+changes. `/purchases` rather than `/orders`, because Purchase is the dictionary's term
+and Order is one of its aliases. There is no `PATCH /purchases/{id}`: a settled flag and
+an agreed price are outcomes the shop decides, and a body that could set them would let a
+client write what it wants to be true.
+
+The bodies follow the same rule. `POST /purchases` names shelf labels and quantities and
+carries no prices, because the prices are the Catalog's.
+`POST /buybacks/{id}/settle` carries no body at all, because what the shop offered and
+what its till holds are both the shop's to know — `ShopTill` answers the second, and the
+sample does not model a till ledger.
+
+`POST /purchases` withdraws from Catalog before opening the Purchase, so it fails the way
 Catalog fails: 404 for an item that is not stocked, 409 for `NotEnoughOnHand` when too few
-are on hand.
+are on hand. The withdrawal is one call taking every line, so a purchase refused its
+fourth item leaves the first three on the shelf.
+
+`POST /purchases/{id}/offer` answers with the agreement rather than the purchase. Whether
+the shop will take four hundred for the potions is the question asked, and reading the
+whole purchase back to answer it would be a second query nobody asked for.
 
 The 400 on both specimen routes is a `SchemaViolation` rendered as an RFC 9110
 ProblemDetails, not an error code — Appraisal has none. The 503 on `identify` is the clerk
@@ -318,7 +371,9 @@ internal sealed record PurchaseResponse(
     Guid Id, IReadOnlyList<LineItemResponse> Lines, string Total);
 
 internal sealed record LineItemResponse(
-    Guid Item, uint Quantity, string AskingPrice, Option<string> AgreedPrice);
+    Guid Item, uint Quantity, string AskingPrice, Option<string> AgreedPrice, string Due);
+
+internal sealed record AgreementResponse(Guid Item, string AgreedPrice);
 ```
 
 `Option<T>` is serialized into response bodies by `AddMonadConverters()`. `Result<T, E>`
@@ -352,7 +407,11 @@ enum per context, each setting its own `Format`.
 internal enum OrderingError
 {
     NoLineItems,
+    DuplicateLine,
     OfferBelowFloor,
+    NoSuchPurchase,
+    NoSuchBuyback,
+    NotOnThisPurchase,
     InsufficientCoin,
     PurchaseAlreadySettled,
     BuybackAlreadySettled,
@@ -371,7 +430,11 @@ number and a meaning that the member name already carries.
 | `vagrant.catalog.not_stocked` | the shop holds no line of stock under that identifier |
 | `vagrant.catalog.not_enough_on_hand` | not enough on hand to withdraw |
 | `vagrant.ordering.no_line_items` | a purchase must carry at least one line item |
+| `vagrant.ordering.duplicate_line` | two lines name the same thing |
 | `vagrant.ordering.offer_below_floor` | offer falls below what the shop will take |
+| `vagrant.ordering.no_such_purchase` | the book holds no purchase under that identifier |
+| `vagrant.ordering.no_such_buyback` | the book holds no buyback under that identifier |
+| `vagrant.ordering.not_on_this_purchase` | the purchase carries no such line |
 | `vagrant.ordering.insufficient_coin` | tendered coin falls short of the total |
 | `vagrant.ordering.purchase_already_settled` | purchase has already settled |
 | `vagrant.ordering.buyback_already_settled` | buyback has already settled |
@@ -382,6 +445,11 @@ number and a meaning that the member name already carries.
 `NotStocked` and the `None` above answer two different questions. `FindAsync` is asked
 what the shop holds and answers nothing; `WithdrawAsync` is asked to supply four of
 something and owes the reason it cannot. Both reach 404, but only one carries a code.
+
+`NoSuchPurchase`, `NoSuchBuyback` and `NotOnThisPurchase` are the same distinction inside
+Ordering. `IPurchaseBook.FindAsync` answers `None` and the endpoint renders a bare 404;
+`AgreeAsync` and `SettleAsync` were asked to do something and owe the reason they could
+not, so each 404 they produce carries a code.
 
 The enums are named `CatalogError`, `OrderingError` and `StaffingError` rather than
 `Catalog`, `Ordering` and `Staffing`. An enum sharing its name with its namespace loses
@@ -398,9 +466,9 @@ promise the domain cannot keep.
 
 | Status | Codes |
 | --- | --- |
-| 400 | a `SchemaViolation`, or `NoLineItems` |
+| 400 | a `SchemaViolation`, `NoLineItems`, or `DuplicateLine` |
 | 402 | `InsufficientCoin`, `TillCannotCover` |
-| 404 | a `None` from a repository lookup — no code, because no reason is owed — or `NotStocked` |
+| 404 | a `None` from a repository lookup — no code, because no reason is owed — or `NotStocked`, `NoSuchPurchase`, `NoSuchBuyback`, `NotOnThisPurchase` |
 | 409 | `NotEnoughOnHand`, `OfferBelowFloor`, `PurchaseAlreadySettled`, `BuybackAlreadySettled`, `ClerkAlreadyEngaged` |
 | 503 | `NoClerkFree` |
 

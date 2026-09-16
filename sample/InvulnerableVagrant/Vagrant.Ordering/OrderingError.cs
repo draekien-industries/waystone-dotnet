@@ -26,6 +26,9 @@ internal enum OrderingError
     /// <summary>A purchase was presented with nothing on it.</summary>
     NoLineItems,
 
+    /// <summary>The same thing was presented twice on one purchase.</summary>
+    DuplicateLine,
+
     /// <summary>The offer named was below the least the shop would take.</summary>
     OfferBelowFloor,
 

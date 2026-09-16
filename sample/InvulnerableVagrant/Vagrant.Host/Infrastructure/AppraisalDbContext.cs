@@ -38,6 +38,11 @@ internal sealed class AppraisalDbContext(DbContextOptions<AppraisalDbContext> op
                 specimen.HasKey(s => s.Id);
                 specimen.Property(s => s.Description).IsRequired();
 
+                // EF maps public properties by convention and nothing else, so this
+                // internal flag has to be named here or it is silently not stored — and
+                // an item the shop has already read comes back unread.
+                specimen.Property(s => s.Identified);
+
                 // Columns on this table rather than tables of their own. Neither an
                 // aura nor an enchantment has identity, and neither is ever read
                 // without the specimen it belongs to.
