@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Enrichers.Waystone.WideLogEvents;
 using Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore;
+using Vagrant.Appraisal;
 using Vagrant.Catalog;
 using Vagrant.Host.Endpoints;
 using Vagrant.Host.Infrastructure;
+using Waystone.Monads.Options;
 using Waystone.Monads.Results;
 using Waystone.Monads.Results.Errors;
 
@@ -29,15 +31,26 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.AddWaystoneMonads();
 
-// One DbContext per bounded context over one SQLite file. The second registration is
-// what ShopDatabase.OpenAsync enumerates; without it a context's tables never exist.
+// One DbContext and one SQLite file per bounded context. The second registration in
+// each pair is what ShopDatabase.OpenAsync enumerates; without it a context's tables
+// never exist.
+string shop = Option
+   .FromNullable(
+        builder.Configuration.GetConnectionString(ShopDatabase.ConnectionName))
+   .UnwrapOr(ShopDatabase.Default);
+
 builder.Services.AddDbContext<CatalogDbContext>(options =>
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString(ShopDatabase.ConnectionName)));
+    options.UseSqlite(ShopDatabase.For(shop, "catalog")));
 builder.Services.AddScoped<VagrantDbContext>(
     services => services.GetRequiredService<CatalogDbContext>());
 
+builder.Services.AddDbContext<AppraisalDbContext>(options =>
+    options.UseSqlite(ShopDatabase.For(shop, "appraisal")));
+builder.Services.AddScoped<VagrantDbContext>(
+    services => services.GetRequiredService<AppraisalDbContext>());
+
 builder.Services.AddScoped<IStockLedger, StockLedger>();
+builder.Services.AddScoped<ISpecimenShelf, SpecimenShelf>();
 
 WebApplication app = builder.Build();
 
@@ -69,6 +82,7 @@ app.UseStatusCodePages();
 
 app.MapGet("/", () => Results.Ok(new { shop = "The Invulnerable Vagrant", city = "Zadash" }));
 app.MapItems();
+app.MapSpecimens();
 
 await app.RunAsync().ConfigureAwait(false);
 

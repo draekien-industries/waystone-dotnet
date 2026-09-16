@@ -45,6 +45,9 @@ Requests are parsed by `.Schemas`; nothing else validates. `Option<T>` is serial
 response bodies; `Result<T, E>` is unwrapped at the endpoint into a status code and never
 appears on the wire.
 
+A schema is the only route from a body to a domain type. `HandInSpecimenSchema` returns a
+`Specimen`, not a validated DTO, so no method downstream accepts an unparsed request.
+
 ## An error catalog is internal, and the host sees it through `InternalsVisibleTo`
 
 `CatalogError` and its siblings are `internal`. `Vagrant.Host` reads their generated
@@ -79,6 +82,31 @@ EF Core cannot bind a complex property through a constructor parameter, so
 `StockedItem(StockedItemId, string, PriceBand, uint)` alone fails at model build with
 "No suitable constructor was found". The parameterless one is for rehydration and says
 so; do not delete it as unused.
+
+## One SQLite file per bounded context
+
+`ShopDatabase.For(connectionString, "catalog")` derives each context's file from the one
+configured name. `EnsureCreated` builds a schema only when the database does not exist,
+so on a shared file the first context creates its tables and every later one finds a
+database already there and creates nothing — surfacing as
+`SQLite Error 1: 'no such table: Specimens'` on the first request, not at startup.
+
+A new context adds a file. `ShopFixture` deletes by glob for that reason; a named list
+leaves the newest behind.
+
+## A request body carries `Option<T>`, never a nullable
+
+WM3001 rejects a DTO of `Guid?`/`string?`/`int?` under `strict`. Declare each field as
+`Option<T>` with a `= Option.None<T>()` initializer rather than a positional record
+parameter: `Option<T>` is a record class, so an omitted JSON property would otherwise
+arrive as `null` rather than `None`. `Schema.Required` takes the `Option<TIn>` directly.
+
+## A nested monad chain is extracted into a named method
+
+WM2025 rejects an `Option.Match` written inside a `Result.Match` delegate.
+`SpecimenEndpoints.ReadAsync` is the extracted method, passed as a method group to the
+stateful `Match`. This is separate from WM2017: WM2017 is about capture, WM2025 about
+nesting, and a `static` lambda satisfies only the first.
 
 ## Coverage
 

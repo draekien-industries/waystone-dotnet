@@ -24,10 +24,19 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Vagrant.SharedKernel\Vagrant.SharedKernel.csproj"/>
+        <ProjectReference Include="..\Vagrant.Appraisal\Vagrant.Appraisal.csproj"/>
         <ProjectReference Include="..\Vagrant.Catalog\Vagrant.Catalog.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.Extensions.Hosting\Waystone.Monads.Extensions.Hosting.csproj"/>
+        <ProjectReference Include="..\..\..\src\Waystone.Monads.Schemas\Waystone.Monads.Schemas.csproj"/>
         <ProjectReference Include="..\..\..\src\Waystone.Monads.SystemTextJson\Waystone.Monads.SystemTextJson.csproj"/>
         <ProjectReference Include="..\..\..\src\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore\Serilog.Enrichers.Waystone.WideLogEvents.AspNetCore.csproj"/>
     </ItemGroup>
+
+    <!--
+        Imported by hand because this project takes the library by ProjectReference. A
+        consumer with a PackageReference gets the generator from the nupkg and writes
+        nothing.
+    -->
+    <Import Project="..\..\..\src\Waystone.Monads.Schemas.SourceGenerators\Waystone.Monads.Schemas.SourceGenerators.props"/>
 
 </Project>

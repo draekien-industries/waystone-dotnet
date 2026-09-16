@@ -20,15 +20,46 @@ curl http://localhost:5000/items
 
 curl -i http://localhost:5000/items/00000000-0000-0000-0000-000000000000
 HTTP/1.1 404 Not Found
+
+curl -X POST http://localhost:5000/specimens -H 'Content-Type: application/json'   -d '{"patron":"0199aa00-0000-7000-8000-000000000001",
+       "description":"a grey cloak, well worn","obscurity":15,
+       "enchantmentName":"Cloak of Elvenkind","enchantmentEffect":"you are harder to see"}'
+{"id":"01a0a884-447b-78fe-aa46-744f66e5bec6","description":"a grey cloak, well worn","enchantment":null}
+
+curl -X POST http://localhost:5000/specimens/01a0a884-447b-78fe-aa46-744f66e5bec6/identify   -H 'Content-Type: application/json' -d '{"check":14}'
+{"id":"01a0a884-...","description":"a grey cloak, well worn","enchantment":null}
+
+curl -X POST http://localhost:5000/specimens/01a0a884-447b-78fe-aa46-744f66e5bec6/identify   -H 'Content-Type: application/json' -d '{"check":15}'
+{"id":"01a0a884-...","description":"a grey cloak, well worn",
+ "enchantment":{"name":"Cloak of Elvenkind","effect":"you are harder to see"}}
 ```
 
-The shop's SQLite file is created beside the host on startup and is gitignored. Delete
-it and run again to start from a freshly stocked shop.
+Each bounded context gets its own SQLite file beside the host, gitignored — currently
+`invulnerable-vagrant-catalog.db` and `invulnerable-vagrant-appraisal.db`. Delete them
+and run again to start from a freshly stocked shop.
 
 That 404 is the sample's first argument in one line. `IStockLedger.FindAsync` returns
 `Option<StockedItem>`, the endpoint calls `Match`, and nothing anywhere throws or
 invents an error code — because an identifier the shop has never held needs no
 explanation beyond its absence.
+
+The two identify calls are the second argument, and the stronger one. A specimen nobody
+has read is a 200 with `"enchantment":null`, and so is one the shop looked at and could
+not place. Neither is a 404 and neither carries an error code, because Pumat holds the
+item in both cases and has nothing to tell you about it yet. Appraisal declares no error
+codes at all for that reason.
+
+A body the shop cannot read as a request is a different answer:
+
+```
+curl -X POST http://localhost:5000/specimens -H 'Content-Type: application/json'   -d '{"patron":"0199aa00-0000-7000-8000-000000000001","description":"a grey cloak",
+       "obscurity":-1,"enchantmentName":"x","enchantmentEffect":"y"}'
+{"status":400,"errors":{"obscurity":["Expected obscurity to be at least 0, but got -1."]}}
+```
+
+`Aura.Obscurity` is a `uint` and JSON has one kind of number. `HandInSpecimenSchema` is
+where the two meet, so the domain needs no guard against a negative it can no longer be
+given.
 
 The bounded contexts arrive one at a time — see the design's Steps section for which
 layer brings what.
@@ -41,6 +72,12 @@ repository interface and the host implements it.
 
 Two things follow. A context's tests need no database, and a context cannot reach for a
 `DbContext` by accident — the reference is not there to reach for.
+
+A context also gets its own file rather than a shared one, so the boundary holds in SQL
+as well as in the project graph. That began as a constraint rather than a preference:
+`EnsureCreated` builds a schema only when the database does not exist, so on one shared
+file the first context creates its tables and every later one finds a database already
+there and creates nothing.
 
 ## Where the names come from
 

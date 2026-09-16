@@ -22,7 +22,9 @@ CLAUDE.local.md
 settings.local.json
 .draekien/.skillsrc
 
-# The Invulnerable Vagrant sample writes its SQLite file beside the host.
-invulnerable-vagrant.db
-invulnerable-vagrant.db-shm
-invulnerable-vagrant.db-wal
+# The Invulnerable Vagrant sample writes one SQLite file per bounded context beside
+# the host: invulnerable-vagrant-catalog.db, invulnerable-vagrant-appraisal.db, and
+# whatever the next context is called.
+invulnerable-vagrant*.db
+invulnerable-vagrant*.db-shm
+invulnerable-vagrant*.db-wal

@@ -43,11 +43,17 @@ public sealed class ShopFixture : IAsyncDisposable
     {
         await _shop.DisposeAsync().ConfigureAwait(false);
 
-        // The pool holds the file open after the host has gone, and Windows refuses to
+        // The pool holds the files open after the host has gone, and Windows refuses to
         // delete a file with a handle on it.
         SqliteConnection.ClearAllPools();
 
-        foreach (string leftover in new[] { _file, $"{_file}-shm", $"{_file}-wal" })
+        // A glob rather than a list. Each bounded context keeps its own file beside the
+        // configured one, so the set to delete grows every time a context is added and a
+        // named list would silently leave the newest behind.
+        string directory = Path.GetDirectoryName(_file)!;
+        string stem = Path.GetFileNameWithoutExtension(_file);
+
+        foreach (string leftover in Directory.EnumerateFiles(directory, $"{stem}*"))
         {
             File.Delete(leftover);
         }

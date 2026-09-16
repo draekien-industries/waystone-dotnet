@@ -44,6 +44,13 @@ Translation between two contexts happens in `Vagrant.Host`.
 `Vagrant.Host` implements it. The contexts are persistence-ignorant, so their tests need
 no database, run in milliseconds, and cannot reach for a `DbContext` by accident.
 
+**Each context gets its own SQLite file**, derived from the one configured connection
+string by `ShopDatabase.For`. The boundary the project graph enforces in C# then holds in
+SQL too — there is no shared file to join across. It is also the only arrangement that
+works: `EnsureCreated` builds a schema only when the database does not exist, so on one
+shared file the first context creates its tables and every later one finds a database
+already there and creates nothing.
+
 Every project here targets `net10.0`, which is what ASP.NET Core 10 and EF Core 10
 support. CI's test step was moved to `net10.0` to match; the framework matrix still runs
 in `pre-push`.
@@ -129,17 +136,27 @@ returns what was taken — the caller never sees a reservation it has to commit.
 ```csharp
 sealed class Specimen                                       // aggregate root
 {
-    static Specimen HandedIn(SpecimenId id, PatronId patron, string description, Aura aura);
+    static Specimen HandedIn(
+        SpecimenId id, PatronId patron, string description, Aura aura,
+        Enchantment carries);
 
     SpecimenId Id { get; }
     PatronId HandedInBy { get; }
+    string Description { get; }
     Aura Aura { get; }
     Option<Enchantment> Enchantment { get; }                // None until identified
+
+    internal Enchantment Carries { get; }                   // what it is, read or not
+    internal bool Identified { get; }
 
     void Identify(ArcanaCheck check);
 }
 
-readonly record struct Aura(uint Obscurity);
+readonly record struct Aura(uint Obscurity)
+{
+    bool YieldsTo(ArcanaCheck check);
+}
+
 readonly record struct ArcanaCheck(int Total);
 readonly record struct Enchantment(string Name, string Effect);
 
@@ -151,6 +168,20 @@ interface ISpecimenShelf
         SpecimenId id, ArcanaCheck check, CancellationToken ct);
 }
 ```
+
+**A specimen carries its enchantment from the moment it is handed in.** `HandedIn` takes
+it, `Carries` holds it, and `Identify` flips a flag. Identification changes what the shop
+knows, not what the item is, so `Enchantment` computes an `Option` from a value that was
+there all along rather than storing a nullable that has to be translated back.
+
+`Carries` and `Identified` are `internal` — the host persists them and the tests arrange
+them, and nothing inside the domain can read an enchantment the shop has not earned.
+`SpecimenResponse` is built from `Enchantment`, so the hidden value never reaches the
+wire, the same way `StockedItemResponse` omits the floor price.
+
+`Aura.YieldsTo` decides, not the specimen and not the caller: how hard something is to
+read is a property of the signature. It is also where the signed check meets the unsigned
+obscurity, so a negative total reads nothing rather than wrapping to a very large one.
 
 `Identify` changes the specimen and returns nothing; `Enchantment` reads it and changes
 nothing. A check that falls short of the aura's obscurity leaves `Enchantment` as
@@ -262,8 +293,8 @@ only that an errand is about something.
 ```
 GET  /items                     -> 200 [StockedItemResponse]
 GET  /items/{id}                -> 200 StockedItemResponse | 404
-POST /specimens                 -> 201 SpecimenResponse
-POST /specimens/{id}/identify   -> 200 SpecimenResponse | 404 | 503
+POST /specimens                 -> 201 SpecimenResponse | 400
+POST /specimens/{id}/identify   -> 200 SpecimenResponse | 400 | 404 | 503
 POST /orders                    -> 201 PurchaseResponse | 400 | 404 | 409
 POST /orders/{id}/offers        -> 200 PurchaseResponse | 400 | 404 | 409
 POST /orders/{id}/settlement    -> 200 ReceiptResponse | 402 | 404 | 409
@@ -274,6 +305,10 @@ POST /buybacks/{id}/settlement  -> 200 ReceiptResponse | 402 | 404 | 409
 `POST /orders` withdraws from Catalog before opening the Purchase, so it fails the way
 Catalog fails: 404 for an item that is not stocked, 409 for `NotEnoughOnHand` when too few
 are on hand.
+
+The 400 on both specimen routes is a `SchemaViolation` rendered as an RFC 9110
+ProblemDetails, not an error code — Appraisal has none. The 503 on `identify` is the clerk
+claim and arrives with Staffing; until then that route answers 200, 400 or 404.
 
 ```csharp
 internal sealed record SpecimenResponse(
@@ -415,6 +450,18 @@ are right. `WaystoneMonadsRuleset` is `strict` here, so both are build errors, a
 alternative turned out to be better: `CatalogSeed` returns a `Result`,
 `ShopDatabase.OpenAsync` passes it on, and `Program` matches it into a log line and an
 exit code. A seed price that makes no sense stops the shop opening and says which line.
+
+**One SQLite file for the whole shop** — rejected on contact with the second context.
+`EnsureCreated` is per database, not per `DbContext`, so Catalog created its tables,
+Appraisal created nothing, and the first `POST /specimens` failed with
+`SQLite Error 1: 'no such table: Specimens'`. Migrations would fix it and cost four sets
+of generated files that teach nothing about the library. A file per context fixes it and
+states the boundary.
+
+**A request DTO of nullables** — rejected by WM3001, and it is right. The fields are
+`Option<T>` with `Option.None<T>()` initializers, so a body that omits one produces
+`None` rather than a null nobody checked, and `Schema.Required` takes the `Option`
+directly with no adapter.
 
 ## Steps
 
