@@ -15,6 +15,21 @@ The whole payoff is that absence and failure become **unignorable and
 uninspected**. Code that reaches for `IsSome` or `Unwrap` has kept the check
 and paid for the type anyway.
 
+## Look the surface up on the site
+
+This skill carries how the library is meant to be written; the documentation site
+carries what the library is. Before relying on a member's exact signature, a
+diagnostic's meaning or a companion package's surface, read the **docs index** at
+`https://draekien-industries.wpei.me/llms.txt` and fetch the markdown page it
+names. Distrust recalled API: the surface has changed across majors, and the site
+tracks the current release.
+
+`https://draekien-industries.wpei.me/llms-full.txt` is every page concatenated,
+far more than a context should hold. Reach for it only when the docs index names no
+page that answers the question, and search it for the member or diagnostic id
+rather than reading it whole. If neither can be fetched, say so and treat any
+signature or diagnostic meaning written from recall as unverified.
+
 ## Reach for the right type
 
 | Situation | Use |
@@ -28,9 +43,12 @@ and paid for the type anyway.
 between them is explicit: `OkOr`/`OkOrElse` turns a `None` into an `Err`, and
 `GetOk`/`GetErr` turns a `Result` into an `Option` of one side. Where both
 questions are live at once, the answer is a nested `Result<Option<T>, E>` or
-`Option<Result<T, E>>` — read [references/nesting.md](references/nesting.md)
-before choosing, since the outer monad decides which question the caller must
-answer first and nothing in the build checks the choice.
+`Option<Result<T, E>>`. Nothing in the build checks the choice. The outer monad
+is the question the caller answers first: a lookup that can fail and may find
+nothing is `Result<Option<User>, Error>`. Keep the nesting only where a caller
+acts on the empty case differently from the failed one — if every caller would
+write the same `OkOr`, resolve it once inside the method with `OkOrElse`, not
+with `Transpose`, which preserves the distinction.
 
 Never mix conventions inside one type. A type that already returns `Option` from
 some members and `T?` from others makes callers guess which absence convention
@@ -100,11 +118,29 @@ chain's error type to accommodate both.
 exactly the shape `AndThen` takes, so a chain composes into a larger chain by
 method group with no wrapper and no lambda. That is the whole of chain reuse:
 extract what repeats into a method obeying the rules above, and it is available
-everywhere the types line up. Read
-[references/reusable-chains.md](references/reusable-chains.md) before extracting
-one — a chain that must vary by caller and an `async` chain each have a shape
-that stops composing, and the async one is a hard constraint rather than a
-preference.
+everywhere the types line up. Three shapes stop a chain composing:
+
+- **An async step declared `Task`.** `AndThenAsync` and `OrElseAsync` take
+  `ValueTask` steps, so a `Task` method group fails as `CS0411`, which reads as a
+  generics problem (`WM2022`). Redeclare the step `ValueTask`.
+- **A variation point passed as a parameter.** Hold the varying `Func` in a
+  readonly field, like any dependency — never compose a collection of `Func`
+  values, which reads worse than `AndThen` and loses the method names.
+- **A chain that gathers its own results.** `Collect` or `Partition` is the
+  caller's choice: `orders.Select(Bill).Collect()` at the call site.
+
+**Where the project raises `CA2012`, await each step into a local; never
+suppress it.** A chained `*Async` call consumes the `ValueTask` before it as an
+extension receiver, which `CA2012` does not recognise, so under `AnalysisMode: All`
+or a raised severity it reports every link. Store the awaited monad, never the
+un-awaited `ValueTask`:
+
+```csharp
+Result<Order, Error> order = await FindAsync(id);
+return await order.AndThenAsync(Charge);
+```
+
+Test each step, then the chain once per short-circuit point: the error reaching the caller is the failing step's, **unchanged**.
 
 ## Collapse once, at the end
 
@@ -128,15 +164,15 @@ unhandled exception the type exists to prevent (`WM2001`, `WM2002`). Neither
 belongs in shipped code. A test is the one place a panic is a failed assertion —
 but where `Waystone.Monads.Shouldly` is available, its assertions beat `Unwrap`
 even there, because an `Unwrap` throws before the assertion runs and reports
-nothing about what it found. Read
-[references/shouldly.md](references/shouldly.md) when writing them.
+nothing about what it found. Read the Shouldly page in the docs index when
+writing them.
 
 ## Traps
 
-Each of these is a real failure mode with a diagnostic behind it. When a `WM`
-or `WMG` code fires and its meaning is not obvious, look it up in
-[references/diagnostics.md](references/diagnostics.md), which carries all four
-prefixes with the tier and the fix.
+Each of these is a real failure mode with a diagnostic behind it. When a `WM`,
+`WMG`, `WMS` or `WMSC` code fires and its meaning is not obvious, look it up in
+the docs index: the Analyzers pages carry one page per `WM` tier plus Assertion
+rules for `WMS`, and Generator diagnostics carries `WMG` and `WMSC`.
 
 ### Nested matching
 
@@ -278,9 +314,8 @@ option.With(multiplier).Map(static (value, m) => value * m);
 Mark every such lambda `static`, so a later edit cannot silently reintroduce the
 capture. Never bind an `Option` as state: the binder hands it over untouched, so
 the second absence is the author's to remember, while `Zip` and `ZipWith` answer
-`None` whenever either side is absent (`WM2023`). Read
-[references/state-overloads.md](references/state-overloads.md) when rewriting one
-— where the state argument goes differs by branch, and an older form passing
+`None` whenever either side is absent (`WM2023`). Read the State overloads page
+in the docs index when rewriting one — where the state argument goes differs by branch, and an older form passing
 state as the call's first argument is still supported but reaches less of the
 async surface.
 
@@ -294,8 +329,7 @@ Option<Task<Order>> trapped = Option.Try(async () => await FetchAsync(id));
 The task ends up *inside* the monad, where nothing awaits it: the work has not
 finished, anything it throws is unobserved, and `Try` converts no exception at
 all. Nothing about the call site looks wrong, which is what makes it the async
-failure worth watching hardest. Use the `Async` sibling (`WM1011`), and read
-[references/async.md](references/async.md) for why it ships no code fix.
+failure worth watching hardest. Use the `Async` sibling (`WM1011`).
 
 ### Over-wrapping
 
@@ -304,8 +338,7 @@ The type earns its place only where absence or failure is real.
 - `Option<bool>` has three states and almost always wants to be two — model it
   as an enum or split the question.
 - `Result<string, string>` leaves `Ok` indistinguishable from `Err` to a
-  reader. Give the two sides different types. No rule reports it — the ambiguity
-  a rule once caught was the implicit conversions', and those are gone.
+  reader. Give the two sides different types; no rule reports it.
 - `Option<Option<T>>` distinguishes an absent outer from an absent inner, which
   callers never act on — `Flatten` it (`WM2009`).
 - A helper that only wraps a value already known to be present is indirection,
@@ -326,23 +359,19 @@ point is to make that a decision rather than an accident.
 
 `Try` and `TryAsync` catch the exception and hand back a `None` or an `Err`, so it
 reaches no caller — and in the `Option` case is gone for good. The library reports
-each one it catches on a meter and a `DiagnosticListener` named after itself, both
-gated on whether anything is listening. Two things follow for code written here:
+each one on a meter and a `DiagnosticListener`. Two things follow:
 
 - **Configure logging through `Waystone.Monads.Extensions.Logging`,** with
   `UseLoggerFactoryFrom`, `UseLoggerFactory` or `UseLogger`. The hand-written
   `MonadOptions.UseExceptionLogger` hook was removed in `7.0.0`, so a call
   carried over from 6.x fails as `CS1061`.
-- **Never write one of the names as a literal.** `MonadDiagnostics` carries a
-  constant for every meter, listener, event, instrument and tag name, and a
-  *token* per event that pairs the name with its payload type — subscribe through
-  the token and use a constant anywhere a bare string is required. A mistyped
-  literal subscribes to nothing and fails silently: no exception, no warning, an
-  empty dashboard.
+- **Never write one of the names as a literal.** Subscribe through the
+  `MonadDiagnostics` token for the event, and use its name constant anywhere a
+  bare string is required. A mistyped literal subscribes to nothing and fails
+  silently: no exception, no warning, an empty dashboard.
 
-Read [references/observability.md](references/observability.md) before wiring up
-either channel and before writing a test that asserts a `Try` swallowed
-something.
+Read the Observability guide and the Logging page in the docs index before wiring
+up either channel or asserting in a test that a `Try` swallowed something.
 
 ## Parse at the boundary
 
@@ -363,69 +392,50 @@ set is synchronous**: `Configure` returns a value rather than a task, so an
 asynchronous rule reached from one throws `InvalidOperationException` however the
 caller parsed, which is why `WMSC0006` is an error rather than advice.
 
-Read [references/schemas.md](references/schemas.md) before writing one — the
-surface is large, and the traps that bite hardest are silent: a message token that
+Read the Schemas guide and the Schemas reference pages in the docs index before
+writing one — the traps that bite hardest are silent: a message token that
 renders literally rather than failing, a `Schema.Uuid` that accepts `Guid.Empty`,
 and a `Refine` that discards a value you meant to keep.
 
 ## Where the detail lives
 
-These areas carry more than the chain above needs. Load the one the code is
-actually touching. Four further references —
-[references/diagnostics.md](references/diagnostics.md) for the full rule table,
-[references/state-overloads.md](references/state-overloads.md) for closure
-mechanics, [references/observability.md](references/observability.md) for the
-metrics, logging and raw-event channels, and
-[references/schemas.md](references/schemas.md) for parsing untrusted input — are
-pointed to above, where the situation that needs them arises.
+**Every code sample here is illustrative.** The recurring `Order`, `Quote`,
+`Invoice` and `Shipment` types are not types this library ships. Substitute the
+domain types of the codebase being worked in and keep the shape — a chain copied
+verbatim compiles against nothing.
 
-**Every code sample, here and in the references, is illustrative.** The recurring
-`Order`, `Quote`, `Invoice` and `Shipment` types are there to make a shape legible
-in isolation, and none of them is a type this library ships. Substitute the domain
-types of the codebase being worked in and keep the shape — a chain copied verbatim
-compiles against nothing.
+Fetch the page from the docs index for the area the code is actually touching:
 
-| Read | When |
+| Fetch | When |
 | --- | --- |
-| [references/async.md](references/async.md) | The chain crosses an `await`, or `Try`/`TryAsync` is involved. The `*Async` members extend `Task<Option<T>>`, so a chain need not be broken into locals — and an async delegate handed to a synchronous member compiles silently while catching nothing |
-| [references/sequences.md](references/sequences.md) | Working over an `IEnumerable` of monads — `Collect`, `Partition`, `Flatten` — or combining two with `Zip`, `Reduce` or `Xor`, several of which invert the obvious expectation |
-| [references/reusable-chains.md](references/reusable-chains.md) | Extracting a chain for reuse, or a chain has to vary by caller. Why an async step must be declared `ValueTask` for a chain to compose as one and which parameters take that shape, where a variation point goes, why a library of composed `Func` values is worse than the chain, and how many tests a chain needs once its steps are tested |
-| [references/nesting.md](references/nesting.md) | A monad has ended up inside another. Which shape to reach for, what `Transpose` maps to what in both directions, and when the nesting should be resolved with `OkOr` instead of preserved |
-| [references/error-codes.md](references/error-codes.md) | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension |
-| [references/rust-to-csharp.md](references/rust-to-csharp.md) | Porting Rust, or a Rust idiom has no obvious C# spelling |
+| The Option API or Result API page and the sub-page for the member's group | Checking a member's signature or overloads before calling it |
+| The Async guide | The chain crosses an `await`, or `Try`/`TryAsync` is involved. The `*Async` members extend `Task<Option<T>>`, so a chain need not be broken into locals, and an async delegate handed to a synchronous member compiles silently while catching nothing |
+| The Collections page for the monad in hand | Working over an `IEnumerable` of monads — `Collect`, `Partition`, `Flatten` — or combining two with `Zip`, `Reduce` or `Xor`, several of which invert the obvious expectation |
+| The Nesting and conversion page for the outer monad | A monad has ended up inside another, and what `Transpose` maps to what matters |
+| The Errors guide and the Source generation pages | Building an `Error`, or adding or shaping an error code. Codes come from an enum marked `[ErrorCodeCatalog]`, which generates compile-time constants. Construct failures through `{EnumName}Catalog.Errors.{Member}(message)` rather than the `ToError` extension |
+| Coming from Rust | Porting Rust, or a Rust idiom has no obvious C# spelling |
 
 Most of the surface — `With`, every `*Async` member and every collection
 operation — is extension methods in `Waystone.Monads.Options.Extensions` and
-`Waystone.Monads.Results.Extensions`. Without that `using`, the methods do not
-appear and the chain looks impossible to write. Add it before concluding a
+`Waystone.Monads.Results.Extensions`. Add that `using` before concluding a
 member is missing.
 
 ## The companion packages
 
 Core ships the monads, the analyzer and the error-code generator. Everything else
 is a package a project installs deliberately. Check which are referenced before
-concluding a shape is unavailable, and read the one being used rather than
-guessing at its surface.
+concluding a shape is unavailable, and fetch the page for the one being used
+rather than guessing at its surface — the docs index lists them under Add-ons,
+which extend the library itself, and Integrations, which connect it to a
+third-party library. Reach for one when a validator has to become a chain step,
+when later steps need values earlier ones produced (LINQ query syntax), when
+`MonadOptions` is configured from a container or host, or when a monad is
+serialized.
 
-Each package below **shadows the namespace of the library it companions** rather
-than sitting under a parallel `Waystone` tree, so its types appear under a `using`
-the file already has. `Waystone.Monads.Schemas` is the exception — it companions
-no third party, so it keeps its own namespace, and
-[references/schemas.md](references/schemas.md) covers it.
-
-| Read | When |
-| --- | --- |
-| [references/shouldly.md](references/shouldly.md) | Writing or reviewing a test that asserts on a monad |
-| [references/fluent-validation.md](references/fluent-validation.md) | A validator has to become a step in a `Result` chain, or a validation failure has to reach a problem-details payload |
-| [references/linq.md](references/linq.md) | Query syntax is in play, or a chain's later steps each need a value an earlier one produced |
-| [references/dependency-injection.md](references/dependency-injection.md) | `MonadOptions` is configured from a container rather than by a static call |
-| [references/hosting.md](references/hosting.md) | That container is a host, and the install should run from its start-up |
-| [references/system-text-json.md](references/system-text-json.md) | A monad is serialized with `System.Text.Json` |
-| [references/newtonsoft-json.md](references/newtonsoft-json.md) | A monad is serialized with `Newtonsoft.Json` |
-
-`Waystone.Monads.Extensions.Logging` is a companion package too;
-[references/observability.md](references/observability.md) covers it beside the
-metric and event channels it belongs with.
+An Integrations package **shadows the namespace of the library it companions**
+rather than sitting under a parallel `Waystone` tree, so its types appear under a
+`using` the file already has. An Add-on keeps its own `Waystone.Monads.*`
+namespace.
 
 ## Sweep before finishing
 
@@ -445,7 +455,7 @@ Run over the code just written and rewrite each of these where it appears:
       acts on the empty case differently from the failed one
 - [ ] Every `null`, `default` or `?` on a monad — replaced with `None`/`Err`
 - [ ] Every awaited intermediate that only feeds the next step — rejoined with
-      the `*Async` chain
+      the `*Async` chain, unless the project raises `CA2012`
 - [ ] Every eager argument that is a call — moved to the `*Else` sibling
 - [ ] Every `*Else` delegate whose body is a literal, a constant or a variable
       already in scope — moved back to the eager sibling, which takes the value
@@ -483,21 +493,13 @@ Where a schema was written or edited, four more:
 - [ ] Every field whose path came from something other than a member access —
       given a `.Named(...)` (`WMSC0008`)
 
-The build is the check that this landed: `WM1xxx` rules are warnings and
-`WM2xxx` are informational, both enabled by default, and both ship inside the
-`Waystone.Monads` package. `WMG` ships from that same package — six **errors**
-from the error code generator, each meaning no catalog was generated at all, so
-every call site reaching for a generated member fails to compile alongside it. A
-clean build with no `WM` or `WMG` diagnostic — no `WMS` where the assertions
-package is referenced, and no `WMSC` where the schemas package is — is the
-completion bar. `WMSC0009` is the one rule a build never shows, so it takes
-a read rather than a build to clear.
-`WM3001` and `WM3002`, which flag nullable returns and throws that could become
-monads, are **disabled by default** — enable them deliberately when migrating a
-codebase onto the library, since they fire on every nullable return and every
-throw in the project.
-
-A project can raise the whole tier at once with the `WaystoneMonadsRuleset`
-property rather than rule by rule; see
-[references/diagnostics.md](references/diagnostics.md) before setting it, since
-`strict` turns the migration pair on.
+The build is the check that this landed. A clean build with no `WM` or `WMG`
+diagnostic — no `WMS` where the assertions package is referenced, and no `WMSC`
+where the schemas package is — is the completion bar. A `WMG` error means no
+catalog was generated at all, so every call site reaching for a generated member
+fails alongside it. `WMSC0009` is the one rule a build never shows, so it takes a
+read rather than a build to clear. `WM3001` and `WM3002` are **disabled by
+default** — enable them only when migrating a codebase onto the library, since
+they fire on every nullable return and every throw. Read the Severity presets page
+in the docs index before setting `WaystoneMonadsRuleset`, since `strict` turns
+that pair on.
