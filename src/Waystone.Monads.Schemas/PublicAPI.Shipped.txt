@@ -188,6 +188,14 @@ static Waystone.Monads.Schemas.TextSchemaExtensions.OneOf<TIn>(this Waystone.Mon
 static Waystone.Monads.Schemas.TextSchemaExtensions.OneOf<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, params string![]! accepted) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.StartsWith<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, string! prefix, System.StringComparison comparison = System.StringComparison.Ordinal) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.ToBool<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, bool>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToDecimal<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, decimal>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToDecimal<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, decimal>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToDouble<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, double>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToDouble<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, double>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt32<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, int>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt32<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, int>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt64<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, long>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt64<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, long>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.ToUuid<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.Guid>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.Trim<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.Url<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
