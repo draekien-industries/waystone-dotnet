@@ -101,6 +101,18 @@ fix.** That method is .NET 7 and later, PolySharp polyfills types and attributes
 BCL methods, and this package still targets netstandard2.0 — verified by compiling it there,
 not assumed.
 
+## The text conversions share `ParseSchema`, not `Transform`
+
+`ToUuid`, `ToBool` and every later `To*` conversion build a `ParseSchema` over a
+`TextParser<T>`, which is a `TryParse` signature. **Do not rebuild them on
+`Transform(Func<string, Result<T, Error>>)`.** `Result` is a class, so that route allocates
+a `Result` on every successful parse and an `Error` on every failed one; `ParseSchema` adds
+neither.
+
+A conversion that needs a culture captures its `IFormatProvider` in the lambda it passes.
+That allocates once, when the schema is built, and keeps a provider field off the node
+for the parsers that ignore one.
+
 ## RS0026 is suppressed for two files
 
 `CallerArgumentExpression` is what derives a violation path, and the compiler only fills it

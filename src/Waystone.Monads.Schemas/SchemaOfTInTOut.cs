@@ -350,9 +350,10 @@ public abstract class Schema<TIn, TOut>
     /// <returns>A schema producing <typeparamref name="TNext" />.</returns>
     /// <remarks>
     /// <para>
-    /// <b>This is the one seam in the promise that a parse reports every failure.</b>
-    /// A refinement that fails leaves the value in place, so the rules after it
-    /// still run and still report. A transform that fails produces no value, so
+    /// <b>A conversion is the one seam in the promise that a parse reports every
+    /// failure.</b> A refinement that fails leaves the value in place, so the rules
+    /// after it still run and still report. A conversion that fails, whether this
+    /// overload or a text conversion such as <c>ToUuid</c>, produces no value, so
     /// nothing further along this chain has anything to look at and none of it
     /// runs. Sibling fields are unaffected and still report in full.
     /// </para>
