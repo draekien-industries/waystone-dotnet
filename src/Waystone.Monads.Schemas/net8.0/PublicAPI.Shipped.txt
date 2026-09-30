@@ -5,3 +5,5 @@ static Waystone.Monads.Schemas.TemporalSchemaExtensions.After<TIn>(this Waystone
 static Waystone.Monads.Schemas.TemporalSchemaExtensions.Before<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>! schema, System.DateOnly bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>!
 static Waystone.Monads.Schemas.TemporalSchemaExtensions.OnOrAfter<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>! schema, System.DateOnly bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>!
 static Waystone.Monads.Schemas.TemporalSchemaExtensions.OnOrBefore<TIn>(this Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>! schema, System.DateOnly bound) -> Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToDate<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToDate<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, System.DateOnly>!
