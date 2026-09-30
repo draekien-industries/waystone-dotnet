@@ -1,2 +1,1 @@
 #nullable enable
-Waystone.Monads.Schemas.Schema<TIn, TOut>.Pipe<TNext>(Waystone.Monads.Schemas.Schema<TOut, TNext>! next) -> Waystone.Monads.Schemas.Schema<TIn, TNext>!
