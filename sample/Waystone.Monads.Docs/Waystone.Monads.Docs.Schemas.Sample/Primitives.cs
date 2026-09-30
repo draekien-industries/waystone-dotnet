@@ -1,5 +1,6 @@
 ﻿namespace Waystone.Monads.Docs.Schemas.Sample;
 
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Waystone.Monads.Schemas;
 
@@ -98,6 +99,22 @@ internal static partial class PrimitivesPage
     // and OnOrAfter include it, which is what a closing date means.
     public static readonly Schema<DateOnly, DateOnly> ClosesOn =
         Schema.Date.OnOrBefore(new DateOnly(2026, 12, 31));
+    #endregion
+
+    #region schema-primitives-from-text
+    // Each conversion reads text in the invariant culture unless you pass one.
+    public static readonly Schema<string, int> PartySizeFromText =
+        Schema.Text.ToInt32().Pipe(PartySize);
+
+    public static readonly Schema<string, decimal> Bounty =
+        Schema.Text.ToDecimal(CultureInfo.GetCultureInfo("de-DE"));
+
+    // Text with no offset takes the server's time zone.
+    public static readonly Schema<string, DateTimeOffset> PostedAt =
+        Schema.Text.ToTimestamp();
+
+    public static readonly Schema<string, DateOnly> FoundedOn =
+        Schema.Text.ToDate().Pipe(Founded);
     #endregion
 
     #region schema-primitives-booleans

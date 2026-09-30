@@ -76,6 +76,13 @@ internal static partial class CompositionPage
                                $"'{text}' is not a rank.")));
     #endregion
 
+    #region schema-composition-pipe
+    // QuestId is already declared as Schema.Uuid.NotEmpty(). Pipe reuses it
+    // instead of repeating its rules on the text.
+    public static readonly Schema<string, Guid> QuestIdFromRoute =
+        Schema.Text.Trim().ToUuid().Pipe(PrimitivesPage.QuestId);
+    #endregion
+
     #region schema-composition-not
     // A schema worth naming, so Not has something to invert.
     public static readonly Schema<string, string> ReservedPrefixes =
