@@ -39,6 +39,7 @@ Waystone.Monads.Schemas.Schema<TIn, TOut>.Named(string! name) -> Waystone.Monads
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Not(Waystone.Monads.Schemas.Schema<TIn, TOut>! rejected, string! message) -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Parse(TIn input) -> Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!
 Waystone.Monads.Schemas.Schema<TIn, TOut>.ParseAsync(TIn input, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Waystone.Monads.Results.Result<TOut, Waystone.Monads.Schemas.SchemaViolation!>!>
+Waystone.Monads.Schemas.Schema<TIn, TOut>.Pipe<TNext>(Waystone.Monads.Schemas.Schema<TOut, TNext>! next) -> Waystone.Monads.Schemas.Schema<TIn, TNext>!
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Schema() -> void
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Sensitive() -> Waystone.Monads.Schemas.Schema<TIn, TOut>!
 Waystone.Monads.Schemas.Schema<TIn, TOut>.Transform<TNext>(System.Func<TOut, TNext>! convert) -> Waystone.Monads.Schemas.Schema<TIn, TNext>!
