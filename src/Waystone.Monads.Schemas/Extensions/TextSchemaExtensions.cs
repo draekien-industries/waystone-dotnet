@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 /// string of spaces; <c>Schema.Text.NotEmpty().Trim()</c> accepts it and then
 /// hands an empty string to the constructed object. Put <c>Trim</c> first.
 /// </remarks>
-public static class TextSchemaExtensions
+public static partial class TextSchemaExtensions
 {
     /// <summary>Removes the whitespace from both ends of the value.</summary>
     /// <typeparam name="TIn">The type the schema accepts.</typeparam>
