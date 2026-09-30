@@ -48,18 +48,43 @@ internal static class Violations
             existing,
             Create(context, code, template, received, expected, predicate));
 
+    internal static IReadOnlyList<Violation> Concat(
+        IReadOnlyList<Violation> first,
+        IReadOnlyList<Violation> second)
+    {
+        if (second.Count == 0) return first;
+
+        Violation[] violations = Grow(first, second.Count);
+
+        for (var index = 0; index < second.Count; index++)
+        {
+            violations[first.Count + index] = second[index];
+        }
+
+        return violations;
+    }
+
     private static IReadOnlyList<Violation> Append(
         IReadOnlyList<Violation> existing,
         Violation violation)
     {
-        var violations = new Violation[existing.Count + 1];
+        Violation[] violations = Grow(existing, 1);
+
+        violations[existing.Count] = violation;
+
+        return violations;
+    }
+
+    private static Violation[] Grow(
+        IReadOnlyList<Violation> existing,
+        int additional)
+    {
+        var violations = new Violation[existing.Count + additional];
 
         for (var index = 0; index < existing.Count; index++)
         {
             violations[index] = existing[index];
         }
-
-        violations[existing.Count] = violation;
 
         return violations;
     }

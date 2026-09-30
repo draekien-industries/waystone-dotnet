@@ -373,6 +373,39 @@ public abstract class Schema<TIn, TOut>
         Func<TOut, Result<TNext, Error>> convert) where TNext : notnull =>
         new TransformSchema<TIn, TOut, TNext>(this, convert);
 
+    /// <summary>Parses the value this schema produces with a second schema.</summary>
+    /// <typeparam name="TNext">The type the schema produces from here on.</typeparam>
+    /// <param name="next">
+    /// The schema that receives this one's output as its input, such as an
+    /// identifier schema declared once and shared. Its violations are reported at
+    /// the same path as this schema's. Runs only when everything before it produced
+    /// a value.
+    /// </param>
+    /// <returns>A schema producing whatever <paramref name="next" /> produces.</returns>
+    /// <remarks>
+    /// <para>
+    /// Use this where the next step already exists as a schema, so its rules are
+    /// declared in one place. <c>Schema.Text.ToUuid().Pipe(OrderId)</c> applies
+    /// every rule on <c>OrderId</c> to a value that arrived as text.
+    /// </para>
+    /// <para>
+    /// A failed refinement before the pipe keeps its value, so
+    /// <paramref name="next" /> still runs and both sets of violations are
+    /// reported. A failed conversion before it leaves no value, so
+    /// <paramref name="next" /> does not run and reports nothing.
+    /// </para>
+    /// <para>
+    /// A <c>CheckAsync</c> inside <paramref name="next" /> needs
+    /// <see cref="ParseAsync" />, exactly as it would on this schema.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="next" /> is null.
+    /// </exception>
+    public Schema<TIn, TNext> Pipe<TNext>(Schema<TOut, TNext> next)
+        where TNext : notnull =>
+        new PipeSchema<TIn, TOut, TNext>(this, next);
+
     /// <summary>Rejects a value that another schema would accept.</summary>
     /// <param name="rejected">
     /// The schema describing what is not allowed. It runs against the same input

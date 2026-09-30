@@ -132,9 +132,9 @@ Two tiers sit under it:
 argument unchanged, or a node hand-rolling both paths, is a tier that has not been
 written. Add the tier rather than the stub.
 
-Four nodes are outside the hierarchy and each has a reason. `Not` evaluates a
-*second* schema, so a synchronous `Decorate` would run that one synchronously on
-the asynchronous path. `When`/`Unless` may skip the inner schema entirely, so
+Five nodes are outside the hierarchy and each has a reason. `Not` and `Pipe` each
+evaluate a *second* schema, so a synchronous `Decorate` would run that one
+synchronously on the asynchronous path. `When`/`Unless` may skip the inner schema entirely, so
 there is no outcome to decorate. `All`/`Any` fold over several branches.
 `AsyncCheckSchema` has a rule that must be awaited, and `Decorate` returns a value
 rather than a task.
