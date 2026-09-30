@@ -196,6 +196,8 @@ static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt32<TIn>(this Waystone.M
 static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt32<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, int>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt64<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, long>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.ToInt64<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, long>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToTimestamp<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>!
+static Waystone.Monads.Schemas.TextSchemaExtensions.ToTimestamp<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema, System.IFormatProvider! provider) -> Waystone.Monads.Schemas.Schema<TIn, System.DateTimeOffset>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.ToUuid<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, System.Guid>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.Trim<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!
 static Waystone.Monads.Schemas.TextSchemaExtensions.Url<TIn>(this Waystone.Monads.Schemas.Schema<TIn, string!>! schema) -> Waystone.Monads.Schemas.Schema<TIn, string!>!

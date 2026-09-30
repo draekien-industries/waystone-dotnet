@@ -292,6 +292,128 @@ public static partial class TextSchemaExtensions
             "Expected {Path} to be a number, but got {Received}.");
     }
 
+    /// <summary>Converts the text to a <see cref="DateTimeOffset" />, reading it in the invariant culture.</summary>
+    /// <typeparam name="TIn">The type the schema accepts.</typeparam>
+    /// <param name="schema">The schema whose text to convert.</param>
+    /// <returns>A schema producing the <see cref="DateTimeOffset" /> the text spells.</returns>
+    /// <remarks>
+    /// Reads month and day names and the order of a numeric date the same way on
+    /// every server. ISO 8601 text such as <c>"2026-10-01T09:00:00+10:00"</c> reads
+    /// the same in any culture. Parse text a person typed with
+    /// <see cref="ToTimestamp{TIn}(Schema{TIn,string},IFormatProvider)" /> instead.
+    /// See that overload for what is accepted and reported.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="schema" /> is null.
+    /// </exception>
+    public static Schema<TIn, DateTimeOffset> ToTimestamp<TIn>(
+        this Schema<TIn, string> schema) where TIn : notnull =>
+        schema.ToTimestamp(CultureInfo.InvariantCulture);
+
+    /// <summary>Converts the text to a <see cref="DateTimeOffset" />, reading it in the culture you pass.</summary>
+    /// <typeparam name="TIn">The type the schema accepts.</typeparam>
+    /// <param name="schema">The schema whose text to convert.</param>
+    /// <param name="provider">
+    /// The culture whose date order, separators and month names the text uses.
+    /// With <c>en-AU</c>, <c>"01/10/2026"</c> is the first of October.
+    /// </param>
+    /// <returns>A schema producing the <see cref="DateTimeOffset" /> the text spells.</returns>
+    /// <remarks>
+    /// <para>
+    /// Parses as <see cref="DateTimeOffset.TryParse(string, IFormatProvider, DateTimeStyles, out DateTimeOffset)" />
+    /// does with <see cref="DateTimeStyles.None" />. <b>Text with no offset takes the
+    /// offset of the server's local time zone</b>, so <c>"2026-10-01T09:00:00"</c>
+    /// names a different instant on a server in Sydney than on one in London.
+    /// Where the sender must state the offset, check the text before converting it,
+    /// for example with <c>Matches</c>. Once converted, the value no longer records
+    /// where its offset came from.
+    /// </para>
+    /// <para>
+    /// Text with no date takes today's date, and text with no time takes midnight.
+    /// A conversion, so text it cannot read leaves no value and nothing after it
+    /// runs. Reports <c>schema_violation.malformed</c> with the default message
+    /// <c>Expected {Path} to be a date and time, but got {Received}.</c>
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="schema" /> or <paramref name="provider" /> is null.
+    /// </exception>
+    public static Schema<TIn, DateTimeOffset> ToTimestamp<TIn>(
+        this Schema<TIn, string> schema,
+        IFormatProvider provider) where TIn : notnull
+    {
+        if (provider is null) throw new ArgumentNullException(nameof(provider));
+
+        return Parsed(
+            schema,
+            (string text, out DateTimeOffset value) =>
+                DateTimeOffset.TryParse(
+                    text,
+                    provider,
+                    DateTimeStyles.None,
+                    out value),
+            "Expected {Path} to be a date and time, but got {Received}.");
+    }
+
+#if NET8_0_OR_GREATER
+    /// <summary>Converts the text to a <see cref="DateOnly" />, reading it in the invariant culture.</summary>
+    /// <typeparam name="TIn">The type the schema accepts.</typeparam>
+    /// <param name="schema">The schema whose text to convert.</param>
+    /// <returns>A schema producing the <see cref="DateOnly" /> the text spells.</returns>
+    /// <remarks>
+    /// Only on .NET 8 and later, as <c>Schema.Date</c> is. The invariant culture
+    /// reads a numeric date month first, so <c>"01/10/2026"</c> is the tenth of
+    /// January; <c>"2026-10-01"</c> reads the same in any culture. Parse text a
+    /// person typed with <see cref="ToDate{TIn}(Schema{TIn,string},IFormatProvider)" />
+    /// instead. See that overload for what is accepted and reported.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="schema" /> is null.
+    /// </exception>
+    public static Schema<TIn, DateOnly> ToDate<TIn>(this Schema<TIn, string> schema)
+        where TIn : notnull =>
+        schema.ToDate(CultureInfo.InvariantCulture);
+
+    /// <summary>Converts the text to a <see cref="DateOnly" />, reading it in the culture you pass.</summary>
+    /// <typeparam name="TIn">The type the schema accepts.</typeparam>
+    /// <param name="schema">The schema whose text to convert.</param>
+    /// <param name="provider">
+    /// The culture whose date order, separators and month names the text uses.
+    /// With <c>en-AU</c>, <c>"01/10/2026"</c> is the first of October.
+    /// </param>
+    /// <returns>A schema producing the <see cref="DateOnly" /> the text spells.</returns>
+    /// <remarks>
+    /// <para>
+    /// Only on .NET 8 and later. Parses as
+    /// <see cref="DateOnly.TryParse(string, IFormatProvider, DateTimeStyles, out DateOnly)" />
+    /// does with <see cref="DateTimeStyles.None" />. That accepts
+    /// <c>"2026-10-01T09:00:00"</c> and discards the time, so use
+    /// <see cref="ToTimestamp{TIn}(Schema{TIn,string},IFormatProvider)" /> for a value
+    /// whose time of day matters.
+    /// </para>
+    /// <para>
+    /// A conversion, so text it cannot read leaves no value and nothing after it
+    /// runs. Reports <c>schema_violation.malformed</c> with the default message
+    /// <c>Expected {Path} to be a date, but got {Received}.</c>
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="schema" /> or <paramref name="provider" /> is null.
+    /// </exception>
+    public static Schema<TIn, DateOnly> ToDate<TIn>(
+        this Schema<TIn, string> schema,
+        IFormatProvider provider) where TIn : notnull
+    {
+        if (provider is null) throw new ArgumentNullException(nameof(provider));
+
+        return Parsed(
+            schema,
+            (string text, out DateOnly value) =>
+                DateOnly.TryParse(text, provider, DateTimeStyles.None, out value),
+            "Expected {Path} to be a date, but got {Received}.");
+    }
+#endif
+
     private static Schema<TIn, TNext> Parsed<TIn, TNext>(
         Schema<TIn, string> schema,
         TextParser<TNext> parse,
