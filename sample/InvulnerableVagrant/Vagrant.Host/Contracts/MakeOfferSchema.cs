@@ -18,16 +18,16 @@ internal sealed partial class MakeOfferSchema : SchemaConfig<MakeOfferRequest, M
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Schema.Required(
-                                     subject.Item,
-                                     Schema.Uuid
-                                           .NotEmpty()
-                                           .Transform(
-                                                value => new LineItemSubject(value)))
-                                .Named("item"),
-                          Schema.Required(subject.Offer, CoinSchema.Instance)
-                                .Named("offer"))
-                     .Into((item, offer) => new MakeOffer(item, new Offer(offer)));
+        return Fields(
+                   Schema.Required(
+                              subject.Item,
+                              Schema.Uuid
+                                    .NotEmpty()
+                                    .Transform(
+                                         value => new LineItemSubject(value)))
+                         .Named("item"),
+                   Schema.Required(subject.Offer, CoinSchema.Instance)
+                         .Named("offer"))
+                   .Into((item, offer) => new MakeOffer(item, new Offer(offer)));
     }
 }

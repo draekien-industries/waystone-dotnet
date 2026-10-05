@@ -19,9 +19,9 @@ internal sealed partial class SettlePurchaseSchema
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Schema.Required(subject.Tendered, CoinSchema.Instance)
-                                .Named("tendered"))
-                     .Into(tendered => tendered);
+        return Fields(
+                   Schema.Required(subject.Tendered, CoinSchema.Instance)
+                         .Named("tendered"))
+                   .Into(tendered => tendered);
     }
 }

@@ -21,36 +21,36 @@ internal sealed partial class HandInSpecimenSchema
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Schema.Required(
-                                     subject.Patron,
-                                     Schema.Uuid.NotEmpty()
-                                           .Transform(value => new PatronId(value)))
-                                .Named("patron"),
-                          Schema.Required(
-                                     subject.Description,
-                                     Schema.Text.Trim().LengthBetween(3, 200))
-                                .Named("description"),
-                          Schema.Required(
-                                     subject.Obscurity,
-                                     Schema.Number.Int32.AtLeast(0)
-                                           .Transform(value => new Aura((uint)value)))
-                                .Named("obscurity"),
-                          Schema.Required(
-                                     subject.EnchantmentName,
-                                     Schema.Text.Trim().NotEmpty())
-                                .Named("enchantmentName"),
-                          Schema.Required(
-                                     subject.EnchantmentEffect,
-                                     Schema.Text.Trim().NotEmpty())
-                                .Named("enchantmentEffect"))
-                     .Into(
-                          (patron, description, aura, name, effect) =>
-                              Specimen.HandedIn(
-                                  SpecimenId.New(),
-                                  patron,
-                                  description,
-                                  aura,
-                                  new Enchantment(name, effect)));
+        return Fields(
+                   Schema.Required(
+                              subject.Patron,
+                              Schema.Uuid.NotEmpty()
+                                    .Transform(value => new PatronId(value)))
+                         .Named("patron"),
+                   Schema.Required(
+                              subject.Description,
+                              Schema.Text.Trim().LengthBetween(3, 200))
+                         .Named("description"),
+                   Schema.Required(
+                              subject.Obscurity,
+                              Schema.Number.Int32.AtLeast(0)
+                                    .Transform(value => new Aura((uint)value)))
+                         .Named("obscurity"),
+                   Schema.Required(
+                              subject.EnchantmentName,
+                              Schema.Text.Trim().NotEmpty())
+                         .Named("enchantmentName"),
+                   Schema.Required(
+                              subject.EnchantmentEffect,
+                              Schema.Text.Trim().NotEmpty())
+                         .Named("enchantmentEffect"))
+                   .Into(
+                        (patron, description, aura, name, effect) =>
+                            Specimen.HandedIn(
+                                SpecimenId.New(),
+                                patron,
+                                description,
+                                aura,
+                                new Enchantment(name, effect)));
     }
 }

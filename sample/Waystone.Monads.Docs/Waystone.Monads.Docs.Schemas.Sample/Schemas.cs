@@ -21,18 +21,18 @@ public static class Guild
 public partial class QuestSchema : SchemaConfig<QuestDto, Quest>
 {
     protected override Result<Quest, SchemaViolation> Configure(QuestDto subject) =>
-        Schema.Fields(
-                   Schema.Required(subject.Title, Guild.Title),
+        Fields(
+            Schema.Required(subject.Title, Guild.Title),
 
-                   // The path a caller is shown is "patron", not the property
-                   // name the compiler read off the argument.
-                   Schema.Required(subject.PatronEmail, Guild.Email)
-                         .Named("patron"),
-                   Schema.Required(subject.GoldReward, Guild.Reward),
-                   Schema.Optional(subject.PartySize, Schema.Number.Int32.Positive()))
-              .Into(
-                   (title, patron, reward, party) =>
-                       new Quest(title, patron, reward, party));
+            // The path a caller is shown is "patron", not the property
+            // name the compiler read off the argument.
+            Schema.Required(subject.PatronEmail, Guild.Email)
+                  .Named("patron"),
+            Schema.Required(subject.GoldReward, Guild.Reward),
+            Schema.Optional(subject.PartySize, Schema.Number.Int32.Positive()))
+            .Into(
+                 (title, patron, reward, party) =>
+                     new Quest(title, patron, reward, party));
 }
 #endregion
 

@@ -20,20 +20,20 @@ internal sealed partial class ItemWantedSchema
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Schema.Required(
-                                     subject.Item,
-                                     Schema.Uuid
-                                           .NotEmpty()
-                                           .Transform(
-                                                value => new StockedItemId(value)))
-                                .Named("item"),
-                          Schema.Required(
-                                     subject.Quantity,
-                                     Schema.Number.Int32
-                                           .AtLeast(1)
-                                           .Transform(value => (uint)value))
-                                .Named("quantity"))
-                     .Into((item, quantity) => new Wanted(item, quantity));
+        return Fields(
+                   Schema.Required(
+                              subject.Item,
+                              Schema.Uuid
+                                    .NotEmpty()
+                                    .Transform(
+                                         value => new StockedItemId(value)))
+                         .Named("item"),
+                   Schema.Required(
+                              subject.Quantity,
+                              Schema.Number.Int32
+                                    .AtLeast(1)
+                                    .Transform(value => (uint)value))
+                         .Named("quantity"))
+                   .Into((item, quantity) => new Wanted(item, quantity));
     }
 }
