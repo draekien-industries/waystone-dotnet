@@ -16,3 +16,11 @@ WMSC0006 | Usage | Error | Do not reach an asynchronous rule from a field set
 WMSC0007 | Usage | Warning | Call Schema.Fields through the name Schema
 WMSC0008 | Usage | Warning | Name a field whose path cannot be read from its argument
 WMSC0009 | Usage | Info | Prefer a named schema over Schema.For
+
+## Release 7.6.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+WMSC0010 | Usage | Info | Call Fields without the Schema qualifier
