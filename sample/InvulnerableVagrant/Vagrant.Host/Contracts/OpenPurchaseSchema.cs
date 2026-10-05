@@ -19,17 +19,17 @@ internal sealed partial class OpenPurchaseSchema
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Schema.Required(
-                                     subject.Patron,
-                                     Schema.Uuid
-                                           .NotEmpty()
-                                           .Transform(value => new PatronId(value)))
-                                .Named("patron"),
-                          Schema.Required(
-                                     subject.Items,
-                                     Schema.List(ItemWantedSchema.Instance).MinCount(1))
-                                .Named("items"))
-                     .Into((patron, items) => new OpenPurchase(patron, items));
+        return Fields(
+                   Schema.Required(
+                              subject.Patron,
+                              Schema.Uuid
+                                    .NotEmpty()
+                                    .Transform(value => new PatronId(value)))
+                         .Named("patron"),
+                   Schema.Required(
+                              subject.Items,
+                              Schema.List(ItemWantedSchema.Instance).MinCount(1))
+                         .Named("items"))
+                   .Into((patron, items) => new OpenPurchase(patron, items));
     }
 }

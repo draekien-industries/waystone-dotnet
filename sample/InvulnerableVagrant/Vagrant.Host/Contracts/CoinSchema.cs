@@ -25,17 +25,17 @@ internal sealed partial class CoinSchema : SchemaConfig<CoinRequest, Coin>
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Denomination(subject.Platinum).Named("platinum"),
-                          Denomination(subject.Gold).Named("gold"),
-                          Denomination(subject.Silver).Named("silver"),
-                          Denomination(subject.Copper).Named("copper"))
-                     .Into(
-                          (platinum, gold, silver, copper) => Coin.From(
-                              Count(platinum),
-                              Count(gold),
-                              Count(silver),
-                              Count(copper)));
+        return Fields(
+                   Denomination(subject.Platinum).Named("platinum"),
+                   Denomination(subject.Gold).Named("gold"),
+                   Denomination(subject.Silver).Named("silver"),
+                   Denomination(subject.Copper).Named("copper"))
+                   .Into(
+                        (platinum, gold, silver, copper) => Coin.From(
+                            Count(platinum),
+                            Count(gold),
+                            Count(silver),
+                            Count(copper)));
     }
 
     /// <remarks>

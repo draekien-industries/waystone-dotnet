@@ -18,9 +18,9 @@ internal sealed partial class IdentifySpecimenSchema
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Schema.Required(subject.Check, Schema.Number.Int32)
-                                .Named("check"))
-                     .Into(total => new ArcanaCheck(total));
+        return Fields(
+                   Schema.Required(subject.Check, Schema.Number.Int32)
+                         .Named("check"))
+                   .Into(total => new ArcanaCheck(total));
     }
 }

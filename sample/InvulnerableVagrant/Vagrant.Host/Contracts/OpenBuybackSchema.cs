@@ -20,24 +20,24 @@ internal sealed partial class OpenBuybackSchema
     {
         ArgumentNullException.ThrowIfNull(subject);
 
-        return Schema.Fields(
-                          Schema.Required(
-                                     subject.Patron,
-                                     Schema.Uuid
-                                           .NotEmpty()
-                                           .Transform(value => new PatronId(value)))
-                                .Named("patron"),
-                          Schema.Required(
-                                     subject.Description,
-                                     Schema.Text.Trim().LengthBetween(3, 200))
-                                .Named("description"),
-                          Schema.Required(subject.Offered, CoinSchema.Instance)
-                                .Named("offered"))
-                     .Into(
-                          (patron, description, offered) => Buyback.Open(
-                              BuybackId.New(),
-                              patron,
-                              description,
-                              offered));
+        return Fields(
+                   Schema.Required(
+                              subject.Patron,
+                              Schema.Uuid
+                                    .NotEmpty()
+                                    .Transform(value => new PatronId(value)))
+                         .Named("patron"),
+                   Schema.Required(
+                              subject.Description,
+                              Schema.Text.Trim().LengthBetween(3, 200))
+                         .Named("description"),
+                   Schema.Required(subject.Offered, CoinSchema.Instance)
+                         .Named("offered"))
+                   .Into(
+                        (patron, description, offered) => Buyback.Open(
+                            BuybackId.New(),
+                            patron,
+                            description,
+                            offered));
     }
 }

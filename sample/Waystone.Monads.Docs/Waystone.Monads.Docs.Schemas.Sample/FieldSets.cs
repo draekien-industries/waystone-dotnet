@@ -74,10 +74,10 @@ public partial class LeaderSchema : SchemaConfig<LeaderDto, Leader>
 {
     protected override Result<Leader, SchemaViolation> Configure(
         LeaderDto subject) =>
-        Schema.Fields(
-                   Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty()),
-                   Schema.Required(subject.Email, Guild.Email))
-              .Into((name, email) => new Leader(name, email));
+        Fields(
+            Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty()),
+            Schema.Required(subject.Email, Guild.Email))
+            .Into((name, email) => new Leader(name, email));
 }
 
 public sealed record PartyDto(
@@ -110,21 +110,21 @@ public sealed class Party
 public partial class PartySchema : SchemaConfig<PartyDto, Party>
 {
     protected override Result<Party, SchemaViolation> Configure(PartyDto subject) =>
-        Schema.Fields(
-                   Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty()),
+        Fields(
+            Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty()),
 
-                   // A nested schema is just a schema. Its violations arrive under
-                   // "leader", so a reader is told which one failed.
-                   Schema.Required(subject.Leader, LeaderSchema.Instance),
-                   Schema.Optional(subject.Size, Schema.Number.Int32.AtLeast(1)))
+            // A nested schema is just a schema. Its violations arrive under
+            // "leader", so a reader is told which one failed.
+            Schema.Required(subject.Leader, LeaderSchema.Instance),
+            Schema.Optional(subject.Size, Schema.Number.Int32.AtLeast(1)))
 
-              // Refine takes fields that gate the parse without producing a value,
-              // so the Into lambda keeps one parameter per field above and no
-              // discards.
-              .Refine(
-                   Schema.Forbidden(subject.LegacyId, "Do not send {Path}."),
-                   Schema.Extend(subject, FieldSetsPage.Chronology))
-              .Into((name, leader, size) => new Party(name, leader, size));
+            // Refine takes fields that gate the parse without producing a value,
+            // so the Into lambda keeps one parameter per field above and no
+            // discards.
+            .Refine(
+                 Schema.Forbidden(subject.LegacyId, "Do not send {Path}."),
+                 Schema.Extend(subject, FieldSetsPage.Chronology))
+            .Into((name, leader, size) => new Party(name, leader, size));
 }
 #endregion
 
@@ -137,10 +137,10 @@ public partial class ConsentSchema : SchemaConfig<ConsentDto, Checked>
 {
     protected override Result<Checked, SchemaViolation> Configure(
         ConsentDto subject) =>
-        Schema.Fields(
-                   Schema.Required(subject.Terms, Schema.Text.NotEmpty()),
-                   Schema.Required(subject.Privacy, Schema.Text.NotEmpty()))
-              .Checked();
+        Fields(
+            Schema.Required(subject.Terms, Schema.Text.NotEmpty()),
+            Schema.Required(subject.Privacy, Schema.Text.NotEmpty()))
+            .Checked();
 }
 #endregion
 
@@ -168,17 +168,17 @@ public partial class RecruitSchema : SchemaConfig<RecruitDto, Recruit>
 {
     protected override Result<Recruit, SchemaViolation> Configure(
         RecruitDto subject) =>
-        Schema.Fields(
-                   Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty()),
-                   Schema.Required(subject.Email, Guild.Email))
+        Fields(
+            Schema.Required(subject.Name, Schema.Text.Trim().NotEmpty()),
+            Schema.Required(subject.Email, Guild.Email))
 
-              // Either kind reaches Refine the same way. Required still means the
-              // caller has to send it and Optional still means they may — AsChecked
-              // drops the value and nothing else.
-              .Refine(
-                   Schema.Required(subject.ConfirmEmail, Guild.Email).AsChecked(),
-                   Schema.Optional(subject.Referral, Schema.Text.Trim().NotEmpty())
-                         .AsChecked())
-              .Into((name, email) => new Recruit(name, email));
+            // Either kind reaches Refine the same way. Required still means the
+            // caller has to send it and Optional still means they may — AsChecked
+            // drops the value and nothing else.
+            .Refine(
+                 Schema.Required(subject.ConfirmEmail, Guild.Email).AsChecked(),
+                 Schema.Optional(subject.Referral, Schema.Text.Trim().NotEmpty())
+                       .AsChecked())
+            .Into((name, email) => new Recruit(name, email));
 }
 #endregion

@@ -56,13 +56,13 @@ public partial class RegistrationSchema
 {
     protected override Result<Registration, SchemaViolation> Configure(
         RegistrationDto subject) =>
-        Schema.Fields(
-                   Schema.Required(subject.Email, Registrations.Email),
-                   Schema.Required(subject.DisplayName, Registrations.DisplayName),
-                   Schema.Optional(subject.Age, Registrations.Age))
-              .Refine(Schema.Extend(subject, Registrations.Terms))
-              .Into(
-                   (email, name, age) => new Registration(email, name, age));
+        Fields(
+            Schema.Required(subject.Email, Registrations.Email),
+            Schema.Required(subject.DisplayName, Registrations.DisplayName),
+            Schema.Optional(subject.Age, Registrations.Age))
+            .Refine(Schema.Extend(subject, Registrations.Terms))
+            .Into(
+                 (email, name, age) => new Registration(email, name, age));
 }
 #endregion
 
