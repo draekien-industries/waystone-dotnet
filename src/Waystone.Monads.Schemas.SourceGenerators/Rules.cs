@@ -152,6 +152,27 @@ internal static class Rules
         "'Schema.For<{0}>()' returns the same instance as '{1}'; prefer '{1}', which is where the rules for '{0}' are listed",
         "Every named schema is initialised with 'Schema.For<T>()' and the result is cached per type, so the two spellings are the same object and neither checks anything the other does not. The named one is what the documentation and the rule sets are organised under, so it is what a reader looking for the rules that apply to a type will find. This reports nothing for a type that has no named spelling, which is what 'Schema.For<T>()' is for.");
 
+    /// <summary>
+    /// Reported on the receiver alone — the <c>Schema.</c> the fix deletes — and
+    /// tagged <c>Unnecessary</c> so an IDE fades that span rather than underlining
+    /// the call. This is the deprecation notice for <c>Schema.Fields</c>, which is
+    /// removed in the next major.
+    /// </summary>
+    /// <remarks>
+    /// A suggestion rather than a warning, and the reason is the upgrade rather than
+    /// the code: an <c>[Obsolete]</c> or a warning here would fail the build of every
+    /// consumer with <c>TreatWarningsAsErrors</c> on a minor release. Silent where a
+    /// <c>Fields</c> other than the generated method is in scope, because the rewrite
+    /// would then bind to that member instead.
+    /// </remarks>
+    public static readonly DiagnosticDescriptor PreferUnqualifiedFields =
+        Suggestion(
+            "WMSC0010",
+            "Call Fields without the Schema qualifier",
+            "'{0}' calls '{1}', which is removed in 8.0.0; call 'Fields(...)' with no receiver so that 'Schema' binds to the library's own type",
+            "'Schema.Fields' is served by a class the generator nests inside the schema and derives from 'Schema', so inside the schema the name 'Schema' binds to that subclass and every other 'Schema' member is reached through it. That compiles and runs, but Rider reports each such access as 'AccessToStaticMemberViaDerivedType'. An unqualified 'Fields' call is served by a method on the schema class instead, so no subclass is generated and 'Schema' binds to the library's own type. 'Schema.Fields' is removed in 8.0.0.",
+            WellKnownDiagnosticTags.Unnecessary);
+
     private const string DocsRoot =
         "https://draekien-industries.wpei.me/source-generation/diagnostics#";
 
@@ -194,15 +215,23 @@ internal static class Rules
         string id,
         string title,
         string messageFormat,
-        string description) =>
-        Descriptor(id, title, messageFormat, description, DiagnosticSeverity.Info);
+        string description,
+        params string[] tags) =>
+        Descriptor(
+            id,
+            title,
+            messageFormat,
+            description,
+            DiagnosticSeverity.Info,
+            tags);
 
     private static DiagnosticDescriptor Descriptor(
         string id,
         string title,
         string messageFormat,
         string description,
-        DiagnosticSeverity severity) =>
+        DiagnosticSeverity severity,
+        params string[] tags) =>
         new DiagnosticDescriptor(
             id,
             title,
@@ -211,5 +240,6 @@ internal static class Rules
             severity,
             true,
             description,
-            DocsRoot + id.ToLowerInvariant());
+            DocsRoot + id.ToLowerInvariant(),
+            tags);
 }

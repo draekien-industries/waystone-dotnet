@@ -18,11 +18,12 @@ confirmation field that must be well-formed and never stored. An error there wou
 that author nothing but the id in an `.editorconfig`.
 `RulesTests.OnlyTheRulesWithACorrectReadingAreWarnings` holds the current set.
 
-`WMSC0009` is the only rule here reporting on code with nothing wrong with it: both
-spellings of a named schema are the same cached object, and one is merely easier to find
-the rules for. A warning would put a line in the build log of a consumer who wrote correct
-code on an upgrade they did not choose, so it suggests — an IDE offers it and a build never
-mentions it.
+`WMSC0009` and `WMSC0010` report on code with nothing wrong with it. Both spellings of a
+named schema are the same cached object, and one is merely easier to find the rules for;
+`Schema.Fields` works until the major that removes it. A warning would put a line in the
+build log of a consumer who wrote correct code on an upgrade they did not choose, so both
+suggest — an IDE offers them and a build never mentions them. A deprecation follows this
+rule too: it is a suggestion, never `[Obsolete]`, until the major that removes the member.
 
 **An analyzer ships in this assembly as well as the generator, and `WMSC0009` is why.** The
 generator only ever sees a `Configure` body, and a schema is as likely to sit in a shared

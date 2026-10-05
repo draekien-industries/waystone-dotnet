@@ -90,6 +90,14 @@ through the nested class, and Rider reports every such call as
 spelling exists. `Schema.Fields` stays until the next major; the runtime `Schema`
 stays `abstract` until then because the nested class derives from it.
 
+**`WMSC0010` is the deprecation notice for `Schema.Fields`, and it is a suggestion.**
+An `[Obsolete]` or a warning would fail every `TreatWarningsAsErrors` consumer on a
+minor release. It is an analyzer, not generator output, because the call it reports
+binds only to a generated member and the generator never sees its own output. Its
+code fix lives in `Waystone.Monads.Schemas.SourceGenerators.CodeFixes`, which
+`PackSchemaAnalyzers` packs beside the generator: a fix needs `Workspaces`, and a
+generator assembly must not reference it.
+
 **`Combine` is emitted into each `FieldSet`, not onto the schema class.** A member
 there would be one more name taken from the consumer, and the nested `Schema` that
 once held it is absent wherever every call is unqualified.
