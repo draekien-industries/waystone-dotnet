@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Schemas.SourceGenerators.Fixtures;
 
+using System.Linq;
 using Shouldly;
 using Waystone.Monads.Options;
 using Waystone.Monads.Results;
@@ -94,8 +95,9 @@ public sealed class GeneratedLadderTests
     }
 
     /// <summary>
-    /// Two arities in one schema, so the generator emits two ladders into one class
-    /// and neither collides with the other.
+    /// Two arities in one schema, one through each spelling, so the generator emits
+    /// both a method on the class and a nested <c>Schema</c>, and neither collides
+    /// with the other.
     /// </summary>
     [Fact]
     public void GivenTwoAritiesInOneSchema_WhenParsing_ThenBothLaddersExist()
@@ -107,6 +109,27 @@ public sealed class GeneratedLadderTests
         BranchingSchema.Instance.Parse(new PairDto("a", "b", false))
                        .Unwrap()
                        .ShouldBe("a");
+    }
+
+    /// <summary>
+    /// The unqualified spelling binds to a method on the schema class, and two
+    /// <c>Refine</c> calls add to one another rather than the second replacing the
+    /// first.
+    /// </summary>
+    [Fact]
+    public void GivenAnUnqualifiedLadderRefinedTwice_WhenParsing_ThenEveryRefinementGates()
+    {
+        SchemaViolation violation =
+            UnqualifiedSchema.Instance.Parse(
+                                  new PersonDto("Ada", "ada@example.com", 36, "The Countess"))
+                             .UnwrapErr();
+
+        violation.Violations.Select(item => item.Path.ToString())
+                 .ShouldBe(["nickname", "age"]);
+
+        UnqualifiedSchema.Instance.Parse(new PersonDto("Ada", "ada@example.com", null, null))
+                         .Unwrap()
+                         .ShouldBe("Ada <ada@example.com>");
     }
 }
 
@@ -174,11 +197,23 @@ public partial class BranchingSchema : SchemaConfig<PairDto, string>
     protected override Result<string, SchemaViolation> Configure(
         PairDto subject) =>
         subject.Both
-            ? Schema.Fields(
-                        Schema.Required(subject.Left, Schema.Text.NotEmpty()),
-                        Schema.Required(subject.Right, Schema.Text.NotEmpty()))
-                    .Into((left, right) => left + "|" + right)
+            ? Fields(
+                    Schema.Required(subject.Left, Schema.Text.NotEmpty()),
+                    Schema.Required(subject.Right, Schema.Text.NotEmpty()))
+               .Into((left, right) => left + "|" + right)
             : Schema.Fields(
                         Schema.Required(subject.Left, Schema.Text.NotEmpty()))
                     .Into(left => left);
+}
+
+public partial class UnqualifiedSchema : SchemaConfig<PersonDto, string>
+{
+    protected override Result<string, SchemaViolation> Configure(
+        PersonDto subject) =>
+        Fields(
+                Schema.Required(subject.Name, Schema.Text.NotEmpty()),
+                Schema.Required(subject.Email, Schema.Text.NotEmpty()))
+           .Refine(Schema.Forbidden(subject.Nickname, "Do not send {Path}."))
+           .Refine(Schema.Forbidden(subject.Age, "Do not send {Path}."))
+           .Into((name, email) => name + " <" + email + ">");
 }

@@ -105,17 +105,19 @@ internal static class Rules
     /// <remarks>
     /// Advice rather than an error, and the one rule here that warns about code that
     /// does not compile. The generator matches the receiver as written, so this fires
-    /// on any unbound call to a member named <c>Fields</c> — including one that has
-    /// nothing to do with a field set and failed to bind for its own reasons. The
+    /// on any unbound call to a member named <c>Fields</c> through a receiver other
+    /// than <c>Schema</c> — including one that has nothing to do with a field set and
+    /// failed to bind for its own reasons. An unbound call with no receiver is never
+    /// reported, because the generator serves it. The
     /// compiler is already reporting that call, so a second error would only add a
     /// build failure to a build that has one; a warning adds the explanation and
     /// stays wrong quietly.
     /// </remarks>
     public static readonly DiagnosticDescriptor FieldsNotRecognised = Advice(
         "WMSC0007",
-        "Call Schema.Fields through the name Schema",
-        "'{0}' spells its field-set call '{1}', which the generator matches by name rather than by binding it, so no ladder was generated; write the receiver as 'Schema', qualified by the type that contains it if you need to",
-        "'Schema.Fields' is the member being generated, so it binds to nothing while the generator is deciding whether to emit it. The receiver therefore has to be recognised as written rather than resolved, and an alias, a renamed import or a call with no receiver at all carries nothing to recognise. Without this rule the only message is the compiler's, against a member the generator never created.");
+        "Call Fields with no receiver or through the name Schema",
+        "'{0}' spells its field-set call '{1}', which the generator matches by name rather than by binding it, so no ladder was generated; write 'Fields(...)' with no receiver, or 'Schema.Fields(...)'",
+        "'Fields' is the member being generated, so it binds to nothing while the generator is deciding whether to emit it. The call therefore has to be recognised as written rather than resolved: with no receiver, or through a receiver named 'Schema'. A 'this.' prefix, an alias or any other receiver carries nothing to recognise. Without this rule the only message is the compiler's, against a member the generator never created.");
 
     /// <summary>
     /// Reported at the argument the path was taken from, which is the expression the

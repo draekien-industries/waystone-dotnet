@@ -1,5 +1,6 @@
 namespace Waystone.Monads.Schemas.SourceGenerators;
 
+using System.Collections.Generic;
 using System.Text;
 
 internal static class SchemaWriter
@@ -65,16 +66,26 @@ internal static class SchemaWriter
 
         WriteInstance(writer, depth + 1, model);
 
-        if (model.Arities.Length > 0)
+        if (model.QualifiedArities.Length > 0)
         {
             writer.Blank();
             WriteEntryPoint(writer, depth + 1, model, constrained);
+        }
 
-            foreach (int arity in model.Arities.Values)
-            {
-                writer.Blank();
-                WriteFieldSet(writer, depth + 1, arity, constrained);
-            }
+        foreach (int arity in model.UnqualifiedArities.Values)
+        {
+            writer.Blank();
+            WriteFieldsOverload(writer, depth + 1, arity, constrained, "private");
+        }
+
+        var arities = new SortedSet<int>(model.QualifiedArities.Values);
+
+        arities.UnionWith(model.UnqualifiedArities.Values);
+
+        foreach (int arity in arities)
+        {
+            writer.Blank();
+            WriteFieldSet(writer, depth + 1, arity, constrained);
         }
 
         writer.Line(depth, "}");
@@ -111,11 +122,13 @@ internal static class SchemaWriter
     }
 
     /// <summary>
-    /// The nested <c>Schema</c> class, which is how an uncapped <c>Fields</c> ladder
-    /// is reached at all. A generator cannot add an overload to a type in another
+    /// The nested <c>Schema</c> class, which is how a <c>Schema.Fields</c> call reaches
+    /// an uncapped ladder. A generator cannot add an overload to a type in another
     /// assembly, so it derives a class from that type here and adds the overload to
     /// the derived one. Static members are inherited in C#, so every other
-    /// <c>Schema</c> member still resolves through it unchanged.
+    /// <c>Schema</c> member still resolves through it unchanged — which is also why
+    /// Rider reports each of them as accessed through a derived type, and why an
+    /// unqualified <c>Fields</c> call is served without this class.
     /// </summary>
     private static void WriteEntryPoint(
         Writer writer,
@@ -136,26 +149,32 @@ internal static class SchemaWriter
             "private sealed class " + EntryPointType + " : " + Root + "Schema");
         writer.Line(depth, "{");
 
-        WriteCombine(writer, depth + 1);
-
-        foreach (int arity in model.Arities.Values)
+        for (var index = 0; index < model.QualifiedArities.Length; index++)
         {
-            writer.Blank();
-            WriteFieldsOverload(writer, depth + 1, arity, constrained);
+            if (index > 0) writer.Blank();
+
+            WriteFieldsOverload(
+                writer,
+                depth + 1,
+                model.QualifiedArities.Values[index],
+                constrained,
+                "public");
         }
 
         writer.Line(depth, "}");
     }
 
     /// <summary>
-    /// Emitted once per schema rather than once per arity, because every generated
-    /// <c>Refine</c> needs it and the arities share this class.
+    /// Emitted into each <c>FieldSet</c> rather than once per schema, because the
+    /// nested <c>Schema</c> class it once shared is absent wherever every call is
+    /// unqualified, and a member on the schema class would be one more name taken
+    /// from the consumer.
     /// </summary>
     private static void WriteCombine(Writer writer, int depth)
     {
         writer.Line(
             depth,
-            "internal static " + Field + "[] Combine(" + Field + "[] first, " + Field + "[] second)");
+            "private static " + Field + "[] Combine(" + Field + "[] first, " + Field + "[] second)");
 
         writer.Line(depth, "{");
         writer.Line(depth + 1, "if (first == null || first.Length == 0) return second;");
@@ -176,7 +195,8 @@ internal static class SchemaWriter
         Writer writer,
         int depth,
         int arity,
-        bool constrained)
+        bool constrained,
+        string accessibility)
     {
         writer.Line(
             depth,
@@ -188,7 +208,7 @@ internal static class SchemaWriter
 
         writer.Line(
             depth,
-            "public static " + LadderType + Parameters(arity) + " " + FieldsMember + Parameters(arity) + "(");
+            accessibility + " static " + LadderType + Parameters(arity) + " " + FieldsMember + Parameters(arity) + "(");
 
         for (var index = 1; index <= arity; index++)
         {
@@ -241,6 +261,8 @@ internal static class SchemaWriter
         WriteInto(writer, depth + 1, arity, constrained);
         writer.Blank();
         WriteChecked(writer, depth + 1, arity);
+        writer.Blank();
+        WriteCombine(writer, depth + 1);
 
         writer.Line(depth, "}");
     }
@@ -291,7 +313,7 @@ internal static class SchemaWriter
 
         writer.Line(
             depth + 1,
-            "new " + self + "(" + Arguments(arity, "_field") + ", Schema.Combine(_refinements, refinements));");
+            "new " + self + "(" + Arguments(arity, "_field") + ", Combine(_refinements, refinements));");
     }
 
     private static void WriteInto(

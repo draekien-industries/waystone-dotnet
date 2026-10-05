@@ -140,10 +140,10 @@ public sealed class SchemaGenerator : IIncrementalGenerator
 
         var diagnostics = new List<DiagnosticInfo>();
 
-        int[] arities =
+        (int[] qualified, int[] unqualified) =
             Ladder.Discover(schema, context.SemanticModel, diagnostics);
 
-        string? taken = arities.Length == 0 ? null : LadderNameTaken(schema);
+        string? taken = LadderNameTaken(schema, qualified, unqualified);
 
         if (taken is not null)
         {
@@ -162,29 +162,36 @@ public sealed class SchemaGenerator : IIncrementalGenerator
 
         return new Analysis(
             hintName,
-            ModelOf(schema, containers, arities),
+            ModelOf(schema, containers, qualified, unqualified),
             new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
     }
 
     /// <summary>
-    /// The first of the two names the ladder needs that the schema has already
-    /// spent, or null where both are free.
+    /// The first name the ladder needs that the schema has already spent, or null
+    /// where every one is free.
     /// </summary>
     /// <remarks>
-    /// Called only where a ladder is being emitted. Neither name is written into a
-    /// schema that makes no <c>Schema.Fields</c> call, so reporting them there would
-    /// fail a build over a collision that never happens.
+    /// A name is checked only where it is about to be written, so a schema that never
+    /// calls <c>Schema.Fields</c> may keep a member called <c>Schema</c>, and one that
+    /// calls no <c>Fields</c> at all may keep a <c>FieldSet</c>. The generated
+    /// <c>Fields</c> method needs no check: an unqualified call is only counted when
+    /// it binds to nothing, and it would bind to a member of that name.
     /// </remarks>
-    private static string? LadderNameTaken(INamedTypeSymbol schema)
+    private static string? LadderNameTaken(
+        INamedTypeSymbol schema,
+        int[] qualified,
+        int[] unqualified)
     {
-        if (Declares(schema, SchemaWriter.EntryPointType))
+        if (qualified.Length > 0
+         && Declares(schema, SchemaWriter.EntryPointType))
         {
             return SchemaWriter.EntryPointType;
         }
 
-        return Declares(schema, SchemaWriter.LadderType)
-            ? SchemaWriter.LadderType
-            : null;
+        return qualified.Length + unqualified.Length > 0
+            && Declares(schema, SchemaWriter.LadderType)
+                ? SchemaWriter.LadderType
+                : null;
     }
 
     /// <summary>
@@ -198,7 +205,8 @@ public sealed class SchemaGenerator : IIncrementalGenerator
     private static SchemaModel ModelOf(
         INamedTypeSymbol schema,
         IReadOnlyList<INamedTypeSymbol> containers,
-        int[] arities)
+        int[] qualified,
+        int[] unqualified)
     {
         var declarations = new string[containers.Count];
 
@@ -218,7 +226,8 @@ public sealed class SchemaGenerator : IIncrementalGenerator
             schema.DeclaredAccessibility == Accessibility.Public
                 ? "public"
                 : "internal",
-            new EquatableArray<int>(arities));
+            new EquatableArray<int>(qualified),
+            new EquatableArray<int>(unqualified));
     }
 
     /// <summary>

@@ -20,7 +20,8 @@ internal sealed record SchemaModel(
     string QualifiedName,
     string Name,
     string Accessibility,
-    EquatableArray<int> Arities);
+    EquatableArray<int> QualifiedArities,
+    EquatableArray<int> UnqualifiedArities);
 
 /// <summary>What the generator decided about one schema.</summary>
 /// <remarks>
