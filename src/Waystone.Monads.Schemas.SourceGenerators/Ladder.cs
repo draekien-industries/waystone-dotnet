@@ -6,11 +6,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 /// <summary>
-/// Reads the <c>Schema.Fields</c> calls a schema makes and reports what is wrong
-/// with them.
+/// Reads the <c>Schema.Fields</c> and unqualified <c>Fields</c> calls a schema makes
+/// and reports what is wrong with them.
 /// </summary>
 /// <remarks>
-/// The arity is found syntactically, and it has to be: <c>Schema.Fields</c> is the
+/// The arity is found syntactically, and it has to be: <c>Fields</c> is the
 /// member being generated, so it binds to nothing while the generator is deciding
 /// whether to generate it. Everything else about the chain — what a <c>Refine</c>
 /// argument actually yields — binds normally, because those members already exist.
@@ -33,12 +33,13 @@ internal static class Ladder
 
     private const string CheckedName = "Checked";
 
-    public static int[] Discover(
+    public static (int[] Qualified, int[] Unqualified) Discover(
         INamedTypeSymbol schema,
         SemanticModel current,
         List<DiagnosticInfo> diagnostics)
     {
-        var arities = new SortedSet<int>();
+        var qualified = new SortedSet<int>();
+        var unqualified = new SortedSet<int>();
 
         foreach (SyntaxReference reference in schema.DeclaringSyntaxReferences)
         {
@@ -62,7 +63,12 @@ internal static class Ladder
                     schema.Name,
                     diagnostics);
 
-                if (!IsFieldsCall(invocation))
+                SortedSet<int>? arities =
+                    IsFieldsCall(invocation) ? qualified
+                    : IsUnqualifiedFieldsCall(invocation, model) ? unqualified
+                    : null;
+
+                if (arities is null)
                 {
                     CheckSpelling(
                         invocation,
@@ -84,6 +90,11 @@ internal static class Ladder
             }
         }
 
+        return (ToArray(qualified), ToArray(unqualified));
+    }
+
+    private static int[] ToArray(SortedSet<int> arities)
+    {
         var found = new int[arities.Count];
 
         arities.CopyTo(found);
@@ -110,9 +121,32 @@ internal static class Ladder
      && NameOf(access.Expression) == SchemaReceiver;
 
     /// <summary>
+    /// A <c>Fields</c> call with no receiver, which reaches a ladder emitted onto the
+    /// schema class itself rather than onto a nested <c>Schema</c>.
+    /// </summary>
+    /// <remarks>
+    /// Unlike the qualified spelling, this one counts only where no <c>Fields</c> is
+    /// in scope at all. A schema may declare or inherit a <c>Fields</c> of its own,
+    /// and a call against it is that member's call even when it fails to bind — a
+    /// property or a nested type of that name leaves no candidate symbol behind, so
+    /// binding the call cannot say so, and emitting a method beside it would be a
+    /// duplicate member. The generated method is not part of the compilation the
+    /// generator reads, so a call it serves finds nothing here.
+    /// </remarks>
+    private static bool IsUnqualifiedFieldsCall(
+        InvocationExpressionSyntax invocation,
+        SemanticModel model) =>
+        invocation.Expression is IdentifierNameSyntax name
+     && name.Identifier.ValueText == SchemaWriter.FieldsMember
+     && model.LookupSymbols(
+                  invocation.SpanStart,
+                  name: SchemaWriter.FieldsMember)
+             .IsEmpty;
+
+    /// <summary>
     /// Reports a call that looks like a field set and was not recognised as one, so
-    /// that the receiver having to be spelled <c>Schema</c> is said somewhere rather
-    /// than only implied by a member that never appeared.
+    /// that the two spellings the generator reads are said somewhere rather than only
+    /// implied by a member that never appeared.
     /// </summary>
     /// <remarks>
     /// The unbound test is what keeps this off a consumer's own <c>Fields</c> method.
@@ -120,7 +154,9 @@ internal static class Ladder
     /// that binds badly — the right member with the wrong arguments — is the
     /// compiler's to explain and comes back through <c>CandidateSymbols</c>. What is
     /// left is a name that resolved to nothing, which for a member named
-    /// <c>Fields</c> inside a schema is nearly always this mistake.
+    /// <c>Fields</c> inside a schema is nearly always this mistake. An unqualified
+    /// call never reaches the report: it was served, or it runs into a member of that
+    /// name, which the compiler already names.
     /// </remarks>
     private static void CheckSpelling(
         InvocationExpressionSyntax invocation,
@@ -128,7 +164,11 @@ internal static class Ladder
         string schemaName,
         List<DiagnosticInfo> diagnostics)
     {
-        if (NameOf(invocation.Expression) != SchemaWriter.FieldsMember) return;
+        if (invocation.Expression is IdentifierNameSyntax
+         || NameOf(invocation.Expression) != SchemaWriter.FieldsMember)
+        {
+            return;
+        }
 
         SymbolInfo bound = model.GetSymbolInfo(invocation);
 

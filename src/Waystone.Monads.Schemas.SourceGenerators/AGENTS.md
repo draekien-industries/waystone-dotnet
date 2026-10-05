@@ -54,12 +54,12 @@ a derived schema has an implicit constructor until it declares a constructor of 
 own — at which point the implicit one disappears with no diagnostic from the
 compiler.
 
-**`WMSC0003` covers every name the generator writes, not just `Instance`.** The other
-two are the nested `Schema` and the `FieldSet` struct, checked only where a ladder is
-being emitted — a schema that never calls `Schema.Fields` receives neither name and
-may keep a member of either. Arity does not separate them: `CS0102` fires on a nested
-`FieldSet<T1>` beside a property called `FieldSet`. `SchemaWriter` holds all three
-names as constants so the guard and the emission cannot drift.
+**`WMSC0003` covers every name the generator writes, not just `Instance`.** The nested
+`Schema` is checked only where a `Schema.Fields` call exists, and `FieldSet` only where
+any ladder call exists. Arity does not separate them: `CS0102` fires on a nested
+`FieldSet<T1>` beside a property called `FieldSet`. The generated `Fields` method needs
+no check, because an unqualified call is only served when no `Fields` is in scope.
+`SchemaWriter` holds the names as constants so the guard and the emission cannot drift.
 
 **The generator anchors on the first part carrying a base list, not the first part.**
 A partial class reaches the pipeline once per part that names a base type, and
@@ -79,26 +79,38 @@ disagree. The type parameters *are* repeated, because they have to be.
 
 ## The ladder
 
-**A generator cannot add an overload to a type in another assembly**, so
-`Schema.Fields` cannot be widened where `Schema` is declared. The generator instead
-nests `private sealed class Schema : global::Waystone.Monads.Schemas.Schema` inside
-the consumer's own partial class and puts the overloads there. Static members are
-inherited in C#, so `Schema.Text` and `Schema.Required` still resolve through it
-unchanged, and the generator forwards nothing — a primitive added to the runtime
-later needs no generator change.
+**Two spellings reach the ladder, and the unqualified one is preferred.** `Fields(...)`
+is served by a `private static` method emitted onto the schema class.
+`Schema.Fields(...)` is served by a nested
+`private sealed class Schema : global::Waystone.Monads.Schemas.Schema`, emitted only
+for the arities called that way — a generator cannot add an overload to a type in
+another assembly. Static members are inherited in C#, so `Schema.Text` still resolves
+through the nested class, and Rider reports every such call as
+`AccessToStaticMemberViaDerivedType` (GitHub #304). That is why the unqualified
+spelling exists. `Schema.Fields` stays until the next major; the runtime `Schema`
+stays `abstract` until then because the nested class derives from it.
 
-**The arity is read syntactically, and it has to be.** `Schema.Fields` is the member
-being generated, so it binds to nothing while the generator is deciding whether to
+**`Combine` is emitted into each `FieldSet`, not onto the schema class.** A member
+there would be one more name taken from the consumer, and the nested `Schema` that
+once held it is absent wherever every call is unqualified.
+
+**The arity is read syntactically, and it has to be.** `Fields` is the member being
+generated, so it binds to nothing while the generator is deciding whether to
 generate it. Everything else about the chain binds normally, which is why
 `WMSC0005` can ask what a `Refine` argument actually yields.
 
-**Reading it syntactically means the receiver is matched on its last name.** Both
-`Schema.Fields(...)` and `OrderSchema.Schema.Fields(...)` reach the ladder; anything
-else — an unqualified `Fields(...)`, `this.Fields(...)`, a receiver of another name —
-does not, and gets `WMSC0007` saying so. **That rule fires only where the call binds
-to nothing**, which is what keeps it off a consumer's own method named `Fields`. It
-is the one warning here about code that does not compile: the compiler already
-reports the missing member, and this adds the reason.
+**An unqualified call is served only where `LookupSymbols` finds no `Fields` in
+scope.** Binding the call cannot decide it: a property or nested type called `Fields`
+leaves no candidate symbol behind, and emitting a method beside it is a duplicate
+member. `LookupSymbols` also sees inherited members and those of enclosing types,
+which `GetMembers` does not.
+
+**A qualified receiver is matched on its last name.** Both `Schema.Fields(...)` and
+`OrderSchema.Schema.Fields(...)` reach the ladder; `this.Fields(...)` or a receiver of
+another name does not, and gets `WMSC0007` saying so. **That rule fires only where
+the call binds to nothing**, which is what keeps it off a consumer's own method named
+`Fields`. It is the one warning here about code that does not compile: the compiler
+already reports the missing member, and this adds the reason.
 
 A consumer who writes `using Schema = Something;` is outside all of it: the call
 matches by name, so a ladder is generated and nothing is reported, and the alias

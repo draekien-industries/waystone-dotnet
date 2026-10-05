@@ -494,6 +494,57 @@ public sealed class SchemaGeneratorTests
     }
 
     /// <summary>
+    /// An unqualified <c>Fields</c> call is served without a nested <c>Schema</c>, so
+    /// that name is never written and a member of it collides with nothing.
+    /// </summary>
+    [Fact]
+    public void ASchemaWithOnlyUnqualifiedCallsMayKeepAMemberCalledSchema()
+    {
+        GeneratorRun run = Verify.Run(
+            $$"""
+                  public partial class GreetingSchema : SchemaConfig<string, string>
+                  {
+                      private const string Schema = "greeting";
+
+                      protected override Result<string, SchemaViolation> Configure(string subject) =>
+                          Fields(Required(subject, Text)).Into(a => a);
+
+                      private static Field<string> Required(string value, Schema<string, string> schema) =>
+                          global::Waystone.Monads.Schemas.Schema.Required(value, schema);
+
+                      private static Schema<string, string> Text =>
+                          global::Waystone.Monads.Schemas.Schema.Text;
+                  }
+              """);
+
+        run.Generated[0].ShouldContain("private readonly struct FieldSet<T1>");
+        run.DiagnosticIds.ShouldBeEmpty();
+        run.CompilationDiagnostics.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void ASchemaWithOnlyUnqualifiedCallsDeclaringFieldSetIsReported()
+    {
+        GeneratorRun run = Verify.Run(
+            $$"""
+                  public partial class GreetingSchema : SchemaConfig<string, string>
+                  {
+                      private readonly struct FieldSet { }
+
+                      protected override Result<string, SchemaViolation> Configure(string subject) =>
+                          Fields(Schema.Required(subject, Schema.Text)).Into(a => a);
+                  }
+              """);
+
+        run.Generated.ShouldBeEmpty();
+
+        run.GeneratorDiagnostics
+           .Single(diagnostic => diagnostic.Id == "WMSC0003")
+           .GetMessage()
+           .ShouldContain("already declares a member named 'FieldSet'");
+    }
+
+    /// <summary>
     /// Running the same driver twice over separately parsed but identical sources
     /// makes Roslyn compare the pipeline's cached values, which is the only thing
     /// that exercises their equality.

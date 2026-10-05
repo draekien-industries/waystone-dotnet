@@ -375,12 +375,129 @@ public sealed class LadderGeneratorTests
         run.DiagnosticIds.ShouldBeEmpty();
     }
 
+    /// <summary>
+    /// The unqualified spelling is served by a method on the schema class itself, so
+    /// <c>Schema</c> keeps binding to the library's own type and nothing is reached
+    /// through a class derived from it.
+    /// </summary>
+    [Fact]
+    public void AnUnqualifiedFieldsCallGetsAMethodOnTheSchemaAndNoNestedSchema()
+    {
+        GeneratorRun run = Verify.Run(
+            Configuring("Fields(Schema.Required(subject, Schema.Text)).Into(a => a);"));
+
+        run.Generated[0].ShouldContain("    private static FieldSet<T1> Fields<T1>(");
+        run.Generated[0].ShouldContain("private readonly struct FieldSet<T1>");
+        run.Generated[0].ShouldNotContain("class Schema");
+        run.DiagnosticIds.ShouldBeEmpty();
+        run.CompilationDiagnostics.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// Each spelling is served at the arities it is called with, and a <c>FieldSet</c>
+    /// both of them reach is emitted once.
+    /// </summary>
+    [Fact]
+    public void BothSpellingsInOneSchemaEachGetTheirOwnArities()
+    {
+        GeneratorRun run = Verify.Run(
+            Configuring(
+                """
+                subject.Length > 0
+                            ? Fields(Schema.Required(subject, Schema.Text)).Into(a => a)
+                            : subject.Length < 0
+                                ? Schema.Fields(Schema.Required(subject, Schema.Text)).Into(a => a)
+                                : Schema.Fields(Schema.Required(subject, Schema.Text), Schema.Required(subject, Schema.Text)).Into((a, b) => a + b);
+                """));
+
+        string generated = run.Generated[0];
+
+        generated.ShouldContain("private static FieldSet<T1> Fields<T1>(");
+        generated.ShouldNotContain("private static FieldSet<T1, T2> Fields<T1, T2>(");
+        generated.ShouldContain("public static FieldSet<T1> Fields<T1>(");
+        generated.ShouldContain("public static FieldSet<T1, T2> Fields<T1, T2>(");
+
+        generated.Split(
+                      ["private readonly struct FieldSet<T1>"],
+                      StringSplitOptions.None)
+                 .Length.ShouldBe(2);
+
+        run.CompilationDiagnostics.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void AnUnqualifiedIntoLambdaOfTheWrongArityIsReported() =>
+        Verify.Run(
+                   Configuring(
+                       "Fields(Schema.Required(subject, Schema.Text), Schema.Required(subject, Schema.Text)).Into(a => a);"))
+              .DiagnosticIds.ShouldBe(["WMSC0004"]);
+
+    [Fact]
+    public void AnUnqualifiedFieldsWithNoArgumentsEmitsNoLadder()
+    {
+        GeneratorRun run =
+            Verify.Run(Configuring("Fields().Into(() => subject);"));
+
+        run.Generated[0].ShouldNotContain("FieldSet");
+        run.DiagnosticIds.ShouldBeEmpty();
+    }
+
+    public static TheoryData<string> OwnFieldsMembers() =>
+        new()
+        {
+            "static string Fields(Field<string> field) => string.Empty;",
+            "static int Fields => 0;",
+            "sealed class Fields { }",
+        };
+
+    /// <summary>
+    /// A call that binds, or fails to bind against a member of the schema's own, is
+    /// that member's call. Emitting a method beside it would be a duplicate member.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(OwnFieldsMembers))]
+    public void AnUnqualifiedCallToTheSchemasOwnFieldsIsLeftAlone(string member)
+    {
+        GeneratorRun run = Verify.Run(
+            Configuring(
+                "Fields(Schema.Required(subject, Schema.Text)) is null ? Schema.Text.Parse(subject) : Schema.Text.Parse(subject);")
+          + "\n\n    " + member);
+
+        run.Generated[0].ShouldNotContain("FieldSet");
+        run.DiagnosticIds.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// A member the schema inherits is as much in the way as one it declares, and
+    /// the schema's own members never list it.
+    /// </summary>
+    [Fact]
+    public void AnUnqualifiedCallToAnInheritedFieldsIsLeftAlone()
+    {
+        GeneratorRun run = Verify.Run(
+            """
+            public abstract class GreetingBase : SchemaConfig<string, string>
+            {
+                protected static int Fields => 0;
+            }
+
+            public partial class GreetingSchema : GreetingBase
+            {
+                protected override Result<string, SchemaViolation> Configure(string subject) =>
+                    Fields(Schema.Required(subject, Schema.Text)).Into(a => a);
+            }
+            """);
+
+        run.Generated[0].ShouldNotContain("FieldSet");
+        run.DiagnosticIds.ShouldBeEmpty();
+    }
+
     public static TheoryData<string> UnrecognisedSpellings() =>
         new()
         {
-            "Fields(Schema.Required(subject, Schema.Text)).Into(a => a);",
             "this.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);",
             "subject.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);",
+            "GreetingSchema.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);",
         };
 
     /// <summary>
@@ -403,9 +520,9 @@ public sealed class LadderGeneratorTests
     public void AnUnrecognisedFieldsCallIsNamedAsTheAuthorSpeltIt() =>
         Verify.Run(
                    Configuring(
-                       "Fields(Schema.Required(subject, Schema.Text)).Into(a => a);"))
+                       "this.Fields(Schema.Required(subject, Schema.Text)).Into(a => a);"))
               .GeneratorDiagnostics.Single()
               .GetMessage()
-              .ShouldStartWith(
-                   "'GreetingSchema' spells its field-set call 'Fields'");
+              .ShouldBe(
+                   "'GreetingSchema' spells its field-set call 'this.Fields', which the generator matches by name rather than by binding it, so no ladder was generated; write 'Fields(...)' with no receiver, or 'Schema.Fields(...)'");
 }
