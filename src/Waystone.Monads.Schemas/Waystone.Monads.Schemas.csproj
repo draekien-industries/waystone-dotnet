@@ -60,7 +60,7 @@
             Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <ItemGroup>
             <TfmSpecificPackageFile Include="@(Analyzer)"
-                                    Condition="'%(Filename)' == 'Waystone.Monads.Schemas.SourceGenerators'"
+                                    Condition="'%(Filename)' == 'Waystone.Monads.Schemas.SourceGenerators' or '%(Filename)' == 'Waystone.Monads.Schemas.SourceGenerators.CodeFixes'"
                                     PackagePath="analyzers/dotnet/cs"/>
         </ItemGroup>
     </Target>

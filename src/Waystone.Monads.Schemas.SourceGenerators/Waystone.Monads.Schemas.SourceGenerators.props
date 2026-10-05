@@ -3,5 +3,8 @@
         <ProjectReference Include="$(MSBuildThisFileDirectory)Waystone.Monads.Schemas.SourceGenerators.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Waystone.Monads.Schemas.SourceGenerators.CodeFixes\Waystone.Monads.Schemas.SourceGenerators.CodeFixes.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
     </ItemGroup>
 </Project>

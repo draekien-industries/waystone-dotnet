@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Shouldly;
@@ -51,19 +55,11 @@ internal static class Verify
     {
         CSharpCompilation compilation = Compile(sources, language);
 
-        GeneratorDriver driver =
-            CSharpGeneratorDriver.Create(
-                                      [
-                                          new SchemaGenerator()
-                                             .AsSourceGenerator(),
-                                      ],
-                                      parseOptions: new CSharpParseOptions(
-                                          language))
-                                 .RunGeneratorsAndUpdateCompilation(
-                                      compilation,
-                                      out Compilation output,
-                                      out ImmutableArray<Diagnostic>
-                                          generatorDiagnostics);
+        GeneratorDriver driver = Drive(
+            compilation,
+            language,
+            out Compilation output,
+            out ImmutableArray<Diagnostic> generatorDiagnostics);
 
         GeneratorDriverRunResult result = driver.GetRunResult();
 
@@ -119,6 +115,129 @@ internal static class Verify
            .GetAnalyzerDiagnosticsAsync()
            .GetAwaiter()
            .GetResult();
+
+    /// <summary>
+    /// Runs an analyzer over <paramref name="source" /> after the generator has run
+    /// over it, for a rule about a call that binds only to a generated member.
+    /// </summary>
+    public static ImmutableArray<Diagnostic> AnalyzeGenerated(
+        DiagnosticAnalyzer analyzer,
+        string source) =>
+        Generate(Preamble + source + Postscript)
+           .WithAnalyzers(ImmutableArray.Create(analyzer))
+           .GetAnalyzerDiagnosticsAsync()
+           .GetAwaiter()
+           .GetResult();
+
+    /// <summary>
+    /// Fixes every diagnostic the analyzer reports in <paramref name="source" />
+    /// through the provider's own fix-all, and returns the subject as it reads
+    /// afterwards.
+    /// </summary>
+    /// <remarks>
+    /// Hand-built rather than <c>CSharpCodeFixTest</c>, which the other analyzer
+    /// projects use: the call being fixed binds only to generated output, so the
+    /// generated files are added to the workspace as ordinary documents.
+    /// </remarks>
+    public static async Task<string> FixAsync(
+        DiagnosticAnalyzer analyzer,
+        CodeFixProvider provider,
+        string source)
+    {
+        string text = Preamble + source + Postscript;
+        Compilation generated = Generate(text);
+
+        using var workspace = new AdhocWorkspace();
+
+        Project project = workspace
+                         .AddProject("Subject", LanguageNames.CSharp)
+                         .WithCompilationOptions(generated.Options)
+                         .WithParseOptions(
+                              generated.SyntaxTrees.First().Options)
+                         .AddMetadataReferences(generated.References);
+
+        foreach (SyntaxTree tree in generated.SyntaxTrees.Skip(1))
+        {
+            project = project.AddDocument(tree.FilePath, tree.GetText())
+                             .Project;
+        }
+
+        Document document = project.AddDocument("Subject.cs", text);
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await (await document.Project.GetCompilationAsync())!
+                 .WithAnalyzers(ImmutableArray.Create(analyzer))
+                 .GetAnalyzerDiagnosticsAsync();
+
+        CodeAction fix = (await provider.GetFixAllProvider()!
+                                        .GetFixAsync(
+                                             new FixAllContext(
+                                                 document,
+                                                 provider,
+                                                 FixAllScope.Document,
+                                                 provider.GetType().Name,
+                                                 provider.FixableDiagnosticIds,
+                                                 new FixedDiagnostics(diagnostics),
+                                                 CancellationToken.None)))!;
+
+        Solution solution =
+            (await fix.GetOperationsAsync(CancellationToken.None))
+           .OfType<ApplyChangesOperation>()
+           .Single()
+           .ChangedSolution;
+
+        string fixedText =
+            (await solution.GetDocument(document.Id)!.GetTextAsync()).ToString();
+
+        return fixedText.Substring(
+            Preamble.Length,
+            fixedText.Length - Preamble.Length - Postscript.Length);
+    }
+
+    private static Compilation Generate(string source)
+    {
+        Drive(Compile([source]), LanguageVersion.Latest, out Compilation output, out _);
+
+        return output;
+    }
+
+    private static GeneratorDriver Drive(
+        Compilation compilation,
+        LanguageVersion language,
+        out Compilation output,
+        out ImmutableArray<Diagnostic> diagnostics) =>
+        CSharpGeneratorDriver.Create(
+                                  [new SchemaGenerator().AsSourceGenerator()],
+                                  parseOptions: new CSharpParseOptions(language))
+                             .RunGeneratorsAndUpdateCompilation(
+                                  compilation,
+                                  out output,
+                                  out diagnostics);
+
+    /// <summary>Hands fix-all the diagnostics already computed for the document.</summary>
+    private sealed class FixedDiagnostics(ImmutableArray<Diagnostic> diagnostics)
+        : FixAllContext.DiagnosticProvider
+    {
+        public override async Task<IEnumerable<Diagnostic>>
+            GetDocumentDiagnosticsAsync(
+                Document document,
+                CancellationToken cancellationToken)
+        {
+            SyntaxTree tree = (await document.GetSyntaxTreeAsync(cancellationToken))!;
+
+            return diagnostics.Where(found => found.Location.SourceTree == tree);
+        }
+
+        public override Task<IEnumerable<Diagnostic>> GetProjectDiagnosticsAsync(
+            Project project,
+            CancellationToken cancellationToken) =>
+            Task.FromResult(Enumerable.Empty<Diagnostic>());
+
+        public override Task<IEnumerable<Diagnostic>> GetAllDiagnosticsAsync(
+            Project project,
+            CancellationToken cancellationToken) =>
+            Task.FromResult(Enumerable.Empty<Diagnostic>());
+    }
 
     /// <summary>
     /// Runs one driver over two identical but separately parsed compilations. The
